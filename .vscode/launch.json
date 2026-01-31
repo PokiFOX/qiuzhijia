@@ -1,0 +1,40 @@
+{
+	// 使用 IntelliSense 了解相关属性。 
+	// 悬停以查看现有属性的描述。
+	// 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "frontend",
+			"type": "dart",
+			"request": "launch",
+			"program": "${workspaceFolder}/frontend/lib/main.dart",
+			"cwd": "${workspaceFolder}/frontend",
+			"args": [
+				"--web-browser-flag", "--disable-web-security",
+				"--web-renderer",
+				"html",
+			],
+		},
+		{
+			"name":  "config",
+			"type":  "debugpy",
+			"request":  "launch",
+			"program": "${workspaceFolder}/config/parse.py",
+			"cwd": "${workspaceFolder}/config",
+		},
+		{
+			"name":  "backend",
+			"type":  "debugpy",
+			"request":  "launch",
+			"module": "uvicorn",
+			"args": [
+				"main:app",
+				"--host", "127.0.0.1",
+				"--port", "8000",
+				"--reload"
+			],
+			"cwd": "${workspaceFolder}/backend",
+		},
+	]
+}

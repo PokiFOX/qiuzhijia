@@ -1,2 +1,0 @@
-# qiuzhijia
-qiuzhijia
