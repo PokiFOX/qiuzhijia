@@ -24,14 +24,11 @@ class InfoState extends State<InfoWidget> with tapah.Callback {
 		super.deactivate();
 	}
 
-	@override
 	Widget build(BuildContext context) {
 		return SingleChildScrollView(
 			scrollDirection: Axis.vertical,
-			child: Column(
-				mainAxisAlignment: MainAxisAlignment.start,
-				children: [
-				],
+			child: Container(
+				child: Text("深度解读"),
 			),
 		);
 	}

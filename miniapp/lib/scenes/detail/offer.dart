@@ -24,14 +24,11 @@ class OfferState extends State<OfferWidget> with tapah.Callback {
 		super.deactivate();
 	}
 
-	@override
 	Widget build(BuildContext context) {
 		return SingleChildScrollView(
 			scrollDirection: Axis.vertical,
-			child: Column(
-				mainAxisAlignment: MainAxisAlignment.start,
-				children: [
-				],
+			child: Container(
+				child: Text("招聘资讯"),
 			),
 		);
 	}

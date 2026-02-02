@@ -24,14 +24,57 @@ class SectorState extends State<SectorWidget> with tapah.Callback {
 		super.deactivate();
 	}
 
-	@override
 	Widget build(BuildContext context) {
 		return SingleChildScrollView(
 			scrollDirection: Axis.vertical,
+			child: Container(
+				child: buildInfo(),
+			),
+		);
+	}
+
+	Widget buildInfo() {
+		return Padding(
+			padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
 			child: Column(
-				mainAxisAlignment: MainAxisAlignment.start,
-				children: [
-				],
+				children: widget.enterprise.fields.map<Widget>((f) => Container(
+					width: double.infinity,
+					margin: EdgeInsets.only(bottom: 6),
+					padding: EdgeInsets.all(10),
+					decoration: BoxDecoration(
+						color: Colors.grey[200],
+						borderRadius: BorderRadius.circular(8),
+					),
+					child: Column(
+						mainAxisAlignment: MainAxisAlignment.start,
+						crossAxisAlignment: CrossAxisAlignment.start,
+						children: [
+							Text(f.value, style: TextStyle(fontSize: 14,),),
+							const SizedBox(height: 5,),
+							Container(
+								decoration: BoxDecoration(
+									color: Colors.white,
+								),
+								child: Padding(
+									padding: EdgeInsets.all(5),
+									child: Row(
+										children: [
+											Column(
+												mainAxisAlignment: MainAxisAlignment.start,
+												crossAxisAlignment: CrossAxisAlignment.start,
+												children: [
+													Text("学科门类:"),
+													Text("专业热门度:"),
+													Text("专业介绍"),
+												],
+											),
+										],
+									),
+								),
+							),
+						],
+					),
+				)).toList(),
 			),
 		);
 	}

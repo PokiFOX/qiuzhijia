@@ -2,8 +2,8 @@ import json
 import os
 import shutil
 
-shutil.copyfile('./main.wechat', 'frontend/lib/main.dart')
-os.chdir('frontend')
+shutil.copyfile('./main.wechat', 'miniapp/lib/main.dart')
+os.chdir('miniapp')
 os.system('dart scripts/build_wechat.dart')
 
 with open('build/wechat/app.json', 'r') as f:
@@ -29,4 +29,4 @@ with open('build/wechat/pages/index/index.json', 'w') as f:
 	f.write(json.dumps(indexdata, ensure_ascii = False, indent = '\t'))
 
 os.chdir('..')
-shutil.copyfile('./main.web', 'frontend/lib/main.dart')
+shutil.copyfile('./main.web', 'miniapp/lib/main.dart')

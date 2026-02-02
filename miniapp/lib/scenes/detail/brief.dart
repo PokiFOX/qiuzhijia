@@ -1,3 +1,4 @@
+import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 
@@ -166,11 +167,13 @@ class BriefState extends State<BriefWidget> with tapah.Callback {
 					buildRow("公司官网:", widget.enterprise.website1 ?? '', "点击复制", () {
 						if (widget.enterprise.website2 != null) {
 							Clipboard.setData(ClipboardData(text: widget.enterprise.website2!));
+							BotToast.showText(text: "已复制到剪贴板");
 						}
 					}),
 					buildRow("招聘官网:", widget.enterprise.website2 ?? '', "点击复制", () {
 						if (widget.enterprise.website2 != null) {
 							Clipboard.setData(ClipboardData(text: widget.enterprise.website2!));
+							BotToast.showText(text: "已复制到剪贴板");
 						}
 					}),
 				],
