@@ -21,7 +21,7 @@ class HomeState extends State<HomeWidget> with tapah.Callback {
 	@override
 	void initState() {
 		super.initState();
-		initCallback(tapah.SceneID.home, widget.key!);
+		initCallback(tapah.SceneID.mp_home, widget.key!);
 		topimagecontroller = PageController();
 		startTopImagePlay();
 	}

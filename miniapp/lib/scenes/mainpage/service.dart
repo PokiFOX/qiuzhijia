@@ -14,7 +14,7 @@ class ServiceState extends State<ServiceWidget> with tapah.Callback {
 	@override
 	void initState() {
 		super.initState();
-		initCallback(tapah.SceneID.service, widget.key!);
+		initCallback(tapah.SceneID.mp_service, widget.key!);
 	}
 
 	@override

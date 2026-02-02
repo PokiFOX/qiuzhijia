@@ -5,11 +5,11 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
-			"name": "frontend",
+			"name": "miniapp",
 			"type": "dart",
 			"request": "launch",
-			"program": "${workspaceFolder}/frontend/lib/main.dart",
-			"cwd": "${workspaceFolder}/frontend",
+			"program": "${workspaceFolder}/miniapp/lib/main.dart",
+			"cwd": "${workspaceFolder}/miniapp",
 			"args": [
 				"--web-browser-flag", "--disable-web-security",
 				"--web-renderer",

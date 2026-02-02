@@ -4,11 +4,11 @@ import 'package:qiuzhijia/tapah/class.dart' as tapah;
 import 'package:qiuzhijia/tapah/data.dart' as tapah;
 import 'package:qiuzhijia/tapah/enum.dart' as tapah;
 
-import 'package:qiuzhijia/scenes/home.dart' as scenes;
-import 'package:qiuzhijia/scenes/enterprise.dart' as scenes;
-import 'package:qiuzhijia/scenes/offer.dart' as scenes;
-import 'package:qiuzhijia/scenes/service.dart' as scenes;
-import 'package:qiuzhijia/scenes/profile.dart' as scenes;
+import 'package:qiuzhijia/scenes/mainpage/home.dart' as scenes;
+import 'package:qiuzhijia/scenes/mainpage/enterprise.dart' as scenes;
+import 'package:qiuzhijia/scenes/mainpage/offer.dart' as scenes;
+import 'package:qiuzhijia/scenes/mainpage/service.dart' as scenes;
+import 'package:qiuzhijia/scenes/mainpage/profile.dart' as scenes;
 
 class MainPageWidget extends StatefulWidget {
 	const MainPageWidget({super.key});
@@ -40,11 +40,11 @@ class MainPageState extends State<MainPageWidget> with tapah.Callback {
 				child: IndexedStack(
 					index: currentindex,
 					children: [
-						activated[0] ? scenes.HomeWidget(key: tapah.keyHome,) : Container(),
-						activated[1] ? scenes.EnterpriseWidget(key: tapah.keyEnterprise,) : Container(),
-						activated[2] ? scenes.OfferWidget(key: tapah.keyOffer,) : Container(),
-						activated[3] ? scenes.ServiceWidget(key: tapah.keyService,) : Container(),
-						activated[4] ? scenes.ProfileWidget(key: tapah.keyProfile,) : Container(),
+						activated[0] ? scenes.HomeWidget(key: tapah.keyMPHome,) : Container(),
+						activated[1] ? scenes.EnterpriseWidget(key: tapah.keyMPEntprise,) : Container(),
+						activated[2] ? scenes.OfferWidget(key: tapah.keyMPOffer,) : Container(),
+						activated[3] ? scenes.ServiceWidget(key: tapah.keyMPService,) : Container(),
+						activated[4] ? scenes.ProfileWidget(key: tapah.keyMPProfile,) : Container(),
 					],
 				),
 			),

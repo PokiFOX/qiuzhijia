@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
 
 import 'package:qiuzhijia/tapah/class.dart' as tapah;
+import 'package:qiuzhijia/tapah/data.dart' as tapah;
 import 'package:qiuzhijia/tapah/enum.dart' as tapah;
 import 'package:qiuzhijia/tapah/function.dart' as tapah;
 import 'package:qiuzhijia/tapah/option.dart' as tapah;
+
+import 'package:qiuzhijia/scenes/detail/brief.dart' as scenes;
+import 'package:qiuzhijia/scenes/detail/sector.dart' as scenes;
+import 'package:qiuzhijia/scenes/detail/info.dart' as scenes;
+import 'package:qiuzhijia/scenes/detail/offer.dart' as scenes;
+import 'package:qiuzhijia/scenes/detail/example.dart' as scenes;
 
 class DetailWidget extends StatefulWidget {
 	const DetailWidget({super.key});
@@ -45,12 +52,68 @@ class DetailState extends State<DetailWidget> with tapah.Callback {
 					child: Container(
 						child: Column(
 							children: [
+								const SizedBox(height: 10),
 								buildTopImage(),
 								const SizedBox(height: 10),
 								buildInfoSection(),
+								const SizedBox(height: 10),
+								buildInfoView(),
+								const SizedBox(height: 10),
 							],
 						),
 					),
+				),
+			),
+			bottomNavigationBar: Container(
+				height: 60,
+				decoration: BoxDecoration(
+					color: Colors.white,
+					border: Border(top: BorderSide(color: Colors.grey.shade200)),
+				),
+				child: Row(
+					mainAxisAlignment: MainAxisAlignment.spaceAround,
+					children: [
+						InkWell(
+							onTap: () {
+							},
+							child: Icon(Icons.home, color:Colors.black),
+						),
+						InkWell(
+							onTap: () {
+							},
+							child: Icon(Icons.share, color: Colors.black),
+						),
+						GestureDetector(
+							onTap: () {
+							},
+							child: Container(
+								width: 75,
+								height: 30,
+								decoration: BoxDecoration(
+									color: Colors.blue,
+									borderRadius: BorderRadius.circular(15),
+								),
+								child: Center(
+									child: Text("在线咨询"),
+								),
+							),
+						),
+						GestureDetector(
+							onTap: () {
+							},
+							child: Container(
+								width: 75,
+								height: 30,
+								decoration: BoxDecoration(
+									color: Colors.orange,
+									borderRadius: BorderRadius.circular(15),
+								),
+								child: Center(
+									child: Text("电话咨询"),
+								),
+							),
+						),
+					],
 				),
 			),
 		);
@@ -172,5 +235,22 @@ class DetailState extends State<DetailWidget> with tapah.Callback {
 				const SizedBox(width: 10),
 			],
 		);
+	}
+
+	Widget buildInfoView() {
+		switch (fenyeindex) {
+			case 0:
+				return scenes.BriefWidget(key: tapah.keyDTBrief, enterprise: enterprise);
+			case 1:
+				return scenes.SectorWidget(key: tapah.keyDTSector, enterprise: enterprise);
+			case 2:
+				return scenes.InfoWidget(key: tapah.keyDTInfo, enterprise: enterprise);
+			case 3:
+				return scenes.OfferWidget(key: tapah.keyDTOffer, enterprise: enterprise);
+			case 4:
+				return scenes.ExampleWidget(key: tapah.keyDTExample, enterprise: enterprise);
+			default:
+				return Container();
+		}
 	}
 }

@@ -18,7 +18,7 @@ class EnterpriseState extends State<EnterpriseWidget> with tapah.Callback {
 	@override
 	void initState() {
 		super.initState();
-		initCallback(tapah.SceneID.enterprise, widget.key!);
+		initCallback(tapah.SceneID.mp_enterprise, widget.key!);
 		getEnterpriseList();
 	}
 

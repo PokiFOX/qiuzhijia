@@ -14,7 +14,7 @@ class ProfileState extends State<ProfileWidget> with tapah.Callback {
 	@override
 	void initState() {
 		super.initState();
-		initCallback(tapah.SceneID.profile, widget.key!);
+		initCallback(tapah.SceneID.mp_profile, widget.key!);
 	}
 
 	@override
