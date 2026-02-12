@@ -50,35 +50,40 @@ async def insert_enterprise(req: Request):
 		cursor.close()
 		data.mysql_pool.release(conn)
 		return JSONResponse(content = {"status": "exists"})
+
 	cursor.execute("SELECT id FROM qzj_zone WHERE zone=%s", (zone,))
 	result = cursor.fetchone()
 	if result is None:
 		cursor.close()
 		data.mysql_pool.release(conn)
-		return JSONResponse(content = {"status": "zone_not_found"})
+		return JSONResponse(content = {"status": f"zone_not_found: {zone}"})
+
 	zone_id = result[0]
 	cursor.execute("SELECT id FROM qzj_level WHERE level=%s", (level,))
 	result = cursor.fetchone()
 	if result is None:
 		cursor.close()
 		data.mysql_pool.release(conn)
-		return JSONResponse(content = {"status": "level_not_found"})
+		return JSONResponse(content = {"status": f"level_not_found: {level}"})
+
 	level_id = result[0]
 	cursor.execute("SELECT id FROM qzj_sector WHERE sector=%s", (sector,))
 	result = cursor.fetchone()
 	if result is None:
 		cursor.close()
 		data.mysql_pool.release(conn)
-		return JSONResponse(content = {"status": "sector_not_found"})
+		return JSONResponse(content = {"status": f"sector_not_found: {sector}"})
+
 	sector_id = result[0]
 	fieldlist = []
 	for f in field.split("；"):
+		if f.strip() == "": continue
 		cursor.execute("SELECT id FROM qzj_field WHERE field=%s", (f.strip(),))
 		result = cursor.fetchone()
 		if result is None:
 			cursor.close()
 			data.mysql_pool.release(conn)
-			return JSONResponse(content = {"status": "field_not_found", "field": f})
+			return JSONResponse(content = {"status": f"field_not_found: {f}"})
 		fieldlist.append(result[0])
 
 	cursor.execute(
@@ -88,7 +93,7 @@ async def insert_enterprise(req: Request):
 	enterprise_id = cursor.lastrowid
 	for fid in fieldlist:
 		cursor.execute(
-			"INSERT INTO qzj_enterprise_field (enterprise_id, field) VALUES (%s, %s)",
+			"INSERT IGNORE INTO qzj_enterprise_field (enterprise_id, field) VALUES (%s, %s)",
 			(enterprise_id, fid)
 		)
 
@@ -256,3 +261,63 @@ async def query_enterprise(req: Request):
 			"enterpriselist": enterpriselist},
 		}
 	)
+
+@app.post("/set_zone")
+async def set_zone(req: Request):
+	json = await req.json()
+	zone_list = json
+
+	conn = data.mysql_pool.apply()
+	cursor = conn.cursor()
+
+	for zone in zone_list:
+		cursor.execute("INSERT IGNORE INTO qzj_zone (zone) VALUES (%s)", (zone,))
+
+	cursor.close()
+	data.mysql_pool.release(conn)
+	return JSONResponse(content = {"status": "success"})
+
+@app.post("/set_level")
+async def set_level(req: Request):
+	json = await req.json()
+	level_list = json
+
+	conn = data.mysql_pool.apply()
+	cursor = conn.cursor()
+
+	for level in level_list:
+		cursor.execute("INSERT IGNORE INTO qzj_level (level) VALUES (%s)", (level,))
+
+	cursor.close()
+	data.mysql_pool.release(conn)
+	return JSONResponse(content = {"status": "success"})
+
+@app.post("/set_sector")
+async def set_sector(req: Request):
+	json = await req.json()
+	sector_list = json
+
+	conn = data.mysql_pool.apply()
+	cursor = conn.cursor()
+
+	for sector in sector_list:
+		cursor.execute("INSERT IGNORE INTO qzj_sector (sector) VALUES (%s)", (sector,))
+
+	cursor.close()
+	data.mysql_pool.release(conn)
+	return JSONResponse(content = {"status": "success"})
+
+@app.post("/set_field")
+async def set_field(req: Request):
+	json = await req.json()
+	field_list = json
+
+	conn = data.mysql_pool.apply()
+	cursor = conn.cursor()
+
+	for field in field_list:
+		cursor.execute("INSERT IGNORE INTO qzj_field (field) VALUES (%s)", (field,))
+
+	cursor.close()
+	data.mysql_pool.release(conn)
+	return JSONResponse(content = {"status": "success"})
