@@ -40,8 +40,17 @@ for i in range(1, globalpage.max_column + 1):
 field = []
 
 for i in range(2, wb['学科列表'].max_row + 1):
-	cell_value = function.getcell_str(wb['学科列表'], i, 1)
-	if cell_value == "": continue
+	name = function.getcell_str(wb['学科列表'], i, 1)
+	if name == "": continue
+	sector = function.getcell_str(wb['学科列表'], i, 2)
+	star = function.getcell_int(wb['学科列表'], i, 3)
+	content = function.getcell_str(wb['学科列表'], i, 4)
+	cell_value = {
+		"name": name,
+		"sector": sector,
+		"star": star,
+		"content": content,
+	}
 	field.append(cell_value)
 
 try:

@@ -67,14 +67,15 @@ async def insert_enterprise(req: Request):
 		return JSONResponse(content = {"status": f"level_not_found: {level}"})
 
 	level_id = result[0]
+
 	cursor.execute("SELECT id FROM qzj_sector WHERE sector=%s", (sector,))
 	result = cursor.fetchone()
 	if result is None:
 		cursor.close()
 		data.mysql_pool.release(conn)
 		return JSONResponse(content = {"status": f"sector_not_found: {sector}"})
-
 	sector_id = result[0]
+
 	fieldlist = []
 	for f in field.split("；"):
 		if f.strip() == "": continue
@@ -162,22 +163,30 @@ async def query_fieldlist(req: Request):
 
 	cursor.execute("SELECT * FROM qzj_field")
 	result = cursor.fetchall()
-	fieldlist = {row[0]: row[1] for row in result}
+	fieldlist = []
+	for row in result:
+		fieldlist.append({
+			"id": row[0],
+			"name": row[1],
+			"sector": row[2],
+			"star": row[3],
+			"content": row[4],
+		})
 
 	cursor.close()
 	data.mysql_pool.release(conn)
 	return JSONResponse(content = {
 		"code": 0,
 		"data": {
-			"fieldlist": fieldlist},
-		}
-	)
+			"fieldlist": fieldlist,
+		},
+	})
 
 @app.post("/query_enterprise")
 async def query_enterprise(req: Request):
 	json = await req.json()
 	zone_id = json.get("zone")
-	level_id = json.get("level")
+	levels = json.get("levels")
 	sector_id = json.get("sector")
 
 	conn = data.mysql_pool.apply()
@@ -193,16 +202,17 @@ async def query_enterprise(req: Request):
 				"code": 1,
 				"status": "zone_not_found",
 			})
-	if level_id != 0:
-		cursor.execute("SELECT id FROM qzj_level WHERE level=%s", (level_id,))
-		result = cursor.fetchall()
-		if result is None:
-			cursor.close()
-			data.mysql_pool.release(conn)
-			return JSONResponse(content = {
-			"code": 1,
-			"status": "level_not_found",
-		})
+	if len(levels) != 0:
+		for level in levels:
+			cursor.execute("SELECT id FROM qzj_level WHERE level=%s", (level,))
+			result = cursor.fetchall()
+			if result is None:
+				cursor.close()
+				data.mysql_pool.release(conn)
+				return JSONResponse(content = {
+				"code": 1,
+				"status": "level_not_found",
+			})
 	if sector_id != 0:
 		cursor.execute("SELECT id FROM qzj_sector WHERE sector=%s", (sector_id,))
 		result = cursor.fetchall()
@@ -219,9 +229,9 @@ async def query_enterprise(req: Request):
 	if zone_id != 0:
 		conds.append("zone=%s")
 		params.append(zone_id)
-	if level_id != 0:
-		conds.append("level=%s")
-		params.append(level_id)
+	if len(levels) != 0:
+		conds.append(f"level IN ({','.join(['%s'] * len(levels))})")
+		params.extend(levels)
 	if sector_id != 0:
 		conds.append("sector=%s")
 		params.append(sector_id)
@@ -245,8 +255,8 @@ async def query_enterprise(req: Request):
 			"name": row[3],
 			"brief": row[4],
 			"upper": row[5],
-			"level": row[6],
-			"sector": row[7],
+			"level": row[7],
+			"sector": row[6],
 			"field": fieldnames,
 			"tag": row[8],
 			"website1": row[9],
@@ -316,7 +326,7 @@ async def set_field(req: Request):
 	cursor = conn.cursor()
 
 	for field in field_list:
-		cursor.execute("INSERT IGNORE INTO qzj_field (field) VALUES (%s)", (field,))
+		cursor.execute("INSERT IGNORE INTO qzj_field (field, sector, star, content) VALUES (%s,%s,%s,%s)", (field['name'], field['sector'], field['star'], field['content']))
 
 	cursor.close()
 	data.mysql_pool.release(conn)

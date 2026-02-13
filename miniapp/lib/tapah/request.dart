@@ -46,16 +46,16 @@ Future<void> RequestFieldList() async {
 	}
 	var json = response.data["data"]["fieldlist"];
 	fieldlist = [];
-	json.forEach((key, item) {
-		fieldlist.add(Field(id: int.parse(key), value: item));
+	json.forEach((item) {
+		fieldlist.add(Field(id: item["id"], value: item["name"], sector: item["sector"], star: item["star"], content: item["content"]));
 	});
 }
 
-Future<void> RequestEnterpriseList(int zone, int sector, int level) async {
+Future<void> RequestEnterpriseList(int zone, int sector, List<int> levels) async {
 	var response = await dio.post(parseurl(url_query_enterprise), data: {
 		"zone": zone,
 		"sector": sector,
-		"level": level,
+		"levels": levels,
 	});
 	if (response.data['code'] != 0) {
 		throw Exception('Error code: ${response.data['code']}');

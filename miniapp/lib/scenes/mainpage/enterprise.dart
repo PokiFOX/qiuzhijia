@@ -13,7 +13,7 @@ class EnterpriseWidget extends StatefulWidget {
 }
 
 class EnterpriseState extends State<EnterpriseWidget> with tapah.Callback {
-	int zone = 0, sector = 0, level = 0;
+	int zone = 0, sector = 0, level = 0, part = 0;
 
 	@override
 	void initState() {
@@ -29,7 +29,18 @@ class EnterpriseState extends State<EnterpriseWidget> with tapah.Callback {
 	}
 
 	Future<void> getEnterpriseList() async {
-		await tapah.RequestEnterpriseList(zone, sector, level);
+		List<int> levels = [];
+		if (level == 0) {
+			for (var e in tapah.levellist) {
+				if (part == 0 && e.value.contains("央")) levels.add(e.id);
+				if (part == 1 && e.value.contains("国")) levels.add(e.id);
+				if (part == 2 && e.value.contains("金")) levels.add(e.id);
+			}
+		}
+		else {
+			levels.add(level);
+		}
+		await tapah.RequestEnterpriseList(zone, sector, levels);
 		if (mounted == false) return;
 		setState(() {});
 	}
@@ -67,7 +78,10 @@ class EnterpriseState extends State<EnterpriseWidget> with tapah.Callback {
 					children: [
 						Expanded(
 							child: GestureDetector(
-								onTap: () {},
+								onTap: () {
+									part = 0;
+									getEnterpriseList();
+								},
 								child: Container(
 									alignment: Alignment.center,
 									decoration: BoxDecoration(
@@ -81,7 +95,10 @@ class EnterpriseState extends State<EnterpriseWidget> with tapah.Callback {
 						const SizedBox(width: 20),
 						Expanded(
 							child: GestureDetector(
-								onTap: () {},
+								onTap: () {
+									part = 1;
+									getEnterpriseList();
+								},
 								child: Container(
 									alignment: Alignment.center,
 									decoration: BoxDecoration(
@@ -95,7 +112,10 @@ class EnterpriseState extends State<EnterpriseWidget> with tapah.Callback {
 						const SizedBox(width: 20),
 						Expanded(
 							child: GestureDetector(
-								onTap: () {},
+								onTap: () {
+									part = 2;
+									getEnterpriseList();
+								},
 								child: Container(
 									alignment: Alignment.center,
 									decoration: BoxDecoration(
@@ -140,21 +160,35 @@ class EnterpriseState extends State<EnterpriseWidget> with tapah.Callback {
 						children: [
 							SizedBox(
 								width: 65,
-								child: dropdown(zone, tapah.zonelist, (v) => setState(() => zone = v ?? 0), "地区"),
-							),
-							const SizedBox(width: 10),
-							Expanded(
-								child: dropdown(level, tapah.levellist, (v) => setState(() => level = v ?? 0), "档次"),
+								child: dropdown(zone, tapah.zonelist, (v) {
+									zone = v ?? 0;
+									getEnterpriseList();
+								}, "地区"),
 							),
 							const SizedBox(width: 10),
 							SizedBox(
-								width: 80,
-								child: dropdown(sector, tapah.sectorlist, (v) => setState(() => sector = v ?? 0), "行业"),
+								width: 100,
+								child: dropdown(level, tapah.levellist.where((e) {
+									if (part == 0) return e.value.contains("央");
+									if (part == 1) return e.value.contains("国");
+									if (part == 2) return e.value.contains("金");
+									return true;
+								}).toList(), (v) {
+									level = v ?? 0;
+									getEnterpriseList();
+								}, "档次"),
+							),
+							const SizedBox(width: 10),
+							Expanded(
+								child: dropdown(sector, tapah.sectorlist, (v) {
+									sector = v ?? 0;
+									getEnterpriseList();
+								}, "行业"),
 							),
 							const SizedBox(width: 10),
 							const SizedBox(
-								width: 65,
-								child: Text('更多'),
+								width: 40,
+								child: Text('更多', style: TextStyle(fontSize: 10)),
 							),
 						],
 					);

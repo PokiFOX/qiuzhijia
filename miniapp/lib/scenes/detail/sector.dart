@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:expandable_text/expandable_text.dart';
+
 import 'package:qiuzhijia/tapah/class.dart' as tapah;
 import 'package:qiuzhijia/tapah/enum.dart' as tapah;
 
@@ -59,14 +61,29 @@ class SectorState extends State<SectorWidget> with tapah.Callback {
 									padding: EdgeInsets.all(5),
 									child: Row(
 										children: [
-											Column(
-												mainAxisAlignment: MainAxisAlignment.start,
-												crossAxisAlignment: CrossAxisAlignment.start,
-												children: [
-													Text("学科门类:"),
-													Text("专业热门度:"),
-													Text("专业介绍"),
-												],
+											Expanded(
+												child: Column(
+													mainAxisAlignment: MainAxisAlignment.start,
+													crossAxisAlignment: CrossAxisAlignment.start,
+													children: [
+														Text("学科门类: ${f.sector}"),
+														Row(
+															mainAxisAlignment: MainAxisAlignment.start,
+															children: [
+																Text("专业热门度:"),
+																const SizedBox(width: 5,),
+																...List.generate(f.star, (_) => Icon(Icons.star, size: 16,)),
+															],
+														),
+														ExpandableText(
+															"专业介绍: ${f.content}",
+															expandText: '展开',
+															collapseText: '收起',
+															maxLines: 3,
+															linkColor: Colors.blue,
+														),
+													],
+												),
 											),
 										],
 									),
