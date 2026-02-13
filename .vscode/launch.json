@@ -12,8 +12,8 @@
 			"cwd": "${workspaceFolder}/miniapp",
 			"args": [
 				"--web-browser-flag", "--disable-web-security",
-				"--web-renderer",
-				"html",
+				"--web-renderer", "html",
+				"-d", "chrome", "--web-port=22000",
 			],
 		},
 		{
@@ -35,6 +35,18 @@
 				"--reload"
 			],
 			"cwd": "${workspaceFolder}/backend",
+		},
+		{
+			"name": "frontend",
+			"type": "dart",
+			"request": "launch",
+			"program": "${workspaceFolder}/frontend/lib/main.dart",
+			"cwd": "${workspaceFolder}/frontend",
+			"args": [
+				"--web-browser-flag", "--disable-web-security",
+				"--web-renderer", "html",
+				"-d", "chrome", "--web-port=22000",
+			],
 		},
 	]
 }

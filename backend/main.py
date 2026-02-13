@@ -100,7 +100,10 @@ async def insert_enterprise(req: Request):
 
 	cursor.close()
 	data.mysql_pool.release(conn)
-	return JSONResponse(content = {"status": "success"})
+	return JSONResponse(content = {
+		"code": 0,
+		"status": "success",
+	})
 
 @app.get("/query_zonelist")
 async def query_zonelist(req: Request):
@@ -115,10 +118,11 @@ async def query_zonelist(req: Request):
 	data.mysql_pool.release(conn)
 	return JSONResponse(content = {
 		"code": 0,
+		"status": "success",
 		"data": {
-			"zonelist": zonelist},
-		}
-	)
+			"zonelist": zonelist,
+		},
+	})
 
 @app.get("/query_levellist")
 async def query_levellist(req: Request):
@@ -133,10 +137,11 @@ async def query_levellist(req: Request):
 	data.mysql_pool.release(conn)
 	return JSONResponse(content = {
 		"code": 0,
+		"status": "success",
 		"data": {
-			"levellist": levellist},
-		}
-	)
+			"levellist": levellist,
+		},
+	})
 
 @app.get("/query_sectorlist")
 async def query_sectorlist(req: Request):
@@ -151,10 +156,11 @@ async def query_sectorlist(req: Request):
 	data.mysql_pool.release(conn)
 	return JSONResponse(content = {
 		"code": 0,
+		"status": "success",
 		"data": {
-			"sectorlist": sectorlist},
-		}
-	)
+			"sectorlist": sectorlist,
+		},
+	})
 
 @app.get("/query_fieldlist")
 async def query_fieldlist(req: Request):
@@ -177,6 +183,7 @@ async def query_fieldlist(req: Request):
 	data.mysql_pool.release(conn)
 	return JSONResponse(content = {
 		"code": 0,
+		"status": "success",
 		"data": {
 			"fieldlist": fieldlist,
 		},
@@ -267,10 +274,11 @@ async def query_enterprise(req: Request):
 	data.mysql_pool.release(conn)
 	return JSONResponse(content = {
 		"code": 0,
+		"status": "success",
 		"data": {
-			"enterpriselist": enterpriselist},
-		}
-	)
+			"enterpriselist": enterpriselist,
+		},
+	})
 
 @app.post("/set_zone")
 async def set_zone(req: Request):
@@ -285,7 +293,10 @@ async def set_zone(req: Request):
 
 	cursor.close()
 	data.mysql_pool.release(conn)
-	return JSONResponse(content = {"status": "success"})
+	return JSONResponse(content = {
+		"code": 0,
+		"status": "success",
+	})
 
 @app.post("/set_level")
 async def set_level(req: Request):
@@ -300,7 +311,10 @@ async def set_level(req: Request):
 
 	cursor.close()
 	data.mysql_pool.release(conn)
-	return JSONResponse(content = {"status": "success"})
+	return JSONResponse(content = {
+		"code": 0,
+		"status": "success",
+	})
 
 @app.post("/set_sector")
 async def set_sector(req: Request):
@@ -315,7 +329,10 @@ async def set_sector(req: Request):
 
 	cursor.close()
 	data.mysql_pool.release(conn)
-	return JSONResponse(content = {"status": "success"})
+	return JSONResponse(content = {
+		"code": 0,
+		"status": "success",
+	})
 
 @app.post("/set_field")
 async def set_field(req: Request):
@@ -330,4 +347,112 @@ async def set_field(req: Request):
 
 	cursor.close()
 	data.mysql_pool.release(conn)
-	return JSONResponse(content = {"status": "success"})
+	return JSONResponse(content = {
+		"code": 0,
+		"status": "success",
+	})
+
+@app.post("/edit_zone")
+async def edit_zone(req: Request):
+	json = await req.json()
+	id = json.get("id")
+	zone = json.get("zone")
+
+	conn = data.mysql_pool.apply()
+	cursor = conn.cursor()
+
+	cursor.execute("UPDATE qzj_zone SET zone=%s WHERE id=%s", (zone, id))
+
+	cursor.close()
+	data.mysql_pool.release(conn)
+	return JSONResponse(content = {
+		"code": 0,
+		"status": "success",
+	})
+
+@app.post("/delete_zone")
+async def delete_zone(req: Request):
+	json = await req.json()
+	id = json.get("id")
+
+	conn = data.mysql_pool.apply()
+	cursor = conn.cursor()
+
+	cursor.execute("DELETE FROM qzj_zone WHERE id=%s", (id,))
+
+	cursor.close()
+	data.mysql_pool.release(conn)
+	return JSONResponse(content = {
+		"code": 0,
+		"status": "success",
+	})
+
+@app.post("/edit_level")
+async def edit_level(req: Request):
+	json = await req.json()
+	id = json.get("id")
+	level = json.get("level")
+
+	conn = data.mysql_pool.apply()
+	cursor = conn.cursor()
+
+	cursor.execute("UPDATE qzj_level SET level=%s WHERE id=%s", (level, id))
+
+	cursor.close()
+	data.mysql_pool.release(conn)
+	return JSONResponse(content = {
+		"code": 0,
+		"status": "success",
+	})
+
+@app.post("/delete_level")
+async def delete_level(req: Request):
+	json = await req.json()
+	id = json.get("id")
+
+	conn = data.mysql_pool.apply()
+	cursor = conn.cursor()
+
+	cursor.execute("DELETE FROM qzj_level WHERE id=%s", (id,))
+
+	cursor.close()
+	data.mysql_pool.release(conn)
+	return JSONResponse(content = {
+		"code": 0,
+		"status": "success",
+	})
+
+@app.post("/edit_sector")
+async def edit_sector(req: Request):
+	json = await req.json()
+	id = json.get("id")
+	sector = json.get("sector")
+
+	conn = data.mysql_pool.apply()
+	cursor = conn.cursor()
+
+	cursor.execute("UPDATE qzj_sector SET sector=%s WHERE id=%s", (sector, id))
+
+	cursor.close()
+	data.mysql_pool.release(conn)
+	return JSONResponse(content = {
+		"code": 0,
+		"status": "success",
+	})
+
+@app.post("/delete_sector")
+async def delete_sector(req: Request):
+	json = await req.json()
+	id = json.get("id")
+
+	conn = data.mysql_pool.apply()
+	cursor = conn.cursor()
+
+	cursor.execute("DELETE FROM qzj_sector WHERE id=%s", (id,))
+
+	cursor.close()
+	data.mysql_pool.release(conn)
+	return JSONResponse(content = {
+		"code": 0,
+		"status": "success",
+	})
