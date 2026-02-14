@@ -65,8 +65,9 @@ class MainPageState extends State<MainPageWidget> {
 							const SizedBox(width: 50,),
 							GestureDetector(
 								onTap: () {
+									Navigator.of(context).pushNamed('/field');
 								},
-								child: const Text("学科列表"),
+								child: const Text("学科列表", style: TextStyle(color: Colors.blue, decoration: TextDecoration.underline,),),
 							),
 						],
 					),

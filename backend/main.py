@@ -456,3 +456,41 @@ async def delete_sector(req: Request):
 		"code": 0,
 		"status": "success",
 	})
+
+@app.post("/edit_field")
+async def edit_field(req: Request):
+	json = await req.json()
+	id = json.get("id")
+	field = json.get("field")
+	sector = json.get("sector")
+	star = json.get("star")
+	content = json.get("content")
+
+	conn = data.mysql_pool.apply()
+	cursor = conn.cursor()
+
+	cursor.execute("UPDATE qzj_field SET field=%s, sector=%s, star=%s, content=%s WHERE id=%s", (field, sector, star, content, id))
+
+	cursor.close()
+	data.mysql_pool.release(conn)
+	return JSONResponse(content = {
+		"code": 0,
+		"status": "success",
+	})
+
+@app.post("/delete_field")
+async def delete_field(req: Request):
+	json = await req.json()
+	id = json.get("id")
+
+	conn = data.mysql_pool.apply()
+	cursor = conn.cursor()
+
+	cursor.execute("DELETE FROM qzj_field WHERE id=%s", (id,))
+
+	cursor.close()
+	data.mysql_pool.release(conn)
+	return JSONResponse(content = {
+		"code": 0,
+		"status": "success",
+	})

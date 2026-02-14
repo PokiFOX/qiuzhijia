@@ -14,6 +14,9 @@ String url_delete_level = "delete_level";
 String url_add_sector = "set_sector";
 String url_edit_sector = "edit_sector";
 String url_delete_sector = "delete_sector";
+String url_add_field = "set_field";
+String url_edit_field = "edit_field";
+String url_delete_field = "delete_field";
 
 var options = Options(
 	contentType: "application/json",

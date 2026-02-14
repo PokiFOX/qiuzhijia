@@ -188,3 +188,49 @@ Future<void> RequestDeleteLevel(int id) async {
 		throw Exception('Error code: ${response.data['code']}');
 	}
 }
+
+Future<void> RequestAddField(String value, String sector, int star, String content) async {
+	var response = await dio.post(
+		parseurl(url_add_field),
+		data: [{
+			"name": value,
+			"sector": sector,
+			"star": star,
+			"content": content,
+		}],
+		options: options,
+	);
+	if (response.data['code'] != 0) {
+		throw Exception('Error code: ${response.data['code']}');
+	}
+}
+
+Future<void> RequestEditField(int id, String value, String sector, int star, String content) async {
+	var response = await dio.post(
+		parseurl(url_edit_field),
+		data: {
+			"id": id,
+			"field": value,
+			"sector": sector,
+			"star": star,
+			"content": content,
+		},
+		options: options,
+	);
+	if (response.data['code'] != 0) {
+		throw Exception('Error code: ${response.data['code']}');
+	}
+}
+
+Future<void> RequestDeleteField(int id) async {
+	var response = await dio.post(
+		parseurl(url_delete_field),
+		data: {
+			"id": id,
+		},
+		options: options,
+	);
+	if (response.data['code'] != 0) {
+		throw Exception('Error code: ${response.data['code']}');
+	}
+}
