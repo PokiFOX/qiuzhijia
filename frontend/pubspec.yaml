@@ -13,6 +13,7 @@ dependencies:
   cupertino_icons: ^1.0.6
   device_preview: ^1.2.0
   dio: ^5.9.0
+  pluto_grid: ^8.0.0
 
 dev_dependencies:
   flutter_test:

@@ -95,11 +95,11 @@ Future<void> RequestAddZone(String value) async {
 	}
 }
 
-Future<void> RequestEditZone(int id, String value) async {
+Future<void> RequestEditZone(Zone zone) async {
 	var response = await dio.post(
 		parseurl(url_edit_zone), data: {
-			"id": id,
-			"zone": value,
+			"id": zone.id,
+			"zone": zone.value,
 		},
 		options: options,
 	);
@@ -128,11 +128,11 @@ Future<void> RequestAddSector(String value) async {
 	}
 }
 
-Future<void> RequestEditSector(int id, String value) async {
+Future<void> RequestEditSector(Sector sector) async {
 	var response = await dio.post(
 		parseurl(url_edit_sector), data: {
-			"id": id,
-			"sector": value,
+			"id": sector.id,
+			"sector": sector.value,
 		},
 		options: options,
 	);
@@ -164,11 +164,11 @@ Future<void> RequestAddLevel(String value) async {
 	}
 }
 
-Future<void> RequestEditLevel(int id, String value) async {
+Future<void> RequestEditLevel(Level level) async {
 	var response = await dio.post(
 		parseurl(url_edit_level), data: {
-			"id": id,
-			"level": value,
+			"id": level.id,
+			"level": level.value,
 		},
 		options: options,
 	);
@@ -205,15 +205,15 @@ Future<void> RequestAddField(String value, String sector, int star, String conte
 	}
 }
 
-Future<void> RequestEditField(int id, String value, String sector, int star, String content) async {
+Future<void> RequestEditField(Field field) async {
 	var response = await dio.post(
 		parseurl(url_edit_field),
 		data: {
-			"id": id,
-			"field": value,
-			"sector": sector,
-			"star": star,
-			"content": content,
+			"id": field.id,
+			"field": field.value,
+			"sector": field.sector,
+			"star": field.star,
+			"content": field.content,
 		},
 		options: options,
 	);
