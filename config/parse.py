@@ -13,6 +13,7 @@ data.mysql_conn = mysql.connector.connect(
 	user		= reserved.mysql_username,
 	password	= reserved.mysql_password,
 	database	= reserved.mysql_database,
+	auth_plugin = 'caching_sha2_password',
 )
 data.mysql_conn.connect()
 
@@ -54,12 +55,16 @@ for i in range(2, wb['学科列表'].max_row + 1):
 	field.append(cell_value)
 
 try:
+	print(const.url_setzone)
 	r = requests.post(function.url(const.url_setzone), json = zone, headers = const.request_headers, timeout = 15)
 	r.raise_for_status()
+	print(const.url_setsector)
 	r = requests.post(function.url(const.url_setsector), json = sector, headers = const.request_headers, timeout = 15)
 	r.raise_for_status()
+	print(const.url_setlevel)
 	r = requests.post(function.url(const.url_setlevel), json = level, headers = const.request_headers, timeout = 15)
 	r.raise_for_status()
+	print(const.url_setfield)
 	r = requests.post(function.url(const.url_setfield), json = field, headers = const.request_headers, timeout = 15)
 	r.raise_for_status()
 except requests.RequestException as err:

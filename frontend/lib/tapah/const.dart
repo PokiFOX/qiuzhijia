@@ -20,6 +20,7 @@ String url_delete_field = "delete_field";
 String url_add_enterprise = "insert_enterprise";
 String url_edit_enterprise = "edit_enterprise";
 String url_delete_enterprise = "delete_enterprise";
+String url_import = "import_excel";
 
 var options = Options(
 	contentType: "application/json",

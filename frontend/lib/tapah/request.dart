@@ -1,5 +1,7 @@
 // ignore_for_file: non_constant_identifier_names
 
+import 'dart:typed_data';
+
 import 'package:frontend/tapah/const.dart';
 import 'package:frontend/tapah/class.dart';
 import 'package:frontend/tapah/data.dart';
@@ -296,4 +298,16 @@ Future<void> RequestDeleteEnterprise(int id) async {
 	if (response.data['code'] != 0) {
 		throw Exception('Error code: ${response.data['code']}');
 	}
+}
+
+Future<dynamic> RequestImport(String filename, Uint8List? filedata) async {
+	var response = await dio.post(
+		parseurl(url_import),
+		data: {
+			"filename": filename,
+			"filedata": String.fromCharCodes(filedata ?? []),
+		},
+		options: options,
+	);
+	return response;
 }

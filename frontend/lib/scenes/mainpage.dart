@@ -84,6 +84,19 @@ class MainPageState extends State<MainPageWidget> {
 							),
 						],
 					),
+					const SizedBox(height: 50,),
+					Row(
+						mainAxisAlignment: MainAxisAlignment.start,
+						children: [
+							const SizedBox(width: 50,),
+							GestureDetector(
+								onTap: () {
+									Navigator.of(context).pushNamed('/import');
+								},
+								child: const Text("导入数据", style: TextStyle(color: Colors.blue, decoration: TextDecoration.underline,),),
+							),
+						],
+					),
 				],
 			),
 		);

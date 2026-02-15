@@ -1,3 +1,4 @@
+import asyncio
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -586,4 +587,30 @@ async def delete_enterprise(req: Request):
 	return JSONResponse(content = {
 		"code": 0,
 		"status": "success",
+	})
+
+@app.post("/import_excel")
+async def import_excel(req: Request):
+	json = await req.json()
+	filename = json.get("filename")
+	filedata = json.get("filedata")
+
+	with open(f'./upload/企业列表.xlsx', 'wb') as f:
+		f.write(filedata.encode('latin1'))
+
+	process = await asyncio.create_subprocess_exec(
+		'python3', 'parse.py',
+		cwd="./upload",
+		stdout=asyncio.subprocess.PIPE,
+		stderr=asyncio.subprocess.PIPE
+	)
+	stdout, stderr = await process.communicate()
+	if process.returncode != 0:
+		status = f"out: {stdout.decode()} error: {stderr.decode()}"
+	else:
+		status = "success"
+
+	return JSONResponse(content = {
+		"code": 0,
+		"status": status,
 	})
