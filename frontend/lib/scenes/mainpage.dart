@@ -78,8 +78,9 @@ class MainPageState extends State<MainPageWidget> {
 							const SizedBox(width: 50,),
 							GestureDetector(
 								onTap: () {
+									Navigator.of(context).pushNamed('/enterprise');
 								},
-								child: const Text("企业列表"),
+								child: const Text("企业列表", style: TextStyle(color: Colors.blue, decoration: TextDecoration.underline,),),
 							),
 						],
 					),

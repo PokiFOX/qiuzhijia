@@ -1,107 +1,82 @@
 import 'package:flutter/material.dart';
 
 import 'package:frontend/tapah/class.dart' as tapah;
+import 'package:frontend/tapah/data.dart' as tapah;
 
-class InputField {
-	static Future<List<String>?> show(BuildContext context, {required tapah.Field field,}) async {
-		final TextEditingController controller1 = TextEditingController(text: field.value);
-		final TextEditingController controller2 = TextEditingController(text: field.sector);
-		final TextEditingController controller3 = TextEditingController(text: field.star.toString());
-		final TextEditingController controller4 = TextEditingController(text: field.content);
-		return showDialog<List<String>?>(
-			context: context,
-			builder: (BuildContext context) {
-				return AlertDialog(
-					title: Text("编辑学科"),
-					content: Column(
-						mainAxisSize: MainAxisSize.min,
-						children: [
-							Row(
-								mainAxisAlignment: MainAxisAlignment.spaceBetween,
-								children: [
-									const Text("学科名称:"),
-									const SizedBox(width: 20,),
-									Expanded(
-										child: TextField(
-											controller: controller1,
-											decoration: const InputDecoration(
-												hintText: 'Enter text',
-												border: OutlineInputBorder(),
-											),
-										),
-									),
-								],
-							),
-							const SizedBox(height: 20,),
-							Row(
-								mainAxisAlignment: MainAxisAlignment.spaceBetween,
-								children: [
-									const Text("所属行业:"),
-									const SizedBox(width: 20,),
-									Expanded(
-										child: TextField(
-											controller: controller2,
-											decoration: const InputDecoration(
-												hintText: 'Enter text',
-												border: OutlineInputBorder(),
-											),
-										),
-									),
-								],
-							),
-							const SizedBox(height: 20,),
-							Row(
-								mainAxisAlignment: MainAxisAlignment.spaceBetween,
-								children: [
-									const Text("星级:"),
-									const SizedBox(width: 20,),
-									Expanded(
-										child: TextField(
-											controller: controller3,
-											decoration: const InputDecoration(
-												hintText: 'Enter text',
-												border: OutlineInputBorder(),
-											),
-										),
-									),
-								],
-							),
-							const SizedBox(height: 20,),
-							Row(
-								mainAxisAlignment: MainAxisAlignment.spaceBetween,
-								children: [
-									const Text("备注:"),
-									const SizedBox(width: 20,),
-									Expanded(
-										child: TextField(
-											controller: controller4,
-											decoration: const InputDecoration(
-												hintText: 'Enter text',
-												border: OutlineInputBorder(),
-											),
-										),
-									),
-								],
-							),
-						],
-					),
-					actions: [
-						TextButton(
-							onPressed: () {
-								Navigator.pop(context, null);
-							},
-							child: const Text('Cancel'),
-						),
-						TextButton(
-							onPressed: () {
-								List<String> result = [controller1.text, controller2.text, controller3.text, controller4.text];
-								Navigator.pop(context, result);
-							},
-							child: const Text('OK'),
-						),
-					],
-				);
-			},
+class InputFieldWidget extends StatefulWidget {
+	final List<tapah.Field> fields;
+	const InputFieldWidget({super.key, required this.fields});
+
+	@override
+	State<InputFieldWidget> createState() => InputFieldState();
+}
+
+class InputFieldState extends State<InputFieldWidget> {
+	List<int> selected = [];
+
+	@override
+	void initState() {
+		super.initState();
+		selected = widget.fields.map((e) => e.id).toList();
+	}
+
+	@override
+	Widget build(BuildContext context) {
+		return AlertDialog(
+			title: Text("选择学科"),
+			content: SingleChildScrollView(
+				child: Column(
+					mainAxisAlignment: MainAxisAlignment.start,
+					children: tapah.fieldlist.map((e) => CheckboxListTile(
+						title: Text(e.value),
+						value: selected.contains(e.id),
+						onChanged: (bool? value) {
+							if (value == true) {
+								selected.add(e.id);
+							}
+							else {
+								selected.remove(e.id);
+							}
+							setState(() {});
+						},
+					)).toList(),
+				),
+			),
+			actions: [
+				TextButton(
+					onPressed: () {
+						Navigator.pop(context, null);
+					},
+					child: const Text('Cancel'),
+				),
+				TextButton(
+					onPressed: () {
+						List<tapah.Field> fields = [];
+						for (var id in selected) {
+							var field = tapah.fieldlist.firstWhere((element) => element.id == id, orElse: () => tapah.Field(id: id, value: "", sector: "", star: 0, content: ""));
+							if (field.id == 0) continue;
+							fields.add(field);
+						}
+						Navigator.pop(context, fields);
+					},
+					child: const Text('OK'),
+				),
+			],
 		);
+	}
+}
+
+Future<List<tapah.Field>?> showInputFieldDialog(BuildContext context, List<tapah.Field> fields) async {
+	var result = await showDialog<List<tapah.Field>>(
+		context: context,
+		builder: (BuildContext context) {
+			return InputFieldWidget(fields: fields);
+		},
+	);
+	if (result != null) {
+		return result;
+	}
+	else {
+		return null;
 	}
 }

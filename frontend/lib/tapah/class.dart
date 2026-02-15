@@ -111,6 +111,7 @@ class Enterprise {
 	Zone? zone;
 	String? city;
 	String? name;
+	String? shortname;
 	String? brief;
 	String? upper;
 	Sector? sector;

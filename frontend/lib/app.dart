@@ -6,6 +6,7 @@ import 'package:frontend/scenes/zone.dart' as scenes;
 import 'package:frontend/scenes/level.dart' as scenes;
 import 'package:frontend/scenes/sector.dart' as scenes;
 import 'package:frontend/scenes/field.dart' as scenes;
+import 'package:frontend/scenes/enterprise.dart' as scenes;
 
 class QZJApp extends StatelessWidget {
 	const QZJApp({super.key});
@@ -25,6 +26,7 @@ class QZJApp extends StatelessWidget {
 				'/level': (context) => scenes.LevelWidget(key: GlobalKey()),
 				'/sector': (context) => scenes.SectorWidget(key: GlobalKey()),
 				'/field': (context) => scenes.FieldWidget(key: GlobalKey()),
+				'/enterprise': (context) => scenes.EnterpriseWidget(key: GlobalKey()),
 			},
 		);
 	}

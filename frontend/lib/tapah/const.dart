@@ -17,6 +17,9 @@ String url_delete_sector = "delete_sector";
 String url_add_field = "set_field";
 String url_edit_field = "edit_field";
 String url_delete_field = "delete_field";
+String url_add_enterprise = "insert_enterprise";
+String url_edit_enterprise = "edit_enterprise";
+String url_delete_enterprise = "delete_enterprise";
 
 var options = Options(
 	contentType: "application/json",

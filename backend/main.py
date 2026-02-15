@@ -32,6 +32,7 @@ async def insert_enterprise(req: Request):
 	zone = json.get("zone")
 	city = json.get("city")
 	name = json.get("name")
+	shortname = json.get("shortname")
 	brief = json.get("brief")
 	upper = json.get("upper")
 	level = json.get("level")
@@ -88,8 +89,8 @@ async def insert_enterprise(req: Request):
 		fieldlist.append(result[0])
 
 	cursor.execute(
-		"INSERT INTO qzj_enterprise (zone, city, name, brief, upper, level, sector, tag, website1, website2) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-		(zone_id, city, name, brief, upper, level_id, sector_id, tag, website1, website2)
+		"INSERT INTO qzj_enterprise (zone, city, name, shortname, brief, upper, level, sector, tag, website1, website2) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+		(zone_id, city, name, shortname, brief, upper, level_id, sector_id, tag, website1, website2)
 	)
 	enterprise_id = cursor.lastrowid
 	for fid in fieldlist:
@@ -268,6 +269,7 @@ async def query_enterprise(req: Request):
 			"tag": row[8],
 			"website1": row[9],
 			"website2": row[10],
+			"shortname": row[11],
 		})
 
 	cursor.close()
@@ -487,6 +489,97 @@ async def delete_field(req: Request):
 	cursor = conn.cursor()
 
 	cursor.execute("DELETE FROM qzj_field WHERE id=%s", (id,))
+
+	cursor.close()
+	data.mysql_pool.release(conn)
+	return JSONResponse(content = {
+		"code": 0,
+		"status": "success",
+	})
+
+@app.post("/edit_enterprise")
+async def edit_enterprise(req: Request):
+	json = await req.json()
+	id = json.get("id")
+	zone = json.get("zone")
+	city = json.get("city")
+	name = json.get("name")
+	shortname = json.get("shortname")
+	brief = json.get("brief")
+	upper = json.get("upper")
+	level = json.get("level")
+	sector = json.get("sector")
+	field = json.get("field")
+	tag = json.get("tag")
+	website1 = json.get("website1")
+	website2 = json.get("website2")
+
+	conn = data.mysql_pool.apply()
+	cursor = conn.cursor()
+
+	cursor.execute("SELECT id FROM qzj_zone WHERE zone=%s", (zone,))
+	result = cursor.fetchone()
+	if result is None:
+		cursor.close()
+		data.mysql_pool.release(conn)
+		return JSONResponse(content = {"status": f"zone_not_found: {zone}"})
+
+	zone_id = result[0]
+	cursor.execute("SELECT id FROM qzj_level WHERE level=%s", (level,))
+	result = cursor.fetchone()
+	if result is None:
+		cursor.close()
+		data.mysql_pool.release(conn)
+		return JSONResponse(content = {"status": f"level_not_found: {level}"})
+
+	level_id = result[0]
+
+	cursor.execute("SELECT id FROM qzj_sector WHERE sector=%s", (sector,))
+	result = cursor.fetchone()
+	if result is None:
+		cursor.close()
+		data.mysql_pool.release(conn)
+		return JSONResponse(content = {"status": f"sector_not_found: {sector}"})
+	sector_id = result[0]
+
+	fieldlist = []
+	for f in field.split("；"):
+		if f.strip() == "": continue
+		cursor.execute("SELECT id FROM qzj_field WHERE field=%s", (f.strip(),))
+		result = cursor.fetchone()
+		if result is None:
+			cursor.close()
+			data.mysql_pool.release(conn)
+			return JSONResponse(content = {"status": f"field_not_found: {f}"})
+		fieldlist.append(result[0])
+
+	cursor.execute(
+		"UPDATE qzj_enterprise SET zone=%s, city=%s, name=%s, shortname=%s, brief=%s, upper=%s, level=%s, sector=%s, tag=%s, website1=%s, website2=%s WHERE id=%s",
+		(zone_id, city, name, shortname, brief, upper, level_id, sector_id, tag, website1, website2, id)
+	)
+	cursor.execute("DELETE FROM qzj_enterprise_field WHERE enterprise_id=%s", (id,))
+	for fid in fieldlist:
+		cursor.execute(
+			"INSERT IGNORE INTO qzj_enterprise_field (enterprise_id, field) VALUES (%s, %s)",
+			(id, fid)
+		)
+	cursor.close()
+	data.mysql_pool.release(conn)
+	return JSONResponse(content = {
+		"code": 0,
+		"status": "success",
+	})
+
+@app.post("/delete_enterprise")
+async def delete_enterprise(req: Request):
+	json = await req.json()
+	id = json.get("id")
+
+	conn = data.mysql_pool.apply()
+	cursor = conn.cursor()
+
+	cursor.execute("DELETE FROM qzj_enterprise WHERE id=%s", (id,))
+	cursor.execute("DELETE FROM qzj_enterprise_field WHERE enterprise_id=%s", (id,))
 
 	cursor.close()
 	data.mysql_pool.release(conn)

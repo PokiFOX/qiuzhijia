@@ -72,6 +72,7 @@ for i in range(3, len(wb.sheetnames) + 1):
 			"zone": function.getcell_str(sheet, row, const.column_zone),				# 地区
 			"city": function.getcell_str(sheet, row, const.column_city),				# 城市
 			"name": function.getcell_str(sheet, row, const.column_name),				# 公司名称
+			"shortname": function.getcell_str(sheet, row, const.column_short),			# 公司简称
 			"brief": function.getcell_str(sheet, row, const.column_brief),				# 公司简介
 			"upper": function.getcell_str(sheet, row, const.column_upper),				# 上级单位
 			"sector": function.getcell_str(sheet, row, const.column_sector),			# 公司大类

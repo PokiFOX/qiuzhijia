@@ -53,11 +53,11 @@ Future<void> RequestFieldList() async {
 	});
 }
 
-Future<void> RequestEnterpriseList(int zone, int sector, List<int> levels) async {
+Future<void> RequestEnterpriseList() async {
 	var response = await dio.post(parseurl(url_query_enterprise), data: {
-		"zone": zone,
-		"sector": sector,
-		"levels": levels,
+		"zone": 0,
+		"sector": 0,
+		"levels": [],
 	}, options: options,);
 	if (response.data['code'] != 0) {
 		throw Exception('Error code: ${response.data['code']}');
@@ -69,12 +69,13 @@ Future<void> RequestEnterpriseList(int zone, int sector, List<int> levels) async
 		enterprise.zone = zonelist.firstWhere((e) => e.id == item["zone"]);
 		enterprise.city = item["city"];
 		enterprise.name = item["name"];
+		enterprise.shortname = item["shortname"];
 		enterprise.brief = item["brief"];
 		enterprise.upper = item["upper"];
-		enterprise.sector = sectorlist.firstWhere((e) => e.id == item["sector"]);
-		enterprise.level = levellist.firstWhere((e) => e.id == item["level"]);
+		enterprise.sector = sectorlist.firstWhere((e) => e.id == item["sector"], orElse: () => Sector(id: 0, value: ""));
+		enterprise.level = levellist.firstWhere((e) => e.id == item["level"], orElse: () => Level(id: 0, value: ""));
 		item["field"].forEach((field) {
-			enterprise.fields.add(fieldlist.firstWhere((e) => e.id == field));
+			enterprise.fields.add(fieldlist.firstWhere((e) => e.id == field, orElse: () => Field(id: 0, value: "", sector: "", star: 0, content: "")));
 		});
 		enterprise.tags = item["tag"].split(',');
 		enterprise.website1 = item["website1"];
@@ -225,6 +226,68 @@ Future<void> RequestEditField(Field field) async {
 Future<void> RequestDeleteField(int id) async {
 	var response = await dio.post(
 		parseurl(url_delete_field),
+		data: {
+			"id": id,
+		},
+		options: options,
+	);
+	if (response.data['code'] != 0) {
+		throw Exception('Error code: ${response.data['code']}');
+	}
+}
+
+Future<void> RequestAddEnterprise(Enterprise enterprise) async {
+	var response = await dio.post(
+		parseurl(url_add_enterprise),
+		data: {
+			"name": enterprise.name,
+			"shortname": enterprise.shortname,
+			"zone": zonelist.firstWhere((z) => z.id == enterprise.zone?.id).value,
+			"city": enterprise.city,
+			"brief": enterprise.brief,
+			"upper": enterprise.upper,
+			"sector": sectorlist.firstWhere((s) => s.id == enterprise.sector?.id).value,
+			"level": levellist.firstWhere((l) => l.id == enterprise.level?.id).value,
+			"field": enterprise.fields.map((e) => e.value).join('；'),
+			"tag": enterprise.tags.join(','),
+			"website1": enterprise.website1,
+			"website2": enterprise.website2,
+		},
+		options: options,
+	);
+	if (response.data['code'] != 0) {
+		throw Exception('Error code: ${response.data['code']}');
+	}
+}
+
+Future<void> RequestEditEnterprise(Enterprise enterprise) async {
+	var response = await dio.post(
+		parseurl(url_edit_enterprise),
+		data: {
+			"id": enterprise.id,
+			"name": enterprise.name,
+			"shortname": enterprise.shortname,
+			"zone": zonelist.firstWhere((z) => z.id == enterprise.zone?.id).value,
+			"city": enterprise.city,
+			"brief": enterprise.brief,
+			"upper": enterprise.upper,
+			"sector": sectorlist.firstWhere((s) => s.id == enterprise.sector?.id).value,
+			"level": levellist.firstWhere((l) => l.id == enterprise.level?.id).value,
+			"field": enterprise.fields.map((e) => e.value).join('；'),
+			"tag": enterprise.tags.join(','),
+			"website1": enterprise.website1,
+			"website2": enterprise.website2,
+		},
+		options: options,
+	);
+	if (response.data['code'] != 0) {
+		throw Exception('Error code: ${response.data['code']} status: ${response.data['status']}');
+	}
+}
+
+Future<void> RequestDeleteEnterprise(int id) async {
+	var response = await dio.post(
+		parseurl(url_delete_enterprise),
 		data: {
 			"id": id,
 		},
