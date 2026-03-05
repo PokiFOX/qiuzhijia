@@ -1,3 +1,4 @@
+import json
 import openpyxl
 import mysql.connector
 import requests
@@ -43,12 +44,12 @@ field = []
 for i in range(2, wb['学科列表'].max_row + 1):
 	name = function.getcell_str(wb['学科列表'], i, 1)
 	if name == "": continue
-	sector = function.getcell_str(wb['学科列表'], i, 2)
+	sector1 = function.getcell_str(wb['学科列表'], i, 2)
 	star = function.getcell_int(wb['学科列表'], i, 3)
 	content = function.getcell_str(wb['学科列表'], i, 4)
 	cell_value = {
 		"name": name,
-		"sector": sector,
+		"sector": sector1,
 		"star": star,
 		"content": content,
 	}
@@ -88,10 +89,31 @@ for i in range(3, len(wb.sheetnames) + 1):
 			"website2": function.getcell_str(sheet, row, const.column_website2),		# 校招官网
 		}
 
+		if enterprise['zone'] not in zone:
+			print(f"地区不合法: {enterprise['zone']} 企业: {enterprise['name']}")
+			continue
+		if enterprise['sector'] not in sector:
+			print(f"公司大类不合法: {enterprise['sector']} 企业: {enterprise['name']}")
+			continue
+		if enterprise['level'] not in level:
+			print(f"公司层级不合法: {enterprise['level']} 企业: {enterprise['name']}")
+			continue
+		fields = [f.strip() for f in __import__('re').split(r'[；/、/。]', enterprise['field']) if f.strip()]
+		valid_fields = []
+		for f in fields:
+			if f not in [field_item['name'] for field_item in field] and f != "":
+				print(f"主要招聘学科不合法: {f} 企业: {enterprise['name']}")
+			else:
+				valid_fields.append(f)
+		if len(fields) != len(valid_fields):
+			continue
+
 		try:
 			r = requests.post(function.url(const.url_insert_enterprise), json = enterprise, headers = const.request_headers, timeout = 15)
 			r.raise_for_status()
-			print(f"已上传: {enterprise['name']} response code {r.status_code} content: {r.text}")
+			rj = json.loads(r.text)
+			if 'code' not in rj or rj['code'] != 0:
+				print(f"已失败: {enterprise['name']} response code {r.status_code} content: {r.text}")
 		except requests.RequestException as err:
 			print(f"上传失败 {enterprise['name']}: {err}")
 
