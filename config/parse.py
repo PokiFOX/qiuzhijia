@@ -22,20 +22,20 @@ wb = openpyxl.load_workbook('企业列表.xlsx')
 
 globalpage = wb['全局设置']
 zone = []
-for i in range(1, globalpage.max_column + 1):
-	cell_value = function.getcell_str(globalpage, 2, i)
+for i in range(2, globalpage.max_row + 1):
+	cell_value = function.getcell_str(globalpage, i, 1)
 	if cell_value == "": continue
 	zone.append(cell_value)
 
 sector = []
-for i in range(1, globalpage.max_column + 1):
-	cell_value = function.getcell_str(globalpage, 8, i)
+for i in range(2, globalpage.max_row + 1):
+	cell_value = function.getcell_str(globalpage, i, 3)
 	if cell_value == "": continue
 	sector.append(cell_value)
 
 level = []
-for i in range(1, globalpage.max_column + 1):
-	cell_value = function.getcell_str(globalpage, 5, i)
+for i in range(2, globalpage.max_row + 1):
+	cell_value = function.getcell_str(globalpage, i, 2)
 	if cell_value == "": continue
 	level.append(cell_value)
 
@@ -84,11 +84,19 @@ for i in range(3, len(wb.sheetnames) + 1):
 			"sector": function.getcell_str(sheet, row, const.column_sector),			# 公司大类
 			"level": function.getcell_str(sheet, row, const.column_level),				# 公司层级
 			"field": function.getcell_str(sheet, row, const.column_offer),				# 主要招聘学科
-			"tag": function.getcell_str(sheet, row, const.column_tag),					# 标签
 			"website1": function.getcell_str(sheet, row, const.column_website1),		# 官网
 			"website2": function.getcell_str(sheet, row, const.column_website2),		# 校招官网
 		}
-
+		tag1 = function.getcell_str(sheet, row, const.column_tag1)				# 标签1
+		tag2 = function.getcell_str(sheet, row, const.column_tag2)				# 标签2
+		tag3 = function.getcell_str(sheet, row, const.column_tag3)				# 标签3
+		tag4 = function.getcell_str(sheet, row, const.column_tag4)				# 标签4
+		tag = []
+		if tag1 != "": tag.append(tag1)
+		if tag2 != "": tag.append(tag2)
+		if tag3 != "": tag.append(tag3)
+		if tag4 != "": tag.append(tag4)
+		enterprise['tag'] = ','.join(tag)
 		if enterprise['zone'] not in zone:
 			print(f"地区不合法: {enterprise['zone']} 企业: {enterprise['name']}")
 			continue
@@ -98,7 +106,7 @@ for i in range(3, len(wb.sheetnames) + 1):
 		if enterprise['level'] not in level:
 			print(f"公司层级不合法: {enterprise['level']} 企业: {enterprise['name']}")
 			continue
-		fields = [f.strip() for f in __import__('re').split(r'[；/、/。]', enterprise['field']) if f.strip()]
+		fields = enterprise['field'].split(',')
 		valid_fields = []
 		for f in fields:
 			if f not in [field_item['name'] for field_item in field] and f != "":

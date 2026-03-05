@@ -7,9 +7,12 @@ column_upper = 'F'			# 上级单位
 column_sector = 'G'			# 公司大类
 column_level = 'H'			# 公司层级
 column_offer = 'I'			# 主要招聘学科
-column_tag = 'J'			# 标签
-column_website1 = 'K'		# 官网
-column_website2 = 'L'		# 校招官网
+column_tag1 = 'J'			# 标签
+column_tag2 = 'K'			# 标签
+column_tag3 = 'L'			# 标签
+column_tag4 = 'M'			# 标签
+column_website1 = 'O'		# 官网
+column_website2 = 'P'		# 校招官网
 
 url_setzone = "set_zone"
 url_setsector = "set_sector"

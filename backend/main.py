@@ -79,8 +79,7 @@ async def insert_enterprise(req: Request):
 	sector_id = result[0]
 
 	fieldlist = []
-	fields = [f.strip() for f in __import__('re').split(r'[；/、/。]', field) if f.strip()]
-	for f in fields:
+	for f in field.split(','):
 		if f.strip() == "": continue
 		cursor.execute("SELECT id FROM qzj_field WHERE field=%s", (f.strip(),))
 		result = cursor.fetchone()
@@ -545,8 +544,7 @@ async def edit_enterprise(req: Request):
 	sector_id = result[0]
 
 	fieldlist = []
-	fields = [f.strip() for f in __import__('re').split(r'[；/、/。]', field) if f.strip()]
-	for f in fields:
+	for f in field.split(','):
 		if f.strip() == "": continue
 		cursor.execute("SELECT id FROM qzj_field WHERE field=%s", (f.strip(),))
 		result = cursor.fetchone()
