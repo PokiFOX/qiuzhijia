@@ -47,7 +47,7 @@ Future<void> RequestFieldList() async {
 	var json = response.data["data"]["fieldlist"];
 	fieldlist = [];
 	json.forEach((item) {
-		fieldlist.add(Field(id: item["id"], value: item["name"], sector: item["sector"], star: item["star"], content: item["content"]));
+		fieldlist.add(Field(id: item["id"], value: item["name"], mapping: List<String>.from(item["mapping"]), sector: item["sector"], star: item["star"], content: item["content"]));
 	});
 }
 
@@ -74,7 +74,7 @@ Future<void> RequestEnterpriseList(int zone, int sector, List<int> levels) async
 		item["field"].forEach((field) {
 			enterprise.fields.add(fieldlist.firstWhere((e) => e.id == field));
 		});
-		enterprise.tags = item["tag"].split(',');
+		enterprise.tags = List<String>.from(item["tag"]);
 		enterprise.website1 = item["website1"];
 		enterprise.website2 = item["website2"];
 		enterpriselist.add(enterprise);

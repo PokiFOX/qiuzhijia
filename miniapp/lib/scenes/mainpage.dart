@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:qiuzhijia/tapah/class.dart' as tapah;
 import 'package:qiuzhijia/tapah/data.dart' as tapah;
 import 'package:qiuzhijia/tapah/enum.dart' as tapah;
+import 'package:qiuzhijia/tapah/function.dart' as tapah;
 
 import 'package:qiuzhijia/scenes/mainpage/home.dart' as scenes;
 import 'package:qiuzhijia/scenes/mainpage/enterprise.dart' as scenes;
@@ -37,19 +38,23 @@ class MainPageState extends State<MainPageWidget> with tapah.Callback {
 	Widget build(BuildContext context) {
 		return Scaffold(
 			body: SafeArea(
-				child: IndexedStack(
-					index: currentindex,
+				child: Column(
 					children: [
-						activated[0] ? scenes.HomeWidget(key: tapah.keyMPHome,) : Container(),
-						activated[1] ? scenes.EnterpriseWidget(key: tapah.keyMPEntprise,) : Container(),
-						activated[2] ? scenes.OfferWidget(key: tapah.keyMPOffer,) : Container(),
-						activated[3] ? scenes.ServiceWidget(key: tapah.keyMPService,) : Container(),
-						activated[4] ? scenes.ProfileWidget(key: tapah.keyMPProfile,) : Container(),
+						IndexedStack(
+							index: currentindex,
+							children: [
+								activated[0] ? scenes.HomeWidget(key: tapah.keyMPHome,) : Container(),
+								activated[1] ? scenes.EnterpriseWidget(key: tapah.keyMPEntprise,) : Container(),
+								activated[2] ? scenes.OfferWidget(key: tapah.keyMPOffer,) : Container(),
+								activated[3] ? scenes.ServiceWidget(key: tapah.keyMPService,) : Container(),
+								activated[4] ? scenes.ProfileWidget(key: tapah.keyMPProfile,) : Container(),
+							],
+						),
 					],
 				),
 			),
 			bottomNavigationBar: Container(
-				height: 60,
+				height: 80,
 				decoration: BoxDecoration(
 					color: Colors.white,
 					border: Border(top: BorderSide(color: Colors.grey.shade200)),
@@ -71,8 +76,11 @@ class MainPageState extends State<MainPageWidget> with tapah.Callback {
 							child: Column(
 								mainAxisAlignment: MainAxisAlignment.end,
 								children: [
-									Icon(Icons.home, color: activated[0] ? Colors.blue : Colors.black),
-									const SizedBox(height: 22),
+									const SizedBox(height: 10,),
+									Image.network(tapah.parseimage(activated[0] ? "首页-选中.png" : "首页-普通.png"), width: 30, height: 30, fit: BoxFit.contain,),
+									const SizedBox(height: 5),
+									Text("首页", style: TextStyle(fontSize: 14, color: Colors.black,),),
+									const SizedBox(height: 10,),
 								],
 							),
 						),
@@ -90,30 +98,37 @@ class MainPageState extends State<MainPageWidget> with tapah.Callback {
 							child: Column(
 								mainAxisAlignment: MainAxisAlignment.end,
 								children: [
-									Icon(Icons.school, color: activated[1] ? Colors.blue : Colors.black),
-									Text("招聘企业", style: TextStyle(fontSize: 12, color: Colors.black,),),
+									const SizedBox(height: 10,),
+									Image.network(tapah.parseimage(activated[1] ? "招聘企业-选中.png" : "招聘企业-普通.png"), width: 30, height: 30, fit: BoxFit.contain,),
 									const SizedBox(height: 5),
+									Text("招聘企业", style: TextStyle(fontSize: 14, color: Colors.black,),),
+									const SizedBox(height: 10,),
 								],
 							),
 						),
-						InkWell(
-							onTap: () {
-								setState(() {
-									activated[0] = false;
-									activated[1] = false;
-									activated[2] = true;
-									activated[3] = false;
-									activated[4] = false;
-									currentindex = 2;
-								});
-							},
-							child: Column(
-								mainAxisAlignment: MainAxisAlignment.end,
-								children: [
-									Icon(Icons.local_offer, size: 35, color: activated[2] ? Colors.blue : Colors.black,),
-									Text("Offer", style: TextStyle(fontSize: 12, color: Colors.black,),),
-									const SizedBox(height: 5),
-								],
+						Transform.translate(
+							offset: const Offset(0, -25),
+							child: InkWell(
+								onTap: () {
+									setState(() {
+										activated[0] = false;
+										activated[1] = false;
+										activated[2] = true;
+										activated[3] = false;
+										activated[4] = false;
+										currentindex = 2;
+									});
+								},
+								child: Column(
+									mainAxisSize: MainAxisSize.min,
+									children: [
+										const SizedBox(height: 10),
+										Image.network(tapah.parseimage(activated[2] ? "offer-选中.png" : "offer-普通.png"), width: 60, height: 60, fit: BoxFit.contain,),
+										const SizedBox(height: 5),
+										Text("Offer", style: TextStyle(fontSize: 14, color: Colors.black)),
+										const SizedBox(height: 10),
+									],
+								),
 							),
 						),
 						InkWell(
@@ -124,15 +139,17 @@ class MainPageState extends State<MainPageWidget> with tapah.Callback {
 									activated[2] = false;
 									activated[3] = true;
 									activated[4] = false;
-									currentindex = 3;
+									currentindex = 4;
 								});
 							},
 							child: Column(
 								mainAxisAlignment: MainAxisAlignment.end,
 								children: [
-									Icon(Icons.room_service, color: activated[3] ? Colors.blue : Colors.black,),
-									Text("服务", style: TextStyle(fontSize: 12, color: Colors.black,),),
+									const SizedBox(height: 10,),
+									Image.network(tapah.parseimage(activated[3] ? "服务-选中.png" : "服务-普通.png"), width: 30, height: 30, fit: BoxFit.contain,),
 									const SizedBox(height: 5),
+									Text("服务", style: TextStyle(fontSize: 14, color: Colors.black,),),
+									const SizedBox(height: 10,),
 								],
 							),
 						),
@@ -150,9 +167,11 @@ class MainPageState extends State<MainPageWidget> with tapah.Callback {
 							child: Column(
 								mainAxisAlignment: MainAxisAlignment.end,
 								children: [
-									Icon(Icons.center_focus_strong, color: activated[4] ? Colors.blue : Colors.black,),
-									Text("关于我们", style: TextStyle(fontSize: 12, color: Colors.black,),),
+									const SizedBox(height: 10,),
+									Image.network(tapah.parseimage(activated[4] ? "个人中心-选中.png" : "个人中心-普通.png"), width: 30, height: 30, fit: BoxFit.contain,),
 									const SizedBox(height: 5),
+									Text("个人中心", style: TextStyle(fontSize: 14, color: Colors.black,),),
+									const SizedBox(height: 10,),
 								],
 							),
 						),

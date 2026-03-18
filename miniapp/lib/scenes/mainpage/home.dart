@@ -46,8 +46,6 @@ class HomeState extends State<HomeWidget> with tapah.Callback {
 			child: Column(
 				mainAxisAlignment: MainAxisAlignment.start,
 				children: [
-					buildHeader(),
-					SizedBox(height: 10),
 					buildTopImage(),
 					SizedBox(height: 10),
 					buildLanMuList(),
@@ -70,39 +68,39 @@ class HomeState extends State<HomeWidget> with tapah.Callback {
 		});
 	}
 
-	Widget buildHeader() {
-		return Row(
-			mainAxisAlignment: MainAxisAlignment.start,
-			children: [
-				SizedBox(width: 20),
-				Icon(Icons.home, color: Colors.blue),
-				SizedBox(width: 10),
-				SizedBox(
-					width: 200,
-					child: TextField(
-						decoration: InputDecoration(
-							prefixIcon: Icon(Icons.search, color: Colors.grey),
-							hintText: '雅思口语AI评测',
-							hintStyle: TextStyle(color: Colors.grey[600], fontSize: 14),
-							border: OutlineInputBorder(
-								borderRadius: BorderRadius.circular(8),
-								borderSide: BorderSide.none,
-							),
-							filled: true,
-							fillColor: Colors.grey[200],
-							contentPadding: EdgeInsets.symmetric(vertical: 12),
-						),
-					),
-				),
-			],
-		);
-	}
+	//Widget buildHeader() {
+	//	return Row(
+	//		mainAxisAlignment: MainAxisAlignment.start,
+	//		children: [
+	//			SizedBox(width: 20),
+	//			Icon(Icons.home, color: Colors.blue),
+	//			SizedBox(width: 10),
+	//			SizedBox(
+	//				width: 200,
+	//				child: TextField(
+	//					decoration: InputDecoration(
+	//						prefixIcon: Icon(Icons.search, color: Colors.grey),
+	//						hintText: '雅思口语AI评测',
+	//						hintStyle: TextStyle(color: Colors.grey[600], fontSize: 14),
+	//						border: OutlineInputBorder(
+	//							borderRadius: BorderRadius.circular(8),
+	//							borderSide: BorderSide.none,
+	//						),
+	//						filled: true,
+	//						fillColor: Colors.grey[200],
+	//						contentPadding: EdgeInsets.symmetric(vertical: 12),
+	//					),
+	//				),
+	//			),
+	//		],
+	//	);
+	//}
 
 	Widget buildTopImage() {
 		return Padding(
 			padding: EdgeInsets.symmetric(horizontal: 20),
 			child: ConstrainedBox(
-				constraints: BoxConstraints(maxHeight: 200),
+				constraints: BoxConstraints(maxHeight: 214),
 				child: Stack(
 					children: [
 						PageView.builder(
@@ -156,7 +154,7 @@ class HomeState extends State<HomeWidget> with tapah.Callback {
 						});
 					},
 					child: SizedBox(
-						height: 180,
+						height: 200,
 						child: PageView.builder(
 							itemCount: (tapah.lanmus.length / 10).ceil(),
 							onPageChanged: (index) {
@@ -174,7 +172,7 @@ class HomeState extends State<HomeWidget> with tapah.Callback {
 										crossAxisCount: 5,
 										mainAxisSpacing: 10,
 										crossAxisSpacing: 10,
-										childAspectRatio: 0.8,
+										childAspectRatio: 0.7,
 									),
 									itemCount: lanmuPage.length,
 									padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -186,7 +184,15 @@ class HomeState extends State<HomeWidget> with tapah.Callback {
 											child: Column(
 												mainAxisAlignment: MainAxisAlignment.center,
 												children: [
-													Image.network(tapah.parseimage(lanmu.image), width: 40, height: 40, fit: BoxFit.contain,),
+													Container(
+														width: 60,
+														height: 60,
+														decoration: const BoxDecoration(
+															color: Colors.white,
+															shape: BoxShape.circle,
+														),
+														child: Image.network(tapah.parseimage(lanmu.image), width: 35, height: 35,),
+													),
 													const SizedBox(height: 5),
 													Text(
 														lanmu.title,
@@ -222,7 +228,7 @@ class HomeState extends State<HomeWidget> with tapah.Callback {
 
 	Widget buildFenYeList() {
 		return Container(
-			height: 60, 
+			height: 60,
 			child: ListView.builder(
 				scrollDirection: Axis.horizontal,
 				itemCount: tapah.fenyes.length,
@@ -231,18 +237,11 @@ class HomeState extends State<HomeWidget> with tapah.Callback {
 					return GestureDetector(
 						onTap: () => setState(() => fenyeindex = index),
 						child: Container(
-							padding: EdgeInsets.symmetric(horizontal: 15),
+							padding: EdgeInsets.symmetric(horizontal: 8),
 							child: Column(
 								mainAxisAlignment: MainAxisAlignment.center,
 								children: [
-									Text(tapah.fenyes[index], style: TextStyle(color: Colors.black, fontSize: 12, fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,),),
-									Opacity(
-										opacity: isSelected ? 1.0 : 0.0,
-										child: Padding(
-											padding: const EdgeInsets.only(top: .0, left: 25),
-											child: Image.asset('assets/images/select.png', width: 20, height: 10, fit: BoxFit.contain,),
-										),
-									),
+									Text(tapah.fenyes[index], style: TextStyle(color: Color.fromARGB(0xFF, 0x3D, 0x3D, 0x3D), fontSize: 15, fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,),),
 								],
 							),
 						),

@@ -100,10 +100,11 @@ class Sector {
 class Field {
 	int id;
 	String value;
+	List<String> mapping;
 	String sector;
 	int star;
 	String content;
-	Field({required this.id, required this.value, required this.sector, required this.star, required this.content});
+	Field({required this.id, required this.value, required this.mapping, required this.sector, required this.star, required this.content});
 }
 
 class Enterprise {

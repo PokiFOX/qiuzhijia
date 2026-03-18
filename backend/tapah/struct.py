@@ -60,3 +60,73 @@ class MySQLPool:
 			with self.lock:
 				if self.idle.ping() == False:
 					self.add()
+
+class Linq:
+	def __init__(self, iterable):
+		self.items = iterable
+
+	def where(self, predicate):
+		self.items = (x for x in self.items if predicate(x))
+		return self
+
+	def select(self, selector):
+		self.items = (selector(x) for x in self.items)
+		return self
+
+	def find(self, predicate, default = None):
+		for x in self.items:
+			if predicate(x):
+				return x
+		return default
+
+	def to_list(self):
+		return list(self.items)
+
+	def any(self, predicate = None):
+		for x in self.items:
+			if predicate is None or predicate(x):
+				return True
+		return False
+
+class Zone:
+	def __init__(self, id, name):
+		self.id = id
+		self.name = name
+
+class Sector:
+	def __init__(self, id, name):
+		self.id = id
+		self.name = name
+
+class Level:
+	def __init__(self, id, name):
+		self.id = id
+		self.name = name
+
+class Field:
+	def __init__(self, id, name, mapping, sector, star, content):
+		self.id = id
+		self.name = name
+		self.mapping = mapping
+		self.sector = sector
+		self.star = star
+		self.content = content
+
+class Enterprise:
+	def __init__(self, id, zone, city, name, shortname, brief, upper, sector, level, website1, website2, tag):
+		self.id = id
+		self.zone = zone
+		self.city = city
+		self.name = name
+		self.shortname = shortname
+		self.brief = brief
+		self.upper = upper
+		self.sector = sector
+		self.level = level
+		self.website1 = website1
+		self.website2 = website2
+		self.tag = tag
+		self.field = []
+
+	def addfield(self, field):
+		self.field.append(field)

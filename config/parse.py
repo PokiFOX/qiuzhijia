@@ -40,20 +40,23 @@ for i in range(2, globalpage.max_row + 1):
 	level.append(cell_value)
 
 field = []
-
 for i in range(2, wb['学科列表'].max_row + 1):
 	name = function.getcell_str(wb['学科列表'], i, 1)
-	if name == "": continue
-	sector1 = function.getcell_str(wb['学科列表'], i, 2)
-	star = function.getcell_int(wb['学科列表'], i, 3)
-	content = function.getcell_str(wb['学科列表'], i, 4)
-	cell_value = {
-		"name": name,
-		"sector": sector1,
-		"star": star,
-		"content": content,
-	}
-	field.append(cell_value)
+	field_item = next((item for item in field if item['name'] == name), None)
+	mapname = function.getcell_str(wb['学科列表'], i, 2)
+	if field_item is None:
+		sector1 = function.getcell_str(wb['学科列表'], i, 3)
+		star = function.getcell_int(wb['学科列表'], i, 4)
+		content = function.getcell_str(wb['学科列表'], i, 5)
+		field.append({
+			"name": name,
+			"sector": sector1,
+			"star": star,
+			"content": content,
+			"mapname": [mapname],
+		})
+	else:
+		field_item['mapname'].append(mapname)
 
 try:
 	print(const.url_setzone)
@@ -91,11 +94,13 @@ for i in range(3, len(wb.sheetnames) + 1):
 		tag2 = function.getcell_str(sheet, row, const.column_tag2)				# 标签2
 		tag3 = function.getcell_str(sheet, row, const.column_tag3)				# 标签3
 		tag4 = function.getcell_str(sheet, row, const.column_tag4)				# 标签4
+		tag5 = function.getcell_str(sheet, row, const.column_tag5)				# 标签5
 		tag = []
 		if tag1 != "": tag.append(tag1)
 		if tag2 != "": tag.append(tag2)
 		if tag3 != "": tag.append(tag3)
 		if tag4 != "": tag.append(tag4)
+		if tag5 != "": tag.append(tag5)
 		enterprise['tag'] = ','.join(tag)
 		if enterprise['zone'] not in zone:
 			print(f"地区不合法: {enterprise['zone']} 企业: {enterprise['name']}")
@@ -109,7 +114,12 @@ for i in range(3, len(wb.sheetnames) + 1):
 		fields = enterprise['field'].split(',')
 		valid_fields = []
 		for f in fields:
-			if f not in [field_item['name'] for field_item in field] and f != "":
+			find = False
+			for field_item in field:
+				if f in field_item['mapname']:
+					find = True
+					break
+			if not find and f != "":
 				print(f"主要招聘学科不合法: {f} 企业: {enterprise['name']}")
 			else:
 				valid_fields.append(f)

@@ -11,6 +11,7 @@ column_tag1 = 'J'			# 标签
 column_tag2 = 'K'			# 标签
 column_tag3 = 'L'			# 标签
 column_tag4 = 'M'			# 标签
+column_tag5 = 'N'			# 标签
 column_website1 = 'O'		# 官网
 column_website2 = 'P'		# 校招官网
 
