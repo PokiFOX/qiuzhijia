@@ -34,16 +34,19 @@ class BriefState extends State<BriefWidget> with tapah.Callback {
 			scrollDirection: Axis.vertical,
 			child: Column(
 				mainAxisAlignment: MainAxisAlignment.start,
+				crossAxisAlignment: CrossAxisAlignment.start,
 				children: [
+					const SizedBox(height: 10,),
 					buildTitle(),
-					const SizedBox(height: 5,),
+					const SizedBox(height: 10,),
 					Padding(
 						padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
 						child: ExpandableText(
 							widget.enterprise.brief ?? '',
+							style: TextStyle(fontSize: 15, color: Colors.black,),
 							expandText: '展开',
 							collapseText: '收起',
-							maxLines: 3,
+							maxLines: 4,
 							linkColor: Colors.blue,
 						),
 					),
@@ -68,60 +71,53 @@ class BriefState extends State<BriefWidget> with tapah.Callback {
 	}
 
 	Widget buildTitle() {
-		return Container(
-			height: 90,
-			child: Row(
-				mainAxisAlignment: MainAxisAlignment.center,
+		return Padding(
+			padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+			child: Column(
+				mainAxisAlignment: MainAxisAlignment.start,
+				crossAxisAlignment: CrossAxisAlignment.start,
 				children: [
-					const SizedBox(width: 10),
-					Expanded(
-						child: Container(
-							decoration: BoxDecoration(
-								color: Colors.white,
-								borderRadius: BorderRadius.circular(8),
-							),
-							padding: const EdgeInsets.all(10),
-							child: Row(
-								mainAxisAlignment: MainAxisAlignment.start,
-								children: [
-									Expanded(
-										child: Column(
-											mainAxisAlignment: MainAxisAlignment.start,
-											crossAxisAlignment: CrossAxisAlignment.start,
-											children: [
-												Text(widget.enterprise.name!),
-												const SizedBox(height: 4),
-												SingleChildScrollView(
-													scrollDirection: Axis.horizontal,
-													child: Row(
-														children: (widget.enterprise.tags).map<Widget>((t) => Container(
-															margin: const EdgeInsets.only(right: 6),
-															padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-															decoration: BoxDecoration(
-																color: Colors.blue,
-																borderRadius: BorderRadius.circular(4),
-															),
-															child: Text(t, style: const TextStyle(color: Colors.white, fontSize: 10)),
-														)).toList(),
-													),
-												),
-												const SizedBox(height: 4),
-												Text("${widget.enterprise.zone!.value} ${widget.enterprise.city!}", style: const TextStyle(fontSize: 10),),
-											],
-										),
-									),
-									const SizedBox(width: 10),
-									Column(
-										mainAxisAlignment: MainAxisAlignment.center,
-										children: [
-											Icon(Icons.stop, size: 70,),
-										],
-									),
-								],
-							),
+					Text(widget.enterprise.name!, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,),),
+					const SizedBox(height: 10),
+					SingleChildScrollView(
+						scrollDirection: Axis.horizontal,
+						child: Row(
+							children: (widget.enterprise.tags).map<Widget>((t) => Container(
+								height: 16,
+								margin: const EdgeInsets.only(right: 6),
+								padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1,),
+								decoration: BoxDecoration(
+									color: Color(0xFFFEEBE5),
+									borderRadius: BorderRadius.circular(4),
+								),
+								child: Text(t, style: const TextStyle(color: Color(0xFFF66923), fontSize: 10)),
+							)).toList(),
 						),
 					),
-					const SizedBox(width: 10),
+					const SizedBox(height: 10),
+					Row(
+						mainAxisAlignment: MainAxisAlignment.start,
+						children: [
+							Container(
+								margin: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+								padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1,),
+								decoration: BoxDecoration(
+									color: Colors.grey[200],
+									borderRadius: BorderRadius.circular(4),
+								),
+								child: Text("${widget.enterprise.zone!.value}", style: const TextStyle(fontSize: 9, color: Colors.black,),),
+							),
+							Container(
+								margin: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+								padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1,),
+								decoration: BoxDecoration(
+									color: Colors.grey[200],
+									borderRadius: BorderRadius.circular(4),
+								),
+								child: Text("${widget.enterprise.city!}", style: const TextStyle(fontSize: 9, color: Colors.black,),),
+							),
+						],
+					),
 				],
 			),
 		);
@@ -133,18 +129,18 @@ class BriefState extends State<BriefWidget> with tapah.Callback {
 				children: [
 					TableCell(
 						verticalAlignment: TableCellVerticalAlignment.middle,
-						child: Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12,),),
+						child: Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14,), textAlign: TextAlign.end,),
 					),
 					TableCell(
 						verticalAlignment: TableCellVerticalAlignment.middle,
 						child: Padding(
 							padding: const EdgeInsets.all(6.0),
-							child: Text(info, style: TextStyle(fontSize: 12, color: action == "" ? Colors.black : Colors.blue),),
+							child: Text(info, style: TextStyle(fontSize: 14, color: action == "" ? Colors.black : Colors.blue),),
 						),
 					),
 					TableCell(
 						verticalAlignment: TableCellVerticalAlignment.middle,
-						child: Text(action, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: action == "" ? Colors.black : Colors.blue),),
+						child: Text(action, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: action == "" ? Colors.black : Colors.blue),),
 					),
 				],
 			);
@@ -156,7 +152,7 @@ class BriefState extends State<BriefWidget> with tapah.Callback {
 				columnWidths: const {
 					0: FixedColumnWidth(70),
 					1: FlexColumnWidth(1),
-					2: FixedColumnWidth(50),
+					2: FixedColumnWidth(70),
 				},
 				children: [
 					buildRow("全称:", widget.enterprise.name ?? '', "", null),

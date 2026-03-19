@@ -50,12 +50,20 @@ class DetailState extends State<DetailWidget> with tapah.Callback {
 				child: SingleChildScrollView(
 					scrollDirection: Axis.vertical,
 					child: Container(
+						decoration: const BoxDecoration(
+							gradient: LinearGradient(
+								begin: Alignment.topCenter, 
+								end: Alignment.bottomCenter,
+								colors: [
+									Color(0xFF7EAEFF),
+									Color(0xFFFFFFFF),
+								],
+							),
+						),
 						child: Column(
 							children: [
 								const SizedBox(height: 10),
 								buildTopImage(),
-								const SizedBox(height: 10),
-								buildInfoSection(),
 								const SizedBox(height: 10),
 								buildInfoView(),
 								const SizedBox(height: 10),
@@ -71,45 +79,58 @@ class DetailState extends State<DetailWidget> with tapah.Callback {
 					border: Border(top: BorderSide(color: Colors.grey.shade200)),
 				),
 				child: Row(
-					mainAxisAlignment: MainAxisAlignment.spaceAround,
+					mainAxisAlignment: MainAxisAlignment.center,
 					children: [
 						InkWell(
 							onTap: () {
 							},
-							child: Icon(Icons.home, color:Colors.black),
+							child: Row(
+								children: [
+									Image.network(tapah.parseimage('企业详情/首页.png'), fit: BoxFit.contain, width: 28, height: 28,),
+									Text("首页", style: TextStyle(color: Colors.black, fontSize: 10),),
+								],
+							),
 						),
+						const SizedBox(width: 20,),
 						InkWell(
 							onTap: () {
 							},
-							child: Icon(Icons.share, color: Colors.black),
+							child: Row(
+								children: [
+									Image.network(tapah.parseimage('企业详情/关注.png'), fit: BoxFit.contain, width: 28, height: 28,),
+									Text("关注", style: TextStyle(color: Colors.black, fontSize: 10),),
+								],
+							),
 						),
+						const SizedBox(width: 20,),
 						GestureDetector(
 							onTap: () {
 							},
 							child: Container(
-								width: 75,
+								width: 100,
 								height: 30,
 								decoration: BoxDecoration(
-									color: Colors.blue,
+									color: Color(0xFF82B2F5),
 									borderRadius: BorderRadius.circular(15),
 								),
 								child: Center(
-									child: Text("在线咨询"),
+									child: Text("在线咨询", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold,),),
 								),
 							),
 						),
+						const SizedBox(width: 20,),
 						GestureDetector(
 							onTap: () {
 							},
 							child: Container(
-								width: 75,
+								width: 100,
 								height: 30,
 								decoration: BoxDecoration(
-									color: Colors.orange,
+									color: Color(0xFFFFC300),
 									borderRadius: BorderRadius.circular(15),
 								),
 								child: Center(
-									child: Text("电话咨询"),
+									child: Text("电话咨询", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold,),),
 								),
 							),
 						),
@@ -148,109 +169,49 @@ class DetailState extends State<DetailWidget> with tapah.Callback {
 		);
 	}
 
-	Widget buildInfoSection() {
-		return Row(
-			mainAxisAlignment: MainAxisAlignment.start,
-			children: [
-				const SizedBox(width: 10),
-				Expanded(
-					child: GestureDetector(
-						onTap: () => setState(() => fenyeindex = 0),
-						child: Container(
-							height: 40,
-							decoration: BoxDecoration(
-								color: fenyeindex == 0 ? Colors.grey[400] : Colors.transparent,
-								borderRadius: BorderRadius.circular(0),
-							),
-							child: Center(
-								child: Text(tapah.entfenyes[0], style: TextStyle(color: Colors.black, fontSize: 12, fontWeight: fenyeindex == 0 ? FontWeight.bold : FontWeight.normal,),),
-							),
-						),
-					),
-				),
-				const SizedBox(width: 10),
-				Expanded(
-					child: GestureDetector(
-						onTap: () => setState(() => fenyeindex = 1),
-						child: Container(
-							height: 40,
-							decoration: BoxDecoration(
-								color: fenyeindex == 1 ? Colors.grey[400] : Colors.transparent,
-								borderRadius: BorderRadius.circular(0),
-							),
-							child: Center(
-								child: Text(tapah.entfenyes[1], style: TextStyle(color: Colors.black, fontSize: 12, fontWeight: fenyeindex == 1 ? FontWeight.bold : FontWeight.normal,),),
-							),
-						),
-					),
-				),
-				const SizedBox(width: 10),
-				Expanded(
-					child: GestureDetector(
-						onTap: () => setState(() => fenyeindex = 2),
-						child: Container(
-							height: 40,
-							decoration: BoxDecoration(
-								color: fenyeindex == 2 ? Colors.grey[400] : Colors.transparent,
-								borderRadius: BorderRadius.circular(0),
-							),
-							child: Center(
-								child: Text(tapah.entfenyes[2], style: TextStyle(color: Colors.black, fontSize: 12, fontWeight: fenyeindex == 2 ? FontWeight.bold : FontWeight.normal,),),
-							),
-						),
-					),
-				),
-				const SizedBox(width: 10),
-				Expanded(
-					child: GestureDetector(
-						onTap: () => setState(() => fenyeindex = 3),
-						child: Container(
-							height: 40,
-							decoration: BoxDecoration(
-								color: fenyeindex == 3 ? Colors.grey[400] : Colors.transparent,
-								borderRadius: BorderRadius.circular(0),
-							),
-							child: Center(
-								child: Text(tapah.entfenyes[3], style: TextStyle(color: Colors.black, fontSize: 12, fontWeight: fenyeindex == 3 ? FontWeight.bold : FontWeight.normal,),),
-							),
-						),
-					),
-				),
-				const SizedBox(width: 10),
-				Expanded(
-					child: GestureDetector(
-						onTap: () => setState(() => fenyeindex = 4),
-						child: Container(
-							height: 40,
-							decoration: BoxDecoration(
-								color: fenyeindex == 4 ? Colors.grey[400] : Colors.transparent,
-								borderRadius: BorderRadius.circular(0),
-							),
-							child: Center(
-								child: Text(tapah.entfenyes[4], style: TextStyle(color: Colors.black, fontSize: 12, fontWeight: fenyeindex == 4 ? FontWeight.bold : FontWeight.normal,),),
-							),
-						),
-					),
-				),
-				const SizedBox(width: 10),
-			],
-		);
-	}
-
 	Widget buildInfoView() {
-		switch (fenyeindex) {
-			case 0:
-				return scenes.BriefWidget(key: tapah.keyDTBrief, enterprise: enterprise);
-			case 1:
-				return scenes.SectorWidget(key: tapah.keyDTSector, enterprise: enterprise);
-			case 2:
-				return scenes.InfoWidget(key: tapah.keyDTInfo, enterprise: enterprise);
-			case 3:
-				return scenes.OfferWidget(key: tapah.keyDTOffer, enterprise: enterprise);
-			case 4:
-				return scenes.ExampleWidget(key: tapah.keyDTExample, enterprise: enterprise);
-			default:
-				return Container();
-		}
+		return Container(
+			decoration: BoxDecoration(
+				color: Colors.white,
+				borderRadius: BorderRadius.circular(8),
+			),
+			child: Column(
+				mainAxisAlignment: MainAxisAlignment.start,
+				children: [
+					const SizedBox(height: 10,),
+					SizedBox(
+						height: 25,
+						child: ListView.builder(
+							scrollDirection: Axis.horizontal,
+							itemCount: tapah.entfenyes.length,
+							itemBuilder: (context, index) {
+								return GestureDetector(
+									onTap: () => setState(() => fenyeindex = index),
+									child: Container(
+										padding: EdgeInsets.symmetric(horizontal: 8),
+										child: Column(
+											mainAxisAlignment: MainAxisAlignment.end,
+											children: [
+												Text(tapah.entfenyes[index], style: TextStyle(fontSize: 14, color: Colors.black, fontWeight: fenyeindex == index ? FontWeight.bold : FontWeight.normal),),
+											],
+										),
+									),
+								);
+							},
+						),
+					),
+					IndexedStack(
+						index: fenyeindex,
+						children: [
+							scenes.BriefWidget(key: tapah.keyDTBrief, enterprise: enterprise),
+							scenes.SectorWidget(key: tapah.keyDTSector, enterprise: enterprise),
+							scenes.InfoWidget(key: tapah.keyDTInfo, enterprise: enterprise),
+							scenes.OfferWidget(key: tapah.keyDTOffer, enterprise: enterprise),
+							scenes.ExampleWidget(key: tapah.keyDTExample, enterprise: enterprise),
+						],
+					),
+				],
+			),
+		);
 	}
 }
