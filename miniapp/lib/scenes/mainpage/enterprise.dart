@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
+import 'package:auto_size_text/auto_size_text.dart';
+
 import 'package:qiuzhijia/tapah/class.dart' as tapah;
 import 'package:qiuzhijia/tapah/data.dart' as tapah;
 import 'package:qiuzhijia/tapah/enum.dart' as tapah;
-import 'package:qiuzhijia/tapah/function.dart' as tapah;
 import 'package:qiuzhijia/tapah/request.dart' as tapah;
 
 class EnterpriseWidget extends StatefulWidget {
@@ -30,37 +31,27 @@ class EnterpriseState extends State<EnterpriseWidget> with tapah.Callback {
 	}
 
 	Future<void> getEnterpriseList() async {
-		List<int> levels = [];
-		if (level == 0) {
-			for (var e in tapah.levellist) {
-				if (part == 0 && e.value.contains("央")) levels.add(e.id);
-				if (part == 1 && e.value.contains("国")) levels.add(e.id);
-				if (part == 2 && e.value.contains("金")) levels.add(e.id);
-			}
-		}
-		else {
-			levels.add(level);
-		}
-		await tapah.RequestEnterpriseList(zone, sector, levels);
+		await tapah.RequestEnterpriseList(zone, sector, level);
 		if (mounted == false) return;
 		setState(() {});
 	}
 
 	@override
 	Widget build(BuildContext context) {
-		return SingleChildScrollView(
-			scrollDirection: Axis.vertical,
-			child: Container(
-				decoration: BoxDecoration(
-					color: Colors.grey[200],
-					borderRadius: BorderRadius.circular(0),
-				),
+		return Container(
+			height: double.infinity,
+			decoration: const BoxDecoration(
+				color: Color(0xFFE2EDFF),
+			),
+			child: SingleChildScrollView(
+				scrollDirection: Axis.vertical,
 				child: Column(
 					mainAxisAlignment: MainAxisAlignment.start,
 					children: [
 						SizedBox(height: 50),
 						buildTopRow(),
 						buildFilterRow(),
+						SizedBox(height: 10),
 						buildEnterpriseList(),
 					],
 				),
@@ -80,7 +71,7 @@ class EnterpriseState extends State<EnterpriseWidget> with tapah.Callback {
 								part = 0;
 								getEnterpriseList();
 							},
-							child: Image.network(tapah.parseimage("央企.png"),),
+							child: Text("央企", style: TextStyle(fontSize: 22, color: Colors.black, fontWeight: part == 0 ? FontWeight.bold : FontWeight.normal),),
 						),
 						const SizedBox(width: 20),
 						GestureDetector(
@@ -88,7 +79,7 @@ class EnterpriseState extends State<EnterpriseWidget> with tapah.Callback {
 								part = 1;
 								getEnterpriseList();
 							},
-							child: Image.network(tapah.parseimage("国企.png"),),
+							child: Text("国企", style: TextStyle(fontSize: 22, color: Colors.black, fontWeight: part == 1 ? FontWeight.bold : FontWeight.normal),),
 						),
 						const SizedBox(width: 20),
 						GestureDetector(
@@ -96,7 +87,7 @@ class EnterpriseState extends State<EnterpriseWidget> with tapah.Callback {
 								part = 2;
 								getEnterpriseList();
 							},
-							child: Image.network(tapah.parseimage("金融机构.png"),),
+							child: Text("金融机构", style: TextStyle(fontSize: 22, color: Colors.black, fontWeight: part == 2 ? FontWeight.bold : FontWeight.normal),),
 						),
 					],
 				),
@@ -114,9 +105,9 @@ class EnterpriseState extends State<EnterpriseWidget> with tapah.Callback {
 					child: DropdownButton<int>(
 						isExpanded: true,
 						value: hasValue && value != 0 ? value : null,
-						hint: Text(labelText, style: const TextStyle(fontSize: 10)),
+						hint: Text(labelText, style: const TextStyle(fontSize: 14)),
 						icon: const Icon(Icons.arrow_drop_down, size: 15),
-						items: items.map((e) => DropdownMenuItem<int>(value: e.id, child: Text(e.value, style: const TextStyle(fontSize: 10)))).toList(),
+						items: items.map((e) => DropdownMenuItem<int>(value: e.id, child: Text(e.value, style: const TextStyle(fontSize: 14)))).toList(),
 						onChanged: onChanged,
 					),
 				),
@@ -124,8 +115,12 @@ class EnterpriseState extends State<EnterpriseWidget> with tapah.Callback {
 		}
 
 		return Padding(
-			padding: const EdgeInsets.symmetric(horizontal: 20.0),
-			child: SizedBox(
+			padding: const EdgeInsets.symmetric(horizontal: 10.0),
+			child: Container(
+				decoration: BoxDecoration(
+					color: Colors.white,
+					borderRadius: BorderRadius.circular(10),
+				),
 				height: 50,
 				child: StatefulBuilder(builder: (context, setState) {
 					return Row(
@@ -141,9 +136,6 @@ class EnterpriseState extends State<EnterpriseWidget> with tapah.Callback {
 							SizedBox(
 								width: 100,
 								child: dropdown(level, tapah.levellist.where((e) {
-									if (part == 0) return e.value.contains("央");
-									if (part == 1) return e.value.contains("国");
-									if (part == 2) return e.value.contains("金");
 									return true;
 								}).toList(), (v) {
 									level = v ?? 0;
@@ -160,7 +152,7 @@ class EnterpriseState extends State<EnterpriseWidget> with tapah.Callback {
 							const SizedBox(width: 10),
 							const SizedBox(
 								width: 40,
-								child: Text('更多', style: TextStyle(fontSize: 10)),
+								child: Text('更多', style: TextStyle(fontSize: 14)),
 							),
 						],
 					);
@@ -170,75 +162,76 @@ class EnterpriseState extends State<EnterpriseWidget> with tapah.Callback {
 	}
 
 	Widget buildEnterpriseList() {
-		return ListView.separated(
-			shrinkWrap: true,
-			physics: const NeverScrollableScrollPhysics(),
-			itemCount: tapah.enterpriselist.length,
-			separatorBuilder: (context, index) => const SizedBox(height: 5),
-			itemBuilder: (context, index) {
-				var enterprise = tapah.enterpriselist[index];
-				return GestureDetector(
-					onTap: () {
-						Navigator.pushNamed(context, '/enterprise/detail', arguments: enterprise);
-					},
-					child: Container(
-						child: Row(
-							mainAxisAlignment: MainAxisAlignment.center,
-							children: [
-								const SizedBox(width: 10),
-								Expanded(
-									child: Container(
-										decoration: BoxDecoration(
-											color: Colors.white,
-											borderRadius: BorderRadius.circular(8),
-										),
-										padding: const EdgeInsets.all(10),
-										child: Row(
+		return Padding(
+			padding: const EdgeInsets.symmetric(horizontal: 10.0),
+			child: ListView.separated(
+				padding: EdgeInsets.zero,
+				shrinkWrap: true,
+				physics: const NeverScrollableScrollPhysics(),
+				itemCount: tapah.enterpriselist.length,
+				separatorBuilder: (context, index) => const SizedBox(height: 10),
+				itemBuilder: (context, index) {
+					var enterprise = tapah.enterpriselist[index];
+					return GestureDetector(
+						onTap: () {
+							Navigator.pushNamed(context, '/enterprise/detail', arguments: enterprise);
+						},
+						child: Container(
+							height: 100,
+							decoration: BoxDecoration(
+								color: Colors.white,
+								borderRadius: BorderRadius.circular(8),
+							),
+							padding: const EdgeInsets.all(10),
+							child: Row(
+								mainAxisAlignment: MainAxisAlignment.start,
+								children: [
+									Column(
+										mainAxisAlignment: MainAxisAlignment.center,
+										children: [
+											Icon(Icons.stop, size: 80,),
+										],
+									),
+									const SizedBox(width: 10),
+									Expanded(
+										child: Column(
 											mainAxisAlignment: MainAxisAlignment.start,
+											crossAxisAlignment: CrossAxisAlignment.start,
 											children: [
-												Column(
-													mainAxisAlignment: MainAxisAlignment.center,
-													children: [
-														Icon(Icons.stop, size: 70,),
-													],
+												AutoSizeText(
+													enterprise.name!,
+													style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+													minFontSize: 10,
+													maxLines: 1,
+													overflow: TextOverflow.ellipsis,
 												),
-												const SizedBox(width: 10),
-												Expanded(
-													child: Column(
-														mainAxisAlignment: MainAxisAlignment.start,
-														crossAxisAlignment: CrossAxisAlignment.start,
-														children: [
-															Text(enterprise.name!),
-															const SizedBox(height: 4),
-															SingleChildScrollView(
-																scrollDirection: Axis.horizontal,
-																child: Row(
-																	children: (enterprise.tags).map<Widget>((t) => Container(
-																		margin: const EdgeInsets.only(right: 6),
-																		padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-																		decoration: BoxDecoration(
-																			color: Colors.blue,
-																			borderRadius: BorderRadius.circular(4),
-																		),
-																		child: Text(t, style: const TextStyle(color: Colors.white, fontSize: 10)),
-																	)).toList(),
-																),
+												const SizedBox(height: 4),
+												SingleChildScrollView(
+													scrollDirection: Axis.horizontal,
+													child: Row(
+														children: (enterprise.tags).map<Widget>((t) => Container(
+															height: 15,
+															margin: const EdgeInsets.only(right: 6),
+															padding: const EdgeInsets.symmetric(horizontal: 2),
+															decoration: BoxDecoration(
+																color: Color(0xFF82B2F5),
+																borderRadius: BorderRadius.circular(4),
 															),
-															const SizedBox(height: 4),
-															Text("${enterprise.zone!.value} ${enterprise.city!}", style: const TextStyle(fontSize: 10),),
-														],
+															child: Text(t, style: const TextStyle(color: Colors.white, fontSize: 10)),
+														)).toList(),
 													),
 												),
+												const SizedBox(height: 4),
+												Text("${enterprise.zone!.value} ${enterprise.city!}", style: const TextStyle(fontSize: 10),),
 											],
 										),
 									),
-								),
-								const SizedBox(width: 10),
-							],
+								],
+							),
 						),
-					),
-				);
-			},
+					);
+				},
+			),
 		);
 	}
 }

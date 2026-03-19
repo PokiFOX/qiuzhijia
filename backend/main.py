@@ -82,7 +82,7 @@ async def query_fieldlist(req: Request):
 async def query_enterprise(req: Request):
 	json = await req.json()
 	zone_id = json.get("zone")
-	levels = json.get("levels")
+	level_id = json.get("level")
 	sector_id = json.get("sector")
 
 	if Linq(data.zonelist).find(lambda z: z.id == zone_id) is None and zone_id != 0:
@@ -91,13 +91,11 @@ async def query_enterprise(req: Request):
 			"status": "zone_not_found",
 		})
 
-	if len(levels) != 0:
-		for level in levels:
-			if Linq(data.levellist).find(lambda l: l.id == level) is None:
-				return JSONResponse(content = {
-					"code": 1,
-					"status": "level_not_found",
-				})
+	if Linq(data.levellist).find(lambda l: l.id == level_id) is None and level_id != 0:
+		return JSONResponse(content = {
+			"code": 1,
+			"status": "level_not_found",
+		})
 
 	if Linq(data.sectorlist).find(lambda s: s.id == sector_id) is None and sector_id != 0:
 		return JSONResponse(content = {
@@ -109,7 +107,7 @@ async def query_enterprise(req: Request):
 	for enterprise in data.enterpriselist:
 		if zone_id != 0 and enterprise.zone != zone_id: continue
 		if sector_id != 0 and enterprise.sector != sector_id: continue
-		if len(levels) != 0 and enterprise.level not in levels: continue
+		if level_id != 0 and enterprise.level != level_id: continue
 		enterpriselist.append({
 			"id": enterprise.id,
 			"zone": enterprise.zone,

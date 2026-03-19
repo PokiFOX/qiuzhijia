@@ -13,7 +13,7 @@ Future<void> RequestZoneList() async {
 		throw Exception('Error code: ${response.data['code']}');
 	}
 	var json = response.data["data"]["zonelist"];
-	zonelist = [];
+	zonelist = [Zone(id: 0, value: "不限")];
 	json.forEach((key, item) {
 		zonelist.add(Zone(id: int.parse(key), value: item));
 	});
@@ -25,7 +25,7 @@ Future<void> RequestSectorList() async {
 		throw Exception('Error code: ${response.data['code']}');
 	}
 	var json = response.data["data"]["sectorlist"];
-	sectorlist = [];
+	sectorlist = [Sector(id: 0, value: "不限")];
 	json.forEach((key, item) {
 		sectorlist.add(Sector(id: int.parse(key), value: item));
 	});
@@ -37,7 +37,7 @@ Future<void> RequestLevelList() async {
 		throw Exception('Error code: ${response.data['code']}');
 	}
 	var json = response.data["data"]["levellist"];
-	levellist = [];
+	levellist = [Level(id: 0, value: "不限")];
 	json.forEach((key, item) {
 		levellist.add(Level(id: int.parse(key), value: item));
 	});
@@ -49,7 +49,7 @@ Future<void> RequestFieldList() async {
 		throw Exception('Error code: ${response.data['code']}');
 	}
 	var json = response.data["data"]["fieldlist"];
-	fieldlist = [];
+	fieldlist = [Field(id: 0, value: "不限", sector: "", star: 0, content: "")];
 	json.forEach((item) {
 		fieldlist.add(Field(id: item["id"], value: item["name"], sector: item["sector"], star: item["star"], content: item["content"]));
 	});

@@ -9,7 +9,7 @@ Future<void> RequestZoneList() async {
 		throw Exception('Error code: ${response.data['code']}');
 	}
 	var json = response.data["data"]["zonelist"];
-	zonelist = [];
+	zonelist = [Zone(id: 0, value: "不限")];
 	json.forEach((key, item) {
 		zonelist.add(Zone(id: int.parse(key), value: item));
 	});
@@ -18,10 +18,10 @@ Future<void> RequestZoneList() async {
 Future<void> RequestSectorList() async {
 	var response = await dio.get(parseurl(url_query_sectorlist));
 	if (response.data['code'] != 0) {
-		throw Exception('Error code: ${response.data['code']}');
+		throw Exception('Error code: ${response.data['code']} status: ${response.data['status']}');
 	}
 	var json = response.data["data"]["sectorlist"];
-	sectorlist = [];
+	sectorlist = [Sector(id: 0, value: "不限")];
 	json.forEach((key, item) {
 		sectorlist.add(Sector(id: int.parse(key), value: item));
 	});
@@ -30,10 +30,10 @@ Future<void> RequestSectorList() async {
 Future<void> RequestLevelList() async {
 	var response = await dio.get(parseurl(url_query_levellist));
 	if (response.data['code'] != 0) {
-		throw Exception('Error code: ${response.data['code']}');
+		throw Exception('Error code: ${response.data['code']} status: ${response.data['status']}');
 	}
 	var json = response.data["data"]["levellist"];
-	levellist = [];
+	levellist = [Level(id: 0, value: "不限")];
 	json.forEach((key, item) {
 		levellist.add(Level(id: int.parse(key), value: item));
 	});
@@ -42,7 +42,7 @@ Future<void> RequestLevelList() async {
 Future<void> RequestFieldList() async {
 	var response = await dio.get(parseurl(url_query_fieldlist));
 	if (response.data['code'] != 0) {
-		throw Exception('Error code: ${response.data['code']}');
+		throw Exception('Error code: ${response.data['code']} status: ${response.data['status']}');
 	}
 	var json = response.data["data"]["fieldlist"];
 	fieldlist = [];
@@ -51,14 +51,14 @@ Future<void> RequestFieldList() async {
 	});
 }
 
-Future<void> RequestEnterpriseList(int zone, int sector, List<int> levels) async {
+Future<void> RequestEnterpriseList(int zone, int sector, int level) async {
 	var response = await dio.post(parseurl(url_query_enterprise), data: {
 		"zone": zone,
 		"sector": sector,
-		"levels": levels,
+		"level": level,
 	});
 	if (response.data['code'] != 0) {
-		throw Exception('Error code: ${response.data['code']}');
+		throw Exception('Error code: ${response.data['code']} status: ${response.data['status']}');
 	}
 	var json = response.data["data"]["enterpriselist"];
 	enterpriselist = [];

@@ -61,7 +61,7 @@ class MainPageState extends State<MainPageWidget> with tapah.Callback {
 								height: 80,
 								decoration: BoxDecoration(
 									image: DecorationImage(
-										image: NetworkImage(tapah.parseimage("底部按钮底板.png")),
+										image: NetworkImage(tapah.parseimage("底部按钮/底部按钮底板.png")),
 										fit: BoxFit.fitWidth,
 									),
 								),
@@ -84,7 +84,7 @@ class MainPageState extends State<MainPageWidget> with tapah.Callback {
 											child: Column(
 												mainAxisAlignment: MainAxisAlignment.end,
 												children: [
-													Image.network(tapah.parseimage(activated[0] ? "首页-选中.png" : "首页-普通.png"), width: 30, height: 30, fit: BoxFit.contain,),
+													Image.network(tapah.parseimage(activated[0] ? "底部按钮/首页-选中.png" : "底部按钮/首页-普通.png"), width: 30, height: 30, fit: BoxFit.contain,),
 													const SizedBox(height: 5),
 													Text("首页", style: TextStyle(fontSize: 10, color: Colors.black,),),
 												],
@@ -104,7 +104,7 @@ class MainPageState extends State<MainPageWidget> with tapah.Callback {
 											child: Column(
 												mainAxisAlignment: MainAxisAlignment.end,
 												children: [
-													Image.network(tapah.parseimage(activated[1] ? "招聘企业-选中.png" : "招聘企业-普通.png"), width: 30, height: 30, fit: BoxFit.contain,),
+													Image.network(tapah.parseimage(activated[1] ? "底部按钮/招聘企业-选中.png" : "底部按钮/招聘企业-普通.png"), width: 30, height: 30, fit: BoxFit.contain,),
 													const SizedBox(height: 5),
 													Text("招聘企业", style: TextStyle(fontSize: 10, color: Colors.black,),),
 												],
@@ -124,7 +124,7 @@ class MainPageState extends State<MainPageWidget> with tapah.Callback {
 											child: Column(
 												mainAxisSize: MainAxisSize.min,
 												children: [
-													Image.network(tapah.parseimage(activated[2] ? "offer-选中.png" : "offer-普通.png"), width: 60, height: 60, fit: BoxFit.contain,),
+													Image.network(tapah.parseimage(activated[2] ? "底部按钮/offer-选中.png" : "底部按钮/offer-普通.png"), width: 60, height: 60, fit: BoxFit.contain,),
 													const SizedBox(height: 5),
 													Text("OFFER", style: TextStyle(fontSize: 10, color: Colors.black)),
 												],
@@ -144,7 +144,7 @@ class MainPageState extends State<MainPageWidget> with tapah.Callback {
 											child: Column(
 												mainAxisAlignment: MainAxisAlignment.end,
 												children: [
-													Image.network(tapah.parseimage(activated[3] ? "服务-选中.png" : "服务-普通.png"), width: 30, height: 30, fit: BoxFit.contain,),
+													Image.network(tapah.parseimage(activated[3] ? "底部按钮/服务-选中.png" : "底部按钮/服务-普通.png"), width: 30, height: 30, fit: BoxFit.contain,),
 													const SizedBox(height: 5),
 													Text("服务", style: TextStyle(fontSize: 10, color: Colors.black,),),
 												],
@@ -164,7 +164,7 @@ class MainPageState extends State<MainPageWidget> with tapah.Callback {
 											child: Column(
 												mainAxisAlignment: MainAxisAlignment.end,
 												children: [
-													Image.network(tapah.parseimage(activated[4] ? "个人中心-选中.png" : "个人中心-普通.png"), width: 30, height: 30, fit: BoxFit.contain,),
+													Image.network(tapah.parseimage(activated[4] ? "底部按钮/个人中心-选中.png" : "底部按钮/个人中心-普通.png"), width: 30, height: 30, fit: BoxFit.contain,),
 													const SizedBox(height: 5),
 													Text("个人中心", style: TextStyle(fontSize: 10, color: Colors.black,),),
 												],

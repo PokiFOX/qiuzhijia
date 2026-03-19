@@ -41,18 +41,32 @@ class HomeState extends State<HomeWidget> with tapah.Callback {
 
 	@override
 	Widget build(BuildContext context) {
-		return SingleChildScrollView(
-			scrollDirection: Axis.vertical,
-			child: Column(
-				mainAxisAlignment: MainAxisAlignment.start,
-				children: [
-					buildTopImage(),
-					SizedBox(height: 10),
-					buildLanMuList(),
-					SizedBox(height: 10),
-					buildFenYeList(),
-					SizedBox(height: 10),
-				],
+		return Container(
+			height: double.infinity,
+			decoration: const BoxDecoration(
+				gradient: LinearGradient(
+					begin: Alignment.topCenter, 
+					end: Alignment.bottomCenter,
+					colors: [
+						Color(0xFF156CFF),
+						Color(0xFF7EAEFF),
+						Color(0xFFFFFFFF),
+					],
+				),
+			),
+			child: SingleChildScrollView(
+				scrollDirection: Axis.vertical,
+				child: Column(
+					mainAxisAlignment: MainAxisAlignment.start,
+					children: [
+						SizedBox(height: 10),
+						buildTopImage(),
+						buildLanMuList(),
+						SizedBox(height: 10),
+						buildFenYeList(),
+						SizedBox(height: 10),
+					],
+				),
 			),
 		);
 	}
@@ -67,34 +81,6 @@ class HomeState extends State<HomeWidget> with tapah.Callback {
 			);
 		});
 	}
-
-	//Widget buildHeader() {
-	//	return Row(
-	//		mainAxisAlignment: MainAxisAlignment.start,
-	//		children: [
-	//			SizedBox(width: 20),
-	//			Icon(Icons.home, color: Colors.blue),
-	//			SizedBox(width: 10),
-	//			SizedBox(
-	//				width: 200,
-	//				child: TextField(
-	//					decoration: InputDecoration(
-	//						prefixIcon: Icon(Icons.search, color: Colors.grey),
-	//						hintText: '雅思口语AI评测',
-	//						hintStyle: TextStyle(color: Colors.grey[600], fontSize: 14),
-	//						border: OutlineInputBorder(
-	//							borderRadius: BorderRadius.circular(8),
-	//							borderSide: BorderSide.none,
-	//						),
-	//						filled: true,
-	//						fillColor: Colors.grey[200],
-	//						contentPadding: EdgeInsets.symmetric(vertical: 12),
-	//					),
-	//				),
-	//			),
-	//		],
-	//	);
-	//}
 
 	Widget buildTopImage() {
 		return Padding(
@@ -159,8 +145,13 @@ class HomeState extends State<HomeWidget> with tapah.Callback {
 						},
 						child: SizedBox(
 							width: 53,
-							height: 70,
-							child: Image.network(tapah.parseimage(lanmu.image), width: 53, height: 70,),
+							height: 53,
+							child: Column(
+								children: [
+									Image.network(tapah.parseimage(lanmu.image), width: 53, height: 53,),
+									Text(lanmu.title, style: TextStyle(fontSize: 12)),
+								],
+							),
 						),
 					);
 				},
@@ -172,7 +163,7 @@ class HomeState extends State<HomeWidget> with tapah.Callback {
 		return Padding(
 			padding: const EdgeInsets.symmetric(horizontal: 10),
 			child: SizedBox(
-				height: 60,
+				height: 25,
 				child: ListView.builder(
 					scrollDirection: Axis.horizontal,
 					itemCount: tapah.fenyes.length,
@@ -186,7 +177,7 @@ class HomeState extends State<HomeWidget> with tapah.Callback {
 								child: Column(
 									mainAxisAlignment: MainAxisAlignment.end,
 									children: [
-										Image.network(tapah.parseimage(isSelected ? fenye.selected : fenye.normal),),
+										Text(fenye.title, style: TextStyle(fontSize: 14, color: Colors.black, fontWeight: isSelected ? FontWeight.bold : FontWeight.normal),),
 									],
 								),
 							),
