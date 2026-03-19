@@ -25,6 +25,19 @@ final List<LanMuInfo> lanmus = [
 	LanMuInfo(title: '求职服务', image: '求职服务.png'),
 ];
 
-List<String> fenyes = ["推荐", "招聘动态", "笔面试经验", "求职解析", "求职家服务"];
+class FenYeInfo {
+	final String title;
+	final String normal;
+	final String selected;
+	FenYeInfo({required this.title, required this.normal, required this.selected});
+}
+
+List<FenYeInfo> fenyes = [
+	FenYeInfo(title: "推荐", normal: "推荐-普通.png", selected: "推荐-选中.png"),
+	FenYeInfo(title: "招聘动态", normal: "招聘动态-普通.png", selected: "招聘动态-选中.png"),
+	FenYeInfo(title: "笔面试经验", normal: "笔面试经验-普通.png", selected: "笔面试经验-选中.png"),
+	FenYeInfo(title: "求职解析", normal: "求职解析-普通.png", selected: "求职解析-选中.png"),
+	FenYeInfo(title: "求职家服务", normal: "求职家服务-普通.png", selected: "求职家服务-选中.png"),
+];
 
 List<String> entfenyes = ["企业简介", "招聘专业", "深度解读", "招聘资讯", "成功案例"];

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:qiuzhijia/tapah/class.dart' as tapah;
 import 'package:qiuzhijia/tapah/data.dart' as tapah;
 import 'package:qiuzhijia/tapah/enum.dart' as tapah;
+import 'package:qiuzhijia/tapah/function.dart' as tapah;
 import 'package:qiuzhijia/tapah/request.dart' as tapah;
 
 class EnterpriseWidget extends StatefulWidget {
@@ -57,11 +58,9 @@ class EnterpriseState extends State<EnterpriseWidget> with tapah.Callback {
 				child: Column(
 					mainAxisAlignment: MainAxisAlignment.start,
 					children: [
-						SizedBox(height: 10),
+						SizedBox(height: 50),
 						buildTopRow(),
-						SizedBox(height: 10),
 						buildFilterRow(),
-						SizedBox(height: 10),
 						buildEnterpriseList(),
 					],
 				),
@@ -76,55 +75,28 @@ class EnterpriseState extends State<EnterpriseWidget> with tapah.Callback {
 				padding: const EdgeInsets.symmetric(horizontal: 20.0),
 				child: Row(
 					children: [
-						Expanded(
-							child: GestureDetector(
-								onTap: () {
-									part = 0;
-									getEnterpriseList();
-								},
-								child: Container(
-									alignment: Alignment.center,
-									decoration: BoxDecoration(
-										color: Colors.blue,
-										borderRadius: BorderRadius.circular(4),
-									),
-									child: const Text('央企', style: TextStyle(color: Colors.white, fontSize: 12)),
-								),
-							),
+						GestureDetector(
+							onTap: () {
+								part = 0;
+								getEnterpriseList();
+							},
+							child: Image.network(tapah.parseimage("央企.png"),),
 						),
 						const SizedBox(width: 20),
-						Expanded(
-							child: GestureDetector(
-								onTap: () {
-									part = 1;
-									getEnterpriseList();
-								},
-								child: Container(
-									alignment: Alignment.center,
-									decoration: BoxDecoration(
-										color: Colors.green,
-										borderRadius: BorderRadius.circular(4),
-									),
-									child: const Text('国企', style: TextStyle(color: Colors.white, fontSize: 12)),
-								),
-							),
+						GestureDetector(
+							onTap: () {
+								part = 1;
+								getEnterpriseList();
+							},
+							child: Image.network(tapah.parseimage("国企.png"),),
 						),
 						const SizedBox(width: 20),
-						Expanded(
-							child: GestureDetector(
-								onTap: () {
-									part = 2;
-									getEnterpriseList();
-								},
-								child: Container(
-									alignment: Alignment.center,
-									decoration: BoxDecoration(
-										color: Colors.orange,
-										borderRadius: BorderRadius.circular(4),
-									),
-									child: const Text('金融机构', style: TextStyle(color: Colors.white, fontSize: 12)),
-								),
-							),
+						GestureDetector(
+							onTap: () {
+								part = 2;
+								getEnterpriseList();
+							},
+							child: Image.network(tapah.parseimage("金融机构.png"),),
 						),
 					],
 				),
@@ -210,7 +182,6 @@ class EnterpriseState extends State<EnterpriseWidget> with tapah.Callback {
 						Navigator.pushNamed(context, '/enterprise/detail', arguments: enterprise);
 					},
 					child: Container(
-						height: 90,
 						child: Row(
 							mainAxisAlignment: MainAxisAlignment.center,
 							children: [

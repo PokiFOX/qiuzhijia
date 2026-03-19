@@ -141,112 +141,58 @@ class HomeState extends State<HomeWidget> with tapah.Callback {
 	}
 
 	Widget buildLanMuList() {
-		return Column(
-			children: [
-				GestureDetector(
-					onHorizontalDragEnd: (details) {
-						setState(() {
-							if (details.primaryVelocity! > 0) {
-								if (lanmuindex < (tapah.lanmus.length / 10).ceil() - 1) lanmuindex++;
-							} else if (details.primaryVelocity! < 0) {
-								if (lanmuindex > 0) lanmuindex--;
-							}
-						});
-					},
-					child: SizedBox(
-						height: 200,
-						child: PageView.builder(
-							itemCount: (tapah.lanmus.length / 10).ceil(),
-							onPageChanged: (index) {
-								setState(() {
-									lanmuindex = index;
-								});
-							},
-							itemBuilder: (context, pageIndex) {
-								int startIndex = lanmuindex * 10;
-								int endIndex = (startIndex + 10).clamp(0, tapah.lanmus.length);
-								List lanmuPage = tapah.lanmus.sublist(startIndex, endIndex);
-								return GridView.builder(
-									physics: const NeverScrollableScrollPhysics(),
-									gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-										crossAxisCount: 5,
-										mainAxisSpacing: 10,
-										crossAxisSpacing: 10,
-										childAspectRatio: 0.7,
-									),
-									itemCount: lanmuPage.length,
-									padding: const EdgeInsets.symmetric(horizontal: 20),
-									itemBuilder: (context, index) {
-										var lanmu = lanmuPage[index];
-										return GestureDetector(
-											onTap: () {
-											},
-											child: Column(
-												mainAxisAlignment: MainAxisAlignment.center,
-												children: [
-													Container(
-														width: 60,
-														height: 60,
-														decoration: const BoxDecoration(
-															color: Colors.white,
-															shape: BoxShape.circle,
-														),
-														child: Image.network(tapah.parseimage(lanmu.image), width: 35, height: 35,),
-													),
-													const SizedBox(height: 5),
-													Text(
-														lanmu.title,
-														style: const TextStyle(fontSize: 12),
-														overflow: TextOverflow.ellipsis,
-													),
-												],
-											),
-										);
-									},
-								);
-							},
+		return Padding(
+			padding: const EdgeInsets.symmetric(horizontal: 20),
+			child: GridView.builder(
+				shrinkWrap: true,
+				physics: const NeverScrollableScrollPhysics(),
+				gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+					crossAxisCount: 4,
+					mainAxisSpacing: 18,
+					crossAxisSpacing: 18,
+				),
+				itemCount: tapah.lanmus.length,
+				itemBuilder: (context, index) {
+					var lanmu = tapah.lanmus[index];
+					return GestureDetector(
+						onTap: () {
+						},
+						child: SizedBox(
+							width: 53,
+							height: 70,
+							child: Image.network(tapah.parseimage(lanmu.image), width: 53, height: 70,),
 						),
-					),
-				),
-				Row(
-					mainAxisAlignment: MainAxisAlignment.center,
-					children: List.generate((tapah.lanmus.length / 10).ceil(), (index) {
-						return Container(
-							margin: const EdgeInsets.symmetric(horizontal: 4),
-							width: 20,
-							height: 3,
-							decoration: BoxDecoration(
-								borderRadius: BorderRadius.circular(2),
-								color: lanmuindex == index ? Colors.blue : Colors.grey[300],
-							),
-						);
-					}),
-				),
-			],
+					);
+				},
+			),
 		);
 	}
 
 	Widget buildFenYeList() {
-		return Container(
-			height: 60,
-			child: ListView.builder(
-				scrollDirection: Axis.horizontal,
-				itemCount: tapah.fenyes.length,
-				itemBuilder: (context, index) {
-					bool isSelected = fenyeindex == index;
-					return GestureDetector(
-						onTap: () => setState(() => fenyeindex = index),
-						child: Container(
-							padding: EdgeInsets.symmetric(horizontal: 8),
-							child: Column(
-								mainAxisAlignment: MainAxisAlignment.center,
-								children: [
-									Text(tapah.fenyes[index], style: TextStyle(color: Color.fromARGB(0xFF, 0x3D, 0x3D, 0x3D), fontSize: 15, fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,),),
-								],
+		return Padding(
+			padding: const EdgeInsets.symmetric(horizontal: 10),
+			child: SizedBox(
+				height: 60,
+				child: ListView.builder(
+					scrollDirection: Axis.horizontal,
+					itemCount: tapah.fenyes.length,
+					itemBuilder: (context, index) {
+						var fenye = tapah.fenyes[index];
+						bool isSelected = fenyeindex == index;
+						return GestureDetector(
+							onTap: () => setState(() => fenyeindex = index),
+							child: Container(
+								padding: EdgeInsets.symmetric(horizontal: 8),
+								child: Column(
+									mainAxisAlignment: MainAxisAlignment.end,
+									children: [
+										Image.network(tapah.parseimage(isSelected ? fenye.selected : fenye.normal),),
+									],
+								),
 							),
-						),
-					);
-				},
+						);
+					},
+				),
 			),
 		);
 	}

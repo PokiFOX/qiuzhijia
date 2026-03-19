@@ -37,142 +37,141 @@ class MainPageState extends State<MainPageWidget> with tapah.Callback {
 	@override
 	Widget build(BuildContext context) {
 		return Scaffold(
-			body: SafeArea(
-				child: Column(
+			body: SizedBox.expand(
+				child: Stack(
 					children: [
-						IndexedStack(
-							index: currentindex,
-							children: [
-								activated[0] ? scenes.HomeWidget(key: tapah.keyMPHome,) : Container(),
-								activated[1] ? scenes.EnterpriseWidget(key: tapah.keyMPEntprise,) : Container(),
-								activated[2] ? scenes.OfferWidget(key: tapah.keyMPOffer,) : Container(),
-								activated[3] ? scenes.ServiceWidget(key: tapah.keyMPService,) : Container(),
-								activated[4] ? scenes.ProfileWidget(key: tapah.keyMPProfile,) : Container(),
-							],
-						),
-					],
-				),
-			),
-			bottomNavigationBar: Container(
-				height: 80,
-				decoration: BoxDecoration(
-					color: Colors.white,
-					border: Border(top: BorderSide(color: Colors.grey.shade200)),
-				),
-				child: Row(
-					mainAxisAlignment: MainAxisAlignment.spaceAround,
-					children: [
-						InkWell(
-							onTap: () {
-								setState(() {
-									activated[0] = true;
-									activated[1] = false;
-									activated[2] = false;
-									activated[3] = false;
-									activated[4] = false;
-									currentindex = 0;
-								});
-							},
-							child: Column(
-								mainAxisAlignment: MainAxisAlignment.end,
+						Padding(
+							padding: const EdgeInsets.only(bottom: 80), 
+							child: IndexedStack(
+								index: currentindex,
 								children: [
-									const SizedBox(height: 10,),
-									Image.network(tapah.parseimage(activated[0] ? "首页-选中.png" : "首页-普通.png"), width: 30, height: 30, fit: BoxFit.contain,),
-									const SizedBox(height: 5),
-									Text("首页", style: TextStyle(fontSize: 14, color: Colors.black,),),
-									const SizedBox(height: 10,),
+									activated[0] ? scenes.HomeWidget(key: tapah.keyMPHome) : const SizedBox.shrink(),
+									activated[1] ? scenes.EnterpriseWidget(key: tapah.keyMPEntprise) : const SizedBox.shrink(),
+									activated[2] ? scenes.OfferWidget(key: tapah.keyMPOffer) : const SizedBox.shrink(),
+									activated[3] ? scenes.ServiceWidget(key: tapah.keyMPService) : const SizedBox.shrink(),
+									activated[4] ? scenes.ProfileWidget(key: tapah.keyMPProfile) : const SizedBox.shrink(),
 								],
 							),
 						),
-						InkWell(
-							onTap: () {
-								setState(() {
-									activated[0] = false;
-									activated[1] = true;
-									activated[2] = false;
-									activated[3] = false;
-									activated[4] = false;
-								});
-								currentindex = 1;
-							},
-							child: Column(
-								mainAxisAlignment: MainAxisAlignment.end,
-								children: [
-									const SizedBox(height: 10,),
-									Image.network(tapah.parseimage(activated[1] ? "招聘企业-选中.png" : "招聘企业-普通.png"), width: 30, height: 30, fit: BoxFit.contain,),
-									const SizedBox(height: 5),
-									Text("招聘企业", style: TextStyle(fontSize: 14, color: Colors.black,),),
-									const SizedBox(height: 10,),
-								],
-							),
-						),
-						Transform.translate(
-							offset: const Offset(0, -25),
-							child: InkWell(
-								onTap: () {
-									setState(() {
-										activated[0] = false;
-										activated[1] = false;
-										activated[2] = true;
-										activated[3] = false;
-										activated[4] = false;
-										currentindex = 2;
-									});
-								},
-								child: Column(
-									mainAxisSize: MainAxisSize.min,
+						Positioned(
+							left: 0,
+							right: 0,
+							bottom: 0,
+							child: Container(
+								height: 80,
+								decoration: BoxDecoration(
+									image: DecorationImage(
+										image: NetworkImage(tapah.parseimage("底部按钮底板.png")),
+										fit: BoxFit.fitWidth,
+									),
+								),
+								padding: EdgeInsets.symmetric(horizontal: 10),
+								child: Row(
+									mainAxisAlignment: MainAxisAlignment.spaceAround,
+									crossAxisAlignment: CrossAxisAlignment.end,
 									children: [
-										const SizedBox(height: 10),
-										Image.network(tapah.parseimage(activated[2] ? "offer-选中.png" : "offer-普通.png"), width: 60, height: 60, fit: BoxFit.contain,),
-										const SizedBox(height: 5),
-										Text("Offer", style: TextStyle(fontSize: 14, color: Colors.black)),
-										const SizedBox(height: 10),
+										GestureDetector(
+											onTap: () {
+												setState(() {
+													activated[0] = true;
+													activated[1] = false;
+													activated[2] = false;
+													activated[3] = false;
+													activated[4] = false;
+													currentindex = 0;
+												});
+											},
+											child: Column(
+												mainAxisAlignment: MainAxisAlignment.end,
+												children: [
+													Image.network(tapah.parseimage(activated[0] ? "首页-选中.png" : "首页-普通.png"), width: 30, height: 30, fit: BoxFit.contain,),
+													const SizedBox(height: 5),
+													Text("首页", style: TextStyle(fontSize: 10, color: Colors.black,),),
+												],
+											),
+										),
+										GestureDetector(
+											onTap: () {
+												setState(() {
+													activated[0] = false;
+													activated[1] = true;
+													activated[2] = false;
+													activated[3] = false;
+													activated[4] = false;
+												});
+												currentindex = 1;
+											},
+											child: Column(
+												mainAxisAlignment: MainAxisAlignment.end,
+												children: [
+													Image.network(tapah.parseimage(activated[1] ? "招聘企业-选中.png" : "招聘企业-普通.png"), width: 30, height: 30, fit: BoxFit.contain,),
+													const SizedBox(height: 5),
+													Text("招聘企业", style: TextStyle(fontSize: 10, color: Colors.black,),),
+												],
+											),
+										),
+										GestureDetector(
+											onTap: () {
+												setState(() {
+													activated[0] = false;
+													activated[1] = false;
+													activated[2] = true;
+													activated[3] = false;
+													activated[4] = false;
+													currentindex = 2;
+												});
+											},
+											child: Column(
+												mainAxisSize: MainAxisSize.min,
+												children: [
+													Image.network(tapah.parseimage(activated[2] ? "offer-选中.png" : "offer-普通.png"), width: 60, height: 60, fit: BoxFit.contain,),
+													const SizedBox(height: 5),
+													Text("OFFER", style: TextStyle(fontSize: 10, color: Colors.black)),
+												],
+											),
+										),
+										GestureDetector(
+											onTap: () {
+												setState(() {
+													activated[0] = false;
+													activated[1] = false;
+													activated[2] = false;
+													activated[3] = true;
+													activated[4] = false;
+													currentindex = 3;
+												});
+											},
+											child: Column(
+												mainAxisAlignment: MainAxisAlignment.end,
+												children: [
+													Image.network(tapah.parseimage(activated[3] ? "服务-选中.png" : "服务-普通.png"), width: 30, height: 30, fit: BoxFit.contain,),
+													const SizedBox(height: 5),
+													Text("服务", style: TextStyle(fontSize: 10, color: Colors.black,),),
+												],
+											),
+										),
+										GestureDetector(
+											onTap: () {
+												setState(() {
+													activated[0] = false;
+													activated[1] = false;
+													activated[2] = false;
+													activated[3] = false;
+													activated[4] = true;
+													currentindex = 4;
+												});
+											},
+											child: Column(
+												mainAxisAlignment: MainAxisAlignment.end,
+												children: [
+													Image.network(tapah.parseimage(activated[4] ? "个人中心-选中.png" : "个人中心-普通.png"), width: 30, height: 30, fit: BoxFit.contain,),
+													const SizedBox(height: 5),
+													Text("个人中心", style: TextStyle(fontSize: 10, color: Colors.black,),),
+												],
+											),
+										),
 									],
 								),
-							),
-						),
-						InkWell(
-							onTap: () {
-								setState(() {
-									activated[0] = false;
-									activated[1] = false;
-									activated[2] = false;
-									activated[3] = true;
-									activated[4] = false;
-									currentindex = 4;
-								});
-							},
-							child: Column(
-								mainAxisAlignment: MainAxisAlignment.end,
-								children: [
-									const SizedBox(height: 10,),
-									Image.network(tapah.parseimage(activated[3] ? "服务-选中.png" : "服务-普通.png"), width: 30, height: 30, fit: BoxFit.contain,),
-									const SizedBox(height: 5),
-									Text("服务", style: TextStyle(fontSize: 14, color: Colors.black,),),
-									const SizedBox(height: 10,),
-								],
-							),
-						),
-						InkWell(
-							onTap: () {
-								setState(() {
-									activated[0] = false;
-									activated[1] = false;
-									activated[2] = false;
-									activated[3] = false;
-									activated[4] = true;
-									currentindex = 4;
-								});
-							},
-							child: Column(
-								mainAxisAlignment: MainAxisAlignment.end,
-								children: [
-									const SizedBox(height: 10,),
-									Image.network(tapah.parseimage(activated[4] ? "个人中心-选中.png" : "个人中心-普通.png"), width: 30, height: 30, fit: BoxFit.contain,),
-									const SizedBox(height: 5),
-									Text("个人中心", style: TextStyle(fontSize: 14, color: Colors.black,),),
-									const SizedBox(height: 10,),
-								],
 							),
 						),
 					],
