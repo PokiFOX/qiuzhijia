@@ -83,7 +83,7 @@ class BriefState extends State<BriefWidget> with tapah.Callback {
 						scrollDirection: Axis.horizontal,
 						child: Row(
 							children: (widget.enterprise.tags).map<Widget>((t) => Container(
-								height: 16,
+								height: 18,
 								margin: const EdgeInsets.only(right: 6),
 								padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1,),
 								decoration: BoxDecoration(
@@ -97,9 +97,10 @@ class BriefState extends State<BriefWidget> with tapah.Callback {
 					const SizedBox(height: 10),
 					Row(
 						mainAxisAlignment: MainAxisAlignment.start,
+						crossAxisAlignment: CrossAxisAlignment.start,
 						children: [
 							Container(
-								margin: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+								margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
 								padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1,),
 								decoration: BoxDecoration(
 									color: Colors.grey[200],
@@ -107,8 +108,9 @@ class BriefState extends State<BriefWidget> with tapah.Callback {
 								),
 								child: Text("${widget.enterprise.zone!.value}", style: const TextStyle(fontSize: 9, color: Colors.black,),),
 							),
+							const SizedBox(width: 10,),
 							Container(
-								margin: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+								margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
 								padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1,),
 								decoration: BoxDecoration(
 									color: Colors.grey[200],
