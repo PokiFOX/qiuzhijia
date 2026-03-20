@@ -51,17 +51,17 @@ Future<void> RequestFieldList() async {
 	});
 }
 
-Future<void> RequestEnterpriseList(int zone, int sector, int level) async {
+Future<int> RequestEnterpriseList(int zone, int sector, int level, int page) async {
 	var response = await dio.post(parseurl(url_query_enterprise), data: {
 		"zone": zone,
 		"sector": sector,
 		"level": level,
+		"page": page,
 	});
 	if (response.data['code'] != 0) {
 		throw Exception('Error code: ${response.data['code']} status: ${response.data['status']}');
 	}
 	var json = response.data["data"]["enterpriselist"];
-	enterpriselist = [];
 	json.forEach((item) {
 		Enterprise enterprise = Enterprise(id: item["id"]);
 		enterprise.zone = zonelist.firstWhere((e) => e.id == item["zone"]);
@@ -79,4 +79,5 @@ Future<void> RequestEnterpriseList(int zone, int sector, int level) async {
 		enterprise.website2 = item["website2"];
 		enterpriselist.add(enterprise);
 	});
+	return json.length;
 }

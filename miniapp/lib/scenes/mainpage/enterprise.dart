@@ -15,13 +15,27 @@ class EnterpriseWidget extends StatefulWidget {
 }
 
 class EnterpriseState extends State<EnterpriseWidget> with tapah.Callback {
-	int zone = 0, sector = 0, level = 0, part = 0;
-
+	int zone = 0, sector = 0, level = 0, part = 0, page = 1;
+	final ScrollController scrollcontroller = ScrollController();
+	bool isLoading = false, isFinish = false;
 	@override
 	void initState() {
 		super.initState();
 		initCallback(tapah.SceneID.mp_enterprise, widget.key!);
+		tapah.enterpriselist = [];
 		getEnterpriseList();
+
+		scrollcontroller.addListener(() async {
+			if (scrollcontroller.position.pixels >= scrollcontroller.position.maxScrollExtent * 0.9) {
+				if (isFinish) return;
+				if (isLoading) return;
+				isLoading = true;
+				page++;
+				isFinish = await tapah.RequestEnterpriseList(zone, sector, level, page) < 20;
+				isLoading = false;
+				setState(() {});
+			}
+		});
 	}
 
 	@override
@@ -31,7 +45,9 @@ class EnterpriseState extends State<EnterpriseWidget> with tapah.Callback {
 	}
 
 	Future<void> getEnterpriseList() async {
-		await tapah.RequestEnterpriseList(zone, sector, level);
+		page = 1;
+		tapah.enterpriselist = [];
+		isFinish = await tapah.RequestEnterpriseList(zone, sector, level, page) < 20;
 		if (mounted == false) return;
 		setState(() {});
 	}
@@ -43,18 +59,16 @@ class EnterpriseState extends State<EnterpriseWidget> with tapah.Callback {
 			decoration: const BoxDecoration(
 				color: Color(0xFFE2EDFF),
 			),
-			child: SingleChildScrollView(
-				scrollDirection: Axis.vertical,
-				child: Column(
-					mainAxisAlignment: MainAxisAlignment.start,
-					children: [
-						SizedBox(height: 50),
-						buildTopRow(),
-						buildFilterRow(),
-						SizedBox(height: 10),
-						buildEnterpriseList(),
-					],
-				),
+			child: Column(
+				mainAxisAlignment: MainAxisAlignment.start,
+				children: [
+					SizedBox(height: 50),
+					buildTopRow(),
+					buildFilterRow(),
+					SizedBox(height: 10),
+					Expanded(child: buildEnterpriseList(),),
+					SizedBox(height: 10),
+				],
 			),
 		);
 	}
@@ -165,9 +179,10 @@ class EnterpriseState extends State<EnterpriseWidget> with tapah.Callback {
 		return Padding(
 			padding: const EdgeInsets.symmetric(horizontal: 10.0),
 			child: ListView.separated(
+				controller: scrollcontroller,
+				physics: const BouncingScrollPhysics(),
 				padding: EdgeInsets.zero,
-				shrinkWrap: true,
-				physics: const NeverScrollableScrollPhysics(),
+				shrinkWrap: false,
 				itemCount: tapah.enterpriselist.length,
 				separatorBuilder: (context, index) => const SizedBox(height: 10),
 				itemBuilder: (context, index) {
@@ -206,7 +221,7 @@ class EnterpriseState extends State<EnterpriseWidget> with tapah.Callback {
 													overflow: TextOverflow.ellipsis,
 												),
 												const SizedBox(height: 4),
-												SingleChildScrollView(
+												if (enterprise.tags.isNotEmpty) SingleChildScrollView(
 													scrollDirection: Axis.horizontal,
 													child: Row(
 														children: (enterprise.tags).map<Widget>((t) => Container(

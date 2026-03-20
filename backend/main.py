@@ -84,6 +84,7 @@ async def query_enterprise(req: Request):
 	zone_id = json.get("zone")
 	level_id = json.get("level")
 	sector_id = json.get("sector")
+	page = json.get("page", 1)
 
 	if Linq(data.zonelist).find(lambda z: z.id == zone_id) is None and zone_id != 0:
 		return JSONResponse(content = {
@@ -104,10 +105,15 @@ async def query_enterprise(req: Request):
 		})
 
 	enterpriselist = []
-	for enterprise in data.enterpriselist:
+	count = 0
+	for i in range(len(data.enterpriselist)):
+		enterprise = data.enterpriselist[i]
 		if zone_id != 0 and enterprise.zone != zone_id: continue
 		if sector_id != 0 and enterprise.sector != sector_id: continue
 		if level_id != 0 and enterprise.level != level_id: continue
+		count += 1
+		if page > 0 and count <= (page - 1) * 20: continue
+		if page > 0 and count > page * 20: break
 		enterpriselist.append({
 			"id": enterprise.id,
 			"zone": enterprise.zone,
