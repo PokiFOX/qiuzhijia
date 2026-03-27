@@ -77,7 +77,37 @@ Future<int> RequestEnterpriseList(int zone, int sector, int level, int page) asy
 		enterprise.tags = List<String>.from(item["tag"]);
 		enterprise.website1 = item["website1"];
 		enterprise.website2 = item["website2"];
+		enterprise.icon = item["icon"];
+		enterprise.images = item["images"].split(',');
+		enterprise.enttype = item["enttype"];
+		enterprise.financial = item["financial"] == "是";
+		enterprise.article1 = item["article1"].split('\n');
+		enterprise.article2 = item["article2"].split('\n');
 		enterpriselist.add(enterprise);
+	});
+	return json.length;
+}
+
+Future<int> RequestCaseList(int enterprise, int field, int page) async {
+	var response = await dio.post(parseurl(url_query_case), data: {
+		"enterprise": enterprise,
+		"field": field,
+		"page": page,
+	});
+	if (response.data['code'] != 0) {
+		throw Exception('Error code: ${response.data['code']} status: ${response.data['status']}');
+	}
+	var json = response.data["data"]["caselist"];
+	json.forEach((item) {
+		Case c = Case(id: item["id"], name: item["name"]);
+		c.enterprise = enterpriselist.firstWhere((e) => e.id == item["enterprise"]);
+		c.field = fieldlist.firstWhere((e) => e.id == item["field"]);
+		c.tags = List<String>.from(item["tag"]);
+		c.student = item["student"];
+		c.school1 = item["school1"]; c.field1 = item["field1"];
+		c.school2 = item["school2"]; c.field2 = item["field2"];
+		c.detail = item["detail"];
+		caselist.add(c);
 	});
 	return json.length;
 }

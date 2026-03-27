@@ -7,7 +7,7 @@ import faulthandler
 
 from tapah import data
 from tapah import function
-from tapah.struct import Linq, Zone, Level, Sector, Field, Enterprise
+from tapah.struct import Linq, Zone, Level, Sector, Field, Enterprise, Case
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -128,6 +128,13 @@ async def query_enterprise(req: Request):
 			"website1": enterprise.website1,
 			"website2": enterprise.website2,
 			"shortname": enterprise.shortname,
+			"icon": enterprise.icon,
+			"images": enterprise.images,
+			"enttype": enterprise.enttype,
+			"financial": enterprise.financial,
+			"article1": enterprise.article1,
+			"article2": enterprise.article2,
+
 		})
 
 	return JSONResponse(content = {
@@ -135,6 +142,41 @@ async def query_enterprise(req: Request):
 		"status": "success",
 		"data": {
 			"enterpriselist": enterpriselist,
+		},
+	})
+
+@app.post("/query_case")
+async def query_case(req: Request):
+	json = await req.json()
+	field_id = json.get("field")
+	enterprise = json.get("enterprise")
+	page = json.get("page", 1)
+	caselist = []
+	count = 0
+	for case in data.caselist:
+		if field_id != 0 and case.field != field_id: continue
+		if enterprise != "" and case.enterprise != enterprise: continue
+		count += 1
+		if page > 0 and count <= (page - 1) * 20: continue
+		if page > 0 and count > page * 20: break
+		caselist.append({
+			"id": case.id,
+			"name": case.name,
+			"enterprise": case.enterprise,
+			"field": case.field,
+			"tags": case.tags,
+			"student": case.student,
+			"school1": case.school1,
+			"field1": case.field1,
+			"school2": case.school2,
+			"field2": case.field2,
+			"detail": case.detail,
+		})
+	return JSONResponse(content = {
+		"code": 0,
+		"status": "success",
+		"data": {
+			"caselist": caselist,
 		},
 	})
 
@@ -153,6 +195,12 @@ async def insert_enterprise(req: Request):
 	tag = json.get("tag")
 	website1 = json.get("website1")
 	website2 = json.get("website2")
+	icon = json.get("icon")
+	images = json.get("images")
+	enttype = json.get("enttype")
+	financial = json.get("financial")
+	article1 = json.get("article1")
+	article2 = json.get("article2")
 
 	enterprise = Linq(data.enterpriselist).find(lambda e: e.name == name)
 	if enterprise is not None:
@@ -182,11 +230,11 @@ async def insert_enterprise(req: Request):
 	cursor = conn.cursor()
 
 	cursor.execute(
-		"INSERT INTO qzj_enterprise (zone, city, name, shortname, brief, upper, level, sector, tag, website1, website2) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-		(zone_item.id, city, name, shortname, brief, upper, level_item.id, sector_item.id, tag, website1, website2)
+		"INSERT INTO qzj_enterprise (zone, city, name, shortname, brief, upper, level, sector, tag, website1, website2, icon, images, enttype, financial, article1, article2) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+		(zone_item.id, city, name, shortname, brief, upper, level_item.id, sector_item.id, tag, website1, website2, icon, images, enttype, financial, article1, article2)
 	)
 	enterprise_id = cursor.lastrowid
-	enterprise = Enterprise(enterprise_id, zone_item.id, city, name, shortname, brief, upper, level_item.id, sector_item.id, website1, website2, tag.split(','))
+	enterprise = Enterprise(enterprise_id, zone_item.id, city, name, shortname, brief, upper, level_item.id, sector_item.id, website1, website2, tag.split(','), icon, images, enttype, financial, article1, article2)
 	for fid in fieldlist:
 		cursor.execute(
 			"INSERT IGNORE INTO qzj_enterprise_field (enterprise_id, field) VALUES (%s, %s)",
@@ -194,6 +242,46 @@ async def insert_enterprise(req: Request):
 		)
 		enterprise.addfield(fid)
 	data.enterpriselist.append(enterprise)
+
+	cursor.close()
+	data.mysql_pool.release(conn)
+
+	return JSONResponse(content = {
+		"code": 0,
+		"status": "success",
+	})
+
+@app.post("/insert_case")
+async def insert_case(req: Request):
+	json = await req.json()
+	name = json.get("name")
+	enterprise = json.get("enterprise")
+	field = json.get("field")
+	tags = json.get("tags")
+	student = json.get("student")
+	school1 = json.get("school1")
+	field1 = json.get("field1")
+	school2 = json.get("school2")
+	field2 = json.get("field2")
+	detail = json.get("detail")
+
+	einfo = Linq(data.enterpriselist).find(lambda e: e.name == enterprise)
+	if einfo is None:
+		return JSONResponse(content = {"status": "enterprise_not_found"})
+
+	finfo = Linq(data.fieldlist).find(lambda f: f.name == field)
+	if finfo is None:
+		return JSONResponse(content = {"status": "field_not_found"})
+
+	conn = data.mysql_pool.apply()
+	cursor = conn.cursor()
+
+	cursor.execute(
+		"INSERT INTO qzj_case (name, enterprise, field, tags, student, school1, field1, school2, field2, detail) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+		(name, einfo.id, finfo.id, tags, student, school1, field1, school2, field2, detail)
+	)
+	case_id = cursor.lastrowid
+	data.caselist.append(Case(case_id, name, einfo.id, finfo.id, tags, student, school1, field1, school2, field2, detail))
 
 	cursor.close()
 	data.mysql_pool.release(conn)
@@ -485,6 +573,12 @@ async def edit_enterprise(req: Request):
 	tag = json.get("tag")
 	website1 = json.get("website1")
 	website2 = json.get("website2")
+	icon = json.get("icon")
+	images = json.get("images")
+	enttype = json.get("enttype")
+	financial = json.get("financial")
+	article1 = json.get("article1")
+	article2 = json.get("article2")
 
 	enterprise = Linq(data.enterpriselist).find(lambda e: e.id == id, None)
 	if enterprise is None: return JSONResponse(content = {"status": "not exists"})
@@ -513,8 +607,8 @@ async def edit_enterprise(req: Request):
 	cursor = conn.cursor()
 
 	cursor.execute(
-		"UPDATE qzj_enterprise SET zone=%s, city=%s, name=%s, shortname=%s, brief=%s, upper=%s, level=%s, sector=%s, tag=%s, website1=%s, website2=%s WHERE id=%s",
-		(zone_id, city, name, shortname, brief, upper, level_id, sector_id, tag, website1, website2, id)
+		"UPDATE qzj_enterprise SET zone=%s, city=%s, name=%s, shortname=%s, brief=%s, upper=%s, level=%s, sector=%s, tag=%s, website1=%s, website2=%s, icon=%s, images=%s, enttype=%s, financial=%s, article1=%s, article2=%s WHERE id=%s",
+		(zone_id, city, name, shortname, brief, upper, level_id, sector_id, tag, website1, website2, icon, images, enttype, financial, article1, article2, id)
 	)
 	enterprise.zone = zone_id
 	enterprise.city = city
@@ -527,6 +621,12 @@ async def edit_enterprise(req: Request):
 	enterprise.tag = tag
 	enterprise.website1 = website1
 	enterprise.website2 = website2
+	enterprise.icon = icon
+	enterprise.images = images
+	enterprise.enttype = enttype
+	enterprise.financial = financial
+	enterprise.article1 = article1
+	enterprise.article2 = article2
 	cursor.execute("DELETE FROM qzj_enterprise_field WHERE enterprise_id=%s", (id,))
 	for fid in fieldlist:
 		cursor.execute(
@@ -556,6 +656,67 @@ async def delete_enterprise(req: Request):
 	cursor.execute("DELETE FROM qzj_enterprise WHERE id=%s", (id,))
 	cursor.execute("DELETE FROM qzj_enterprise_field WHERE enterprise_id=%s", (id,))
 	data.enterpriselist.remove(enterprise)
+
+	cursor.close()
+	data.mysql_pool.release(conn)
+	return JSONResponse(content = {
+		"code": 0,
+		"status": "success",
+	})
+
+@app.post('/delete_case')
+async def delete_case(req: Request):
+	json = await req.json()
+	id = json.get("id")
+
+	conn = data.mysql_pool.apply()
+	cursor = conn.cursor()
+
+	cursor.execute("DELETE FROM qzj_case WHERE id=%s", (id,))
+	data.caselist = [c for c in data.caselist if c.id != id]
+
+	cursor.close()
+	data.mysql_pool.release(conn)
+	return JSONResponse(content = {
+		"code": 0,
+		"status": "success",
+	})
+
+@app.post("/edit_case")
+async def edit_case(req: Request):
+	json = await req.json()
+	id = json.get("id")
+	name = json.get("name")
+	enterprise = json.get("enterprise")
+	field = json.get("field")
+	tags = json.get("tags")
+	student = json.get("student")
+	school1 = json.get("school1")
+	field1 = json.get("field1")
+	school2 = json.get("school2")
+	field2 = json.get("field2")
+	detail = json.get("detail")
+
+	case = Linq(data.caselist).find(lambda c: c.id == id, None)
+	if case is None: return JSONResponse(content = {"status": "not exists"})
+
+	conn = data.mysql_pool.apply()
+	cursor = conn.cursor()
+
+	cursor.execute(
+		"UPDATE qzj_case SET name=%s, enterprise=%s, field=%s, tags=%s, student=%s, school1=%s, field1=%s, school2=%s, field2=%s, detail=%s WHERE id=%s",
+		(name, enterprise, field, tags, student, school1, field1, school2, field2, detail, id)
+	)
+	case.name = name
+	case.enterprise = enterprise
+	case.field = field
+	case.tags = tags
+	case.student = student
+	case.school1 = school1
+	case.field1 = field1
+	case.school2 = school2
+	case.field2 = field2
+	case.detail = detail
 
 	cursor.close()
 	data.mysql_pool.release(conn)

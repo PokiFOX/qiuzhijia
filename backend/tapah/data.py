@@ -1,6 +1,6 @@
 from typing import List
 
-from tapah.struct import MySQLPool, Zone, Sector, Level, Field, Enterprise
+from tapah.struct import MySQLPool, Zone, Sector, Level, Field, Enterprise, Case
 
 mysql_pool : MySQLPool = None
 
@@ -9,3 +9,4 @@ sectorlist : List[Sector] = []
 levellist : List[Level] = []
 fieldlist : List[Field] = []
 enterpriselist : List[Enterprise] = []
+caselist : List[Case] = []

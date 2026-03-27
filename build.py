@@ -14,9 +14,9 @@ with open('build/wechat/app.json', 'w') as f:
 
 with open('build/wechat/project.config.json', 'r') as f:
 	projectdata = json.loads(f.read())
-	projectdata['setting']['appid'] = 'wx5335f863950c8aa4'
+	projectdata['setting']['appid'] = 'wxb0b1ae0733a3c160'
 	projectdata['setting']['projectname'] = '求职家小程序'
-	projectdata['appid'] = 'wx5335f863950c8aa4'
+	projectdata['appid'] = 'wxb0b1ae0733a3c160'
 	projectdata['projectname'] = '求职家小程序'
 with open('build/wechat/project.config.json', 'w') as f:
 	f.write(json.dumps(projectdata, ensure_ascii = False, indent = '\t'))

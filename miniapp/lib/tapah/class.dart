@@ -119,6 +119,25 @@ class Enterprise {
 	List<String> tags = [];
 	List<Field> fields = [];
 	String? website1, website2;
+	String? icon;
+	List<String> images = [];
+	String? enttype;
+	bool financial = false;
+	List<String> article1 = [];
+	List<String> article2 = [];
 
 	Enterprise({required this.id});
+}
+
+class Case {
+	int id;
+	String name;
+	Enterprise? enterprise;
+	Field? field;
+	List<String> tags = [];
+	String? student;
+	String? school1, field1;
+	String? school2, field2;
+	String? detail;
+	Case({required this.id, required this.name});
 }

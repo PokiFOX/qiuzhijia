@@ -113,7 +113,7 @@ class Field:
 		self.content = content
 
 class Enterprise:
-	def __init__(self, id, zone, city, name, shortname, brief, upper, sector, level, website1, website2, tag):
+	def __init__(self, id, zone, city, name, shortname, brief, upper, sector, level, website1, website2, tag, icon, images, enttype, financial, article1, article2):
 		self.id = id
 		self.zone = zone
 		self.city = city
@@ -126,7 +126,27 @@ class Enterprise:
 		self.website1 = website1
 		self.website2 = website2
 		self.tag = tag
+		self.icon = icon
+		self.images = images
+		self.enttype = enttype
+		self.financial = financial
+		self.article1 = article1
+		self.article2 = article2
 		self.field = []
 
 	def addfield(self, field):
 		self.field.append(field)
+
+class Case:
+	def __init__(self, id, name, enterprise, field, tags, student, school1, field1, school2, field2, detail):
+		self.id = id
+		self.name = name
+		self.enterprise = enterprise
+		self.field = field
+		self.tags = tags
+		self.student = student
+		self.school1 = school1
+		self.field1 = field1
+		self.school2 = school2
+		self.field2 = field2
+		self.detail = detail
