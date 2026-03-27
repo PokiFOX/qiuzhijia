@@ -74,7 +74,7 @@ Future<int> RequestEnterpriseList(int zone, int sector, int level, int page) asy
 		item["field"].forEach((field) {
 			enterprise.fields.add(fieldlist.firstWhere((e) => e.id == field));
 		});
-		enterprise.tags = List<String>.from(item["tag"]);
+		enterprise.tags = item["tag"].split(',');
 		enterprise.website1 = item["website1"];
 		enterprise.website2 = item["website2"];
 		enterprise.icon = item["icon"];
@@ -102,7 +102,7 @@ Future<int> RequestCaseList(int enterprise, int field, int page) async {
 		Case c = Case(id: item["id"], name: item["name"]);
 		c.enterprise = enterpriselist.firstWhere((e) => e.id == item["enterprise"]);
 		c.field = fieldlist.firstWhere((e) => e.id == item["field"]);
-		c.tags = List<String>.from(item["tag"]);
+		c.tags = item["tag"].split(',');
 		c.student = item["student"];
 		c.school1 = item["school1"]; c.field1 = item["field1"];
 		c.school2 = item["school2"]; c.field2 = item["field2"];

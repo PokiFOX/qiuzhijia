@@ -48,7 +48,7 @@ def init_config():
 	cursor.execute("SELECT * FROM qzj_enterprise")
 	result = cursor.fetchall()
 	for row in result:
-		enterprise = Enterprise(row[0], row[1], row[2], row[3], row[11], row[4], row[5], row[6], row[7], row[9], row[10], row[8].split(','), row[11], row[12].split(','), row[13], row[14], row[15].split(','), row[16].split(','))
+		enterprise = Enterprise(row[0], row[1], row[2], row[3], row[11], row[4], row[5], row[6], row[7], row[9], row[10], row[8], row[12], row[13], row[14], row[15], row[16], row[17])
 		data.enterpriselist.append(enterprise)
 
 	cursor.execute("SELECT * FROM qzj_enterprise_field")

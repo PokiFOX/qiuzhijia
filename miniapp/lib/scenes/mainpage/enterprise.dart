@@ -5,6 +5,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:qiuzhijia/tapah/class.dart' as tapah;
 import 'package:qiuzhijia/tapah/data.dart' as tapah;
 import 'package:qiuzhijia/tapah/enum.dart' as tapah;
+import 'package:qiuzhijia/tapah/function.dart' as tapah;
 import 'package:qiuzhijia/tapah/request.dart' as tapah;
 
 class EnterpriseWidget extends StatefulWidget {
@@ -204,7 +205,7 @@ class EnterpriseState extends State<EnterpriseWidget> with tapah.Callback {
 									Column(
 										mainAxisAlignment: MainAxisAlignment.center,
 										children: [
-											Icon(Icons.stop, size: 80,),
+											enterprise.icon!.isEmpty ? Container(width: 45, height: 45, color: Colors.grey) : Image.network(tapah.parseimage('小图标/${enterprise.icon}.png'), width: 45, height: 45,)
 										],
 									),
 									const SizedBox(width: 10),
