@@ -150,16 +150,22 @@ async def query_enterprise(req: Request):
 @app.post("/query_case")
 async def query_case(req: Request):
 	json = await req.json()
-	field_id = json.get("field")
 	enterprise_id = json.get("enterprise")
 	page = json.get("page", 1)
 	caselist = []
-	count = 0
+	enterprise = Linq(data.enterpriselist).find(lambda e: e.id == enterprise_id, None)
+	if enterprise_id != 0 and enterprise is None:
+		return JSONResponse(content = {
+			"code": 1,
+			"status": "enterprise_not_found",
+		})
 
+	count = 0
 	for case in data.caselist:
-		if enterprise_id != case.enterprise and field_id != 0 and case.field != field_id: continue
-		enterprise = Linq(data.enterpriselist).find(lambda e: e.id == case.enterprise)
-		if enterprise is None: continue
+		ent = Linq(data.enterpriselist).find(lambda e: e.id == case.enterprise)
+		if ent is None: continue
+		ok = False
+		if enterprise.id != case.id and case.field not in enterprise.field: continue
 		count += 1
 		if page > 0 and count <= (page - 1) * 20: continue
 		if page > 0 and count > page * 20: break
@@ -167,8 +173,8 @@ async def query_case(req: Request):
 			"id": case.id,
 			"name": case.name,
 			"enterprise": case.enterprise,
-			"enticon": enterprise.icon,
-			"entname": enterprise.name,
+			"enticon": ent.icon,
+			"entname": ent.name,
 			"field": case.field,
 			"tags": case.tags,
 			"student": case.student,

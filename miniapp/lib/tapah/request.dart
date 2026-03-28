@@ -88,10 +88,9 @@ Future<int> RequestEnterpriseList(int zone, int sector, int level, int page) asy
 	return json.length;
 }
 
-Future<int> RequestCaseList(int enterprise, int field, int page) async {
+Future<int> RequestCaseList(int enterprise, int page) async {
 	var response = await dio.post(parseurl(url_query_case), data: {
 		"enterprise": enterprise,
-		"field": field,
 		"page": page,
 	});
 	if (response.data['code'] != 0) {

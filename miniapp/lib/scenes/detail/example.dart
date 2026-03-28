@@ -35,7 +35,7 @@ class ExampleState extends State<ExampleWidget> with tapah.Callback {
 
 	Future<void> loadCases() async {
 		tapah.caselist = [];
-		await tapah.RequestCaseList(widget.enterprise.id, 0, 1);
+		await tapah.RequestCaseList(widget.enterprise.id, 1);
 		if (mounted) {
 			setState(() {
 				cases = List.from(tapah.caselist);
