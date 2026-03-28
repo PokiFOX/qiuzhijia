@@ -1,9 +1,11 @@
 import asyncio
+import re
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import faulthandler
+import httpx
 
 from tapah import data
 from tapah import function
@@ -149,13 +151,15 @@ async def query_enterprise(req: Request):
 async def query_case(req: Request):
 	json = await req.json()
 	field_id = json.get("field")
-	enterprise = json.get("enterprise")
+	enterprise_id = json.get("enterprise")
 	page = json.get("page", 1)
 	caselist = []
 	count = 0
+
 	for case in data.caselist:
-		if field_id != 0 and case.field != field_id: continue
-		if enterprise != "" and case.enterprise != enterprise: continue
+		if enterprise_id != case.enterprise and field_id != 0 and case.field != field_id: continue
+		enterprise = Linq(data.enterpriselist).find(lambda e: e.id == case.enterprise)
+		if enterprise is None: continue
 		count += 1
 		if page > 0 and count <= (page - 1) * 20: continue
 		if page > 0 and count > page * 20: break
@@ -163,6 +167,8 @@ async def query_case(req: Request):
 			"id": case.id,
 			"name": case.name,
 			"enterprise": case.enterprise,
+			"enticon": enterprise.icon,
+			"entname": enterprise.name,
 			"field": case.field,
 			"tags": case.tags,
 			"student": case.student,
@@ -179,6 +185,46 @@ async def query_case(req: Request):
 			"caselist": caselist,
 		},
 	})
+
+@app.post("/query_article_meta")
+async def query_article_meta(req: Request):
+	json = await req.json()
+	url = json.get("url", "")
+	if not url:
+		return JSONResponse(content = {"code": 1, "status": "url_required"})
+	try:
+		async with httpx.AsyncClient(follow_redirects=True, timeout=10.0) as client:
+			resp = await client.get(url, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"})
+			html = resp.text
+		title = ""
+		description = ""
+		image = ""
+		m = re.search(r'<meta\s+property=["\']og:title["\']\s+content=["\'](.*?)["\']', html)
+		if m: title = m.group(1)
+		if not title:
+			m = re.search(r'<title>(.*?)</title>', html)
+			if m: title = m.group(1)
+		m = re.search(r'<meta\s+property=["\']og:description["\']\s+content=["\'](.*?)["\']', html)
+		if m: description = m.group(1)
+		if not description:
+			m = re.search(r'<meta\s+name=["\']description["\']\s+content=["\'](.*?)["\']', html)
+			if m: description = m.group(1)
+		m = re.search(r'<meta\s+property=["\']og:image["\']\s+content=["\'](.*?)["\']', html)
+		if m: image = m.group(1)
+		if not image:
+			m = re.search(r'var\s+msg_cdn_url\s*=\s*["\'](.*?)["\']', html)
+			if m: image = m.group(1)
+		return JSONResponse(content = {
+			"code": 0,
+			"status": "success",
+			"data": {
+				"title": title,
+				"description": description,
+				"image": image,
+			},
+		})
+	except Exception as e:
+		return JSONResponse(content = {"code": 1, "status": str(e)})
 
 @app.post("/insert_enterprise")
 async def insert_enterprise(req: Request):

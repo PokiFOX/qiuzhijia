@@ -132,7 +132,8 @@ class Enterprise {
 class Case {
 	int id;
 	String name;
-	Enterprise? enterprise;
+	String? enticon;
+	String? entname;
 	Field? field;
 	List<String> tags = [];
 	String? student;
@@ -140,4 +141,13 @@ class Case {
 	String? school2, field2;
 	String? detail;
 	Case({required this.id, required this.name});
+}
+
+class ArticleMeta {
+	String url;
+	String title;
+	String description;
+	String image;
+	int clicks;
+	ArticleMeta({required this.url, this.title = "", this.description = "", this.image = "", this.clicks = 0});
 }

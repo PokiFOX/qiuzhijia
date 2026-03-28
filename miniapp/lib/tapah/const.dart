@@ -4,3 +4,4 @@ String url_query_sectorlist = "query_sectorlist";
 String url_query_fieldlist = "query_fieldlist";
 String url_query_enterprise = "query_enterprise";
 String url_query_case = "query_case";
+String url_query_article_meta = "query_article_meta";

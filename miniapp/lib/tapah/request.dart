@@ -100,9 +100,10 @@ Future<int> RequestCaseList(int enterprise, int field, int page) async {
 	var json = response.data["data"]["caselist"];
 	json.forEach((item) {
 		Case c = Case(id: item["id"], name: item["name"]);
-		c.enterprise = enterpriselist.firstWhere((e) => e.id == item["enterprise"]);
+		c.enticon = item["enticon"];
+		c.entname = item["entname"];
 		c.field = fieldlist.firstWhere((e) => e.id == item["field"]);
-		c.tags = item["tag"].split(',');
+		c.tags = List<String>.from(item["tags"]);
 		c.student = item["student"];
 		c.school1 = item["school1"]; c.field1 = item["field1"];
 		c.school2 = item["school2"]; c.field2 = item["field2"];
@@ -110,4 +111,20 @@ Future<int> RequestCaseList(int enterprise, int field, int page) async {
 		caselist.add(c);
 	});
 	return json.length;
+}
+
+Future<ArticleMeta> RequestArticleMeta(String url) async {
+	var response = await dio.post(parseurl(url_query_article_meta), data: {
+		"url": url,
+	});
+	if (response.data['code'] != 0) {
+		return ArticleMeta(url: url);
+	}
+	var d = response.data["data"];
+	return ArticleMeta(
+		url: url,
+		title: d["title"] ?? "",
+		description: d["description"] ?? "",
+		image: d["image"] ?? "",
+	);
 }
