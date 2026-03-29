@@ -86,6 +86,9 @@ async def query_enterprise(req: Request):
 	zone_id = json.get("zone")
 	level_id = json.get("level")
 	sector_id = json.get("sector")
+	enttype = json.get("enttype")
+	financial = json.get("financial")
+	enterprise_name = json.get("name", "").strip()
 	page = json.get("page", 1)
 
 	if Linq(data.zonelist).find(lambda z: z.id == zone_id) is None and zone_id != 0:
@@ -113,6 +116,10 @@ async def query_enterprise(req: Request):
 		if zone_id != 0 and enterprise.zone != zone_id: continue
 		if sector_id != 0 and enterprise.sector != sector_id: continue
 		if level_id != 0 and enterprise.level != level_id: continue
+		if enttype == 1 and enterprise.enttype != '国企': continue
+		if enttype == 2 and enterprise.enttype != '央企': continue
+		if financial == True and enterprise.financial != '是': continue
+		if enterprise_name and enterprise_name not in enterprise.name: continue
 		count += 1
 		if page > 0 and count <= (page - 1) * 20: continue
 		if page > 0 and count > page * 20: break

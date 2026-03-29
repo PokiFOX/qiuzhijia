@@ -22,7 +22,7 @@ class MainPageState extends State<MainPageWidget> with tapah.Callback {
 	int currentindex = 0;
 	List<bool> activated = [true, false, false, false, false];
 
-  	@override
+	@override
 	void initState() {
 		super.initState();
 		initCallback(tapah.SceneID.mainpage, widget.key!);

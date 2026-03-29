@@ -121,7 +121,7 @@ class Enterprise {
 	String? website1, website2;
 	String? icon;
 	List<String> images = [];
-	String? enttype;
+	int enttype = 0;
 	bool financial = false;
 	List<String> article1 = [];
 	List<String> article2 = [];

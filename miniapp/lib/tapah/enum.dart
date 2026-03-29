@@ -7,6 +7,7 @@ enum SceneID {
 	mp_offer,
 	mp_service,
 	mp_profile,
+	mp_filter,
 	detail,
 	dt_brief,
 	dt_sector,

@@ -51,11 +51,14 @@ Future<void> RequestFieldList() async {
 	});
 }
 
-Future<int> RequestEnterpriseList(int zone, int sector, int level, int page) async {
+Future<int> RequestEnterpriseList(int zone, int sector, int level, int enttype, bool financial, String name, int page) async {
 	var response = await dio.post(parseurl(url_query_enterprise), data: {
 		"zone": zone,
 		"sector": sector,
 		"level": level,
+		"enttype": enttype,
+		"financial": financial,
+		"name": name,
 		"page": page,
 	});
 	if (response.data['code'] != 0) {
@@ -79,7 +82,8 @@ Future<int> RequestEnterpriseList(int zone, int sector, int level, int page) asy
 		enterprise.website2 = item["website2"];
 		enterprise.icon = item["icon"];
 		enterprise.images = item["images"].split(',');
-		enterprise.enttype = item["enttype"];
+		if (item["enttype"] != '国企') enterprise.enttype = 1;
+		if (item["enttype"] == '央企') enterprise.enttype = 2;
 		enterprise.financial = item["financial"] == "是";
 		enterprise.article1 = item["article1"].split('\n');
 		enterprise.article2 = item["article2"].split('\n');

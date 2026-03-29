@@ -8,23 +8,25 @@ import 'package:qiuzhijia/tapah/enum.dart' as tapah;
 import 'package:qiuzhijia/tapah/function.dart' as tapah;
 import 'package:qiuzhijia/tapah/request.dart' as tapah;
 
-import 'package:qiuzhijia/scenes/mainpage/filter.dart';
-
-class EnterpriseWidget extends StatefulWidget {
-	const EnterpriseWidget({super.key});
+class FilterWidget extends StatefulWidget {
+	final int enttype;
+	final bool financial;
+	const FilterWidget({super.key, required this.enttype, required this.financial});
 
 	@override
-	State<EnterpriseWidget> createState() => EnterpriseState();
+	State<FilterWidget> createState() => FilterState();
 }
 
-class EnterpriseState extends State<EnterpriseWidget> with tapah.Callback {
-	int zone = 0, sector = 0, level = 0, page = 1;
+class FilterState extends State<FilterWidget> with tapah.Callback {
+	int zone = 0, page = 1;
 	final ScrollController scrollcontroller = ScrollController();
 	bool isLoading = false, isFinish = false;
+	TextEditingController searchcontroller = TextEditingController();
+
 	@override
 	void initState() {
 		super.initState();
-		initCallback(tapah.SceneID.mp_enterprise, widget.key!);
+		initCallback(tapah.SceneID.mp_filter, widget.key!);
 		tapah.enterpriselist = [];
 		getEnterpriseList();
 
@@ -34,7 +36,7 @@ class EnterpriseState extends State<EnterpriseWidget> with tapah.Callback {
 				if (isLoading) return;
 				isLoading = true;
 				page++;
-				isFinish = await tapah.RequestEnterpriseList(zone, sector, level, 0, false, "", page) < 20;
+				isFinish = await tapah.RequestEnterpriseList(zone, 0, 0, widget.enttype, widget.financial, searchcontroller.text, page) < 20;
 				isLoading = false;
 				setState(() {});
 			}
@@ -50,98 +52,56 @@ class EnterpriseState extends State<EnterpriseWidget> with tapah.Callback {
 	Future<void> getEnterpriseList() async {
 		page = 1;
 		tapah.enterpriselist = [];
-		isFinish = await tapah.RequestEnterpriseList(zone, sector, level, 0, false, "", page) < 20;
+		isFinish = await tapah.RequestEnterpriseList(zone, 0, 0, widget.enttype, widget.financial, searchcontroller.text, page) < 20;
 		if (mounted == false) return;
 		setState(() {});
 	}
 
 	@override
 	Widget build(BuildContext context) {
-		return Container(
-			height: double.infinity,
-			decoration: const BoxDecoration(
-				color: Color(0xFFE2EDFF),
+		String rowname = "企业列表";
+		if (widget.enttype == 1) rowname = "国有企业";
+		if (widget.enttype == 2) rowname = "中央企业";
+		if (widget.enttype == 0 && widget.financial) rowname = "金融企业";
+		return Material(
+			child: Container(
+				height: double.infinity,
+				decoration: const BoxDecoration(
+					color: Color(0xFFE2EDFF),
+				),
+				child: Column(
+					mainAxisAlignment: MainAxisAlignment.start,
+					children: [
+						SizedBox(height: 50),
+						Row(
+							children: [
+								GestureDetector(
+									onTap: () {
+										Navigator.pop(context);
+									},
+									child: Container(
+										width: 50,
+										height: 30,
+										margin: const EdgeInsets.only(left: 10),
+										decoration: BoxDecoration(
+											color: Colors.white,
+											borderRadius: BorderRadius.circular(15),
+										),
+										child: const Icon(Icons.arrow_back, size: 15,),
+									),
+								),
+								const SizedBox(width: 10),
+								Text(rowname, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),)
+							],
+						),
+						SizedBox(height: 10),
+						buildFilterRow(),
+						SizedBox(height: 10),
+						Expanded(child: buildEnterpriseList(),),
+						SizedBox(height: 10),
+					],
+				),
 			),
-			child: Column(
-				mainAxisAlignment: MainAxisAlignment.start,
-				children: [
-					SizedBox(height: 50),
-					buildTopRow(),
-					SizedBox(height: 10),
-					buildFilterRow(),
-					SizedBox(height: 10),
-					Expanded(child: buildEnterpriseList(),),
-					SizedBox(height: 10),
-				],
-			),
-		);
-	}
-
-	Widget buildTopRow() {
-		return Row(
-			mainAxisAlignment: MainAxisAlignment.spaceAround,
-			children: [
-				GestureDetector(
-					onTap: () {
-						Navigator.push(context, MaterialPageRoute(builder: (context) => FilterWidget(key: GlobalKey(), enttype: 1, financial: false,)));
-					},
-					child: Container(
-						width: 116,
-						height: 56,
-						decoration: BoxDecoration(
-							gradient: LinearGradient(
-								begin: Alignment.centerRight,
-								end: Alignment.centerLeft,
-								colors: [Color(0xFFDA2F35), Color(0xFFFFC1C3)],
-							),
-							borderRadius: BorderRadius.circular(6),
-						),
-						child: Center(
-							child: Text("国有企业", style: TextStyle(fontSize: 16, color: Colors.white,),),
-						),
-					),
-				),
-				GestureDetector(
-					onTap: () {
-						Navigator.push(context, MaterialPageRoute(builder: (context) => FilterWidget(key: GlobalKey(), enttype: 2, financial: false,)));
-					},
-					child: Container(
-						width: 116,
-						height: 56,
-						decoration: BoxDecoration(
-							gradient: LinearGradient(
-								begin: Alignment.centerRight,
-								end: Alignment.centerLeft,
-								colors: [Color(0xFFFFA600), Color(0xFFFEEFD1)],
-							),
-							borderRadius: BorderRadius.circular(6),
-						),
-						child: Center(
-							child: Text("中央企业", style: TextStyle(fontSize: 16, color: Colors.white,),),
-						),
-					),
-				),
-				GestureDetector(
-					onTap: () {
-						Navigator.push(context, MaterialPageRoute(builder: (context) => FilterWidget(key: GlobalKey(), enttype: 0, financial: true,)));
-					},
-					child: Container(
-						width: 116,
-						height: 56,
-						decoration: BoxDecoration(
-							gradient: LinearGradient(
-								begin: Alignment.centerRight,
-								end: Alignment.centerLeft,
-								colors: [Color(0xFF4EC67B), Color(0xFFB9FFD3)],
-							),
-							borderRadius: BorderRadius.circular(6),
-						),
-						child: Center(
-							child: Text("金融机构", style: TextStyle(fontSize: 16, color: Colors.white,),),
-						),
-					),
-				),
-			],
 		);
 	}
 
@@ -176,27 +136,28 @@ class EnterpriseState extends State<EnterpriseWidget> with tapah.Callback {
 					return Row(
 						mainAxisAlignment: MainAxisAlignment.spaceAround,
 						children: [
+							Expanded(
+								child: TextField(
+									controller: searchcontroller,
+									textAlignVertical: TextAlignVertical.center,
+									decoration: InputDecoration(
+										hintText: '请输入企业名称',
+										prefixIcon: Icon(Icons.search, color: Colors.grey),
+										border: InputBorder.none,
+									),
+									onSubmitted: (value) {
+										getEnterpriseList();
+										FocusScope.of(context).unfocus();
+									},
+								),
+							),
+							const SizedBox(width: 10,),
 							SizedBox(
 								width: 65,
 								child: dropdown(zone, tapah.zonelist, (v) {
 									zone = v ?? 0;
 									getEnterpriseList();
 								}, "地区"),
-							),
-							SizedBox(
-								width: 100,
-								child: dropdown(level, tapah.levellist.where((e) {
-									return true;
-								}).toList(), (v) {
-									level = v ?? 0;
-									getEnterpriseList();
-								}, "档次"),
-							),
-							Expanded(
-								child: dropdown(sector, tapah.sectorlist, (v) {
-									sector = v ?? 0;
-									getEnterpriseList();
-								}, "行业"),
 							),
 						],
 					);
