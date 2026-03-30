@@ -59,7 +59,7 @@ class SectorState extends State<SectorWidget> with tapah.Callback {
 							children: [
 								Text(field.value, style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, ),),
 								const SizedBox(height: 5,),
-								Text("学科门类: ${field.sector}", style: TextStyle(fontSize: 11, color: Colors.black),),
+								Text("学科门类: ${field.type}", style: TextStyle(fontSize: 11, color: Colors.black),),
 								Row(
 									mainAxisAlignment: MainAxisAlignment.start,
 									children: [

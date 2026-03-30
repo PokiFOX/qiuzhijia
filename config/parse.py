@@ -46,12 +46,12 @@ def parse_field(page):
 		field_item = next((item for item in field if item['name'] == name), None)
 		mapname = function.getcell_str(page, i, 2)
 		if field_item is None:
-			sector1 = function.getcell_str(page, i, 3)
+			type = function.getcell_str(page, i, 3)
 			star = function.getcell_int(page, i, 4)
 			content = function.getcell_str(page, i, 5)
 			field.append({
 				"name": name,
-				"sector": sector1,
+				"type": type,
 				"star": star,
 				"content": content,
 				"mapname": [mapname],

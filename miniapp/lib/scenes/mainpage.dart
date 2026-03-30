@@ -26,6 +26,16 @@ class MainPageState extends State<MainPageWidget> with tapah.Callback {
 	void initState() {
 		super.initState();
 		initCallback(tapah.SceneID.mainpage, widget.key!);
+		addCallback(tapah.EventType.mainpage_activate, (index) {
+			setState(() {
+				activated[0] = index == 0;
+				activated[1] = index == 1;
+				activated[2] = index == 2;
+				activated[3] = index == 3;
+				activated[4] = index == 4;
+				currentindex = index;
+			});
+		});
 	}
 
 	@override

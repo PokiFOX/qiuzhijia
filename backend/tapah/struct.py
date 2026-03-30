@@ -104,11 +104,11 @@ class Level:
 		self.name = name
 
 class Field:
-	def __init__(self, id, name, mapping, sector, star, content):
+	def __init__(self, id, name, mapping, type, star, content):
 		self.id = id
 		self.name = name
 		self.mapping = mapping
-		self.sector = sector
+		self.type = type
 		self.star = star
 		self.content = content
 

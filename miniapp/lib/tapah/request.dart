@@ -47,7 +47,7 @@ Future<void> RequestFieldList() async {
 	var json = response.data["data"]["fieldlist"];
 	fieldlist = [];
 	json.forEach((item) {
-		fieldlist.add(Field(id: item["id"], value: item["name"], mapping: List<String>.from(item["mapping"]), sector: item["sector"], star: item["star"], content: item["content"]));
+		fieldlist.add(Field(id: item["id"], value: item["name"], mapping: List<String>.from(item["mapping"]), type: item["type"], star: item["star"], content: item["content"]));
 	});
 }
 

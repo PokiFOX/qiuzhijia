@@ -68,7 +68,7 @@ async def query_fieldlist(req: Request):
 			"id": field.id,
 			"name": field.name,
 			"mapping": field.mapping,
-			"sector": field.sector,
+			"type": field.type,
 			"star": field.star,
 			"content": field.content,
 		})
@@ -424,9 +424,9 @@ async def set_field(req: Request):
 	for field in field_list:
 		if field['name'].strip() == "": continue
 		if Linq(data.fieldlist).find(lambda fld: field['name'].strip() in fld.mapping, None) is not None: continue
-		cursor.execute("INSERT IGNORE INTO qzj_field (field, mapping, sector, star, content) VALUES (%s,%s,%s,%s,%s)", (field['name'], ','.join(field['mapname']), field['sector'], field['star'], field['content']))
+		cursor.execute("INSERT IGNORE INTO qzj_field (field, mapping, type, star, content) VALUES (%s,%s,%s,%s,%s)", (field['name'], ','.join(field['mapname']), field['type'], field['star'], field['content']))
 		last_id = cursor.lastrowid
-		if last_id != 0: data.fieldlist.append(Field(last_id, field['name'], field['mapname'], field['sector'], field['star'], field['content']))
+		if last_id != 0: data.fieldlist.append(Field(last_id, field['name'], field['mapname'], field['type'], field['star'], field['content']))
 
 	cursor.close()
 	data.mysql_pool.release(conn)
@@ -571,7 +571,7 @@ async def edit_field(req: Request):
 	id = json.get("id")
 	field = json.get("field")
 	mapping = json.get("mapping")
-	sector = json.get("sector")
+	type = json.get("type")
 	star = json.get("star")
 	content = json.get("content")
 
@@ -581,10 +581,10 @@ async def edit_field(req: Request):
 	conn = data.mysql_pool.apply()
 	cursor = conn.cursor()
 
-	cursor.execute("UPDATE qzj_field SET field=%s, mapping=%s, sector=%s, star=%s, content=%s WHERE id=%s", (field, ','.join(mapping), sector, star, content, id))
+	cursor.execute("UPDATE qzj_field SET field=%s, mapping=%s, type=%s, star=%s, content=%s WHERE id=%s", (field, ','.join(mapping), sector, star, content, id))
 	field_item.name = field
 	field_item.mapname = mapping
-	field_item.sector = sector
+	field_item.type = type
 	field_item.star = star
 	field_item.content = content
 

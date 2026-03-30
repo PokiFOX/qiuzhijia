@@ -5,6 +5,7 @@ import 'package:qiuzhijia/tapah/class.dart' as tapah;
 import 'package:qiuzhijia/tapah/enum.dart' as tapah;
 import 'package:qiuzhijia/tapah/function.dart' as tapah;
 import 'package:qiuzhijia/tapah/option.dart' as tapah;
+import 'package:qiuzhijia/scenes/mainpage/field.dart';
 
 class HomeWidget extends StatefulWidget {
 	const HomeWidget({super.key});
@@ -142,6 +143,12 @@ class HomeState extends State<HomeWidget> with tapah.Callback {
 					var lanmu = tapah.lanmus[index];
 					return GestureDetector(
 						onTap: () {
+							if (index == 0) {
+								tapah.EventManager().call(tapah.SceneID.mainpage, tapah.EventType.mainpage_activate, [1]);
+							}
+							if (index == 1) {
+								Navigator.push(context, MaterialPageRoute(builder: (context) => FieldWidget(key: GlobalKey(),)));
+							}
 						},
 						child: SizedBox(
 							width: 53,
