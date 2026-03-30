@@ -17,6 +17,7 @@ class EnterpriseWidget extends StatefulWidget {
 class EnterpriseState extends State<EnterpriseWidget> {
 	PlutoGridStateManager? stateManager;
 	late List<PlutoColumn> columns = [];
+	int page = 1;
 
 	@override
 	void initState() {
@@ -28,6 +29,21 @@ class EnterpriseState extends State<EnterpriseWidget> {
 				type: PlutoColumnType.text(),
 				enableEditingMode: false,
 				enableColumnDrag: false,
+				width: 100,
+				renderer: (renderercontext) {
+					var enterprise = tapah.enterpriselist.firstWhere((element) => element.id == renderercontext.row.cells['id']!.value, orElse: () => tapah.Enterprise(id: 0,));
+					if (enterprise.id == 0) {
+						return GestureDetector(
+							onTap: () async {
+								page++;
+								await getEnterpriseList();
+								setState(() {});
+							},
+							child: const Text("下一页", style: TextStyle(color: Colors.green, decoration: TextDecoration.underline,),),
+						);
+					}
+					return Text(enterprise.id.toString());
+				},
 			),
 			PlutoColumn(
 				title: '公司名称',
@@ -129,6 +145,48 @@ class EnterpriseState extends State<EnterpriseWidget> {
 				enableColumnDrag: false,
 			),
 			PlutoColumn(
+				title: "小图编号",
+				field: "icon",
+				type: PlutoColumnType.text(),
+				enableEditingMode: true,
+				enableColumnDrag: false,
+			),
+			PlutoColumn(
+				title: "大图编号",
+				field: "images",
+				type: PlutoColumnType.text(),
+				enableEditingMode: true,
+				enableColumnDrag: false,
+			),
+			PlutoColumn(
+				title: "是否央国企",
+				field: "enttype",
+				type: PlutoColumnType.text(),
+				enableEditingMode: true,
+				enableColumnDrag: false,
+			),
+			PlutoColumn(
+				title: "金融机构",
+				field: "financial",
+				type: PlutoColumnType.text(),
+				enableEditingMode: true,
+				enableColumnDrag: false,
+			),
+			PlutoColumn(
+				title: "解读链接",
+				field: "article1",
+				type: PlutoColumnType.text(),
+				enableEditingMode: true,
+				enableColumnDrag: false,
+			),
+			PlutoColumn(
+				title: "求职链接",
+				field: "article2",
+				type: PlutoColumnType.text(),
+				enableEditingMode: true,
+				enableColumnDrag: false,
+			),
+			PlutoColumn(
 				title: '操作',
 				field: 'operation',
 				type: PlutoColumnType.text(),
@@ -184,7 +242,7 @@ class EnterpriseState extends State<EnterpriseWidget> {
 		await tapah.RequestSectorList();
 		await tapah.RequestLevelList();
 		await tapah.RequestFieldList();
-		await tapah.RequestEnterpriseList();
+		await tapah.RequestEnterpriseList(page);
 		if (stateManager != null) {
 			stateManager!.removeAllRows();
 			stateManager!.appendRows(buildRows());
@@ -195,24 +253,38 @@ class EnterpriseState extends State<EnterpriseWidget> {
 	}
 
 	List<PlutoRow> buildRows() {
-		List<PlutoRow> rows = tapah.enterpriselist.map((enterprise) => PlutoRow(
-			cells: {
-				'id': PlutoCell(value: enterprise.id),
-				'value': PlutoCell(value: enterprise.name),
-				'zone': PlutoCell(value: enterprise.zone?.value ?? ""),
-				'city': PlutoCell(value: enterprise.city ?? ""),
-				'shortname': PlutoCell(value: enterprise.shortname ?? ""),
-				'brief': PlutoCell(value: enterprise.brief ?? ""),
-				'upper': PlutoCell(value: enterprise.upper ?? ""),
-				'sector': PlutoCell(value: enterprise.sector?.value ?? ""),
-				'level': PlutoCell(value: enterprise.level?.value ?? ""),
-				'field': PlutoCell(value: enterprise.fields.map((e) => e.value).join(',')),
-				'tag': PlutoCell(value: enterprise.tags.join(',')),
-				'website1': PlutoCell(value: enterprise.website1 ?? ""),
-				'website2': PlutoCell(value: enterprise.website2 ?? ""),
-				'operation': PlutoCell(value: ""),
-			},
-		)).toList();
+		List<PlutoRow> rows = tapah.enterpriselist.map((enterprise) {
+			var enttype = "";
+			if (enterprise.enttype == 1) enttype = "国有企业";
+			if (enterprise.enttype == 2) enttype = "中央企业";
+			var financial = "";
+			if (enterprise.financial == true) financial = "是";
+			if (enterprise.financial == false) financial = "否";
+			return PlutoRow(
+				cells: {
+					'id': PlutoCell(value: enterprise.id),
+					'value': PlutoCell(value: enterprise.name),
+					'zone': PlutoCell(value: enterprise.zone?.value ?? ""),
+					'city': PlutoCell(value: enterprise.city ?? ""),
+					'shortname': PlutoCell(value: enterprise.shortname ?? ""),
+					'brief': PlutoCell(value: enterprise.brief ?? ""),
+					'upper': PlutoCell(value: enterprise.upper ?? ""),
+					'sector': PlutoCell(value: enterprise.sector?.value ?? ""),
+					'level': PlutoCell(value: enterprise.level?.value ?? ""),
+					'field': PlutoCell(value: enterprise.fields.map((e) => e.value).join(',')),
+					'tag': PlutoCell(value: enterprise.tags.join(',')),
+					'website1': PlutoCell(value: enterprise.website1 ?? ""),
+					'website2': PlutoCell(value: enterprise.website2 ?? ""),
+					'icon': PlutoCell(value: enterprise.icon ?? ""),
+					'images': PlutoCell(value: enterprise.images.join(',')),
+					'enttype': PlutoCell(value: enttype),
+					'financial': PlutoCell(value: financial),
+					'article1': PlutoCell(value: enterprise.article1.join(',')),
+					'article2': PlutoCell(value: enterprise.article2.join(',')),
+					'operation': PlutoCell(value: ""),
+				},
+			);
+		}).toList();
 		rows.add(PlutoRow(
 			cells: {
 				'id': PlutoCell(value: ""),
@@ -228,6 +300,12 @@ class EnterpriseState extends State<EnterpriseWidget> {
 				'tag': PlutoCell(value: ""),
 				'website1': PlutoCell(value: ""),
 				'website2': PlutoCell(value: ""),
+				'icon': PlutoCell(value: ""),
+				'images': PlutoCell(value: ""),
+				'enttype': PlutoCell(value: ""),
+				'financial': PlutoCell(value: ""),
+				'article1': PlutoCell(value: ""),
+				'article2': PlutoCell(value: ""),
 				'operation': PlutoCell(value: ""),
 			},
 		));

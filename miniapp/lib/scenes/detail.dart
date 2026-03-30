@@ -1,4 +1,6 @@
+import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'package:qiuzhijia/tapah/class.dart' as tapah;
 import 'package:qiuzhijia/tapah/data.dart' as tapah;
@@ -21,6 +23,7 @@ class DetailWidget extends StatefulWidget {
 
 class DetailState extends State<DetailWidget> with tapah.Callback {
 	late tapah.Enterprise enterprise;
+	bool initialized = false;
 	int fenyeindex = 0;
 	@override
 	void initState() {
@@ -34,6 +37,7 @@ class DetailState extends State<DetailWidget> with tapah.Callback {
 		final args = ModalRoute.of(context)?.settings.arguments;
 		if (args != null && args is tapah.Enterprise) {
 			enterprise = args;
+			initialized = true;
 		}
 	}
 
@@ -41,6 +45,15 @@ class DetailState extends State<DetailWidget> with tapah.Callback {
 	void deactivate() {
 		uninitCallback();
 		super.deactivate();
+	}
+
+	void openUrl(String? url) {
+		if (url == null || url.isEmpty) {
+			BotToast.showText(text: '暂无链接');
+			return;
+		}
+		Clipboard.setData(ClipboardData(text: url));
+		BotToast.showText(text: '链接已复制，请在浏览器中打开');
 	}
 
 	@override
@@ -83,6 +96,7 @@ class DetailState extends State<DetailWidget> with tapah.Callback {
 					children: [
 						InkWell(
 							onTap: () {
+								openUrl(enterprise.website1);
 							},
 							child: Row(
 								children: [
@@ -141,11 +155,15 @@ class DetailState extends State<DetailWidget> with tapah.Callback {
 	}
 
 	Widget buildTopImage() {
+		Widget topimage = Container();
+		if (initialized  && enterprise.images.length > 0) {
+			topimage = Image.network(tapah.parseimage('大图标/${enterprise.images[0]}.png',), fit: BoxFit.contain,);
+		}
 		return Stack(
 			children: [
 				ConstrainedBox(
 					constraints: BoxConstraints(maxHeight: 200),
-					child: Image.network(tapah.parseimage('儿童底图.png',), fit: BoxFit.contain,),
+					child: Center(child: topimage,),
 				),
 				Column(
 					mainAxisAlignment: MainAxisAlignment.start,
@@ -200,6 +218,7 @@ class DetailState extends State<DetailWidget> with tapah.Callback {
 							},
 						),
 					),
+					const SizedBox(height: 10,),
 					IndexedStack(
 						index: fenyeindex,
 						children: [

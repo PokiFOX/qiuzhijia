@@ -26,16 +26,13 @@ class EventManager {
 	void init(SceneID sceneid, Key key) {
 		if (eventmap.containsKey(sceneid)) return;
 		eventmap[sceneid] = EventInfo(sceneid, key);
-		print("EventManager: init sceneid $sceneid");
 	}
 	void uninit(SceneID sceneid) {
 		eventmap.remove(sceneid);
-		print("EventManager: uninit sceneid $sceneid");
 	}
 	void add(SceneID sceneid, EventType event, Function function) {
 		if (eventmap.containsKey(sceneid) == false) return;
 		eventmap[sceneid]!.add(event, function);
-		print("EventManager: add event $event to sceneid $sceneid");
 	}
 	void del(SceneID sceneid, {EventType event = EventType.none} ) {
 		if (eventmap.containsKey(sceneid) == false) return;
@@ -45,7 +42,6 @@ class EventManager {
 		else {
 			eventmap[sceneid]!.del(event);
 		}
-		print("EventManager: del event $event from sceneid $sceneid");
 	}
 	void call(SceneID sceneid, EventType event, [List<dynamic>? param]) {
 		if (sceneid == SceneID.none) {

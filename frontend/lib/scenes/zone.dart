@@ -121,36 +121,23 @@ class ZoneState extends State<ZoneWidget> {
 			appBar: AppBar(
 				title: const Text('地区管理'),
 			),
-			body: Column(
-				children: [
-					const SizedBox(height: 20,),
-					Expanded(
-						child: Row(
-							children: [
-								const SizedBox(width: 50,),
-								Expanded(
-									child: PlutoGrid(
-										columns: columns,
-										rows: buildRows(),
-										onChanged: (PlutoGridOnChangedEvent event) async {
-											if (event.row.cells['id']!.value == null || event.row.cells['id']!.value == '') return;
-											var zone = tapah.zonelist.firstWhere((element) => element.id == event.row.cells['id']!.value);
-											zone.value = event.row.cells['value']!.value;
-											await tapah.RequestEditZone(zone);
-											await getZoneList();
-											setState(() {});
-										},
-										onLoaded: (PlutoGridOnLoadedEvent event) {
-											stateManager = event.stateManager;
-										},
-									)
-								),
-								const SizedBox(width: 50,),
-							],
-						),
-					),
-					const SizedBox(height: 20,),
-				],
+			body: Padding(
+				padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 20,),
+				child: PlutoGrid(
+					columns: columns,
+					rows: buildRows(),
+					onChanged: (PlutoGridOnChangedEvent event) async {
+						if (event.row.cells['id']!.value == null || event.row.cells['id']!.value == '') return;
+						var zone = tapah.zonelist.firstWhere((element) => element.id == event.row.cells['id']!.value);
+						zone.value = event.row.cells['value']!.value;
+						await tapah.RequestEditZone(zone);
+						await getZoneList();
+						setState(() {});
+					},
+					onLoaded: (PlutoGridOnLoadedEvent event) {
+						stateManager = event.stateManager;
+					},
+				),
 			),
 		);
 	}

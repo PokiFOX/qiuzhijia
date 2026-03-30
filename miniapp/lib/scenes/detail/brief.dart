@@ -30,43 +30,38 @@ class BriefState extends State<BriefWidget> with tapah.Callback {
 
 	@override
 	Widget build(BuildContext context) {
-		return SingleChildScrollView(
-			scrollDirection: Axis.vertical,
-			child: Column(
-				mainAxisAlignment: MainAxisAlignment.start,
-				crossAxisAlignment: CrossAxisAlignment.start,
-				children: [
-					const SizedBox(height: 10,),
-					buildTitle(),
-					const SizedBox(height: 10,),
-					Padding(
-						padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-						child: ExpandableText(
-							widget.enterprise.brief ?? '',
-							style: TextStyle(fontSize: 15, color: Colors.black,),
-							expandText: '展开',
-							collapseText: '收起',
-							maxLines: 4,
-							linkColor: Colors.blue,
-						),
+		return Column(
+			mainAxisSize: MainAxisSize.min,
+			children: [
+				buildTitle(),
+				const SizedBox(height: 10,),
+				Padding(
+					padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+					child: ExpandableText(
+						widget.enterprise.brief ?? '',
+						style: TextStyle(fontSize: 15, color: Colors.black,),
+						expandText: '展开',
+						collapseText: '收起',
+						maxLines: 4,
+						linkColor: Colors.blue,
 					),
-					const SizedBox(height: 10,),
-					buildInfo(),
-					const SizedBox(height: 10,),
-					Row(
-						mainAxisAlignment: MainAxisAlignment.center,
-						children: [
-							SizedBox(width: 10,),
-							Text("招聘专业", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14,),),
-							Expanded(child: Container(),),
-							Icon(Icons.search, size: 16,),
-							SizedBox(width: 10,),
-						],
-					),
-					const SizedBox(height: 10,),
-					buildSector(),
-				],
-			),
+				),
+				const SizedBox(height: 10,),
+				buildInfo(),
+				const SizedBox(height: 10,),
+				Row(
+					mainAxisAlignment: MainAxisAlignment.center,
+					children: [
+						SizedBox(width: 10,),
+						Text("招聘专业", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14,),),
+						Expanded(child: Container(),),
+						Icon(Icons.search, size: 16,),
+						SizedBox(width: 10,),
+					],
+				),
+				const SizedBox(height: 10,),
+				buildField(),
+			],
 		);
 	}
 
@@ -142,7 +137,11 @@ class BriefState extends State<BriefWidget> with tapah.Callback {
 					),
 					TableCell(
 						verticalAlignment: TableCellVerticalAlignment.middle,
-						child: Text(action, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: action == "" ? Colors.black : Colors.blue),),
+						child: 
+						GestureDetector(
+							onTap: onclick as void Function()?,
+							child: Text(action, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: action == "" ? Colors.black : Colors.blue),),
+						),
 					),
 				],
 			);
@@ -163,8 +162,8 @@ class BriefState extends State<BriefWidget> with tapah.Callback {
 					buildRow("行业类别:", widget.enterprise.sector?.value ?? '', "", null),
 					buildRow("公司层级:", widget.enterprise.level?.value ?? '', "", null),
 					buildRow("公司官网:", widget.enterprise.website1 ?? '', "点击复制", () {
-						if (widget.enterprise.website2 != null) {
-							Clipboard.setData(ClipboardData(text: widget.enterprise.website2!));
+						if (widget.enterprise.website1 != null) {
+							Clipboard.setData(ClipboardData(text: widget.enterprise.website1!));
 							BotToast.showText(text: "已复制到剪贴板");
 						}
 					}),
@@ -179,7 +178,7 @@ class BriefState extends State<BriefWidget> with tapah.Callback {
 		);
 	}
 
-	Widget buildSector() {
+	Widget buildField() {
 		return Padding(
 			padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
 			child: Column(

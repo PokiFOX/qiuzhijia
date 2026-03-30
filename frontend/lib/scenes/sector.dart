@@ -121,36 +121,28 @@ class SectorState extends State<SectorWidget> {
 			appBar: AppBar(
 				title: const Text('大类管理'),
 			),
-			body: Column(
-				children: [
-					const SizedBox(height: 20,),
-					Expanded(
-						child: Row(
-							children: [
-								const SizedBox(width: 50,),
-								Expanded(
-									child: PlutoGrid(
-										columns: columns,
-										rows: buildRows(),
-										onChanged: (PlutoGridOnChangedEvent event) async {
-											if (event.row.cells['id']!.value == null || event.row.cells['id']!.value == '') return;
-											var sector = tapah.sectorlist.firstWhere((element) => element.id == event.row.cells['id']!.value);
-											sector.value = event.row.cells['value']!.value;
-											await tapah.RequestEditSector(sector);
-											await getSectorList();
-											setState(() {});
-										},
-										onLoaded: (PlutoGridOnLoadedEvent event) {
-											stateManager = event.stateManager;
-										},
-									)
-								),
-								const SizedBox(width: 50,),
-							],
+			body: Padding(
+				padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 20,),
+				child: PlutoGrid(
+					columns: columns,
+					rows: buildRows(),
+					configuration: const PlutoGridConfiguration(
+						scrollbar: PlutoGridScrollbarConfig(
+							isAlwaysShown: true,
 						),
 					),
-					const SizedBox(height: 20,),
-				],
+					onChanged: (PlutoGridOnChangedEvent event) async {
+						if (event.row.cells['id']!.value == null || event.row.cells['id']!.value == '') return;
+						var sector = tapah.sectorlist.firstWhere((element) => element.id == event.row.cells['id']!.value);
+						sector.value = event.row.cells['value']!.value;
+						await tapah.RequestEditSector(sector);
+						await getSectorList();
+						setState(() {});
+					},
+					onLoaded: (PlutoGridOnLoadedEvent event) {
+						stateManager = event.stateManager;
+					},
+				),
 			),
 		);
 	}

@@ -13,7 +13,7 @@ Future<void> RequestZoneList() async {
 		throw Exception('Error code: ${response.data['code']}');
 	}
 	var json = response.data["data"]["zonelist"];
-	zonelist = [Zone(id: 0, value: "不限")];
+	zonelist = [];
 	json.forEach((key, item) {
 		zonelist.add(Zone(id: int.parse(key), value: item));
 	});
@@ -25,7 +25,7 @@ Future<void> RequestSectorList() async {
 		throw Exception('Error code: ${response.data['code']}');
 	}
 	var json = response.data["data"]["sectorlist"];
-	sectorlist = [Sector(id: 0, value: "不限")];
+	sectorlist = [];
 	json.forEach((key, item) {
 		sectorlist.add(Sector(id: int.parse(key), value: item));
 	});
@@ -37,7 +37,7 @@ Future<void> RequestLevelList() async {
 		throw Exception('Error code: ${response.data['code']}');
 	}
 	var json = response.data["data"]["levellist"];
-	levellist = [Level(id: 0, value: "不限")];
+	levellist = [];
 	json.forEach((key, item) {
 		levellist.add(Level(id: int.parse(key), value: item));
 	});
@@ -49,23 +49,27 @@ Future<void> RequestFieldList() async {
 		throw Exception('Error code: ${response.data['code']}');
 	}
 	var json = response.data["data"]["fieldlist"];
-	fieldlist = [Field(id: 0, value: "不限", sector: "", star: 0, content: "")];
+	fieldlist = [];
 	json.forEach((item) {
-		fieldlist.add(Field(id: item["id"], value: item["name"], sector: item["sector"], star: item["star"], content: item["content"]));
+		fieldlist.add(Field(id: item["id"], value: item["name"], type: item["type"], star: item["star"], content: item["content"]));
 	});
 }
 
-Future<void> RequestEnterpriseList() async {
+Future<void> RequestEnterpriseList(int page) async {
 	var response = await dio.post(parseurl(url_query_enterprise), data: {
 		"zone": 0,
 		"sector": 0,
-		"levels": [],
+		"level": 0,
+		"enttype": 0,
+		"financial": null,
+		"name": "",
+		"page": page,
 	}, options: options,);
 	if (response.data['code'] != 0) {
 		throw Exception('Error code: ${response.data['code']}');
 	}
 	var json = response.data["data"]["enterpriselist"];
-	enterpriselist = [];
+	if (page == 1) enterpriselist = [];
 	json.forEach((item) {
 		Enterprise enterprise = Enterprise(id: item["id"]);
 		enterprise.zone = zonelist.firstWhere((e) => e.id == item["zone"]);
@@ -77,11 +81,25 @@ Future<void> RequestEnterpriseList() async {
 		enterprise.sector = sectorlist.firstWhere((e) => e.id == item["sector"], orElse: () => Sector(id: 0, value: ""));
 		enterprise.level = levellist.firstWhere((e) => e.id == item["level"], orElse: () => Level(id: 0, value: ""));
 		item["field"].forEach((field) {
-			enterprise.fields.add(fieldlist.firstWhere((e) => e.id == field, orElse: () => Field(id: 0, value: "", sector: "", star: 0, content: "")));
+			enterprise.fields.add(fieldlist.firstWhere((e) => e.id == field, orElse: () => Field(id: 0, value: "", type: "", star: 0, content: "")));
 		});
 		enterprise.tags = item["tag"].split(',');
 		enterprise.website1 = item["website1"];
 		enterprise.website2 = item["website2"];
+		enterprise.icon = item["icon"];
+		(item["images"] as String).split(',').forEach((image) {
+			if (image.isNotEmpty) enterprise.images.add(image);
+		});
+		if (item["enttype"] ==  '国有企业') enterprise.enttype = 1;
+		if (item["enttype"] == '中央企业') enterprise.enttype = 2;
+		if (item["financial"] == '是') enterprise.financial = true;
+		if (item["financial"] == '否') enterprise.financial = false;
+		(item["article1"] as String).split(',').forEach((article) {
+			if (article.isNotEmpty) enterprise.article1.add(article);
+		});
+		(item["article2"] as String).split(',').forEach((article) {
+			if (article.isNotEmpty) enterprise.article2.add(article);
+		});
 		enterpriselist.add(enterprise);
 	});
 }
@@ -214,7 +232,7 @@ Future<void> RequestEditField(Field field) async {
 		data: {
 			"id": field.id,
 			"field": field.value,
-			"sector": field.sector,
+			"type": field.type,
 			"star": field.star,
 			"content": field.content,
 		},

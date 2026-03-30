@@ -23,7 +23,7 @@ class InputFieldState extends State<InputFieldWidget> {
 	@override
 	Widget build(BuildContext context) {
 		return AlertDialog(
-			title: Text("选择学科"),
+			title: const Text("选择学科"),
 			content: SingleChildScrollView(
 				child: Column(
 					mainAxisAlignment: MainAxisAlignment.start,
@@ -53,7 +53,7 @@ class InputFieldState extends State<InputFieldWidget> {
 					onPressed: () {
 						List<tapah.Field> fields = [];
 						for (var id in selected) {
-							var field = tapah.fieldlist.firstWhere((element) => element.id == id, orElse: () => tapah.Field(id: id, value: "", sector: "", star: 0, content: ""));
+							var field = tapah.fieldlist.firstWhere((element) => element.id == id, orElse: () => tapah.Field(id: id, value: "", type: "", star: 0, content: ""));
 							if (field.id == 0) continue;
 							fields.add(field);
 						}

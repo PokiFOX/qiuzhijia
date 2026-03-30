@@ -37,7 +37,7 @@ class FieldState extends State<FieldWidget> {
 			),
 			PlutoColumn(
 				title: '学科门类',
-				field: 'sector',
+				field: 'type',
 				type: PlutoColumnType.text(),
 				enableEditingMode: true,
 				enableColumnDrag: false,
@@ -63,21 +63,24 @@ class FieldState extends State<FieldWidget> {
 				enableEditingMode: false,
 				enableColumnDrag: false,
 				renderer: (renderercontext) {
-					var field = tapah.fieldlist.firstWhere((element) => element.id == renderercontext.row.cells['id']!.value, orElse: () => tapah.Field(id: 0, value: "", sector: "", star: 0, content: ""));
+					var field = tapah.fieldlist.firstWhere((element) => element.id == renderercontext.row.cells['id']!.value, orElse: () => tapah.Field(id: 0, value: "", type: "", star: 0, content: ""));
 					if (field.id == 0) {
 						return GestureDetector(
 							onTap: () async {
 								var field = renderercontext.row.cells['value']!.value;
-								var sector = renderercontext.row.cells['sector']!.value;
+								var type = renderercontext.row.cells['type']!.value;
 								var star = renderercontext.row.cells['star']!.value;
 								var content = renderercontext.row.cells['content']!.value;
 								if (field == null || field.toString().isEmpty) return;
-								await tapah.RequestAddField(field, sector ?? "", star ?? 0, content ?? "");
+								await tapah.RequestAddField(field, type ?? "", star ?? 0, content ?? "");
 								await getFieldList();
 								setState(() {});
 							},
 							child: const Text("添加", style: TextStyle(color: Colors.green, decoration: TextDecoration.underline,),),
 						);
+					}
+					if (field.id == 1) {
+						return Container();
 					}
 					return GestureDetector(
 						onTap: ()  async {
@@ -126,7 +129,7 @@ class FieldState extends State<FieldWidget> {
 			cells: {
 				'id': PlutoCell(value: field.id),
 				'value': PlutoCell(value: field.value),
-				'sector': PlutoCell(value: field.sector),
+				'type': PlutoCell(value: field.type),
 				'star': PlutoCell(value: field.star),
 				'content': PlutoCell(value: field.content),
 				'operation': PlutoCell(value: ""),
@@ -136,7 +139,7 @@ class FieldState extends State<FieldWidget> {
 			cells: {
 				'id': PlutoCell(value: ""),
 				'value': PlutoCell(value: ""),
-				'sector': PlutoCell(value: ""),
+				'type': PlutoCell(value: ""),
 				'star': PlutoCell(value: 0),
 				'content': PlutoCell(value: ""),
 				'operation': PlutoCell(value: ""),
@@ -145,46 +148,48 @@ class FieldState extends State<FieldWidget> {
 		return rows;
 	}
 
-
 	@override
 	Widget build(BuildContext context) {
 		return Scaffold(
 			appBar: AppBar(
 				title: const Text('学科管理'),
 			),
-			body: Column(
-				children: [
-					const SizedBox(height: 20,),
-					Expanded(
-						child: Row(
-							children: [
-								const SizedBox(width: 50,),
-								Expanded(
-									child: PlutoGrid(
-										columns: columns,
-										rows: buildRows(),
-										onChanged: (PlutoGridOnChangedEvent event) async {
-											if (event.row.cells['id']!.value == null || event.row.cells['id']!.value == '') return;
-											var field = tapah.fieldlist.firstWhere((element) => element.id == event.row.cells['id']!.value);
-											field.value = event.row.cells['value']!.value;
-											field.sector = event.row.cells['sector']!.value;
-											field.star = event.row.cells['star']!.value;
-											field.content = event.row.cells['content']!.value;
-											await tapah.RequestEditField(field);
-											await getFieldList();
-											setState(() {});
-										},
-										onLoaded: (PlutoGridOnLoadedEvent event) {
-											stateManager = event.stateManager;
-										},
-									)
-								),
-								const SizedBox(width: 50,),
-							],
+			body: Padding(
+				padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 20,),
+				child: Column(
+					children: [
+						const SizedBox(height: 20,),
+						Expanded(
+							child: Row(
+								children: [
+									const SizedBox(width: 50,),
+									Expanded(
+										child: PlutoGrid(
+											columns: columns,
+											rows: buildRows(),
+											onChanged: (PlutoGridOnChangedEvent event) async {
+												if (event.row.cells['id']!.value == null || event.row.cells['id']!.value == '') return;
+												var field = tapah.fieldlist.firstWhere((element) => element.id == event.row.cells['id']!.value);
+												field.value = event.row.cells['value']!.value;
+												field.type = event.row.cells['type']!.value;
+												field.star = event.row.cells['star']!.value;
+												field.content = event.row.cells['content']!.value;
+												await tapah.RequestEditField(field);
+												await getFieldList();
+												setState(() {});
+											},
+											onLoaded: (PlutoGridOnLoadedEvent event) {
+												stateManager = event.stateManager;
+											},
+										)
+									),
+									const SizedBox(width: 50,),
+								],
+							),
 						),
-					),
-					const SizedBox(height: 20,),
-				],
+						const SizedBox(height: 20,),
+					],
+				),
 			),
 		);
 	}

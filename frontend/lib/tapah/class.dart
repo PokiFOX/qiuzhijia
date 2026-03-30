@@ -100,10 +100,10 @@ class Sector {
 class Field {
 	int id;
 	String value;
-	String sector;
+	String type;
 	int star;
 	String content;
-	Field({required this.id, required this.value, required this.sector, required this.star, required this.content});
+	Field({required this.id, required this.value, required this.type, required this.star, required this.content});
 }
 
 class Enterprise {
@@ -119,6 +119,12 @@ class Enterprise {
 	List<String> tags = [];
 	List<Field> fields = [];
 	String? website1, website2;
+	String? icon;
+	List<String> images =  [];
+	int enttype = 0;
+	bool? financial;
+	List<String> article1 = [];
+	List<String> article2 = [];
 
 	Enterprise({required this.id});
 }

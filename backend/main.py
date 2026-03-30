@@ -1,6 +1,8 @@
 import asyncio
+import datetime
 import re
 from contextlib import asynccontextmanager
+import shutil
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -119,6 +121,7 @@ async def query_enterprise(req: Request):
 		if enttype == 1 and enterprise.enttype != '国企': continue
 		if enttype == 2 and enterprise.enttype != '央企': continue
 		if financial == True and enterprise.financial != '是': continue
+		if financial == False and enterprise.financial != '否': continue
 		if enterprise_name and enterprise_name not in enterprise.name: continue
 		count += 1
 		if page > 0 and count <= (page - 1) * 20: continue
@@ -581,7 +584,7 @@ async def edit_field(req: Request):
 	conn = data.mysql_pool.apply()
 	cursor = conn.cursor()
 
-	cursor.execute("UPDATE qzj_field SET field=%s, mapping=%s, type=%s, star=%s, content=%s WHERE id=%s", (field, ','.join(mapping), sector, star, content, id))
+	cursor.execute("UPDATE qzj_field SET field=%s, mapping=%s, type=%s, star=%s, content=%s WHERE id=%s", (field, ','.join(mapping), type, star, content, id))
 	field_item.name = field
 	field_item.mapname = mapping
 	field_item.type = type
@@ -790,8 +793,11 @@ async def import_excel(req: Request):
 	filename = json.get("filename")
 	filedata = json.get("filedata")
 
-	with open(f'./upload/企业列表.xlsx', 'wb') as f:
+	timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+	with open(f'./upload/{timestamp}.xlsx', 'wb') as f:
 		f.write(filedata.encode('latin1'))
+
+	shutil.copy(f'./upload/{timestamp}.xlsx', './upload/企业列表.xlsx')
 
 	process = await asyncio.create_subprocess_exec(
 		'python3', 'parse.py',

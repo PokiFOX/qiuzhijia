@@ -72,86 +72,83 @@ class ExampleState extends State<ExampleWidget> with tapah.Callback {
 			);
 		}
 
-		return SingleChildScrollView(
-			scrollDirection: Axis.vertical,
-			child: ListView.separated(
-				shrinkWrap: true,
-				physics: const NeverScrollableScrollPhysics(),
-				padding: const EdgeInsets.all(10),
-				itemCount: cases.length,
-				separatorBuilder: (context, index) => const SizedBox(height: 10),
-				itemBuilder: (context, index) {
-					var c = cases[index];
-					return Container(
-						decoration: BoxDecoration(
-							color: Colors.white,
-							borderRadius: BorderRadius.circular(8),
-						),
-						padding: const EdgeInsets.all(10),
-						child: Column(
-							crossAxisAlignment: CrossAxisAlignment.start,
-							children: [
-								Row(
-									children: [
-										c.enticon!.isEmpty ? Container(width: 45, height: 45, color: Colors.grey) : Image.network(tapah.parseimage('小图标/${c.enticon}.png'), width: 45, height: 45,),
-										const SizedBox(width: 10),
-										Expanded(
-											child: Column(
-												crossAxisAlignment: CrossAxisAlignment.start,
-												children: [
-													Text(
-														c.entname ?? "",
-														style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
-														maxLines: 1,
-														overflow: TextOverflow.ellipsis,
-													),
-													const SizedBox(height: 4),
-													Wrap(
-														spacing: 5,
-														runSpacing: 3,
-														children: c.tags.where((t) => t.trim().isNotEmpty).map((tag) => Container(
-															padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-															decoration: BoxDecoration(
-																color: const Color(0xFFE8F0FE),
-																borderRadius: BorderRadius.circular(4),
-															),
-															child: Text(tag, style: const TextStyle(fontSize: 11, color: Color(0xFF2D7BFF))),
-														)).toList(),
-													),
-												],
-											),
+		return ListView.separated(
+			shrinkWrap: true,
+			physics: const NeverScrollableScrollPhysics(),
+			padding: const EdgeInsets.all(10),
+			itemCount: cases.length,
+			separatorBuilder: (context, index) => const SizedBox(height: 10),
+			itemBuilder: (context, index) {
+				var c = cases[index];
+				return Container(
+					decoration: BoxDecoration(
+						color: Colors.white,
+						borderRadius: BorderRadius.circular(8),
+					),
+					padding: const EdgeInsets.all(10),
+					child: Column(
+						crossAxisAlignment: CrossAxisAlignment.start,
+						children: [
+							Row(
+								children: [
+									c.enticon!.isEmpty ? Container(width: 45, height: 45, color: Colors.grey) : Image.network(tapah.parseimage('小图标/${c.enticon}.png'), width: 45, height: 45,),
+									const SizedBox(width: 10),
+									Expanded(
+										child: Column(
+											crossAxisAlignment: CrossAxisAlignment.start,
+											children: [
+												Text(
+													c.entname ?? "",
+													style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
+													maxLines: 1,
+													overflow: TextOverflow.ellipsis,
+												),
+												const SizedBox(height: 4),
+												Wrap(
+													spacing: 5,
+													runSpacing: 3,
+													children: c.tags.where((t) => t.trim().isNotEmpty).map((tag) => Container(
+														padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+														decoration: BoxDecoration(
+															color: const Color(0xFFE8F0FE),
+															borderRadius: BorderRadius.circular(4),
+														),
+														child: Text(tag, style: const TextStyle(fontSize: 11, color: Color(0xFF2D7BFF))),
+													)).toList(),
+												),
+											],
+										),
+									),
+								],
+							),
+							const Divider(height: 16, thickness: 0.5),
+							Column(
+								crossAxisAlignment: CrossAxisAlignment.start,
+								children: [
+									infoRow("学生姓名", c.student),
+									infoRow("本科院校", c.school1),
+									infoRow("本科专业", c.field1),
+									infoRow("硕士院校", c.school2),
+									infoRow("硕士专业", c.field2),
+									if (c.detail != null && c.detail!.trim().isNotEmpty) ...[
+										const SizedBox(height: 6),
+										Text("主要经历", style: TextStyle(fontSize: 13, color: Colors.grey[600])),
+										const SizedBox(height: 4),
+										ExpandableText(
+											c.detail!,
+											style: const TextStyle(fontSize: 13, color: Colors.black),
+											expandText: '展开',
+											collapseText: '收起',
+											maxLines: 3,
+											linkColor: Colors.blue,
 										),
 									],
-								),
-								const Divider(height: 16, thickness: 0.5),
-								Column(
-									crossAxisAlignment: CrossAxisAlignment.start,
-									children: [
-										infoRow("学生姓名", c.student),
-										infoRow("本科院校", c.school1),
-										infoRow("本科专业", c.field1),
-										infoRow("硕士院校", c.school2),
-										infoRow("硕士专业", c.field2),
-										if (c.detail != null && c.detail!.trim().isNotEmpty) ...[
-											const SizedBox(height: 6),
-											Text("主要经历", style: TextStyle(fontSize: 13, color: Colors.grey[600])),
-											const SizedBox(height: 4),
-											ExpandableText(
-												c.detail!,
-												style: const TextStyle(fontSize: 13, color: Colors.black),
-												expandText: '展开',
-												collapseText: '收起',
-												maxLines: 3,
-												linkColor: Colors.blue,
-											),
-										],
-									],
-								),
-							],
-						),
-					);
-				},
-			),
+								],
+							),
+						],
+					),
+				);
+			},
 		);
 	}
 }

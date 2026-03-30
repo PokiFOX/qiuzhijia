@@ -51,7 +51,7 @@ Future<void> RequestFieldList() async {
 	});
 }
 
-Future<int> RequestEnterpriseList(int zone, int sector, int level, int enttype, bool financial, String name, int page) async {
+Future<int> RequestEnterpriseList(int zone, int sector, int level, int enttype, bool? financial, String name, int page) async {
 	var response = await dio.post(parseurl(url_query_enterprise), data: {
 		"zone": zone,
 		"sector": sector,
