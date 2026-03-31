@@ -1,6 +1,8 @@
-import 'package:bot_toast/bot_toast.dart';
+import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+
+import 'package:bot_toast/bot_toast.dart';
+import 'package:mpflutter_wechat_api/mpflutter_wechat_api.dart' as wxapi;
 
 import 'package:qiuzhijia/tapah/class.dart' as tapah;
 import 'package:qiuzhijia/tapah/data.dart' as tapah;
@@ -25,10 +27,16 @@ class DetailState extends State<DetailWidget> with tapah.Callback {
 	late tapah.Enterprise enterprise;
 	bool initialized = false;
 	int fenyeindex = 0;
+	int topimageindex = 0;
+	late PageController topimagecontroller;
+	late Timer topimagetimer;
+
 	@override
 	void initState() {
 		super.initState();
 		initCallback(tapah.SceneID.detail, widget.key!);
+		topimagecontroller = PageController();
+		startTopImagePlay();
 	}
 
 	@override
@@ -47,13 +55,19 @@ class DetailState extends State<DetailWidget> with tapah.Callback {
 		super.deactivate();
 	}
 
+	@override
+	void dispose() {
+		topimagetimer.cancel();
+		topimagecontroller.dispose();
+		super.dispose();
+	}
+
 	void openUrl(String? url) {
 		if (url == null || url.isEmpty) {
 			BotToast.showText(text: '暂无链接');
 			return;
 		}
-		Clipboard.setData(ClipboardData(text: url));
-		BotToast.showText(text: '链接已复制，请在浏览器中打开');
+		wxapi.wx.setClipboardData(wxapi.SetClipboardDataOption()..data = url);
 	}
 
 	@override
@@ -154,36 +168,63 @@ class DetailState extends State<DetailWidget> with tapah.Callback {
 		);
 	}
 
+
+	void startTopImagePlay() {
+		topimagetimer = Timer.periodic(Duration(seconds: tapah.topimageduration), (timer) {
+			int nextIndex = (topimageindex + 1) % enterprise.images.length;
+			topimagecontroller.animateToPage(
+				nextIndex,
+				duration: const Duration(milliseconds: 300),
+				curve: Curves.easeInOut,
+			);
+		});
+	}
+
+
 	Widget buildTopImage() {
 		Widget topimage = Container();
 		if (initialized  && enterprise.images.length > 0) {
-			topimage = Image.network(tapah.parseimage('大图标/${enterprise.images[0]}.png',), fit: BoxFit.contain,);
+			topimage = Image.network(tapah.parseimage('大图标/${enterprise.images[topimageindex]}.png',), fit: BoxFit.contain,);
 		}
-		return Stack(
-			children: [
-				ConstrainedBox(
-					constraints: BoxConstraints(maxHeight: 200),
-					child: Center(child: topimage,),
-				),
-				Column(
-					mainAxisAlignment: MainAxisAlignment.start,
+		return Padding(
+			padding: EdgeInsets.symmetric(horizontal: 20),
+			child: ConstrainedBox(
+				constraints: BoxConstraints(maxHeight: 214),
+				child: Stack(
 					children: [
-						const SizedBox(height: 20),
-						Row(
+						PageView.builder(
+							controller: topimagecontroller,
+							itemCount: enterprise.images.length,
+							onPageChanged: (index) {
+								setState(() {
+									topimageindex = index;
+								});
+							},
+							itemBuilder: (context, index) {
+								return topimage;
+							},
+						),
+						Column(
 							mainAxisAlignment: MainAxisAlignment.start,
 							children: [
-								const SizedBox(width: 10),
-								IconButton(
-									icon: const Icon(Icons.arrow_back, color: Colors.white,),
-									onPressed: () {
-										Navigator.pop(context);
-									},
+								const SizedBox(height: 20),
+								Row(
+									mainAxisAlignment: MainAxisAlignment.start,
+									children: [
+										const SizedBox(width: 10),
+										IconButton(
+											icon: const Icon(Icons.arrow_back, color: Colors.white,),
+											onPressed: () {
+												Navigator.pop(context);
+											},
+										),
+									],
 								),
 							],
 						),
 					],
 				),
-			],
+			),
 		);
 	}
 

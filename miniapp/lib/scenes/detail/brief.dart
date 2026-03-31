@@ -1,7 +1,8 @@
-import 'package:bot_toast/bot_toast.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 
+import 'package:mpflutter_wechat_api/mpflutter_wechat_api.dart' as wxapi;
+
+import 'package:bot_toast/bot_toast.dart';
 import 'package:expandable_text/expandable_text.dart';
 
 import 'package:qiuzhijia/tapah/class.dart' as tapah;
@@ -163,14 +164,12 @@ class BriefState extends State<BriefWidget> with tapah.Callback {
 					buildRow("公司层级:", widget.enterprise.level?.value ?? '', "", null),
 					buildRow("公司官网:", widget.enterprise.website1 ?? '', "点击复制", () {
 						if (widget.enterprise.website1 != null) {
-							Clipboard.setData(ClipboardData(text: widget.enterprise.website1!));
-							BotToast.showText(text: "已复制到剪贴板");
+							wxapi.wx.setClipboardData(wxapi.SetClipboardDataOption()..data = widget.enterprise.website1!);
 						}
 					}),
 					buildRow("招聘官网:", widget.enterprise.website2 ?? '', "点击复制", () {
 						if (widget.enterprise.website2 != null) {
-							Clipboard.setData(ClipboardData(text: widget.enterprise.website2!));
-							BotToast.showText(text: "已复制到剪贴板");
+							wxapi.wx.setClipboardData(wxapi.SetClipboardDataOption()..data = widget.enterprise.website2!);
 						}
 					}),
 				],
