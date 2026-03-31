@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'package:mpflutter_wechat_api/mpflutter_wechat_api.dart' as wxapi;
 
-import 'package:bot_toast/bot_toast.dart';
 import 'package:expandable_text/expandable_text.dart';
 
 import 'package:qiuzhijia/tapah/class.dart' as tapah;
