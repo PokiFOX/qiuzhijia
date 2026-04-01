@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 
-import 'package:expandable_text/expandable_text.dart';
-
 import 'package:qiuzhijia/tapah/class.dart' as tapah;
 import 'package:qiuzhijia/tapah/data.dart' as tapah;
 import 'package:qiuzhijia/tapah/enum.dart' as tapah;
 import 'package:qiuzhijia/tapah/function.dart' as tapah;
 import 'package:qiuzhijia/tapah/request.dart' as tapah;
+import 'package:qiuzhijia/wigets/expandable_text.dart' as widgets;
 
 class ExampleWidget extends StatefulWidget {
 	const ExampleWidget({super.key, required this.enterprise});
@@ -134,7 +133,7 @@ class ExampleState extends State<ExampleWidget> with tapah.Callback {
 										const SizedBox(height: 6),
 										Text("主要经历", style: TextStyle(fontSize: 13, color: Colors.grey[600])),
 										const SizedBox(height: 4),
-										ExpandableText(
+										widgets.ExpandableText(
 											c.detail!,
 											style: const TextStyle(fontSize: 13, color: Colors.black),
 											expandText: '展开',

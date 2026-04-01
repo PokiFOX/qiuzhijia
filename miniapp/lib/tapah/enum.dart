@@ -11,7 +11,7 @@ enum SceneID {
 	mp_field,
 	detail,
 	dt_brief,
-	dt_sector,
+	dt_field,
 	dt_info,
 	dt_offer,
 	dt_example,

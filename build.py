@@ -1,6 +1,8 @@
+import datetime
 import json
 import os
 import shutil
+import zipfile
 
 shutil.copyfile('./main.wechat', 'miniapp/lib/main.dart')
 os.chdir('miniapp')
@@ -30,3 +32,10 @@ with open('build/wechat/pages/index/index.json', 'w') as f:
 
 os.chdir('..')
 shutil.copyfile('./main.web', 'miniapp/lib/main.dart')
+
+with zipfile.ZipFile(f'wechat.{datetime.datetime.now().strftime("%Y%m%d.%H%M")}.zip', 'w', zipfile.ZIP_DEFLATED) as zipf:
+	for root, dirs, files in os.walk('miniapp/build/wechat'):
+		for file in files:
+			file_path = os.path.join(root, file)
+			arcname = os.path.relpath(file_path, 'miniapp/build')
+			zipf.write(file_path, arcname)

@@ -81,7 +81,11 @@ Future<int> RequestEnterpriseList(int zone, int sector, int level, int enttype, 
 		enterprise.website1 = item["website1"];
 		enterprise.website2 = item["website2"];
 		enterprise.icon = item["icon"];
-		enterprise.images = item["images"].split(',');
+		var images = item["images"].split(',');
+		for (var image in images) {
+			if (image.trim().isEmpty) continue;
+			enterprise.images.add(image.trim());
+		}
 		if (item["enttype"] != '国企') enterprise.enttype = 1;
 		if (item["enttype"] == '央企') enterprise.enttype = 2;
 		enterprise.financial = item["financial"] == "是";

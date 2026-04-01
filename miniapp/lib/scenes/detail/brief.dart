@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 
 import 'package:mpflutter_wechat_api/mpflutter_wechat_api.dart' as wxapi;
 
-import 'package:expandable_text/expandable_text.dart';
-
 import 'package:qiuzhijia/tapah/class.dart' as tapah;
 import 'package:qiuzhijia/tapah/enum.dart' as tapah;
+import 'package:qiuzhijia/tapah/function.dart' as tapah;
+import 'package:qiuzhijia/wigets/expandable_text.dart' as widgets;
 
 class BriefWidget extends StatefulWidget {
 	const BriefWidget({super.key, required this.enterprise});
@@ -37,7 +37,7 @@ class BriefState extends State<BriefWidget> with tapah.Callback {
 				const SizedBox(height: 10,),
 				Padding(
 					padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-					child: ExpandableText(
+					child: widgets.ExpandableText(
 						widget.enterprise.brief ?? '',
 						style: TextStyle(fontSize: 15, color: Colors.black,),
 						expandText: '展开',
@@ -67,54 +67,60 @@ class BriefState extends State<BriefWidget> with tapah.Callback {
 
 	Widget buildTitle() {
 		return Padding(
-			padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-			child: Column(
-				mainAxisAlignment: MainAxisAlignment.start,
-				crossAxisAlignment: CrossAxisAlignment.start,
+			padding: const EdgeInsets.fromLTRB(10, 0, 20, 0),
+			child: Row(
 				children: [
-					Text(widget.enterprise.name!, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,),),
-					const SizedBox(height: 10),
-					SingleChildScrollView(
-						scrollDirection: Axis.horizontal,
-						child: Row(
-							children: (widget.enterprise.tags).map<Widget>((t) => Container(
-								height: 18,
-								margin: const EdgeInsets.only(right: 6),
-								padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1,),
-								decoration: BoxDecoration(
-									color: Color(0xFFFEEBE5),
-									borderRadius: BorderRadius.circular(4),
-								),
-								child: Text(t, style: const TextStyle(color: Color(0xFFF66923), fontSize: 10)),
-							)).toList(),
-						),
-					),
-					const SizedBox(height: 10),
-					Row(
+					Column(
 						mainAxisAlignment: MainAxisAlignment.start,
 						crossAxisAlignment: CrossAxisAlignment.start,
 						children: [
-							Container(
-								margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-								padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1,),
-								decoration: BoxDecoration(
-									color: Colors.grey[200],
-									borderRadius: BorderRadius.circular(4),
+							Text(widget.enterprise.name!, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,),),
+							const SizedBox(height: 10),
+							SingleChildScrollView(
+								scrollDirection: Axis.horizontal,
+								child: Row(
+									children: (widget.enterprise.tags).map<Widget>((t) => Container(
+										height: 18,
+										margin: const EdgeInsets.only(right: 6),
+										padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1,),
+										decoration: BoxDecoration(
+											color: Color(0xFFFEEBE5),
+											borderRadius: BorderRadius.circular(4),
+										),
+										child: Text(t, style: const TextStyle(color: Color(0xFFF66923), fontSize: 10)),
+									)).toList(),
 								),
-								child: Text("${widget.enterprise.zone!.value}", style: const TextStyle(fontSize: 9, color: Colors.black,),),
 							),
-							const SizedBox(width: 10,),
-							Container(
-								margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-								padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1,),
-								decoration: BoxDecoration(
-									color: Colors.grey[200],
-									borderRadius: BorderRadius.circular(4),
-								),
-								child: Text("${widget.enterprise.city!}", style: const TextStyle(fontSize: 9, color: Colors.black,),),
+							const SizedBox(height: 10),
+							Row(
+								mainAxisAlignment: MainAxisAlignment.start,
+								crossAxisAlignment: CrossAxisAlignment.start,
+								children: [
+									Container(
+										margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+										padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1,),
+										decoration: BoxDecoration(
+											color: Colors.grey[200],
+											borderRadius: BorderRadius.circular(4),
+										),
+										child: Text("${widget.enterprise.zone!.value}", style: const TextStyle(fontSize: 9, color: Colors.black,),),
+									),
+									const SizedBox(width: 10,),
+									Container(
+										margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+										padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1,),
+										decoration: BoxDecoration(
+											color: Colors.grey[200],
+											borderRadius: BorderRadius.circular(4),
+										),
+										child: Text("${widget.enterprise.city!}", style: const TextStyle(fontSize: 9, color: Colors.black,),),
+									),
+								],
 							),
 						],
 					),
+					Expanded(child: Container(),),
+					Image.network(tapah.parseimage('小图标/${widget.enterprise.icon}.png'), width: 60, height: 60,),
 				],
 			),
 		);

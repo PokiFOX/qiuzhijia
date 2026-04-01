@@ -1,23 +1,22 @@
 import 'package:flutter/material.dart';
 
-import 'package:expandable_text/expandable_text.dart';
-
 import 'package:qiuzhijia/tapah/class.dart' as tapah;
 import 'package:qiuzhijia/tapah/enum.dart' as tapah;
+import 'package:qiuzhijia/wigets/expandable_text.dart' as widgets;
 
-class SectorWidget extends StatefulWidget {
-	const SectorWidget({super.key, required this.enterprise});
+class FieldWidget extends StatefulWidget {
+	const FieldWidget({super.key, required this.enterprise});
 	final tapah.Enterprise enterprise;
 
 	@override
-	State<SectorWidget> createState() => SectorState();
+	State<FieldWidget> createState() => FieldState();
 }
 
-class SectorState extends State<SectorWidget> with tapah.Callback {
+class FieldState extends State<FieldWidget> with tapah.Callback {
 	@override
 	void initState() {
 		super.initState();
-		initCallback(tapah.SceneID.dt_sector, widget.key!);
+		initCallback(tapah.SceneID.dt_field, widget.key!);
 	}
 
 	@override
@@ -68,7 +67,7 @@ class SectorState extends State<SectorWidget> with tapah.Callback {
 										...List.generate(field.star, (_) => Icon(Icons.star, size: 16, color: Colors.orange,)),
 									],
 								),
-								ExpandableText(
+								widgets.ExpandableText(
 									field.content,
 									expandText: '展开',
 									collapseText: '收起',

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:qiuzhijia/tapah/class.dart' as tapah;
 import 'package:qiuzhijia/tapah/data.dart' as tapah;
 import 'package:qiuzhijia/tapah/enum.dart' as tapah;
+import 'package:qiuzhijia/wigets/expandable_text.dart' as widgets;
 
 class FieldWidget extends StatefulWidget {
 	const FieldWidget({super.key,});
@@ -192,14 +193,35 @@ class FieldState extends State<FieldWidget> with tapah.Callback {
 										runSpacing: 10,
 										children: fields.map((field) {
 											return Container(
-												padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+												width: double.infinity,
+												padding: EdgeInsets.all(10),
 												decoration: BoxDecoration(
-													color: Colors.white,
-													borderRadius: BorderRadius.circular(6),
+													border: Border.all(color: Color(0xFF2D7BFF), width: 1),
+													borderRadius: BorderRadius.circular(8),
 												),
-												child: Text(
-													field.value,
-													style: const TextStyle(fontSize: 13, color: Colors.black87),
+												child: Column(
+													mainAxisAlignment: MainAxisAlignment.start,
+													crossAxisAlignment: CrossAxisAlignment.start,
+													children: [
+														Text(field.value, style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, ),),
+														const SizedBox(height: 5,),
+														Text("学科门类: ${field.type}", style: TextStyle(fontSize: 11, color: Colors.black),),
+														Row(
+															mainAxisAlignment: MainAxisAlignment.start,
+															children: [
+																Text("专业热门度:", style: TextStyle(fontSize: 11, color: Colors.black),),
+																const SizedBox(width: 5,),
+																...List.generate(field.star, (_) => Icon(Icons.star, size: 16, color: Colors.orange,)),
+															],
+														),
+														widgets.ExpandableText(
+															field.content,
+															expandText: '展开',
+															collapseText: '收起',
+															maxLines: 3,
+															linkColor: Colors.blue,
+														),
+													],
 												),
 											);
 										}).toList(),

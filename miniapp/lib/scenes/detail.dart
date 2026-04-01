@@ -11,7 +11,7 @@ import 'package:qiuzhijia/tapah/function.dart' as tapah;
 import 'package:qiuzhijia/tapah/option.dart' as tapah;
 
 import 'package:qiuzhijia/scenes/detail/brief.dart' as scenes;
-import 'package:qiuzhijia/scenes/detail/sector.dart' as scenes;
+import 'package:qiuzhijia/scenes/detail/field.dart' as scenes;
 import 'package:qiuzhijia/scenes/detail/info.dart' as scenes;
 import 'package:qiuzhijia/scenes/detail/offer.dart' as scenes;
 import 'package:qiuzhijia/scenes/detail/example.dart' as scenes;
@@ -30,13 +30,17 @@ class DetailState extends State<DetailWidget> with tapah.Callback {
 	int topimageindex = 0;
 	late PageController topimagecontroller;
 	late Timer topimagetimer;
+	late ScrollController scrollcontroller;
+	final List<GlobalKey> sectionKeys = List.generate(5, (_) => GlobalKey());
+	final GlobalKey tabbarkey = GlobalKey();
+	bool isscrollingtosection = false;
 
 	@override
 	void initState() {
 		super.initState();
 		initCallback(tapah.SceneID.detail, widget.key!);
 		topimagecontroller = PageController();
-		startTopImagePlay();
+		scrollcontroller = ScrollController()..addListener(onScroll);
 	}
 
 	@override
@@ -46,6 +50,9 @@ class DetailState extends State<DetailWidget> with tapah.Callback {
 		if (args != null && args is tapah.Enterprise) {
 			enterprise = args;
 			initialized = true;
+			if (enterprise.images.isNotEmpty) {
+				startTopImagePlay();
+			}
 		}
 	}
 
@@ -57,8 +64,11 @@ class DetailState extends State<DetailWidget> with tapah.Callback {
 
 	@override
 	void dispose() {
-		topimagetimer.cancel();
+		if (enterprise.images.isNotEmpty) {
+			topimagetimer.cancel();
+		}
 		topimagecontroller.dispose();
+		scrollcontroller.dispose();
 		super.dispose();
 	}
 
@@ -74,28 +84,40 @@ class DetailState extends State<DetailWidget> with tapah.Callback {
 	Widget build(BuildContext context) {
 		return Scaffold(
 			body: SafeArea(
-				child: SingleChildScrollView(
-					scrollDirection: Axis.vertical,
-					child: Container(
-						decoration: const BoxDecoration(
-							gradient: LinearGradient(
-								begin: Alignment.topCenter, 
-								end: Alignment.bottomCenter,
-								colors: [
-									Color(0xFF7EAEFF),
-									Color(0xFFFFFFFF),
-								],
-							),
-						),
-						child: Column(
-							children: [
-								const SizedBox(height: 10),
-								buildTopImage(),
-								const SizedBox(height: 10),
-								buildInfoView(),
-								const SizedBox(height: 10),
+				child: Container(
+					decoration: const BoxDecoration(
+						gradient: LinearGradient(
+							begin: Alignment.topCenter, 
+							end: Alignment.bottomCenter,
+							colors: [
+								Color(0xFF7EAEFF),
+								Color(0xFFFFFFFF),
 							],
+							stops: [0.0, 0.3],
 						),
+					),
+					child: CustomScrollView(
+						controller: scrollcontroller,
+						slivers: [
+							const SliverToBoxAdapter(child: SizedBox(height: 10)),
+							SliverToBoxAdapter(child: buildTopImage()),
+							const SliverToBoxAdapter(child: SizedBox(height: 10)),
+							SliverPersistentHeader(
+								pinned: true,
+								delegate: TabBarDelegate(
+									child: Container(
+										key: tabbarkey,
+										decoration: BoxDecoration(
+											color: Colors.white,
+											border: Border(bottom: BorderSide(color: Colors.grey.shade200, width: 0.5)),
+										),
+										child: buildTabBar(),
+									),
+								),
+							),
+							SliverToBoxAdapter(child: buildSections()),
+							const SliverToBoxAdapter(child: SizedBox(height: 10)),
+						],
 					),
 				),
 			),
@@ -168,7 +190,6 @@ class DetailState extends State<DetailWidget> with tapah.Callback {
 		);
 	}
 
-
 	void startTopImagePlay() {
 		topimagetimer = Timer.periodic(Duration(seconds: tapah.topimageduration), (timer) {
 			int nextIndex = (topimageindex + 1) % enterprise.images.length;
@@ -180,98 +201,175 @@ class DetailState extends State<DetailWidget> with tapah.Callback {
 		});
 	}
 
-
 	Widget buildTopImage() {
-		Widget topimage = Container();
-		if (initialized  && enterprise.images.length > 0) {
-			topimage = Image.network(tapah.parseimage('大图标/${enterprise.images[topimageindex]}.png',), fit: BoxFit.contain,);
-		}
-		return Padding(
-			padding: EdgeInsets.symmetric(horizontal: 20),
-			child: ConstrainedBox(
-				constraints: BoxConstraints(maxHeight: 214),
-				child: Stack(
-					children: [
-						PageView.builder(
-							controller: topimagecontroller,
-							itemCount: enterprise.images.length,
-							onPageChanged: (index) {
-								setState(() {
-									topimageindex = index;
-								});
-							},
-							itemBuilder: (context, index) {
-								return topimage;
-							},
-						),
-						Column(
-							mainAxisAlignment: MainAxisAlignment.start,
-							children: [
-								const SizedBox(height: 20),
-								Row(
-									mainAxisAlignment: MainAxisAlignment.start,
-									children: [
-										const SizedBox(width: 10),
-										IconButton(
-											icon: const Icon(Icons.arrow_back, color: Colors.white,),
-											onPressed: () {
-												Navigator.pop(context);
-											},
-										),
-									],
-								),
-							],
-						),
-					],
-				),
-			),
-		);
-	}
-
-	Widget buildInfoView() {
-		return Container(
-			decoration: BoxDecoration(
-				color: Colors.white,
-				borderRadius: BorderRadius.circular(8),
-			),
-			child: Column(
+		if (initialized == false || enterprise.images.isEmpty) {
+			return Column(
 				mainAxisAlignment: MainAxisAlignment.start,
 				children: [
-					const SizedBox(height: 10,),
-					SizedBox(
-						height: 25,
-						child: ListView.builder(
-							scrollDirection: Axis.horizontal,
-							itemCount: tapah.entfenyes.length,
-							itemBuilder: (context, index) {
-								return GestureDetector(
-									onTap: () => setState(() => fenyeindex = index),
-									child: Container(
-										padding: EdgeInsets.symmetric(horizontal: 8),
-										child: Column(
-											mainAxisAlignment: MainAxisAlignment.end,
-											children: [
-												Text(tapah.entfenyes[index], style: TextStyle(fontSize: 14, color: Colors.black, fontWeight: fenyeindex == index ? FontWeight.bold : FontWeight.normal),),
-											],
-										),
-									),
-								);
-							},
-						),
-					),
-					const SizedBox(height: 10,),
-					IndexedStack(
-						index: fenyeindex,
+					Row(
+						mainAxisAlignment: MainAxisAlignment.start,
 						children: [
-							scenes.BriefWidget(key: tapah.keyDTBrief, enterprise: enterprise),
-							scenes.SectorWidget(key: tapah.keyDTSector, enterprise: enterprise),
-							scenes.InfoWidget(key: tapah.keyDTInfo, enterprise: enterprise),
-							scenes.OfferWidget(key: tapah.keyDTOffer, enterprise: enterprise),
-							scenes.ExampleWidget(key: tapah.keyDTExample, enterprise: enterprise),
+							const SizedBox(width: 10),
+							IconButton(
+								icon: const Icon(Icons.arrow_back, color: Colors.white,),
+								onPressed: () {
+									Navigator.pop(context);
+								},
+							),
+						],
+					),
+				],
+			);
+		}
+		return ConstrainedBox(
+			constraints: BoxConstraints(maxHeight: 200, minHeight: 200,),
+			child: Stack(
+				children: [
+					PageView.builder(
+						controller: topimagecontroller,
+						itemCount: enterprise.images.length,
+						onPageChanged: (index) {
+							setState(() {
+								topimageindex = index;
+							});
+						},
+						itemBuilder: (context, index) {
+							return Image.network(tapah.parseimage('大图标/${enterprise.images[topimageindex]}.png',), fit: BoxFit.cover,);
+						},
+					),
+					Column(
+						mainAxisAlignment: MainAxisAlignment.start,
+						children: [
+							Row(
+								mainAxisAlignment: MainAxisAlignment.start,
+								children: [
+									const SizedBox(width: 10),
+									IconButton(
+										icon: const Icon(Icons.arrow_back, color: Colors.white,),
+										onPressed: () {
+											Navigator.pop(context);
+										},
+									),
+								],
+							),
 						],
 					),
 				],
 			),
 		);
 	}
+
+	void onScroll() {
+		if (isscrollingtosection) return;
+		final tabBarContext = tabbarkey.currentContext;
+		if (tabBarContext == null) return;
+		final tabBarBox = tabBarContext.findRenderObject() as RenderBox;
+		final tabBarBottom = tabBarBox.localToGlobal(Offset.zero).dy + tabBarBox.size.height;
+		for (int i = sectionKeys.length - 1; i >= 0; i--) {
+			final keyContext = sectionKeys[i].currentContext;
+			if (keyContext != null) {
+				final renderBox = keyContext.findRenderObject() as RenderBox;
+				final position = renderBox.localToGlobal(Offset.zero);
+				if (position.dy <= tabBarBottom + 20) {
+					if (fenyeindex != i) {
+						setState(() => fenyeindex = i);
+					}
+					return;
+				}
+			}
+		}
+	}
+
+	void scrollToSection(int index) async {
+		isscrollingtosection = true;
+		setState(() => fenyeindex = index);
+		final keyContext = sectionKeys[index].currentContext;
+		if (keyContext != null) {
+			await Scrollable.ensureVisible(
+				keyContext,
+				duration: const Duration(milliseconds: 300),
+				curve: Curves.easeInOut,
+				alignment: 0.0,
+			);
+		}
+		isscrollingtosection = false;
+	}
+
+	Widget buildTabBar() {
+		return SizedBox(
+			height: 35,
+			child: ListView.builder(
+				scrollDirection: Axis.horizontal,
+				itemCount: tapah.entfenyes.length,
+				itemBuilder: (context, index) {
+					return GestureDetector(
+						onTap: () => scrollToSection(index),
+						child: Container(
+							padding: EdgeInsets.symmetric(horizontal: 8),
+							child: Column(
+								mainAxisAlignment: MainAxisAlignment.center,
+								children: [
+									Text(tapah.entfenyes[index], style: TextStyle(fontSize: 14, color: Colors.black, fontWeight: fenyeindex == index ? FontWeight.bold : FontWeight.normal),),
+									const SizedBox(height: 2),
+									Container(
+										height: 2,
+										width: 20,
+										color: fenyeindex == index ? Color(0xFF2D7BFF) : Colors.transparent,
+									),
+								],
+							),
+						),
+					);
+				},
+			),
+		);
+	}
+
+	Widget buildSections() {
+		if (!initialized) return const SizedBox.shrink();
+		final sections = <Widget>[
+			scenes.BriefWidget(key: tapah.keyDTBrief, enterprise: enterprise),
+			scenes.FieldWidget(key: tapah.keyDTField, enterprise: enterprise),
+			scenes.InfoWidget(key: tapah.keyDTInfo, enterprise: enterprise),
+			scenes.OfferWidget(key: tapah.keyDTOffer, enterprise: enterprise),
+			scenes.ExampleWidget(key: tapah.keyDTExample, enterprise: enterprise),
+		];
+		List<Widget> children = [];
+		for (int i = 0; i < sections.length; i++) {
+			if (i > 0) {
+				children.add(Divider(height: 20, thickness: 8, color: Colors.grey.shade100));
+			}
+			children.add(Container(
+				key: sectionKeys[i],
+				padding: const EdgeInsets.symmetric(vertical: 10),
+				child: sections[i],
+			));
+		}
+		return Container(
+			decoration: BoxDecoration(
+				color: Colors.white,
+				borderRadius: BorderRadius.vertical(bottom: Radius.circular(8)),
+			),
+			child: Column(children: children),
+		);
+	}
+}
+
+class TabBarDelegate extends SliverPersistentHeaderDelegate {
+	final Widget child;
+	TabBarDelegate({required this.child});
+
+	@override
+	Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+		return child;
+	}
+
+	@override
+	double get maxExtent => 35;
+
+	@override
+	double get minExtent => 35;
+
+	@override
+	bool shouldRebuild(covariant TabBarDelegate oldDelegate) => true;
 }
