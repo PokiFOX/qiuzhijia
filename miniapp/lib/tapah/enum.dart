@@ -9,6 +9,8 @@ enum SceneID {
 	mp_profile,
 	mp_filter,
 	mp_field,
+	mp_example,
+	mp_casefilter,
 	detail,
 	dt_brief,
 	dt_field,
@@ -20,4 +22,5 @@ enum SceneID {
 enum EventType {
 	none,
 	mainpage_activate,
+	mainpage_example_casefilter,
 }

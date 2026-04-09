@@ -97,6 +97,8 @@ def parse_enterprise(page):
 			"article1": function.getcell_str(page, row, const.column_article1),		# 深度解读
 			"article2": function.getcell_str(page, row, const.column_article2),		# 招聘咨询
 		}
+		if enterprise['name'] == "深圳市创新投资集团有限公司":
+			pass
 		tag1 = function.getcell_str(page, row, const.column_tag1)					# 标签1
 		tag2 = function.getcell_str(page, row, const.column_tag2)					# 标签2
 		tag3 = function.getcell_str(page, row, const.column_tag3)					# 标签3
@@ -119,6 +121,7 @@ def parse_enterprise(page):
 			print(f"公司层级不合法: {enterprise['level']} 企业: {enterprise['name']}")
 			continue
 		fields = enterprise['field'].split(',')
+		valid = True
 		valid_fields = []
 		for f in fields:
 			find = False
@@ -129,9 +132,10 @@ def parse_enterprise(page):
 					break
 			if not find and f != "":
 				print(f"主要招聘学科不合法: {f} 企业: {enterprise['name']}")
+				valid = False
 			else:
 				valid_fields.append(f)
-		if len(fields) != len(valid_fields): continue
+		if not valid: continue
 
 		try:
 			r = requests.post(function.url(const.url_insert_enterprise), json = enterprise, headers = const.request_headers, timeout = 15)
@@ -151,10 +155,13 @@ def parse_case(page):
 			"tags": function.getcell_str(page, row, 4),				# 标签
 			"student": function.getcell_str(page, row, 5),			# 学生姓名
 			"school1": function.getcell_str(page, row, 6),			# 本科院校
-			"field1": function.getcell_str(page, row, 7),			# 本科专业
-			"school2": function.getcell_str(page, row, 8),			# 研究生院校
-			"field2": function.getcell_str(page, row, 9),			# 研究生专业
-			"detail": function.getcell_str(page, row, 10),			# 主要经历
+			"school1_tag": function.getcell_str(page, row, 7),		# 本科院校标签
+			"field1": function.getcell_str(page, row, 8),			# 本科专业
+			"school2": function.getcell_str(page, row, 9),			# 研究生院校
+			"school2_tag": function.getcell_str(page, row, 10),		# 研究生院校标签
+			"field2": function.getcell_str(page, row, 11),			# 研究生专业
+			"year": function.getcell_int(page, row, 12),			# 毕业年份
+			"detail": function.getcell_str(page, row, 13),			# 主要经历
 		}
 		try:
 			r = requests.post(function.url(const.url_insert_case), json = case, headers = const.request_headers, timeout = 15)
@@ -173,7 +180,6 @@ parse_enterprise(wb['第一批企业'])
 parse_case(wb['成功案例'])
 
 wb.close()
-
 
 #truncate table qzj_zone;
 #truncate table qzj_sector;

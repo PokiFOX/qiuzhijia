@@ -96,9 +96,13 @@ Future<int> RequestEnterpriseList(int zone, int sector, int level, int enttype, 
 	return json.length;
 }
 
-Future<int> RequestCaseList(int enterprise, int page) async {
+Future<int> RequestCaseList(int enterprise, int zone, int sector, int stag, int year, int page) async {
 	var response = await dio.post(parseurl(url_query_case), data: {
 		"enterprise": enterprise,
+		"zone": zone,
+		"sector": sector,
+		"stag": stag,
+		"year": year,
 		"page": page,
 	});
 	if (response.data['code'] != 0) {
@@ -112,8 +116,9 @@ Future<int> RequestCaseList(int enterprise, int page) async {
 		c.field = fieldlist.firstWhere((e) => e.id == item["field"]);
 		c.tags = List<String>.from(item["tags"]);
 		c.student = item["student"];
-		c.school1 = item["school1"]; c.field1 = item["field1"];
-		c.school2 = item["school2"]; c.field2 = item["field2"];
+		c.school1 = item["school1"]; c.stag1 = item["stag1"]; c.field1 = item["field1"];
+		c.school2 = item["school2"]; c.stag2 = item["stag2"]; c.field2 = item["field2"];
+		c.year = item["year"];
 		c.detail = item["detail"];
 		caselist.add(c);
 	});

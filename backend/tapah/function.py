@@ -61,7 +61,7 @@ def init_config():
 	cursor.execute("SELECT * FROM qzj_case")
 	result = cursor.fetchall()
 	for row in result:
-		case = Case(row[0], row[1], row[2], row[3], row[4].split(','), row[5], row[6], row[7], row[8], row[9], row[10])
+		case = Case(row[0], row[1], row[2], row[3], row[4].split(','), row[5], row[6], row[7], row[8], row[9], row[10], row[11], row[12], row[13])
 		data.caselist.append(case)
 
 	cursor.close()

@@ -54,7 +54,7 @@ class EventManager {
 		else {
 			if (eventmap.containsKey(sceneid) == false) return;
 			if (eventmap[sceneid]!.list.containsKey(event) == false) return;
-			Function.apply(eventmap[sceneid]!.list[event]!, param);
+			Function.apply(eventmap[sceneid]!.list[event]!, [param]);
 		}
 	}
 }
@@ -139,6 +139,7 @@ class Case {
 	String? student;
 	String? school1, field1;
 	String? school2, field2;
+	int? stag1, stag2, year;
 	String? detail;
 	Case({required this.id, required this.name});
 }

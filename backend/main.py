@@ -161,6 +161,10 @@ async def query_enterprise(req: Request):
 async def query_case(req: Request):
 	json = await req.json()
 	enterprise_id = json.get("enterprise")
+	zone = json.get("zone")
+	sector = json.get("sector")
+	stag = json.get("stag")
+	year = json.get("year")
 	page = json.get("page", 1)
 	caselist = []
 	enterprise = Linq(data.enterpriselist).find(lambda e: e.id == enterprise_id, None)
@@ -174,8 +178,12 @@ async def query_case(req: Request):
 	for case in data.caselist:
 		ent = Linq(data.enterpriselist).find(lambda e: e.id == case.enterprise)
 		if ent is None: continue
-		ok = False
-		if enterprise.id != case.id and case.field not in enterprise.field: continue
+		if zone != 0 and ent.zone != zone: continue
+		if sector != 0 and ent.sector != sector: continue
+		if enterprise_id != 0 and enterprise != None and enterprise.id != case.id and case.field not in enterprise.field: continue
+		if stag != 0 and case.stag1 != stag and case.stag2 != stag: continue
+		if year == 1 and case.year != 2026: continue
+		if year == 2 and case.year == 2026: continue
 		count += 1
 		if page > 0 and count <= (page - 1) * 20: continue
 		if page > 0 and count > page * 20: break
@@ -189,9 +197,12 @@ async def query_case(req: Request):
 			"tags": case.tags,
 			"student": case.student,
 			"school1": case.school1,
+			"stag1": case.stag1,
 			"field1": case.field1,
 			"school2": case.school2,
+			"stag2": case.stag2,
 			"field2": case.field2,
+			"year": case.year,
 			"detail": case.detail,
 		})
 	return JSONResponse(content = {
@@ -251,8 +262,8 @@ async def insert_enterprise(req: Request):
 	shortname = json.get("shortname")
 	brief = json.get("brief")
 	upper = json.get("upper")
-	level = json.get("level")
 	sector = json.get("sector")
+	level = json.get("level")
 	field = json.get("field")
 	tag = json.get("tag")
 	website1 = json.get("website1")
@@ -296,7 +307,7 @@ async def insert_enterprise(req: Request):
 		(zone_item.id, city, name, shortname, brief, upper, level_item.id, sector_item.id, tag, website1, website2, icon, images, enttype, financial, article1, article2)
 	)
 	enterprise_id = cursor.lastrowid
-	enterprise = Enterprise(enterprise_id, zone_item.id, city, name, shortname, brief, upper, level_item.id, sector_item.id, website1, website2, tag.split(','), icon, images, enttype, financial, article1, article2)
+	enterprise = Enterprise(enterprise_id, zone_item.id, city, name, shortname, brief, upper, sector_item.id, level_item.id, website1, website2, tag.split(','), icon, images, enttype, financial, article1, article2)
 	for fid in fieldlist:
 		cursor.execute(
 			"INSERT IGNORE INTO qzj_enterprise_field (enterprise_id, field) VALUES (%s, %s)",
@@ -322,9 +333,22 @@ async def insert_case(req: Request):
 	tags = json.get("tags")
 	student = json.get("student")
 	school1 = json.get("school1")
+	tag = json.get("school1_tag")
+	stag1 = 0
+	if tag == '985': stag1 = 1
+	if tag == '211': stag1 = 2
+	if tag == '普通': stag1 = 3
+	if tag == '海外': stag1 = 4
 	field1 = json.get("field1")
 	school2 = json.get("school2")
+	tag = json.get("school2_tag")
+	stag2 = 0
+	if tag == '985': stag2 = 1
+	if tag == '211': stag2 = 2
+	if tag == '普通': stag2 = 3
+	if tag == '海外': stag2 = 4
 	field2 = json.get("field2")
+	year = json.get("year")
 	detail = json.get("detail")
 
 	einfo = Linq(data.enterpriselist).find(lambda e: e.name == enterprise)
@@ -339,11 +363,11 @@ async def insert_case(req: Request):
 	cursor = conn.cursor()
 
 	cursor.execute(
-		"INSERT INTO qzj_case (name, enterprise, field, tags, student, school1, field1, school2, field2, detail) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-		(name, einfo.id, finfo.id, tags, student, school1, field1, school2, field2, detail)
+		"INSERT INTO qzj_case (name, enterprise, field, tags, student, school1, stag1, field1, school2, stag2, field2, year, detail) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+		(name, einfo.id, finfo.id, tags, student, school1, stag1, field1, school2, stag2, field2, year, detail)
 	)
 	case_id = cursor.lastrowid
-	data.caselist.append(Case(case_id, name, einfo.id, finfo.id, tags, student, school1, field1, school2, field2, detail))
+	data.caselist.append(Case(case_id, name, einfo.id, finfo.id, tags, student, school1, stag1, field1, school2, stag2, field2, year, detail))
 
 	cursor.close()
 	data.mysql_pool.release(conn)
@@ -754,9 +778,22 @@ async def edit_case(req: Request):
 	tags = json.get("tags")
 	student = json.get("student")
 	school1 = json.get("school1")
+	tag = json.get("school1_tag")
+	stag1 = 0
+	if tag == '985': stag1 = 1
+	if tag == '211': stag1 = 2
+	if tag == '普通': stag1 = 3
+	if tag == '海外': stag1 = 4
 	field1 = json.get("field1")
 	school2 = json.get("school2")
+	tag = json.get("school2_tag")
+	stag2 = 0
+	if tag == '985': stag2 = 1
+	if tag == '211': stag2 = 2
+	if tag == '普通': stag2 = 3
+	if tag == '海外': stag2 = 4
 	field2 = json.get("field2")
+	year = json.get("year")
 	detail = json.get("detail")
 
 	case = Linq(data.caselist).find(lambda c: c.id == id, None)
@@ -766,8 +803,8 @@ async def edit_case(req: Request):
 	cursor = conn.cursor()
 
 	cursor.execute(
-		"UPDATE qzj_case SET name=%s, enterprise=%s, field=%s, tags=%s, student=%s, school1=%s, field1=%s, school2=%s, field2=%s, detail=%s WHERE id=%s",
-		(name, enterprise, field, tags, student, school1, field1, school2, field2, detail, id)
+		"UPDATE qzj_case SET name=%s, enterprise=%s, field=%s, tags=%s, student=%s, school1=%s, school1_tag=%s, field1=%s, school2=%s, school2_tag=%s, field2=%s, year=%s, detail=%s WHERE id=%s",
+		(name, enterprise, field, tags, student, school1, stag1, field1, school2, stag2, field2, year, detail, id)
 	)
 	case.name = name
 	case.enterprise = enterprise
@@ -775,9 +812,12 @@ async def edit_case(req: Request):
 	case.tags = tags
 	case.student = student
 	case.school1 = school1
+	case.stag1 = stag1
 	case.field1 = field1
 	case.school2 = school2
+	case.stag2 = stag2
 	case.field2 = field2
+	case.year = year
 	case.detail = detail
 
 	cursor.close()

@@ -138,7 +138,7 @@ class Enterprise:
 		self.field.append(field)
 
 class Case:
-	def __init__(self, id, name, enterprise, field, tags, student, school1, field1, school2, field2, detail):
+	def __init__(self, id, name, enterprise, field, tags, student, school1, stag1, field1, school2, stag2, field2, year, detail):
 		self.id = id
 		self.name = name
 		self.enterprise = enterprise
@@ -146,7 +146,10 @@ class Case:
 		self.tags = tags
 		self.student = student
 		self.school1 = school1
+		self.stag1 = stag1
 		self.field1 = field1
 		self.school2 = school2
+		self.stag2 = stag2
 		self.field2 = field2
+		self.year = year
 		self.detail = detail

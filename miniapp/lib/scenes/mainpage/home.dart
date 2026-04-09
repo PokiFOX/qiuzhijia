@@ -6,6 +6,7 @@ import 'package:qiuzhijia/tapah/enum.dart' as tapah;
 import 'package:qiuzhijia/tapah/function.dart' as tapah;
 import 'package:qiuzhijia/tapah/option.dart' as tapah;
 import 'package:qiuzhijia/scenes/mainpage/field.dart';
+import 'package:qiuzhijia/scenes/mainpage/example.dart';
 
 class HomeWidget extends StatefulWidget {
 	const HomeWidget({super.key});
@@ -148,6 +149,9 @@ class HomeState extends State<HomeWidget> with tapah.Callback {
 							}
 							if (index == 1) {
 								Navigator.push(context, MaterialPageRoute(builder: (context) => FieldWidget(key: GlobalKey(),)));
+							}
+							if (index == 3) {
+								Navigator.push(context, MaterialPageRoute(builder: (context) => ExampleWidget(key: GlobalKey(),)));
 							}
 						},
 						child: SizedBox(
