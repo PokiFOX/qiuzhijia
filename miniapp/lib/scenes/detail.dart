@@ -29,7 +29,7 @@ class DetailState extends State<DetailWidget> with tapah.Callback {
 	int fenyeindex = 0;
 	int topimageindex = 0;
 	late PageController topimagecontroller;
-	late Timer topimagetimer;
+	Timer? topimagetimer;
 	late ScrollController scrollcontroller;
 	final List<GlobalKey> sectionKeys = List.generate(5, (_) => GlobalKey());
 	final GlobalKey tabbarkey = GlobalKey();
@@ -57,18 +57,11 @@ class DetailState extends State<DetailWidget> with tapah.Callback {
 	}
 
 	@override
-	void deactivate() {
-		uninitCallback();
-		super.deactivate();
-	}
-
-	@override
 	void dispose() {
-		if (enterprise.images.isNotEmpty) {
-			topimagetimer.cancel();
-		}
+		topimagetimer?.cancel();
 		topimagecontroller.dispose();
 		scrollcontroller.dispose();
+		uninitCallback();
 		super.dispose();
 	}
 
@@ -191,7 +184,11 @@ class DetailState extends State<DetailWidget> with tapah.Callback {
 	}
 
 	void startTopImagePlay() {
+		topimagetimer?.cancel();
 		topimagetimer = Timer.periodic(Duration(seconds: tapah.topimageduration), (timer) {
+			if (!mounted || !topimagecontroller.hasClients || enterprise.images.isEmpty) {
+				return;
+			}
 			int nextIndex = (topimageindex + 1) % enterprise.images.length;
 			topimagecontroller.animateToPage(
 				nextIndex,

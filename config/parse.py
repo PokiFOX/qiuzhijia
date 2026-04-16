@@ -162,6 +162,7 @@ def parse_case(page):
 			"field2": function.getcell_str(page, row, 11),			# 研究生专业
 			"year": function.getcell_int(page, row, 12),			# 毕业年份
 			"detail": function.getcell_str(page, row, 13),			# 主要经历
+			"dep": function.getcell_str(page, row, 14),				# 部门
 		}
 		try:
 			r = requests.post(function.url(const.url_insert_case), json = case, headers = const.request_headers, timeout = 15)

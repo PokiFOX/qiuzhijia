@@ -18,9 +18,9 @@ class ProfileState extends State<ProfileWidget> with tapah.Callback {
 	}
 
 	@override
-	void deactivate() {
+	void dispose() {
 		uninitCallback();
-		super.deactivate();
+		super.dispose();
 	}
 
 	@override

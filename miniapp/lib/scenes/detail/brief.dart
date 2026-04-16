@@ -5,7 +5,8 @@ import 'package:mpflutter_wechat_api/mpflutter_wechat_api.dart' as wxapi;
 import 'package:qiuzhijia/tapah/class.dart' as tapah;
 import 'package:qiuzhijia/tapah/enum.dart' as tapah;
 import 'package:qiuzhijia/tapah/function.dart' as tapah;
-import 'package:qiuzhijia/wigets/expandable_text.dart' as widgets;
+import 'package:qiuzhijia/widgets/expandable_text.dart' as widgets;
+import 'package:qiuzhijia/widgets/copy.dart' as widgets;
 
 class BriefWidget extends StatefulWidget {
 	const BriefWidget({super.key, required this.enterprise});
@@ -23,9 +24,9 @@ class BriefState extends State<BriefWidget> with tapah.Callback {
 	}
 
 	@override
-	void deactivate() {
+	void dispose() {
 		uninitCallback();
-		super.deactivate();
+		super.dispose();
 	}
 
 	@override
@@ -60,7 +61,6 @@ class BriefState extends State<BriefWidget> with tapah.Callback {
 					],
 				),
 				const SizedBox(height: 10,),
-				buildField(),
 			],
 		);
 	}
@@ -169,33 +169,29 @@ class BriefState extends State<BriefWidget> with tapah.Callback {
 					buildRow("公司层级:", widget.enterprise.level?.value ?? '', "", null),
 					buildRow("公司官网:", widget.enterprise.website1 ?? '', "点击复制", () {
 						if (widget.enterprise.website1 != null) {
+							showDialog(
+								context: context,
+								builder: (_) => widgets.CopyWidget(
+									widget.enterprise.website1!,
+									onLater: () => Navigator.of(context).pop(),
+								),
+							);
 							wxapi.wx.setClipboardData(wxapi.SetClipboardDataOption()..data = widget.enterprise.website1!);
 						}
 					}),
 					buildRow("招聘官网:", widget.enterprise.website2 ?? '', "点击复制", () {
 						if (widget.enterprise.website2 != null) {
+							showDialog(
+								context: context,
+								builder: (_) => widgets.CopyWidget(
+									widget.enterprise.website2!,
+									onLater: () => Navigator.of(context).pop(),
+								),
+							);
 							wxapi.wx.setClipboardData(wxapi.SetClipboardDataOption()..data = widget.enterprise.website2!);
 						}
 					}),
 				],
-			),
-		);
-	}
-
-	Widget buildField() {
-		return Padding(
-			padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
-			child: Column(
-				children: widget.enterprise.fields.map<Widget>((f) => Container(
-					width: double.infinity,
-					margin: EdgeInsets.only(bottom: 6),
-					padding: EdgeInsets.all(10),
-					decoration: BoxDecoration(
-						color: Colors.grey[200],
-						borderRadius: BorderRadius.circular(8),
-					),
-					child: Text(f.value, style: TextStyle(fontSize: 12,),),
-				)).toList(),
 			),
 		);
 	}

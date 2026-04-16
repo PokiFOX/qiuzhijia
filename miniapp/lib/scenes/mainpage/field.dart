@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:qiuzhijia/tapah/class.dart' as tapah;
 import 'package:qiuzhijia/tapah/data.dart' as tapah;
 import 'package:qiuzhijia/tapah/enum.dart' as tapah;
-import 'package:qiuzhijia/wigets/expandable_text.dart' as widgets;
+import 'package:qiuzhijia/widgets/expandable_text.dart' as widgets;
+import 'package:qiuzhijia/scenes/mainpage/fielddetail.dart';
 
 class FieldWidget extends StatefulWidget {
-	const FieldWidget({super.key,});
+	final tapah.Field? field;
+	const FieldWidget({super.key, this.field});
 
 	@override
 	State<FieldWidget> createState() => FieldState();
@@ -18,6 +20,7 @@ class FieldState extends State<FieldWidget> with tapah.Callback {
 	Map<String, List<tapah.Field>> typeFields = {};
 	final ScrollController scrollController = ScrollController();
 	Map<String, GlobalKey> sectionKeys = {};
+	Map<int, GlobalKey> fieldKeys = {};
 	bool isProgramScroll = false;
 
 	@override
@@ -29,12 +32,60 @@ class FieldState extends State<FieldWidget> with tapah.Callback {
 			if (field.type.isEmpty) continue;
 			typeFields.putIfAbsent(field.type, () => []);
 			typeFields[field.type]!.add(field);
+			fieldKeys.putIfAbsent(field.id, () => GlobalKey());
 		}
 		types = typeFields.keys.toList();
 		for (var type in types) {
 			sectionKeys[type] = GlobalKey();
 		}
 		scrollController.addListener(onScroll);
+		WidgetsBinding.instance.addPostFrameCallback((_) {
+			scrollToInitialField();
+		});
+	}
+
+	void scrollToInitialField() {
+		final target = widget.field;
+		if (target == null || types.isEmpty) return;
+
+		final typeIndex = types.indexOf(target.type);
+		if (typeIndex >= 0 && selectedIndex != typeIndex) {
+			setState(() {
+				selectedIndex = typeIndex;
+			});
+		}
+
+		final key = fieldKeys[target.id];
+		if (key?.currentContext != null) {
+			isProgramScroll = true;
+			Scrollable.ensureVisible(
+				key!.currentContext!,
+				duration: const Duration(milliseconds: 320),
+				curve: Curves.easeInOut,
+				alignment: 0.08,
+			).then((_) {
+				isProgramScroll = false;
+			});
+			return;
+		}
+
+		if (typeIndex >= 0) {
+			scrollToType(typeIndex);
+			WidgetsBinding.instance.addPostFrameCallback((_) {
+				if (!mounted) return;
+				final retryKey = fieldKeys[target.id];
+				if (retryKey?.currentContext == null) return;
+				isProgramScroll = true;
+				Scrollable.ensureVisible(
+					retryKey!.currentContext!,
+					duration: const Duration(milliseconds: 320),
+					curve: Curves.easeInOut,
+					alignment: 0.08,
+				).then((_) {
+					isProgramScroll = false;
+				});
+			});
+		}
 	}
 
 	void onScroll() {
@@ -56,13 +107,8 @@ class FieldState extends State<FieldWidget> with tapah.Callback {
 	@override
 	void dispose() {
 		scrollController.dispose();
-		super.dispose();
-	}
-
-	@override
-	void deactivate() {
 		uninitCallback();
-		super.deactivate();
+		super.dispose();
 	}
 
 	@override
@@ -192,36 +238,42 @@ class FieldState extends State<FieldWidget> with tapah.Callback {
 										spacing: 10,
 										runSpacing: 10,
 										children: fields.map((field) {
-											return Container(
-												width: double.infinity,
-												padding: EdgeInsets.all(10),
-												decoration: BoxDecoration(
-													border: Border.all(color: Color(0xFF2D7BFF), width: 1),
-													borderRadius: BorderRadius.circular(8),
-												),
-												child: Column(
-													mainAxisAlignment: MainAxisAlignment.start,
-													crossAxisAlignment: CrossAxisAlignment.start,
-													children: [
-														Text(field.value, style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, ),),
-														const SizedBox(height: 5,),
-														Text("学科门类: ${field.type}", style: TextStyle(fontSize: 11, color: Colors.black),),
-														Row(
-															mainAxisAlignment: MainAxisAlignment.start,
-															children: [
-																Text("专业热门度:", style: TextStyle(fontSize: 11, color: Colors.black),),
-																const SizedBox(width: 5,),
-																...List.generate(field.star, (_) => Icon(Icons.star, size: 16, color: Colors.orange,)),
-															],
-														),
-														widgets.ExpandableText(
-															field.content,
-															expandText: '展开',
-															collapseText: '收起',
-															maxLines: 3,
-															linkColor: Colors.blue,
-														),
-													],
+											return GestureDetector(
+												onTap: () {
+													Navigator.push(context, MaterialPageRoute(builder: (context) => FieldDetailWidget(field: field, key: GlobalKey(),)));
+												},
+												child: Container(
+													key: fieldKeys[field.id],
+													width: double.infinity,
+													padding: EdgeInsets.all(10),
+													decoration: BoxDecoration(
+														border: Border.all(color: Color(0xFF2D7BFF), width: 1),
+														borderRadius: BorderRadius.circular(8),
+													),
+													child: Column(
+														mainAxisAlignment: MainAxisAlignment.start,
+														crossAxisAlignment: CrossAxisAlignment.start,
+														children: [
+															Text(field.value, style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, ),),
+															const SizedBox(height: 5,),
+															Text("学科门类: ${field.type}", style: TextStyle(fontSize: 11, color: Colors.black),),
+															Row(
+																mainAxisAlignment: MainAxisAlignment.start,
+																children: [
+																	Text("专业热门度:", style: TextStyle(fontSize: 11, color: Colors.black),),
+																	const SizedBox(width: 5,),
+																	...List.generate(field.star, (_) => Icon(Icons.star, size: 16, color: Colors.orange,)),
+																],
+															),
+															widgets.ExpandableText(
+																field.content,
+																expandText: '展开',
+																collapseText: '收起',
+																maxLines: 3,
+																linkColor: Colors.blue,
+															),
+														],
+													),
 												),
 											);
 										}).toList(),

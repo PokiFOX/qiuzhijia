@@ -36,7 +36,7 @@ class FilterState extends State<FilterWidget> with tapah.Callback {
 				if (isLoading) return;
 				isLoading = true;
 				page++;
-				isFinish = await tapah.RequestEnterpriseList(zone, 0, 0, widget.enttype, widget.financial, searchcontroller.text, page) < 20;
+				isFinish = await tapah.RequestEnterpriseList(zone, 0, 0, widget.enttype, 0, widget.financial, searchcontroller.text, page) < 20;
 				isLoading = false;
 				setState(() {});
 			}
@@ -44,15 +44,15 @@ class FilterState extends State<FilterWidget> with tapah.Callback {
 	}
 
 	@override
-	void deactivate() {
+	void dispose() {
 		uninitCallback();
-		super.deactivate();
+		super.dispose();
 	}
 
 	Future<void> getEnterpriseList() async {
 		page = 1;
 		tapah.enterpriselist = [];
-		isFinish = await tapah.RequestEnterpriseList(zone, 0, 0, widget.enttype, widget.financial, searchcontroller.text, page) < 20;
+		isFinish = await tapah.RequestEnterpriseList(zone, 0, 0, widget.enttype, 0, widget.financial, searchcontroller.text, page) < 20;
 		if (mounted == false) return;
 		setState(() {});
 	}

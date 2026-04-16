@@ -18,9 +18,9 @@ class ServiceState extends State<ServiceWidget> with tapah.Callback {
 	}
 
 	@override
-	void deactivate() {
+	void dispose() {
 		uninitCallback();
-		super.deactivate();
+		super.dispose();
 	}
 
 	@override

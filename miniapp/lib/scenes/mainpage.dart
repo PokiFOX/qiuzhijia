@@ -10,6 +10,7 @@ import 'package:qiuzhijia/scenes/mainpage/enterprise.dart' as scenes;
 import 'package:qiuzhijia/scenes/mainpage/offer.dart' as scenes;
 import 'package:qiuzhijia/scenes/mainpage/service.dart' as scenes;
 import 'package:qiuzhijia/scenes/mainpage/profile.dart' as scenes;
+import 'package:qiuzhijia/scenes/mainpage/example.dart' as scenes;
 
 class MainPageWidget extends StatefulWidget {
 	const MainPageWidget({super.key});
@@ -39,9 +40,9 @@ class MainPageState extends State<MainPageWidget> with tapah.Callback {
 	}
 
 	@override
-	void deactivate() {
+	void dispose() {
 		uninitCallback();
-		super.deactivate();
+		super.dispose();
 	}
 
 	@override
@@ -122,14 +123,7 @@ class MainPageState extends State<MainPageWidget> with tapah.Callback {
 										),
 										GestureDetector(
 											onTap: () {
-												setState(() {
-													activated[0] = false;
-													activated[1] = false;
-													activated[2] = true;
-													activated[3] = false;
-													activated[4] = false;
-													currentindex = 2;
-												});
+												Navigator.push(context, MaterialPageRoute(builder: (context) => scenes.ExampleWidget(key: GlobalKey(),)));
 											},
 											child: Column(
 												mainAxisSize: MainAxisSize.min,

@@ -11,6 +11,7 @@ enum SceneID {
 	mp_field,
 	mp_example,
 	mp_casefilter,
+	mp_fielddetail,
 	detail,
 	dt_brief,
 	dt_field,

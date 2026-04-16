@@ -29,15 +29,10 @@ class HomeState extends State<HomeWidget> with tapah.Callback {
 	}
 
 	@override
-	void deactivate() {
-		uninitCallback();
-		super.deactivate();
-	}
-
-	@override
 	void dispose() {
 		topimagetimer.cancel();
 		topimagecontroller.dispose();
+		uninitCallback();
 		super.dispose();
 	}
 

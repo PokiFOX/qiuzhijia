@@ -132,6 +132,8 @@ class Enterprise {
 class Case {
 	int id;
 	String name;
+	String? dep;
+	int? entid;
 	String? enticon;
 	String? entname;
 	Field? field;

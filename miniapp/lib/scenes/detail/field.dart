@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'package:qiuzhijia/tapah/class.dart' as tapah;
 import 'package:qiuzhijia/tapah/enum.dart' as tapah;
-import 'package:qiuzhijia/wigets/expandable_text.dart' as widgets;
+import 'package:qiuzhijia/widgets/expandable_text.dart' as widgets;
+import 'package:qiuzhijia/scenes/mainpage/field.dart' as mainpage;
 
 class FieldWidget extends StatefulWidget {
 	const FieldWidget({super.key, required this.enterprise});
@@ -20,9 +21,9 @@ class FieldState extends State<FieldWidget> with tapah.Callback {
 	}
 
 	@override
-	void deactivate() {
+	void dispose() {
 		uninitCallback();
-		super.deactivate();
+		super.dispose();
 	}
 
 	Widget build(BuildContext context) {
@@ -45,36 +46,41 @@ class FieldState extends State<FieldWidget> with tapah.Callback {
 				separatorBuilder: (context, index) => const SizedBox(height: 10),
 				itemBuilder: (context, index) {
 					var field = widget.enterprise.fields[index];
-					return Container(
-						width: double.infinity,
-						padding: EdgeInsets.all(10),
-						decoration: BoxDecoration(
-							border: Border.all(color: Color(0xFF2D7BFF), width: 1),
-							borderRadius: BorderRadius.circular(8),
-						),
-						child: Column(
-							mainAxisAlignment: MainAxisAlignment.start,
-							crossAxisAlignment: CrossAxisAlignment.start,
-							children: [
-								Text(field.value, style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, ),),
-								const SizedBox(height: 5,),
-								Text("学科门类: ${field.type}", style: TextStyle(fontSize: 11, color: Colors.black),),
-								Row(
-									mainAxisAlignment: MainAxisAlignment.start,
-									children: [
-										Text("专业热门度:", style: TextStyle(fontSize: 11, color: Colors.black),),
-										const SizedBox(width: 5,),
-										...List.generate(field.star, (_) => Icon(Icons.star, size: 16, color: Colors.orange,)),
-									],
-								),
-								widgets.ExpandableText(
-									field.content,
-									expandText: '展开',
-									collapseText: '收起',
-									maxLines: 3,
-									linkColor: Colors.blue,
-								),
-							],
+					return GestureDetector(
+						onTap: () {
+							Navigator.push(context, MaterialPageRoute(builder: (context) => mainpage.FieldWidget(key: GlobalKey(), field: field,)));
+						},
+						child: Container(
+							width: double.infinity,
+							padding: EdgeInsets.all(10),
+							decoration: BoxDecoration(
+								border: Border.all(color: Color(0xFF2D7BFF), width: 1),
+								borderRadius: BorderRadius.circular(8),
+							),
+							child: Column(
+								mainAxisAlignment: MainAxisAlignment.start,
+								crossAxisAlignment: CrossAxisAlignment.start,
+								children: [
+									Text(field.value, style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, ),),
+									const SizedBox(height: 5,),
+									Text("学科门类: ${field.type}", style: TextStyle(fontSize: 11, color: Colors.black),),
+									Row(
+										mainAxisAlignment: MainAxisAlignment.start,
+										children: [
+											Text("专业热门度:", style: TextStyle(fontSize: 11, color: Colors.black),),
+											const SizedBox(width: 5,),
+											...List.generate(field.star, (_) => Icon(Icons.star, size: 16, color: Colors.orange,)),
+										],
+									),
+									widgets.ExpandableText(
+										field.content,
+										expandText: '展开',
+										collapseText: '收起',
+										maxLines: 3,
+										linkColor: Colors.blue,
+									),
+								],
+							),
 						),
 					);
 				},

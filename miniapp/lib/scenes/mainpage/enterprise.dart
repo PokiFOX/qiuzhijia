@@ -34,7 +34,7 @@ class EnterpriseState extends State<EnterpriseWidget> with tapah.Callback {
 				if (isLoading) return;
 				isLoading = true;
 				page++;
-				isFinish = await tapah.RequestEnterpriseList(zone, sector, level, 0, null, "", page) < 20;
+				isFinish = await tapah.RequestEnterpriseList(zone, sector, level, 0, 0, null, "", page) < 20;
 				isLoading = false;
 				setState(() {});
 			}
@@ -42,15 +42,15 @@ class EnterpriseState extends State<EnterpriseWidget> with tapah.Callback {
 	}
 
 	@override
-	void deactivate() {
+	void dispose() {
 		uninitCallback();
-		super.deactivate();
+		super.dispose();
 	}
 
 	Future<void> getEnterpriseList() async {
 		page = 1;
 		tapah.enterpriselist = [];
-		isFinish = await tapah.RequestEnterpriseList(zone, sector, level, 0, null, "", page) < 20;
+		isFinish = await tapah.RequestEnterpriseList(zone, sector, level, 0, 0, null, "", page) < 20;
 		if (mounted == false) return;
 		setState(() {});
 	}

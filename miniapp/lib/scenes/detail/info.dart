@@ -26,9 +26,9 @@ class InfoState extends State<InfoWidget> with tapah.Callback {
 	}
 
 	@override
-	void deactivate() {
+	void dispose() {
 		uninitCallback();
-		super.deactivate();
+		super.dispose();
 	}
 
 	Future<void> loadArticles() async {

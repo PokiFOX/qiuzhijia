@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:qiuzhijia/tapah/class.dart' as tapah;
 import 'package:qiuzhijia/tapah/data.dart' as tapah;
 import 'package:qiuzhijia/tapah/enum.dart' as tapah;
-import 'package:qiuzhijia/tapah/function.dart' as tapah;
 import 'package:qiuzhijia/tapah/request.dart' as tapah;
-import 'package:qiuzhijia/wigets/expandable_text.dart' as widgets;
+import 'package:qiuzhijia/widgets/expandable_text.dart' as widgets;
 import 'package:qiuzhijia/scenes/mainpage/casefilter.dart';
+import 'package:qiuzhijia/scenes/mainpage/field.dart';
 
 class ExampleWidget extends StatefulWidget {
 	const ExampleWidget({super.key,});
@@ -16,7 +16,8 @@ class ExampleWidget extends StatefulWidget {
 }
 
 class ExampleState extends State<ExampleWidget> with tapah.Callback {
-	int zone = 0, sector = 0, stag = 0, year = 0, page = 1;
+	int level = 0, sector = 0, stag = 0, year = 0, page = 1;
+	int expandindex = -1;
 	final ScrollController scrollcontroller = ScrollController();
 	bool isLoading = false, isFinish = false;
 
@@ -28,6 +29,8 @@ class ExampleState extends State<ExampleWidget> with tapah.Callback {
 			page = 1;
 			stag = selections[0];
 			year = selections[1];
+			level = selections[2];
+			sector = selections[3];
 			setState(() {});
 		});
 		loadCases();
@@ -37,7 +40,7 @@ class ExampleState extends State<ExampleWidget> with tapah.Callback {
 				if (isLoading) return;
 				isLoading = true;
 				page++;
-				isFinish = await tapah.RequestCaseList(0, zone, sector, stag, year, page) < 20;
+				isFinish = await tapah.RequestCaseList(0, level, sector, 0, stag, year, page) < 20;
 				isLoading = false;
 				setState(() {});
 			}
@@ -46,19 +49,14 @@ class ExampleState extends State<ExampleWidget> with tapah.Callback {
 
 	@override
 	void dispose() {
-		super.dispose();
-	}
-
-	@override
-	void deactivate() {
 		uninitCallback();
-		super.deactivate();
+		super.dispose();
 	}
 
 	Future<void> loadCases() async {
 		page = 1;
 		tapah.caselist = [];
-		isFinish = await tapah.RequestCaseList(0, zone, sector, stag, year, page) < 20;
+		isFinish = await tapah.RequestCaseList(0, level, sector, 0, stag, year, page) < 20;
 		if (mounted == false) return; 
 		setState(() {});
 	}
@@ -108,67 +106,60 @@ class ExampleState extends State<ExampleWidget> with tapah.Callback {
 	}
 
 	Widget buildFilterRow() {
-		Widget dropdown(int value, List items, ValueChanged<int?> onChanged, String labelText) {
-			bool hasValue = items.any((e) => e.id == value);
-			return Container(
-				height: 20,
-				padding: const EdgeInsets.symmetric(horizontal: 8),
-				child: DropdownButtonHideUnderline(
-					child: DropdownButton<int>(
-						isExpanded: true,
-						value: hasValue && value != 0 ? value : null,
-						hint: Text(labelText, style: const TextStyle(fontSize: 14)),
-						icon: const Icon(Icons.arrow_drop_down, size: 15),
-						items: items.map((e) => DropdownMenuItem<int>(value: e.id, child: Text(e.value, style: const TextStyle(fontSize: 14)))).toList(),
-						onChanged: onChanged,
-					),
-				),
-			);
-		}
-
 		return Padding(
 			padding: const EdgeInsets.symmetric(horizontal: 10.0),
-			child: Container(
-				decoration: BoxDecoration(
-					color: Colors.white,
-					borderRadius: BorderRadius.circular(10),
-				),
-				height: 50,
-				child: StatefulBuilder(builder: (context, setState) {
-					return Row(
-						mainAxisAlignment: MainAxisAlignment.spaceAround,
-						children: [
-							SizedBox(
-								width: 65,
-								child: dropdown(zone, tapah.zonelist, (v) {
-									zone = v ?? 0;
-									loadCases();
-								}, "地区"),
+			child: Row(
+				children: [
+					Expanded(
+						child: Container(
+							height: 50,
+							decoration: BoxDecoration(
+								color: Colors.white,
+								borderRadius: BorderRadius.circular(10),
 							),
-							SizedBox(
-								width: 65,
-								child: dropdown(sector, tapah.sectorlist, (v) {
-									sector = v ?? 0;
-									loadCases();
-								}, "学科"),
-							),
-							SizedBox(
-								width: 100,
-								child: GestureDetector(
-									onTap: () {
-										Navigator.push(context, MaterialPageRoute(builder: (context) => CaseFilterWidget(key: GlobalKey(), zone: zone, stag: stag, sector: sector, year: year,)));
-									},
-									child: Row(
-										children: [
-											Text("背景", style: TextStyle(fontSize: 14, color: Colors.grey[600])),
-											const Icon(Icons.arrow_drop_down, size: 15),
-										],
+							padding: const EdgeInsets.symmetric(horizontal: 12),
+							child: Row(
+								children: [
+									Icon(Icons.search, size: 18, color: Colors.grey[400]),
+									const SizedBox(width: 6),
+									Expanded(
+										child: TextField(
+											style: const TextStyle(fontSize: 14),
+											decoration: InputDecoration(
+												hintText: '搜索企业/岗位/专业',
+												hintStyle: TextStyle(fontSize: 14, color: Colors.grey[400]),
+												border: InputBorder.none,
+												isCollapsed: true,
+												contentPadding: EdgeInsets.zero,
+											),
+										),
 									),
-								),
+								],
 							),
-						],
-					);
-				}),
+						),
+					),
+					const SizedBox(width: 10,),
+					Container(
+						decoration: BoxDecoration(
+							color: Colors.white,
+							borderRadius: BorderRadius.circular(10),
+						),
+						width: 100,
+						height: 50,
+						child: GestureDetector(
+							onTap: () {
+								Navigator.push(context, MaterialPageRoute(builder: (context) => CaseFilterWidget(key: GlobalKey(), level: level, sector: sector, stag: stag, year: year,)));
+							},
+							child: Row(
+								mainAxisAlignment: MainAxisAlignment.center,
+								children: [
+									Text("筛选", style: TextStyle(fontSize: 14, color: Colors.grey[600])),
+									const Icon(Icons.arrow_drop_down, size: 15),
+								],
+							),
+						),
+					),
+				],
 			),
 		);
 	}
@@ -181,25 +172,6 @@ class ExampleState extends State<ExampleWidget> with tapah.Callback {
 			return const Center(child: Text("暂无成功案例", style: TextStyle(fontSize: 16, color: Colors.grey)));
 		}
 
-		Widget infoRow(String label, String? value) {
-			if (value == null || value.trim().isEmpty) return const SizedBox.shrink();
-			return Padding(
-				padding: const EdgeInsets.symmetric(vertical: 2),
-				child: Row(
-					crossAxisAlignment: CrossAxisAlignment.start,
-					children: [
-						SizedBox(
-							width: 70,
-							child: Text(label, style: TextStyle(fontSize: 13, color: Colors.grey[600])),
-						),
-						Expanded(
-							child: Text(value, style: const TextStyle(fontSize: 13, color: Colors.black)),
-						),
-					],
-				),
-			);
-		}
-
 		return ListView.separated(
 			controller: scrollcontroller,
 			padding: const EdgeInsets.all(10),
@@ -207,6 +179,25 @@ class ExampleState extends State<ExampleWidget> with tapah.Callback {
 			separatorBuilder: (context, index) => const SizedBox(height: 10),
 			itemBuilder: (context, index) {
 				var c = tapah.caselist[index];
+				String tag = '';
+				if (c.stag1 == 1 || c.stag2 == 1) {
+					tag = "985";
+				} else if (c.stag1 == 2 || c.stag2 == 2) {
+					tag = "211";
+				} else if (c.stag1 == 3 || c.stag2 == 3) {
+					tag = "普通";
+				} else {
+					tag = "海外";
+				}
+				tapah.Field? field1, field2;
+				for (var f in tapah.fieldlist) {
+					if (f.value == c.field1) {
+						field1 = f;
+					}
+					if (f.value == c.field2) {
+						field2 = f;
+					}
+				}
 				return Container(
 					decoration: BoxDecoration(
 						color: Colors.white,
@@ -217,61 +208,170 @@ class ExampleState extends State<ExampleWidget> with tapah.Callback {
 						crossAxisAlignment: CrossAxisAlignment.start,
 						children: [
 							Row(
+								mainAxisAlignment: MainAxisAlignment.start,
 								children: [
-									c.enticon!.isEmpty ? Container(width: 45, height: 45, color: Colors.grey) : Image.network(tapah.parseimage('小图标/${c.enticon}.png'), width: 45, height: 45,),
-									const SizedBox(width: 10),
-									Expanded(
-										child: Column(
-											crossAxisAlignment: CrossAxisAlignment.start,
-											children: [
-												Text(
-													c.entname ?? "",
-													style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
-													maxLines: 1,
-													overflow: TextOverflow.ellipsis,
-												),
-												const SizedBox(height: 4),
-												Wrap(
-													spacing: 5,
-													runSpacing: 3,
-													children: c.tags.where((t) => t.trim().isNotEmpty).map((tag) => Container(
-														padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-														decoration: BoxDecoration(
-															color: const Color(0xFFE8F0FE),
-															borderRadius: BorderRadius.circular(4),
-														),
-														child: Text(tag, style: const TextStyle(fontSize: 11, color: Color(0xFF2D7BFF))),
-													)).toList(),
-												),
-											],
-										),
+									Text(
+										c.student ?? "",
+										style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Color(0xFF2D7BFF),)
+									),
+									const SizedBox(width: 5,),
+									Column(
+										crossAxisAlignment: CrossAxisAlignment.start,
+										children: [
+											Text(
+												c.entname ?? "",
+												style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
+												maxLines: 1,
+												overflow: TextOverflow.ellipsis,
+											),
+											Text(
+												c.name,
+												style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.black),
+											),
+										],
 									),
 								],
 							),
-							const Divider(height: 16, thickness: 0.5),
-							Column(
-								crossAxisAlignment: CrossAxisAlignment.start,
+							const SizedBox(height: 5,),
+							Row(
 								children: [
-									infoRow("学生姓名", c.student),
-									infoRow("本科院校", c.school1),
-									infoRow("本科专业", c.field1),
-									infoRow("硕士院校", c.school2),
-									infoRow("硕士专业", c.field2),
-									if (c.detail != null && c.detail!.trim().isNotEmpty) ...[
-										const SizedBox(height: 6),
-										Text("主要经历", style: TextStyle(fontSize: 13, color: Colors.grey[600])),
-										const SizedBox(height: 4),
-										widgets.ExpandableText(
-											c.detail!,
-											style: const TextStyle(fontSize: 13, color: Colors.black),
-											expandText: '展开',
-											collapseText: '收起',
-											maxLines: 3,
-											linkColor: Colors.blue,
-										),
-									],
+									Wrap(
+										spacing: 5,
+										runSpacing: 3,
+										children: c.tags.where((t) => t.trim().isNotEmpty).map((tag) => Container(
+											padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+											decoration: BoxDecoration(
+												color: const Color(0xFFE8F0FE),
+												borderRadius: BorderRadius.circular(4),
+											),
+											child: Text(tag, style: const TextStyle(fontSize: 11, color: Color(0xFF2D7BFF))),
+										)).toList(),
+									),
+									Expanded(child: Container(),),
+									GestureDetector(
+										onTap: () {
+											setState(() {
+												if (expandindex == index) {
+													expandindex = -1;
+												} else {
+													expandindex = index;
+												}
+											});
+										},
+										child: Text(expandindex == index ? "收起" : "展开", style: const TextStyle(fontSize: 12, color: Colors.blue),),
+									),
 								],
 							),
+							if (expandindex == index) ...[
+								const Divider(height: 16, thickness: 0.5),
+								Column(
+									crossAxisAlignment: CrossAxisAlignment.start,
+									children: [
+										Container(
+											margin: const EdgeInsets.only(bottom: 6),
+											padding: const EdgeInsets.only(left: 8),
+											decoration: const BoxDecoration(
+												border: Border(left: BorderSide(color: Color(0xFF2D7BFF), width: 3)),
+											),
+											child: const Text(
+												"基础信息",
+												style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF333333)),
+											),
+										),
+										Row(
+											crossAxisAlignment: CrossAxisAlignment.start,
+											children: [
+												Expanded(
+													child: Column(
+														crossAxisAlignment: CrossAxisAlignment.start,
+														children: [
+															Text("· 学生姓名    	${c.student ?? '--'}", style: const TextStyle(fontSize: 12, color: Color(0xFF555555))),
+															Text("· 学校层次    	$tag", style: const TextStyle(fontSize: 12, color: Color(0xFF555555))),
+															Text("· 本科院校    	${c.school1 ?? '--'}", style: const TextStyle(fontSize: 12, color: Color(0xFF555555))),
+															GestureDetector(
+																onTap: () {
+																	Navigator.push(context, MaterialPageRoute(builder: (context) => FieldWidget(key: GlobalKey(), field: field1!,)));
+																},
+																child: Row(
+																	children: [
+																		Text("· 本科专业    	", style: const TextStyle(fontSize: 12, color: Color(0xFF555555))),
+																		Text("${c.field1 ?? '--'}", style: const TextStyle(fontSize: 12, color: Color(0xFF2D7BFF))),
+																	],
+																),
+															),
+														],
+													),
+												),
+												const SizedBox(width: 8),
+												Expanded(
+													child: Column(
+														crossAxisAlignment: CrossAxisAlignment.start,
+														children: [
+															Text("· 硕士院校    	${c.school2 ?? '--'}", style: const TextStyle(fontSize: 12, color: Color(0xFF555555))),
+															GestureDetector(
+																onTap: () {
+																	Navigator.push(context, MaterialPageRoute(builder: (context) => FieldWidget(key: GlobalKey(), field: field2!,)));
+																},
+																child: Row(
+																	children: [
+																		Text("· 硕士专业    	", style: const TextStyle(fontSize: 12, color: Color(0xFF555555))),
+																		Text("${c.field2 ?? '--'}", style: const TextStyle(fontSize: 12, color: Color(0xFF2D7BFF))),
+																	],
+																),
+															),
+															const SizedBox(height: 2),
+															const Text("· 主要实习", style: TextStyle(fontSize: 12, color: Color(0xFF555555))),
+															if (c.detail != null && c.detail!.trim().isNotEmpty)
+																widgets.ExpandableText(
+																	c.detail!,
+																	style: const TextStyle(fontSize: 12, color: Color(0xFF555555)),
+																	maxLines: 2,
+																	expandText: '展开',
+																	collapseText: '收起',
+																),
+														],
+													),
+												),
+											],
+										),
+										const SizedBox(height: 10),
+										Container(
+											margin: const EdgeInsets.only(bottom: 6),
+											padding: const EdgeInsets.only(left: 8),
+											decoration: const BoxDecoration(
+												border: Border(left: BorderSide(color: Color(0xFF2D7BFF), width: 3)),
+											),
+											child: const Text(
+												"求职结果",
+												style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF333333)),
+											),
+										),
+										Text("· 录取岗位    	${c.name}", style: const TextStyle(fontSize: 12, color: Color(0xFF555555))),
+										Text("· 所在部门    	${c.dep ?? '--'}", style: const TextStyle(fontSize: 12, color: Color(0xFF555555))),
+										Row(
+											children: [
+												Text("· 去向单位    	", style: const TextStyle(fontSize: 12, color: Color(0xFF555555))),
+												GestureDetector(
+													onTap: () async {
+														for (var i = 0;i < tapah.enterpriselist.length;i++) {
+															if (tapah.enterpriselist[i].name == c.entname) {
+																var enterprise = tapah.enterpriselist[i];
+																Navigator.pushNamed(context, '/enterprise/detail', arguments: enterprise);
+																return;
+															}
+														}
+														var enterpriseList = await tapah.RequestEnterprise(0, 0, 0, 0, 0, null, c.entname ?? '', 1);
+														if (enterpriseList.isNotEmpty) {
+															Navigator.pushNamed(context, '/enterprise/detail', arguments: enterpriseList[0]);
+														}
+													},
+													child: Text("${c.entname ?? '--'}", style: const TextStyle(fontSize: 12, color: Color(0xFF2D7BFF)),),
+												),
+											],
+										),
+									],
+								),
+							],
 						],
 					),
 				);

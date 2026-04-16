@@ -89,6 +89,7 @@ async def query_enterprise(req: Request):
 	level_id = json.get("level")
 	sector_id = json.get("sector")
 	enttype = json.get("enttype")
+	field_id = json.get("field")
 	financial = json.get("financial")
 	enterprise_name = json.get("name", "").strip()
 	page = json.get("page", 1)
@@ -122,6 +123,7 @@ async def query_enterprise(req: Request):
 		if enttype == 2 and enterprise.enttype != '央企': continue
 		if financial == True and enterprise.financial != '是': continue
 		if financial == False and enterprise.financial != '否': continue
+		if field_id != 0 and field_id not in enterprise.field: continue
 		if enterprise_name and enterprise_name not in enterprise.name: continue
 		count += 1
 		if page > 0 and count <= (page - 1) * 20: continue
@@ -161,8 +163,9 @@ async def query_enterprise(req: Request):
 async def query_case(req: Request):
 	json = await req.json()
 	enterprise_id = json.get("enterprise")
-	zone = json.get("zone")
+	level = json.get("level")
 	sector = json.get("sector")
+	field = json.get("field")
 	stag = json.get("stag")
 	year = json.get("year")
 	page = json.get("page", 1)
@@ -178,8 +181,9 @@ async def query_case(req: Request):
 	for case in data.caselist:
 		ent = Linq(data.enterpriselist).find(lambda e: e.id == case.enterprise)
 		if ent is None: continue
-		if zone != 0 and ent.zone != zone: continue
+		if level != 0 and ent.level != level: continue
 		if sector != 0 and ent.sector != sector: continue
+		if field != 0 and case.field != field: continue
 		if enterprise_id != 0 and enterprise != None and enterprise.id != case.id and case.field not in enterprise.field: continue
 		if stag != 0 and case.stag1 != stag and case.stag2 != stag: continue
 		if year == 1 and case.year != 2026: continue
@@ -204,6 +208,7 @@ async def query_case(req: Request):
 			"field2": case.field2,
 			"year": case.year,
 			"detail": case.detail,
+			"dep": case.dep,
 		})
 	return JSONResponse(content = {
 		"code": 0,
@@ -350,6 +355,7 @@ async def insert_case(req: Request):
 	field2 = json.get("field2")
 	year = json.get("year")
 	detail = json.get("detail")
+	dep = json.get("dep")
 
 	einfo = Linq(data.enterpriselist).find(lambda e: e.name == enterprise)
 	if einfo is None:
@@ -363,11 +369,11 @@ async def insert_case(req: Request):
 	cursor = conn.cursor()
 
 	cursor.execute(
-		"INSERT INTO qzj_case (name, enterprise, field, tags, student, school1, stag1, field1, school2, stag2, field2, year, detail) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-		(name, einfo.id, finfo.id, tags, student, school1, stag1, field1, school2, stag2, field2, year, detail)
+		"INSERT INTO qzj_case (name, enterprise, field, tags, student, school1, stag1, field1, school2, stag2, field2, year, detail, dep) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+		(name, einfo.id, finfo.id, tags, student, school1, stag1, field1, school2, stag2, field2, year, detail, dep)
 	)
 	case_id = cursor.lastrowid
-	data.caselist.append(Case(case_id, name, einfo.id, finfo.id, tags, student, school1, stag1, field1, school2, stag2, field2, year, detail))
+	data.caselist.append(Case(case_id, name, einfo.id, finfo.id, tags, student, school1, stag1, field1, school2, stag2, field2, year, detail, dep))
 
 	cursor.close()
 	data.mysql_pool.release(conn)
@@ -795,6 +801,7 @@ async def edit_case(req: Request):
 	field2 = json.get("field2")
 	year = json.get("year")
 	detail = json.get("detail")
+	dep = json.get("dep")
 
 	case = Linq(data.caselist).find(lambda c: c.id == id, None)
 	if case is None: return JSONResponse(content = {"status": "not exists"})
@@ -803,8 +810,8 @@ async def edit_case(req: Request):
 	cursor = conn.cursor()
 
 	cursor.execute(
-		"UPDATE qzj_case SET name=%s, enterprise=%s, field=%s, tags=%s, student=%s, school1=%s, school1_tag=%s, field1=%s, school2=%s, school2_tag=%s, field2=%s, year=%s, detail=%s WHERE id=%s",
-		(name, enterprise, field, tags, student, school1, stag1, field1, school2, stag2, field2, year, detail, id)
+		"UPDATE qzj_case SET name=%s, enterprise=%s, field=%s, tags=%s, student=%s, school1=%s, school1_tag=%s, field1=%s, school2=%s, school2_tag=%s, field2=%s, year=%s, detail=%s, dep=%s WHERE id=%s",
+		(name, enterprise, field, tags, student, school1, stag1, field1, school2, stag2, field2, year, detail, dep, id)
 	)
 	case.name = name
 	case.enterprise = enterprise
@@ -819,6 +826,7 @@ async def edit_case(req: Request):
 	case.field2 = field2
 	case.year = year
 	case.detail = detail
+	case.dep = dep
 
 	cursor.close()
 	data.mysql_pool.release(conn)

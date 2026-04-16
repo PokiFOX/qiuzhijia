@@ -6,8 +6,8 @@ import 'package:qiuzhijia/tapah/enum.dart' as tapah;
 import 'package:qiuzhijia/tapah/request.dart' as tapah;
 
 class CaseFilterWidget extends StatefulWidget {
-	final int zone, sector, stag, year;
-	const CaseFilterWidget({super.key, required this.zone, required this.sector, required this.stag, required this.year,});
+	final int level, sector, stag, year;
+	const CaseFilterWidget({super.key, required this.level, required this.sector, required this.stag, required this.year,});
 
 	@override
 	State<CaseFilterWidget> createState() => CaseFilterState();
@@ -15,16 +15,18 @@ class CaseFilterWidget extends StatefulWidget {
 
 class CaseFilterState extends State<CaseFilterWidget> with tapah.Callback {
 	int selectedCategory = 0;
-	List<int> selections = [0, 0,];
+	List<int> selections = [0, 0, 0, 0];
 
 	final ScrollController rightScrollController = ScrollController();
-	final List<GlobalKey> sectionKeys = [GlobalKey(), GlobalKey(), GlobalKey()];
+	final List<GlobalKey> sectionKeys = [GlobalKey(), GlobalKey(), GlobalKey(), GlobalKey()];
 	bool isProgramScroll = false;
 
-	final List<String> categories = ['院校层次', '目前状态'];
+	final List<String> categories = ['院校层次', '目前状态', '单位层次', '单位类别'];
 	List<List<String>> get options => [
 		['985院校', '211院校', '普通本科', '海外本科'],
 		['应届生', '已毕业'],
+		tapah.levellist.map((e) => e.value).toList(),
+		tapah.sectorlist.map((e) => e.value).toList(),
 	];
 
 	@override
@@ -32,6 +34,8 @@ class CaseFilterState extends State<CaseFilterWidget> with tapah.Callback {
 		super.initState();
 		selections[0] = widget.stag;
 		selections[1] = widget.year;
+		selections[2] = widget.level;
+		selections[3] = widget.sector;
 		initCallback(tapah.SceneID.mp_casefilter, widget.key!);
 		rightScrollController.addListener(onScroll);
 	}
@@ -39,13 +43,8 @@ class CaseFilterState extends State<CaseFilterWidget> with tapah.Callback {
 	@override
 	void dispose() {
 		rightScrollController.dispose();
-		super.dispose();
-	}
-
-	@override
-	void deactivate() {
 		uninitCallback();
-		super.deactivate();
+		super.dispose();
 	}
 
 	void onScroll() {
@@ -80,7 +79,7 @@ class CaseFilterState extends State<CaseFilterWidget> with tapah.Callback {
 
 	void reset() {
 		setState(() {
-			selections = [0, 0, 0];
+			selections = [0, 0, 0, 0];
 		});
 	}
 
@@ -232,8 +231,8 @@ class CaseFilterState extends State<CaseFilterWidget> with tapah.Callback {
 						child: GestureDetector(
 							onTap: () async {
 								tapah.caselist = [];
-								await tapah.RequestCaseList(0, widget.zone, widget.sector, selections[0], selections[1], 1);
-								tapah.EventManager().call(tapah.SceneID.mp_example, tapah.EventType.mainpage_example_casefilter, [selections[0], selections[1]]);
+								await tapah.RequestCaseList(0, selections[2], selections[3], 0, selections[0], selections[1], 1);
+								tapah.EventManager().call(tapah.SceneID.mp_example, tapah.EventType.mainpage_example_casefilter, [selections[0], selections[1], selections[2], selections[3],]);
 								Navigator.pop(context);
 							},
 							child: Container(

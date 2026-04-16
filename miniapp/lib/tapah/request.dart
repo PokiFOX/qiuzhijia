@@ -51,12 +51,13 @@ Future<void> RequestFieldList() async {
 	});
 }
 
-Future<int> RequestEnterpriseList(int zone, int sector, int level, int enttype, bool? financial, String name, int page) async {
+Future<int> RequestEnterpriseList(int zone, int sector, int level, int enttype, int field, bool? financial, String name, int page) async {
 	var response = await dio.post(parseurl(url_query_enterprise), data: {
 		"zone": zone,
 		"sector": sector,
 		"level": level,
 		"enttype": enttype,
+		"field": field,
 		"financial": financial,
 		"name": name,
 		"page": page,
@@ -96,11 +97,59 @@ Future<int> RequestEnterpriseList(int zone, int sector, int level, int enttype, 
 	return json.length;
 }
 
-Future<int> RequestCaseList(int enterprise, int zone, int sector, int stag, int year, int page) async {
-	var response = await dio.post(parseurl(url_query_case), data: {
-		"enterprise": enterprise,
+Future<List<Enterprise>> RequestEnterprise(int zone, int sector, int level, int enttype, int field, bool? financial, String name, int page) async {
+	var response = await dio.post(parseurl(url_query_enterprise), data: {
 		"zone": zone,
 		"sector": sector,
+		"level": level,
+		"enttype": enttype,
+		"field": field,
+		"financial": financial,
+		"name": name,
+		"page": page,
+	});
+	if (response.data['code'] != 0) {
+		throw Exception('Error code: ${response.data['code']} status: ${response.data['status']}');
+	}
+	var json = response.data["data"]["enterpriselist"];
+	var list = <Enterprise>[];
+	json.forEach((item) {
+		Enterprise enterprise = Enterprise(id: item["id"]);
+		enterprise.zone = zonelist.firstWhere((e) => e.id == item["zone"]);
+		enterprise.city = item["city"];
+		enterprise.name = item["name"];
+		enterprise.brief = item["brief"];
+		enterprise.upper = item["upper"];
+		enterprise.sector = sectorlist.firstWhere((e) => e.id == item["sector"]);
+		enterprise.level = levellist.firstWhere((e) => e.id == item["level"]);
+		item["field"].forEach((field) {
+			enterprise.fields.add(fieldlist.firstWhere((e) => e.id == field));
+		});
+		enterprise.tags = item["tag"].split(',');
+		enterprise.website1 = item["website1"];
+		enterprise.website2 = item["website2"];
+		enterprise.icon = item["icon"];
+		var images = item["images"].split(',');
+		for (var image in images) {
+			if (image.trim().isEmpty) continue;
+			enterprise.images.add(image.trim());
+		}
+		if (item["enttype"] != '国企') enterprise.enttype = 1;
+		if (item["enttype"] == '央企') enterprise.enttype = 2;
+		enterprise.financial = item["financial"] == "是";
+		enterprise.article1 = item["article1"].split('\n');
+		enterprise.article2 = item["article2"].split('\n');
+		list.add(enterprise);
+	});
+	return list;
+}
+
+Future<int> RequestCaseList(int enterprise, int level, int sector, int field, int stag, int year, int page) async {
+	var response = await dio.post(parseurl(url_query_case), data: {
+		"enterprise": enterprise,
+		"level": level,
+		"sector": sector,
+		"field": field,
 		"stag": stag,
 		"year": year,
 		"page": page,
@@ -111,6 +160,7 @@ Future<int> RequestCaseList(int enterprise, int zone, int sector, int stag, int 
 	var json = response.data["data"]["caselist"];
 	json.forEach((item) {
 		Case c = Case(id: item["id"], name: item["name"]);
+		c.entid = item["entid"];
 		c.enticon = item["enticon"];
 		c.entname = item["entname"];
 		c.field = fieldlist.firstWhere((e) => e.id == item["field"]);
@@ -120,9 +170,43 @@ Future<int> RequestCaseList(int enterprise, int zone, int sector, int stag, int 
 		c.school2 = item["school2"]; c.stag2 = item["stag2"]; c.field2 = item["field2"];
 		c.year = item["year"];
 		c.detail = item["detail"];
+		c.dep = item["dep"];
 		caselist.add(c);
 	});
 	return json.length;
+}
+
+Future<List<Case>> RequestCase(int enterprise, int level, int sector, int field, int stag, int year, int page) async {
+	var response = await dio.post(parseurl(url_query_case), data: {
+		"enterprise": enterprise,
+		"level": level,
+		"sector": sector,
+		"field": field,
+		"stag": stag,
+		"year": year,
+		"page": page,
+	});
+	if (response.data['code'] != 0) {
+		throw Exception('Error code: ${response.data['code']} status: ${response.data['status']}');
+	}
+	var json = response.data["data"]["caselist"];
+	var list = <Case>[];
+	json.forEach((item) {
+		Case c = Case(id: item["id"], name: item["name"]);
+		c.entid = item["entid"];
+		c.enticon = item["enticon"];
+		c.entname = item["entname"];
+		c.field = fieldlist.firstWhere((e) => e.id == item["field"]);
+		c.tags = List<String>.from(item["tags"]);
+		c.student = item["student"];
+		c.school1 = item["school1"]; c.stag1 = item["stag1"]; c.field1 = item["field1"];
+		c.school2 = item["school2"]; c.stag2 = item["stag2"]; c.field2 = item["field2"];
+		c.year = item["year"];
+		c.detail = item["detail"];
+		c.dep = item["dep"];
+		list.add(c);
+	});
+	return list;
 }
 
 Future<ArticleMeta> RequestArticleMeta(String url) async {
