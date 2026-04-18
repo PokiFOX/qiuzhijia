@@ -38,4 +38,4 @@ List<FenYeInfo> fenyes = [
 	FenYeInfo(title: "求职家服务"),
 ];
 
-List<String> entfenyes = ["公司简介", "招聘专业", "深度解读", "招聘资讯", "成功案例"];
+List<String> entfenyes = ["公司简介", "招聘专业", "深度解读", "成功案例"];

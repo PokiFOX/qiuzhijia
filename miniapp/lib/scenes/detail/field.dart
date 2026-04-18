@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:qiuzhijia/tapah/class.dart' as tapah;
 import 'package:qiuzhijia/tapah/enum.dart' as tapah;
 import 'package:qiuzhijia/widgets/expandable_text.dart' as widgets;
-import 'package:qiuzhijia/scenes/mainpage/field.dart' as mainpage;
+import 'package:qiuzhijia/scenes/mainpage/fielddetail.dart';
 
 class FieldWidget extends StatefulWidget {
 	const FieldWidget({super.key, required this.enterprise});
@@ -48,7 +48,7 @@ class FieldState extends State<FieldWidget> with tapah.Callback {
 					var field = widget.enterprise.fields[index];
 					return GestureDetector(
 						onTap: () {
-							Navigator.push(context, MaterialPageRoute(builder: (context) => mainpage.FieldWidget(key: GlobalKey(), field: field,)));
+							Navigator.push(context, MaterialPageRoute(builder: (context) => FieldDetailWidget(field: field, key: GlobalKey(),)));
 						},
 						child: Container(
 							width: double.infinity,

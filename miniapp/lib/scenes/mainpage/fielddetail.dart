@@ -54,6 +54,7 @@ class FieldDetailState extends State<FieldDetailWidget> with tapah.Callback {
 			backgroundColor: const Color(0xFFF1F2F4),
 			body: Column(
 				children: [
+					SizedBox(height: 30),
 					_buildHeader(),
 					Expanded(
 						child: isLoading

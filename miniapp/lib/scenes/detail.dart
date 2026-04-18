@@ -328,7 +328,7 @@ class DetailState extends State<DetailWidget> with tapah.Callback {
 			scenes.BriefWidget(key: tapah.keyDTBrief, enterprise: enterprise),
 			scenes.FieldWidget(key: tapah.keyDTField, enterprise: enterprise),
 			scenes.InfoWidget(key: tapah.keyDTInfo, enterprise: enterprise),
-			scenes.OfferWidget(key: tapah.keyDTOffer, enterprise: enterprise),
+			// scenes.OfferWidget(key: tapah.keyDTOffer, enterprise: enterprise),
 			scenes.ExampleWidget(key: tapah.keyDTExample, enterprise: enterprise),
 		];
 		List<Widget> children = [];
