@@ -184,7 +184,7 @@ async def query_case(req: Request):
 		if level != 0 and ent.level != level: continue
 		if sector != 0 and ent.sector != sector: continue
 		if field != 0 and case.field != field: continue
-		if enterprise_id != 0 and enterprise != None and enterprise.id != case.id and case.field not in enterprise.field: continue
+		if enterprise_id != 0 and enterprise != None and enterprise.id != case.id: continue
 		if stag != 0 and case.stag1 != stag and case.stag2 != stag: continue
 		if year == 1 and case.year != 2026: continue
 		if year == 2 and case.year == 2026: continue
