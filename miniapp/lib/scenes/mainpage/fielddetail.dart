@@ -206,10 +206,13 @@ class FieldDetailState extends State<FieldDetailWidget> with tapah.Callback {
 
 	Widget _buildEnterpriseSection() {
 		const pageSize = 3;
+		if (enterprise.isEmpty) {
+			return Container();
+		}
 		final pageCount = enterprise.isEmpty ? 0 : ((enterprise.length + pageSize - 1) ~/ pageSize);
-		final currentPage = pageCount == 0 ? 0 : _enterprisePage.clamp(0, pageCount - 1);
-		final start = currentPage * pageSize;
-		final end = pageCount == 0 ? 0 : (start + pageSize > enterprise.length ? enterprise.length : start + pageSize);
+		final safePage = _enterprisePage.clamp(0, pageCount - 1);
+		final start = safePage * pageSize;
+		final end = (start + pageSize).clamp(0, enterprise.length);
 		final list = pageCount == 0 ? <tapah.Enterprise>[] : enterprise.sublist(start, end);
 		return Container(
 			key: _enterpriseSectionKey,
@@ -221,14 +224,14 @@ class FieldDetailState extends State<FieldDetailWidget> with tapah.Callback {
 			),
 			child: GestureDetector(
 				behavior: HitTestBehavior.opaque,
-				onHorizontalDragEnd: (details) {
-					if (pageCount <= 1) return;
-					final velocity = details.primaryVelocity ?? 0;
-					if (velocity > 100 && currentPage < pageCount - 1) {
-						setState(() => _enterprisePage = currentPage + 1);
-					} else if (velocity < -100 && currentPage > 0) {
-						setState(() => _enterprisePage = currentPage - 1);
-					}
+				onVerticalDragEnd: (details) {
+						if (pageCount <= 1) return;
+						final velocity = details.primaryVelocity ?? 0;
+						if (velocity < -100 && safePage < pageCount - 1) {
+							setState(() => _enterprisePage = safePage + 1);
+						} else if (velocity > 100 && safePage > 0) {
+							setState(() => _enterprisePage = safePage - 1);
+						}
 				},
 				child: Column(
 					crossAxisAlignment: CrossAxisAlignment.start,
@@ -236,8 +239,6 @@ class FieldDetailState extends State<FieldDetailWidget> with tapah.Callback {
 						Row(
 							children: [
 								Expanded(child: _buildSectionTitle('热招企业')),
-								if (pageCount > 1)
-									Text('${currentPage + 1}/$pageCount  左右滑动', style: const TextStyle(fontSize: 12, color: Color(0xFF666666))),
 							],
 						),
 						const SizedBox(height: 10),
@@ -335,11 +336,15 @@ class FieldDetailState extends State<FieldDetailWidget> with tapah.Callback {
 
 	Widget _buildCaseSection() {
 		const pageSize = 3;
+		if (cases.isEmpty) {
+			return Container();
+		}
 		final pageCount = cases.isEmpty ? 0 : ((cases.length + pageSize - 1) ~/ pageSize);
-		final currentPage = pageCount == 0 ? 0 : _casePage.clamp(0, pageCount - 1);
-		final start = currentPage * pageSize;
-		final end = pageCount == 0 ? 0 : (start + pageSize > cases.length ? cases.length : start + pageSize);
+		final safePage = _casePage.clamp(0, pageCount - 1);
+		final start = safePage * pageSize;
+		final end = (start + pageSize).clamp(0, cases.length);
 		final list = pageCount == 0 ? <tapah.Case>[] : cases.sublist(start, end);
+
 		return Container(
 			key: _caseSectionKey,
 			width: double.infinity,
@@ -350,13 +355,13 @@ class FieldDetailState extends State<FieldDetailWidget> with tapah.Callback {
 			),
 			child: GestureDetector(
 				behavior: HitTestBehavior.opaque,
-				onHorizontalDragEnd: (details) {
+				onVerticalDragEnd: (details) {
 					if (pageCount <= 1) return;
 					final velocity = details.primaryVelocity ?? 0;
-					if (velocity > 100 && currentPage < pageCount - 1) {
-						setState(() => _casePage = currentPage + 1);
-					} else if (velocity < -100 && currentPage > 0) {
-						setState(() => _casePage = currentPage - 1);
+					if (velocity < -100 && safePage < pageCount - 1) {
+						setState(() => _casePage = safePage + 1);
+					} else if (velocity > 100 && safePage > 0) {
+						setState(() => _casePage = safePage - 1);
 					}
 				},
 				child: Column(
@@ -365,8 +370,6 @@ class FieldDetailState extends State<FieldDetailWidget> with tapah.Callback {
 						Row(
 							children: [
 								Expanded(child: _buildSectionTitle('成功案例')),
-								if (pageCount > 1)
-									Text('${currentPage + 1}/$pageCount  左右滑动', style: const TextStyle(fontSize: 12, color: Color(0xFF666666))),
 							],
 						),
 						const SizedBox(height: 10),
