@@ -194,14 +194,14 @@ class HomeState extends State<HomeWidget> with tapah.Callback {
 						bool isSelected = fenyeindex == index;
 						return GestureDetector(
 							onTap: () async {
-								if (index == 3) {
+								if (index == 1) {
 									await tapah.RequestArticle1();
 									articles = tapah.article1;
 									metas = {};
 									_loadingArticles.clear();
 									displayCount = 5;
 								}
-								if (index == 4) {
+								if (index == 2) {
 									await tapah.RequestArticle2();
 									articles = tapah.article2;
 									metas = {};

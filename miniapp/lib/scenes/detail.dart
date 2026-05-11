@@ -147,6 +147,13 @@ class DetailState extends State<DetailWidget> with tapah.Callback {
 						const SizedBox(width: 20,),
 						GestureDetector(
 							onTap: () {
+								var option = wxapi.OpenCustomerServiceChatOption();
+								option.corpId = "FomaKK";
+								var extInfo = wxapi.ExtInfoOption();
+								extInfo.url = 'https://work.weixin.qq.com/kfid/kf...';
+								option.extInfo = extInfo;
+								wxapi.wx.openCustomerServiceChat(option);
+								print("打开在线咨询");
 							},
 							child: Container(
 								width: 100,
