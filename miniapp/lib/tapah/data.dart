@@ -24,3 +24,4 @@ List<Level> levellist = [];
 List<Field> fieldlist = [];
 List<Enterprise> enterpriselist = [];
 List<Case> caselist = [];
+List<String> article1 = [], article2 = [];

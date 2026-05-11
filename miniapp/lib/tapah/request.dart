@@ -144,6 +144,30 @@ Future<List<Enterprise>> RequestEnterprise(int zone, int sector, int level, int 
 	return list;
 }
 
+Future<int> RequestArticle1() async {
+	var response = await dio.get(parseurl(url_query_article1));
+	if (response.data['code'] != 0) {
+		throw Exception('Error code: ${response.data['code']} status: ${response.data['status']}');
+	}
+	var json = response.data["data"]["link"];
+	json.forEach((item) {
+		article1.add(item);
+	});
+	return json.length;
+}
+
+Future<int> RequestArticle2() async {
+	var response = await dio.get(parseurl(url_query_article2));
+	if (response.data['code'] != 0) {
+		throw Exception('Error code: ${response.data['code']} status: ${response.data['status']}');
+	}
+	var json = response.data["data"]["link"];
+	json.forEach((item) {
+		article2.add(item);
+	});
+	return json.length;
+}
+
 Future<int> RequestCaseList(int enterprise, int level, int sector, int field, int stag, int year, int page) async {
 	var response = await dio.post(parseurl(url_query_case), data: {
 		"enterprise": enterprise,

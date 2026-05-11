@@ -159,6 +159,38 @@ async def query_enterprise(req: Request):
 		},
 	})
 
+@app.get("/query_article1")
+async def query_article1(req: Request):
+	link = []
+	for i in range(len(data.enterpriselist)):
+		enterprise = data.enterpriselist[i]
+		if enterprise.article1:
+			link.append(enterprise.article1)
+
+	return JSONResponse(content = {
+		"code": 0,
+		"status": "success",
+		"data": {
+			"link": link,
+		},
+	})
+
+@app.get("/query_article2")
+async def query_article2(req: Request):
+	link = []
+	for i in range(len(data.enterpriselist)):
+		enterprise = data.enterpriselist[i]
+		if enterprise.article2:
+			link.append(enterprise.article2)
+
+	return JSONResponse(content = {
+		"code": 0,
+		"status": "success",
+		"data": {
+			"link": link,
+		},
+	})
+
 @app.post("/query_case")
 async def query_case(req: Request):
 	json = await req.json()

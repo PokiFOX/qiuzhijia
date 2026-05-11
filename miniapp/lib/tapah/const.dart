@@ -5,3 +5,5 @@ String url_query_fieldlist = "query_fieldlist";
 String url_query_enterprise = "query_enterprise";
 String url_query_case = "query_case";
 String url_query_article_meta = "query_article_meta";
+String url_query_article1 = "query_article1";
+String url_query_article2 = "query_article2";

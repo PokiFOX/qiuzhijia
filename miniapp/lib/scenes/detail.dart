@@ -13,7 +13,6 @@ import 'package:qiuzhijia/tapah/option.dart' as tapah;
 import 'package:qiuzhijia/scenes/detail/brief.dart' as scenes;
 import 'package:qiuzhijia/scenes/detail/field.dart' as scenes;
 import 'package:qiuzhijia/scenes/detail/info.dart' as scenes;
-import 'package:qiuzhijia/scenes/detail/offer.dart' as scenes;
 import 'package:qiuzhijia/scenes/detail/example.dart' as scenes;
 
 class DetailWidget extends StatefulWidget {

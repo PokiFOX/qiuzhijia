@@ -1,7 +1,6 @@
 final List<String> imageurls = [
-	'儿童底图.png',
-	'成人底图.png',
-	'老年底图.png',
+	'轮播2.png',
+	'轮播3.png',
 ];
 final topimageduration = 3;
 
