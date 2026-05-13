@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import 'package:mpflutter_wechat_webview/mpflutter_wechat_webview.dart';
+import 'package:qiuzhijia/scenes/lanmu/bishitiku.dart';
 
 import 'package:qiuzhijia/tapah/class.dart' as tapah;
 import 'package:qiuzhijia/tapah/data.dart' as tapah;
@@ -11,6 +12,11 @@ import 'package:qiuzhijia/tapah/option.dart' as tapah;
 import 'package:qiuzhijia/tapah/request.dart' as tapah;
 import 'package:qiuzhijia/scenes/mainpage/field.dart';
 import 'package:qiuzhijia/scenes/mainpage/example.dart';
+import 'package:qiuzhijia/scenes/lanmu/qiuzhiziliao.dart';
+import 'package:qiuzhijia/scenes/lanmu/shixineitui.dart';
+import 'package:qiuzhijia/scenes/lanmu/gangweineitui.dart';
+import 'package:qiuzhijia/scenes/lanmu/qiuzhifuwu.dart';
+import 'package:qiuzhijia/scenes/lanmu/mianshijingyan.dart';
 
 class HomeWidget extends StatefulWidget {
 	const HomeWidget({super.key});
@@ -163,6 +169,24 @@ class HomeState extends State<HomeWidget> with tapah.Callback {
 							}
 							if (index == 3) {
 								Navigator.push(context, MaterialPageRoute(builder: (context) => ExampleWidget(key: GlobalKey(),)));
+							}
+							if (index == 5) {
+								Navigator.push(context, MaterialPageRoute(builder: (context) => QiuZhiZiLiaoWidget(key: GlobalKey(),)));
+							}
+							if (index == 6) {
+								Navigator.push(context, MaterialPageRoute(builder: (context) => ShiXiNeiTuiWidget(key: GlobalKey(),)));
+							}
+							if (index == 7) {
+								Navigator.push(context, MaterialPageRoute(builder: (context) => GangWeiNeiTuiWidget(key: GlobalKey(),)));
+							}
+							if (index == 8) {
+								Navigator.push(context, MaterialPageRoute(builder: (context) => BiShiTiKuWidget(key: GlobalKey(),)));
+							}
+							if (index == 9) {
+								Navigator.push(context, MaterialPageRoute(builder: (context) => MianShiJingYanWidget(key: GlobalKey(),)));
+							}
+							if (index == 10) {
+								Navigator.push(context, MaterialPageRoute(builder: (context) => QiuZhiFuWuWidget(key: GlobalKey(),)));
 							}
 						},
 						child: SizedBox(

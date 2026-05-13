@@ -18,6 +18,12 @@ enum SceneID {
 	dt_info,
 	dt_offer,
 	dt_example,
+	lm_qiuzhiziliao,
+	lm_shixineitui,
+	lm_gangweineitui,
+	lm_bishitiku,
+	lm_qiuzhifuwu,
+	lm_mianshijingyan,
 }
 
 enum EventType {

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
+import 'package:expandable_text/expandable_text.dart';
+
 import 'package:qiuzhijia/tapah/class.dart' as tapah;
 import 'package:qiuzhijia/tapah/data.dart' as tapah;
 import 'package:qiuzhijia/tapah/enum.dart' as tapah;
-import 'package:qiuzhijia/widgets/expandable_text.dart' as widgets;
 import 'package:qiuzhijia/scenes/mainpage/fielddetail.dart' as mainpage;
+import 'package:qiuzhijia/scenes/mainpage/fieldlist.dart' as mainpage;
 
 class FieldWidget extends StatefulWidget {
 	final tapah.Field? field;
@@ -19,6 +21,7 @@ class FieldState extends State<FieldWidget> with tapah.Callback {
 	final Map<int, GlobalKey> _itemKeys = {};
 	bool _didAutoScroll = false;
 	String _searchText = "";
+	List<tapah.Field>? _selectedFields;
 
 	@override
 	void initState() {
@@ -57,6 +60,9 @@ class FieldState extends State<FieldWidget> with tapah.Callback {
 
 	Widget buildInfo() {
 		var displayList = tapah.fieldlist.where((e) {
+			if (_selectedFields != null && _selectedFields!.isNotEmpty) {
+				if (!_selectedFields!.any((sf) => sf.id == e.id)) return false;
+			}
 			if (_searchText.isEmpty) return true;
 			return e.value.contains(_searchText) || e.type.contains(_searchText);
 		}).toList();
@@ -79,6 +85,35 @@ class FieldState extends State<FieldWidget> with tapah.Callback {
 										borderRadius: BorderRadius.circular(15),
 									),
 									child: const Icon(Icons.arrow_back, size: 15,),
+								),
+							),
+						],
+					),
+					const SizedBox(height: 10),
+					Row(
+						children: [
+							GestureDetector(
+								onTap: () async {
+									final result = await Navigator.push<List<tapah.Field>>(
+										context,
+										MaterialPageRoute(
+											builder: (context) => mainpage.FieldListWidget(
+												key: GlobalKey(),
+												selected: _selectedFields ?? [],
+											),
+										),
+									);
+									if (result != null) {
+										setState(() {
+											_selectedFields = result.isEmpty ? null : result;
+										});
+									}
+								},
+								child: Row(
+									children: [
+										Text("专业列表", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,),),
+										Icon(Icons.arrow_drop_down),
+									],
 								),
 							),
 							const SizedBox(width: 10,),
@@ -114,6 +149,9 @@ class FieldState extends State<FieldWidget> with tapah.Callback {
 						separatorBuilder: (context, index) => const SizedBox(height: 10),
 						itemBuilder: (context, index) {
 							var field = displayList[index];
+							if (field.id == 1) {
+								return Container();
+							}
 							var itemKey = _itemKeys.putIfAbsent(field.id, () => GlobalKey());
 							return GestureDetector(
 								key: itemKey,
@@ -150,7 +188,8 @@ class FieldState extends State<FieldWidget> with tapah.Callback {
 													),
 												],
 											),
-											widgets.ExpandableText(field.content, expandText: '展开', collapseText: '收起', maxLines: 3, linkColor: Colors.blue,),
+											ExpandableText(field.content, expandText: '展开', collapseText: '收起', maxLines: 3, linkColor: Colors.blue,),
+											//widgets.ExpandableText(field.content, expandText: '展开', collapseText: '收起', maxLines: 3, linkColor: Colors.blue,),
 										],
 									),
 								),
