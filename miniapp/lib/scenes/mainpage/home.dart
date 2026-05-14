@@ -17,6 +17,7 @@ import 'package:qiuzhijia/scenes/lanmu/shixineitui.dart';
 import 'package:qiuzhijia/scenes/lanmu/gangweineitui.dart';
 import 'package:qiuzhijia/scenes/lanmu/qiuzhifuwu.dart';
 import 'package:qiuzhijia/scenes/lanmu/mianshijingyan.dart';
+import 'package:qiuzhijia/scenes/lanmu/zixunguwen.dart';
 
 class HomeWidget extends StatefulWidget {
 	const HomeWidget({super.key});
@@ -169,6 +170,9 @@ class HomeState extends State<HomeWidget> with tapah.Callback {
 							}
 							if (index == 3) {
 								Navigator.push(context, MaterialPageRoute(builder: (context) => ExampleWidget(key: GlobalKey(),)));
+							}
+							if (index == 4) {
+								Navigator.push(context, MaterialPageRoute(builder: (context) => ZiXunGuWenWidget(key: GlobalKey(),)));
 							}
 							if (index == 5) {
 								Navigator.push(context, MaterialPageRoute(builder: (context) => QiuZhiZiLiaoWidget(key: GlobalKey(),)));

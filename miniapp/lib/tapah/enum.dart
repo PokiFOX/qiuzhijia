@@ -24,6 +24,7 @@ enum SceneID {
 	lm_bishitiku,
 	lm_qiuzhifuwu,
 	lm_mianshijingyan,
+	lm_zixunguwen,
 }
 
 enum EventType {
