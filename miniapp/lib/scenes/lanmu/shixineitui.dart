@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:mpflutter_wechat_button/mpflutter_wechat_button.dart';
+
 import 'package:qiuzhijia/tapah/class.dart' as tapah;
 import 'package:qiuzhijia/tapah/enum.dart' as tapah;
 import 'package:qiuzhijia/tapah/function.dart' as tapah;
@@ -59,8 +61,6 @@ class ShiXiNeiTuiState extends State<ShiXiNeiTuiWidget> with tapah.Callback {
 									// 顶部横幅
 									Image.network(
 										tapah.parseimage('栏目/实习内推/顶部.png'),
-										width: double.infinity,
-										fit: BoxFit.fitWidth,
 									),
 									Padding(
 										padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
@@ -176,10 +176,15 @@ class ShiXiNeiTuiState extends State<ShiXiNeiTuiWidget> with tapah.Callback {
 										),
 									),
 									// 底部
-									Image.network(
-										tapah.parseimage('栏目/实习内推/底部.png'),
-										width: double.infinity,
-										fit: BoxFit.fitWidth,
+									Center(
+										child: MPFlutter_Wechat_Button(
+											onTap: (_) {
+												tapah.KeFu();
+											},
+											child: Image.network(
+												tapah.parseimage('栏目/实习内推/底部.png'),
+											),
+										),
 									),
 								],
 							),

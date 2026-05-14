@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:mpflutter_wechat_button/mpflutter_wechat_button.dart';
+
 import 'package:qiuzhijia/tapah/class.dart' as tapah;
 import 'package:qiuzhijia/tapah/enum.dart' as tapah;
 import 'package:qiuzhijia/tapah/function.dart' as tapah;
@@ -161,14 +163,13 @@ class QiuZhiFuWuState extends State<QiuZhiFuWuWidget> with tapah.Callback {
 									),
 									const SizedBox(height: 24),
 									// 底部咨询大图
-									Padding(
-										padding: const EdgeInsets.symmetric(horizontal: 16),
-										child: ClipRRect(
-											borderRadius: BorderRadius.circular(12),
+									Center(
+										child: MPFlutter_Wechat_Button(
+											onTap: (_) {
+												tapah.KeFu();
+											},
 											child: Image.network(
 												tapah.parseimage('栏目/求职服务/底部.png'),
-												width: double.infinity,
-												fit: BoxFit.fitWidth,
 											),
 										),
 									),
@@ -176,10 +177,12 @@ class QiuZhiFuWuState extends State<QiuZhiFuWuWidget> with tapah.Callback {
 									// 底部徽标
 									Row(
 										mainAxisAlignment: MainAxisAlignment.center,
-										children: const [
-											Icon(Icons.check_circle, size: 16, color: Color(0xFF2D7BFF)),
-											SizedBox(width: 6),
-											Text('已为数千名学员提供专业咨询服务', style: TextStyle(fontSize: 13, color: Color(0xFF555555))),
+										children: [
+											Image.network(
+												tapah.parseimage("栏目/笔试题库/标记.png"),
+											),
+											const SizedBox(width: 6),
+											const Text('已为数千名学员提供专业咨询服务', style: TextStyle(fontSize: 13, color: Color(0xFF555555))),
 										],
 									),
 									const SizedBox(height: 20),

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:mpflutter_wechat_button/mpflutter_wechat_button.dart';
+
 import 'package:qiuzhijia/tapah/class.dart' as tapah;
 import 'package:qiuzhijia/tapah/enum.dart' as tapah;
 import 'package:qiuzhijia/tapah/function.dart' as tapah;
@@ -90,8 +92,6 @@ class BiShiTiKuState extends State<BiShiTiKuWidget> with tapah.Callback {
 											borderRadius: BorderRadius.circular(12),
 											child: Image.network(
 												tapah.parseimage('栏目/笔试题库/顶部.png'),
-												width: double.infinity,
-												fit: BoxFit.fitWidth,
 											),
 										),
 									),
@@ -156,19 +156,60 @@ class BiShiTiKuState extends State<BiShiTiKuWidget> with tapah.Callback {
 									),
 									const SizedBox(height: 16),
 									// 底部大图
-									Image.network(
-										tapah.parseimage('栏目/笔试题库/底部.png'),
-										width: double.infinity,
-										fit: BoxFit.fitWidth,
+									MPFlutter_Wechat_Button(
+										onTap: (_) {
+											tapah.KeFu();
+										},
+										child: Padding(
+										padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+										child: Container(
+											width: double.infinity,
+											height: 160,
+											decoration: BoxDecoration(
+												color: const Color(0xFFEFF6FA),
+												borderRadius: BorderRadius.circular(18),
+											),
+											child: Column(
+												mainAxisAlignment: MainAxisAlignment.center,
+												children: [
+													Container(
+														width: 200,
+														height: 46,
+														decoration: BoxDecoration(
+															color: const Color(0xFF2D7BFF),
+															borderRadius: BorderRadius.circular(20),
+														),
+														child: Row(
+															mainAxisAlignment: MainAxisAlignment.center,
+															children: [
+																Image.network(
+																	tapah.parseimage('栏目/笔试题库/微信.png'),
+																),
+																const SizedBox(width: 10,),
+																Text("立即咨询", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),),
+															],
+														),
+													),
+													const SizedBox(height: 10,),
+													const SizedBox(
+														width: 270,
+														child: Text("点击按钮，即可添加顾问老师企业微信 1v1获取专属题库推荐与备考建议", style: const TextStyle(fontSize: 16, color: Color(0xFF3D3D3D)), textAlign: TextAlign.center,),
+													),
+												],
+											),
+										),
+									),
 									),
 									const SizedBox(height: 16),
 									// 底部徽标
 									Row(
 										mainAxisAlignment: MainAxisAlignment.center,
-										children: const [
-											Icon(Icons.check_circle, size: 16, color: Color(0xFF2D7BFF)),
-											SizedBox(width: 6),
-											Text('已为数千名学员提供专业咨询服务', style: TextStyle(fontSize: 13, color: Color(0xFF555555))),
+										children: [
+											Image.network(
+												tapah.parseimage("栏目/笔试题库/标记.png"),
+											),
+											const SizedBox(width: 6),
+											const Text('已为数千名学员提供专业咨询服务', style: TextStyle(fontSize: 13, color: Color(0xFF555555))),
 										],
 									),
 									const SizedBox(height: 32),
