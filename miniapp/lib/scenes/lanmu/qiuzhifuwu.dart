@@ -166,7 +166,7 @@ class QiuZhiFuWuState extends State<QiuZhiFuWuWidget> with tapah.Callback {
 									Center(
 										child: MPFlutter_Wechat_Button(
 											onTap: (_) {
-												tapah.KeFu();
+												tapah.KeFu(context);
 											},
 											child: Image.network(
 												tapah.parseimage('栏目/求职服务/底部.png'),

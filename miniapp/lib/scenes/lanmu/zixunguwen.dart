@@ -158,7 +158,7 @@ class ZiXunGuWenState extends State<ZiXunGuWenWidget> with tapah.Callback {
 									// 底部大图
 									MPFlutter_Wechat_Button(
 										onTap: (_) {
-											tapah.KeFu();
+											tapah.KeFu(context);
 										},
 										child: Padding(
 										padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),

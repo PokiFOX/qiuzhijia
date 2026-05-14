@@ -148,7 +148,7 @@ class DetailState extends State<DetailWidget> with tapah.Callback {
 						const SizedBox(width: 20,),
 						MPFlutter_Wechat_Button(
 							onTap: (_) {
-								tapah.KeFu();
+								tapah.KeFu(context);
 							},
 							child: Container(
 								width: 100,
