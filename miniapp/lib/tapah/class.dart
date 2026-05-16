@@ -154,3 +154,12 @@ class ArticleMeta {
 	int clicks;
 	ArticleMeta({required this.url, this.title = "", this.description = "", this.image = "", this.clicks = 0});
 }
+
+class AccountInfo {
+	int id = 0;
+	String openid = "";
+	String nickname = "";
+	String avatar = "";
+	Set<int> field = {};
+	Set<int> enterprise = {};
+}

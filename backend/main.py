@@ -2,16 +2,17 @@ import asyncio
 import datetime
 import re
 from contextlib import asynccontextmanager
-import shutil
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import faulthandler
 import httpx
+import requests
+import shutil
 
 from tapah import data
 from tapah import function
-from tapah.struct import Linq, Zone, Level, Sector, Field, Enterprise, Case
+from tapah.struct import Linq, Zone, Level, Sector, Field, Enterprise, Case, User
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -894,4 +895,147 @@ async def import_excel(req: Request):
 	return JSONResponse(content = {
 		"code": 0,
 		"status": status,
+	})
+
+@app.post("/wxcode")
+async def wxcode(req: Request):
+	json = await req.json()
+	url = "https://api.weixin.qq.com/sns/jscode2session"
+	params = {
+		"appid": data.appid,
+		"secret": data.appsecret,
+		"js_code": json.get("code"),
+		"grant_type": "authorization_code"
+	}
+
+	response = requests.get(url, params = params)
+	json = response.json()
+
+	if "errcode" in json and json["errcode"] != 0:
+		print("微信接口错误:", json)
+		return JSONResponse(content = {
+			"code": -1,
+			"status": "微信接口错误",
+		})
+
+	openid = json.get("openid")
+	session_key = json.get("session_key")
+	unionid = json.get("unionid")
+
+	if data.userlist.__contains__(openid):
+		user = data.userlist[openid]
+	else:
+		conn = data.mysql_pool.apply()
+		cursor = conn.cursor()
+		cursor.execute("INSERT INTO qzj_user (openid) VALUES (%s)", (openid,))
+		lastid = cursor.lastrowid
+		cursor.close()
+		data.mysql_pool.release(conn)
+
+		user = User(lastid, openid)
+		data.userlist[openid] = user
+
+	return JSONResponse(content = {
+		"code": 0,
+		"status": "success",
+		"data": {
+			"id": user.id,
+			"openid": openid,
+			"nickname": user.nickname,
+			"avatar": user.avatar,
+		},
+	})
+
+@app.post("/userinfo")
+async def userinfo(req: Request):
+	json = await req.json()
+	openid = json.get("openid")
+	nickname = json.get("nickname")
+	avatar = json.get("avatar")
+	field = json.get("field")
+	fstr = ''
+	for f in field:
+		fstr += f"{f},"
+	fstr = fstr.rstrip(',')
+	enterprise = json.get("enterprise")
+	estr = ''
+	for e in enterprise:
+		estr += f"{e},"
+	estr = estr.rstrip(',')
+
+	if not data.userlist.__contains__(openid):
+		return JSONResponse(content = {
+			"code": -1,
+			"status": "用户不存在",
+		})
+
+	user = data.userlist[openid]
+	user.nickname = nickname
+	user.avatar = avatar
+	user.field = field
+	user.enterprise = enterprise
+
+	conn = data.mysql_pool.apply()
+	cursor = conn.cursor()
+	cursor.execute("UPDATE qzj_user SET nickname=%s, avatar=%s, field=%s, enterprise=%s WHERE openid=%s", (nickname, avatar, fstr, estr, openid))
+	cursor.close()
+	data.mysql_pool.release(conn)
+
+	return JSONResponse(content = {
+		"code": 0,
+		"status": "success",
+	})
+
+@app.post("/favorite")
+async def favorite(req: Request):
+	json = await req.json()
+	enterprises = json.get("enterprise")
+	fields = json.get("field")
+
+	fieldlist = []
+	for id in fields:
+		for field in data.fieldlist:
+			if field.id == id:
+				fieldlist.append({
+					"id": field.id,
+					"name": field.name,
+					"mapping": field.mapping,
+					"type": field.type,
+					"star": field.star,
+					"content": field.content,
+				})
+
+	enterpriselist = []
+	for id in enterprises:
+		for enterprise in data.enterpriselist:
+			if enterprise.id == id:
+				enterpriselist.append({
+					"id": enterprise.id,
+					"zone": enterprise.zone,
+					"city": enterprise.city,
+					"name": enterprise.name,
+					"brief": enterprise.brief,
+					"upper": enterprise.upper,
+					"level": enterprise.level,
+					"sector": enterprise.sector,
+					"field": enterprise.field,
+					"tag": enterprise.tag,
+					"website1": enterprise.website1,
+					"website2": enterprise.website2,
+					"shortname": enterprise.shortname,
+					"icon": enterprise.icon,
+					"images": enterprise.images,
+					"enttype": enterprise.enttype,
+					"financial": enterprise.financial,
+					"article1": enterprise.article1,
+					"article2": enterprise.article2,
+				})
+
+	return JSONResponse(content = {
+		"code": 0,
+		"status": "success",
+		"data": {
+			"field": fieldlist,
+			"enterprise": enterpriselist,
+		},
 	})

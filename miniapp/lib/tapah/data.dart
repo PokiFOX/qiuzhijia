@@ -22,6 +22,9 @@ List<Zone> zonelist = [];
 List<Sector> sectorlist = [];
 List<Level> levellist = [];
 List<Field> fieldlist = [];
+List<Field> myfieldlist = [];
 List<Enterprise> enterpriselist = [];
 List<Case> caselist = [];
 List<String> article1 = [], article2 = [];
+
+AccountInfo? accountinfo;

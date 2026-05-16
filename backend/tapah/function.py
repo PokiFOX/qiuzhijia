@@ -3,7 +3,7 @@ import time
 
 from tapah import data
 from tapah import reserved
-from tapah.struct import MySQLPool, Zone, Sector, Level, Field, Enterprise, Case
+from tapah.struct import MySQLPool, Zone, Sector, Level, Field, Enterprise, Case, User
 
 def keep_mysql_alive():
 	while True:
@@ -63,6 +63,16 @@ def init_config():
 	for row in result:
 		case = Case(row[0], row[1], row[2], row[3], row[4].split(','), row[5], row[6], row[7], row[8], row[9], row[10], row[11], row[12], row[13], row[14])
 		data.caselist.append(case)
+
+	cursor.execute("SELECT * FROM qzj_user")
+	result = cursor.fetchall()
+	for row in result:
+		user = User(row[0], row[1])
+		user.nickname = row[2]
+		user.avatar = row[3]
+		user.field = row[4].split(',') if row[4] else []
+		user.enterprise = row[5].split(',') if row[5] else []
+		data.userlist[user.openid] = user
 
 	cursor.close()
 	data.mysql_pool.release(conn)

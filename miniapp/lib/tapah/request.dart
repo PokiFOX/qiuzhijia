@@ -248,3 +248,79 @@ Future<ArticleMeta> RequestArticleMeta(String url) async {
 		image: d["image"] ?? "",
 	);
 }
+
+Future<void> RequestWxCode(String code) async {
+	var response = await dio.post(parseurl(url_query_wxcode), data: {
+		"code": code,
+	});
+	if (response.data['code'] != 0) {
+		throw Exception('Error code: ${response.data['code']} status: ${response.data['status']}');
+	}
+	var json = response.data["data"];
+	accountinfo = AccountInfo();
+	accountinfo!.id = json["id"];
+	accountinfo!.openid = json["openid"];
+	accountinfo!.nickname = json["nickname"] ?? "";
+	accountinfo!.avatar = json["avatar"] ?? "";
+	accountinfo!.field = Set<int>.from(json["field"] ?? []);
+	accountinfo!.enterprise = Set<int>.from(json["enterprise"] ?? []);
+}
+
+Future<void> RequestUserInfo() async {
+	if (accountinfo == null) {
+		throw Exception('User not logged in');
+	}
+	await dio.post(parseurl(url_query_userinfo), data: {
+		"openid": accountinfo!.openid,
+		"avatar": accountinfo!.avatar,
+		"nickname": accountinfo!.nickname,
+		"field": accountinfo!.field.toList(),
+		"enterprise": accountinfo!.enterprise.toList(),
+	});
+}
+
+Future<void> RequestFavorite() async {
+	if (accountinfo == null) {
+		throw Exception('User not logged in');
+	}
+	var response = await dio.post(parseurl(url_query_favorite), data: {
+		"enterprise": accountinfo!.enterprise.toList(),
+		"field": accountinfo!.field.toList(),
+	});
+	if (response.data['code'] != 0) {
+		throw Exception('Error code: ${response.data['code']} status: ${response.data['status']}');
+	}
+	var json1 = response.data["data"]["field"];
+	json1.forEach((item) {
+		myfieldlist.add(Field(id: item["id"], value: item["name"], mapping: List<String>.from(item["mapping"]), type: item["type"], star: item["star"], content: item["content"]));
+	});
+	var json2 = response.data["data"]["enterprise"];
+	json2.forEach((item) {
+		Enterprise enterprise = Enterprise(id: item["id"]);
+		enterprise.zone = zonelist.firstWhere((e) => e.id == item["zone"]);
+		enterprise.city = item["city"];
+		enterprise.name = item["name"];
+		enterprise.brief = item["brief"];
+		enterprise.upper = item["upper"];
+		enterprise.sector = sectorlist.firstWhere((e) => e.id == item["sector"]);
+		enterprise.level = levellist.firstWhere((e) => e.id == item["level"]);
+		item["field"].forEach((field) {
+			enterprise.fields.add(fieldlist.firstWhere((e) => e.id == field));
+		});
+		enterprise.tags = item["tag"].split(',');
+		enterprise.website1 = item["website1"];
+		enterprise.website2 = item["website2"];
+		enterprise.icon = item["icon"];
+		var images = item["images"].split(',');
+		for (var image in images) {
+			if (image.trim().isEmpty) continue;
+			enterprise.images.add(image.trim());
+		}
+		if (item["enttype"] != '国企') enterprise.enttype = 1;
+		if (item["enttype"] == '央企') enterprise.enttype = 2;
+		enterprise.financial = item["financial"] == "是";
+		enterprise.article1 = item["article1"].split('\n');
+		enterprise.article2 = item["article2"].split('\n');
+		enterpriselist.add(enterprise);
+	});
+}

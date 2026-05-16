@@ -154,3 +154,13 @@ class Case:
 		self.year = year
 		self.detail = detail
 		self.dep = dep
+
+class User:
+	def __init__(self, id, openid):
+		self.id = id
+		self.openid = openid
+		self.nickname = ''
+		self.avatar = ''
+		self.enterprise = []
+		self.field = []
+

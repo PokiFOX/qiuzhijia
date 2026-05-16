@@ -16,6 +16,7 @@ dependencies:
   mpflutter_wechat_mapview: ^0.0.3
   mpflutter_wechat_webview: ^0.1.0
   mpflutter_wechat_button: ^0.1.0
+  mpflutter_wechat_editable: ^0.1.4
   es_compression: <= 2.0.12
 
   auto_size_text: ^3.0.0

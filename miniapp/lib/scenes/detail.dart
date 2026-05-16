@@ -10,7 +10,7 @@ import 'package:qiuzhijia/tapah/data.dart' as tapah;
 import 'package:qiuzhijia/tapah/enum.dart' as tapah;
 import 'package:qiuzhijia/tapah/function.dart' as tapah;
 import 'package:qiuzhijia/tapah/option.dart' as tapah;
-
+import 'package:qiuzhijia/tapah/request.dart' as tapah;
 import 'package:qiuzhijia/scenes/detail/brief.dart' as scenes;
 import 'package:qiuzhijia/scenes/detail/field.dart' as scenes;
 import 'package:qiuzhijia/scenes/detail/info.dart' as scenes;
@@ -75,6 +75,13 @@ class DetailState extends State<DetailWidget> with tapah.Callback {
 
 	@override
 	Widget build(BuildContext context) {
+		bool fav = false;
+		for (var item in tapah.accountinfo?.enterprise ?? {}) {
+			if (item == enterprise.id) {
+				fav = true;
+				break;
+			}
+		}
 		return Scaffold(
 			body: SafeArea(
 				child: Container(
@@ -137,11 +144,23 @@ class DetailState extends State<DetailWidget> with tapah.Callback {
 						const SizedBox(width: 20,),
 						InkWell(
 							onTap: () {
+								if (tapah.accountinfo == null) {
+									BotToast.showText(text: '请先登录账号');
+									return;
+								}
+								if (tapah.accountinfo!.enterprise.contains(enterprise.id)) {
+									tapah.accountinfo!.enterprise.remove(enterprise.id);
+								}
+								else {
+									tapah.accountinfo!.enterprise.add(enterprise.id);
+								}
+								tapah.RequestUserInfo();
+								setState(() {});
 							},
 							child: Row(
 								children: [
-									Image.network(tapah.parseimage('企业详情/关注.png'), fit: BoxFit.contain, width: 28, height: 28,),
-									Text("关注", style: TextStyle(color: Colors.black, fontSize: 10),),
+									Image.network(tapah.parseimage(fav ? '企业详情/已收藏.png' : '企业详情/关注.png'), fit: BoxFit.contain, width: 28, height: 28,),
+									Text(fav ? "已收藏" : "关注", style: TextStyle(color: Colors.black, fontSize: 10),),
 								],
 							),
 						),

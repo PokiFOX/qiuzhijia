@@ -7,3 +7,6 @@ String url_query_case = "query_case";
 String url_query_article_meta = "query_article_meta";
 String url_query_article1 = "query_article1";
 String url_query_article2 = "query_article2";
+String url_query_wxcode = "wxcode";
+String url_query_userinfo = "userinfo";
+String url_query_favorite = "favorite";
