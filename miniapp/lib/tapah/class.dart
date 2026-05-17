@@ -158,7 +158,7 @@ class ArticleMeta {
 class AccountInfo {
 	int id = 0;
 	String openid = "";
-	String nickname = "";
+	String nickname = "微信名称";
 	String avatar = "";
 	Set<int> field = {};
 	Set<int> enterprise = {};

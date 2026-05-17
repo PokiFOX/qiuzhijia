@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:mpflutter_wechat_button/mpflutter_wechat_button.dart';
+// import 'package:mpflutter_wechat_button/mpflutter_wechat_button.dart';
 
 import 'package:qiuzhijia/tapah/class.dart' as tapah;
 import 'package:qiuzhijia/tapah/enum.dart' as tapah;
@@ -155,9 +155,10 @@ class BiShiTiKuState extends State<BiShiTiKuWidget> with tapah.Callback {
 										),
 									),
 									const SizedBox(height: 16),
-									// 底部大图
-									MPFlutter_Wechat_Button(
-										onTap: (_) {
+									// MPFlutter_Wechat_Button(
+									// 	onTap: (_) {
+									GestureDetector(
+										onTap: () {
 											tapah.KeFu(context);
 										},
 										child: Padding(

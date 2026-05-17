@@ -11,6 +11,7 @@ import 'package:qiuzhijia/tapah/enum.dart' as tapah;
 import 'package:qiuzhijia/tapah/function.dart' as tapah;
 import 'package:qiuzhijia/tapah/request.dart' as tapah;
 import 'package:qiuzhijia/scenes/mainpage/favorite.dart';
+import 'package:qiuzhijia/scenes/kefu.dart';
 
 class ProfileWidget extends StatefulWidget {
 	const ProfileWidget({super.key});
@@ -45,29 +46,25 @@ class ProfileState extends State<ProfileWidget> with tapah.Callback {
 		Widget id = Text("");
 		if (tapah.accountinfo != null) {
 			id = Text("ID: ${tapah.accountinfo!.id}", style: TextStyle(fontSize: 13, color: Colors.grey));
-			if (tapah.accountinfo!.nickname.isEmpty) {
-				nicknamecontroller.text = tapah.accountinfo!.nickname;
-				nickname = SizedBox(
-					width: 100,
-					height: 30,
-					child: MPFlutterTextField(
-						controller: nicknamecontroller,
-						keyboardType: TextInputType.name,
-						decoration: InputDecoration(
-							hintText: '请输入昵称...',
-							border: OutlineInputBorder(),
-						),
-						expands: false,
-						showConfirmBar: true,
-						onChanged: (text) {
-							tapah.accountinfo ??= tapah.AccountInfo();
-							tapah.accountinfo!.nickname = text;
-							nicknamecontroller.text = text;
-							tapah.RequestUserInfo();
-						},
-					),
-				);
-			}
+			nicknamecontroller.text = tapah.accountinfo!.nickname;
+			nickname = SizedBox(
+				width: 100,
+				height: 30,
+				child: MPFlutterTextField(
+					controller: nicknamecontroller,
+					keyboardType: TextInputType.name,
+					showConfirmBar: true,
+					onChanged: (text) {
+						tapah.accountinfo ??= tapah.AccountInfo();
+						if (text.isEmpty) {
+							text = "微信名称";
+						}
+						tapah.accountinfo!.nickname = text;
+						nicknamecontroller.text = text;
+						tapah.RequestUserInfo();
+					},
+				),
+			);
 		}
 
 		Widget login = Container(
@@ -82,10 +79,6 @@ class ProfileState extends State<ProfileWidget> with tapah.Callback {
 					MPFlutter_Wechat_Button(
 						openType: "chooseAvatar",
 						onChooseAvatar: (result) {
-							print("选择头像结果：");
-							result.asMap().forEach((key, value) {
-								print('选择头像结果 - $key: $value');
-							});
 							if (!mounted) return;
 							setState(() {
 								tapah.accountinfo ??= tapah.AccountInfo();
@@ -185,12 +178,10 @@ class ProfileState extends State<ProfileWidget> with tapah.Callback {
 											GestureDetector(
 												behavior: HitTestBehavior.translucent,
 												onTap: () {
-													// if (tapah.accountinfo == null) {
-													// 	BotToast.showText(text: '请先登录账号');
-													// 	return;
-													// }
-													tapah.accountinfo ??= tapah.AccountInfo();
-													tapah.accountinfo!.enterprise = {1};
+													if (tapah.accountinfo == null) {
+														BotToast.showText(text: '请先登录账号');
+														return;
+													}
 													Navigator.push(context, MaterialPageRoute(builder: (context) => FavoriteWidget(key: GlobalKey(),)));
 												},
 												child: Column(
@@ -250,16 +241,22 @@ class ProfileState extends State<ProfileWidget> with tapah.Callback {
 												],
 											),
 											Divider(color: Colors.grey[300], thickness: 1, indent: 20, endIndent: 20,),
-											Row(
-												children: [
-													const SizedBox(width: 20),
-													Image.network(tapah.parseimage('客服/联系客服.png',),),
-													const SizedBox(width: 10,),
-													const Text('联系客服', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),),
-													Expanded(child: Container(),),
-													Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey[400],),
-													const SizedBox(width: 10,),
-												],
+											GestureDetector(
+												behavior: HitTestBehavior.translucent,
+												onTap: () {
+													Navigator.push(context, MaterialPageRoute(builder: (context) => KeFuWidget(key: GlobalKey(),)));
+												},
+												child: Row(
+													children: [
+														const SizedBox(width: 20),
+														Image.network(tapah.parseimage('客服/联系客服.png',),),
+														const SizedBox(width: 10,),
+														const Text('联系客服', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),),
+														Expanded(child: Container(),),
+														Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey[400],),
+														const SizedBox(width: 10,),
+													],
+												),
 											),
 											const SizedBox(height: 10,),
 										],

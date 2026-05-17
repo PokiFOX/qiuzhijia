@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:bot_toast/bot_toast.dart';
-import 'package:mpflutter_wechat_button/mpflutter_wechat_button.dart';
+// import 'package:mpflutter_wechat_button/mpflutter_wechat_button.dart';
 
 import 'package:qiuzhijia/tapah/class.dart' as tapah;
 import 'package:qiuzhijia/tapah/data.dart' as tapah;
@@ -114,6 +114,7 @@ class FieldDetailState extends State<FieldDetailWidget> with tapah.Callback {
 					children: [
 						InkWell(
 							onTap: () {
+								Navigator.pushReplacementNamed(context, '/mainpage');
 							},
 							child: Row(
 								children: [
@@ -146,8 +147,10 @@ class FieldDetailState extends State<FieldDetailWidget> with tapah.Callback {
 							),
 						),
 						const SizedBox(width: 20,),
-						MPFlutter_Wechat_Button(
-							onTap: (_) {
+						// MPFlutter_Wechat_Button(
+						// 	onTap: (_) {
+						GestureDetector(
+							onTap: () {
 								tapah.KeFu(context);
 							},
 							child: Container(

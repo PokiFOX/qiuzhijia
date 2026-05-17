@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:mpflutter_wechat_button/mpflutter_wechat_button.dart';
+// import 'package:mpflutter_wechat_button/mpflutter_wechat_button.dart';
 
 import 'package:qiuzhijia/tapah/class.dart' as tapah;
 import 'package:qiuzhijia/tapah/enum.dart' as tapah;
@@ -177,8 +177,10 @@ class ShiXiNeiTuiState extends State<ShiXiNeiTuiWidget> with tapah.Callback {
 									),
 									// 底部
 									Center(
-										child: MPFlutter_Wechat_Button(
-											onTap: (_) {
+										// child: MPFlutter_Wechat_Button(
+										// 	onTap: (_) {
+										child: GestureDetector(
+											onTap: () {
 												tapah.KeFu(context);
 											},
 											child: Image.network(

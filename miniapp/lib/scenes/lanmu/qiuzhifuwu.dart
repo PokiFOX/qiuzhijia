@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:mpflutter_wechat_button/mpflutter_wechat_button.dart';
+// import 'package:mpflutter_wechat_button/mpflutter_wechat_button.dart';
 
 import 'package:qiuzhijia/tapah/class.dart' as tapah;
 import 'package:qiuzhijia/tapah/enum.dart' as tapah;
@@ -164,8 +164,10 @@ class QiuZhiFuWuState extends State<QiuZhiFuWuWidget> with tapah.Callback {
 									const SizedBox(height: 24),
 									// 底部咨询大图
 									Center(
-										child: MPFlutter_Wechat_Button(
-											onTap: (_) {
+										// child: MPFlutter_Wechat_Button(
+										// 	onTap: (_) {
+										child: GestureDetector(
+											onTap: () {
 												tapah.KeFu(context);
 											},
 											child: Image.network(
