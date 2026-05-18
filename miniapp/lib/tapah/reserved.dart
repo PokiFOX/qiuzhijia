@@ -4,5 +4,5 @@ String urlheader= "http://download.tapahtech.net";
 DeviceInfo deviceinfo = Devices.ios.iPhone16;
 
 String backendHost = 'www.tapahtech.com';
-//String backendHost = 'localhost';
+//String backendHost = '192.168.0.100';
 int backendPort = 22006;

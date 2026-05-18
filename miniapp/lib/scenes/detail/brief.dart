@@ -56,7 +56,6 @@ class BriefState extends State<BriefWidget> with tapah.Callback {
 						SizedBox(width: 10,),
 						Text("招聘专业", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14,),),
 						Expanded(child: Container(),),
-						Icon(Icons.search, size: 16,),
 						SizedBox(width: 10,),
 					],
 				),

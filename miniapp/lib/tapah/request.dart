@@ -260,7 +260,10 @@ Future<void> RequestWxCode(String code) async {
 	accountinfo = AccountInfo();
 	accountinfo!.id = json["id"];
 	accountinfo!.openid = json["openid"];
-	accountinfo!.nickname = json["nickname"] ?? "";
+	accountinfo!.nickname = json["nickname"] ?? "微信名称";
+	if (accountinfo!.nickname.isEmpty) {
+		accountinfo!.nickname = "微信名称";
+	}
 	accountinfo!.avatar = json["avatar"] ?? "";
 	accountinfo!.field = Set<int>.from(json["field"] ?? []);
 	accountinfo!.enterprise = Set<int>.from(json["enterprise"] ?? []);

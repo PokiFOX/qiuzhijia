@@ -145,7 +145,7 @@ class DetailState extends State<DetailWidget> with tapah.Callback {
 						InkWell(
 							onTap: () {
 								if (tapah.accountinfo == null) {
-									BotToast.showText(text: '请先登录账号');
+									Navigator.pushNamed(context, '/profile');
 									return;
 								}
 								if (tapah.accountinfo!.enterprise.contains(enterprise.id)) {

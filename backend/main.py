@@ -899,16 +899,17 @@ async def import_excel(req: Request):
 
 @app.post("/wxcode")
 async def wxcode(req: Request):
+	response  = requests.get(f"https://api.weixin.qq.com/cgi-bin/token?appid={data.appid}&secret={data.appsecret}&grant_type=client_credential")
+	access_token = response.json().get("access_token")
+
 	json = await req.json()
-	url = "https://api.weixin.qq.com/sns/jscode2session"
+	code = json.get("code")
+	url = f"https://api.weixin.qq.com/wxa/business/getuserphonenumber?access_token={access_token}"
 	params = {
-		"appid": data.appid,
-		"secret": data.appsecret,
-		"js_code": json.get("code"),
-		"grant_type": "authorization_code"
+		"code": code,
 	}
 
-	response = requests.get(url, params = params)
+	response = requests.post(url, json = params)
 	json = response.json()
 
 	if "errcode" in json and json["errcode"] != 0:
@@ -918,7 +919,7 @@ async def wxcode(req: Request):
 			"status": "微信接口错误",
 		})
 
-	openid = json.get("openid")
+	openid = json.get("phone_info").get("phoneNumber")
 	session_key = json.get("session_key")
 	unionid = json.get("unionid")
 

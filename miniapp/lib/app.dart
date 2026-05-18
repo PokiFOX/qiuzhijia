@@ -9,6 +9,8 @@ import 'package:qiuzhijia/tapah/data.dart' as tapah;
 import 'package:qiuzhijia/scenes/splash.dart' as scenes;
 import 'package:qiuzhijia/scenes/mainpage.dart' as scenes;
 import 'package:qiuzhijia/scenes/detail.dart' as scenes;
+import 'package:qiuzhijia/scenes/mainpage/profile.dart' as scenes;
+
 
 class MainAppDelegate {
 	late MPFlutterWechatAppDelegate appDelegate;
@@ -81,6 +83,7 @@ class MainApp extends StatelessWidget {
 				'/splash': (context) => scenes.SplashWidget(key: GlobalKey()),
 				'/mainpage': (context) => scenes.MainPageWidget(key: GlobalKey()),
 				'/enterprise/detail': (context) => scenes.DetailWidget(key: GlobalKey()),
+				'/profile': (context) => scenes.ProfileWidget(key: GlobalKey()),
 			},
 			home: scenes.SplashWidget(key: GlobalKey()),
 		);
