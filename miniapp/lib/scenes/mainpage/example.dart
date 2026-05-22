@@ -6,7 +6,7 @@ import 'package:qiuzhijia/tapah/enum.dart' as tapah;
 import 'package:qiuzhijia/tapah/request.dart' as tapah;
 import 'package:qiuzhijia/widgets/expandable_text.dart' as widgets;
 import 'package:qiuzhijia/scenes/mainpage/casefilter.dart';
-import 'package:qiuzhijia/scenes/mainpage/field.dart';
+import 'package:qiuzhijia/scenes/mainpage/fielddetail.dart';
 
 class ExampleWidget extends StatefulWidget {
 	const ExampleWidget({super.key,});
@@ -290,7 +290,7 @@ class ExampleState extends State<ExampleWidget> with tapah.Callback {
 															Text("· 本科院校    	${c.school1 ?? '--'}", style: const TextStyle(fontSize: 12, color: Color(0xFF555555))),
 															GestureDetector(
 																onTap: () {
-																	Navigator.push(context, MaterialPageRoute(builder: (context) => FieldWidget(key: GlobalKey(), field: field1!,)));
+																	Navigator.push(context, MaterialPageRoute(builder: (context) => FieldDetailWidget(key: GlobalKey(), field: field1!,)));
 																},
 																child: Row(
 																	children: [
@@ -310,7 +310,7 @@ class ExampleState extends State<ExampleWidget> with tapah.Callback {
 															Text("· 硕士院校    	${c.school2 ?? '--'}", style: const TextStyle(fontSize: 12, color: Color(0xFF555555))),
 															GestureDetector(
 																onTap: () {
-																	Navigator.push(context, MaterialPageRoute(builder: (context) => FieldWidget(key: GlobalKey(), field: field2!,)));
+																	Navigator.push(context, MaterialPageRoute(builder: (context) => FieldDetailWidget(key: GlobalKey(), field: field2!,)));
 																},
 																child: Row(
 																	children: [

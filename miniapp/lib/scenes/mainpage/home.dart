@@ -45,6 +45,15 @@ class HomeState extends State<HomeWidget> with tapah.Callback {
 		scrollController = ScrollController();
 		scrollController.addListener(_onScroll);
 		startTopImagePlay();
+		WidgetsBinding.instance.addPostFrameCallback((_) async {
+			await tapah.RequestArticle1();
+			articles = tapah.article1;
+			metas = {};
+			_loadingArticles.clear();
+			displayCount = 5;
+			if (mounted == false) return;
+			setState(() {});
+		});
 	}
 
 	@override
@@ -171,9 +180,6 @@ class HomeState extends State<HomeWidget> with tapah.Callback {
 							if (index == 3) {
 								Navigator.push(context, MaterialPageRoute(builder: (context) => ExampleWidget(key: GlobalKey(),)));
 							}
-							if (index == 4) {
-								Navigator.push(context, MaterialPageRoute(builder: (context) => ZiXunGuWenWidget(key: GlobalKey(),)));
-							}
 							if (index == 5) {
 								Navigator.push(context, MaterialPageRoute(builder: (context) => QiuZhiZiLiaoWidget(key: GlobalKey(),)));
 							}
@@ -184,12 +190,15 @@ class HomeState extends State<HomeWidget> with tapah.Callback {
 								Navigator.push(context, MaterialPageRoute(builder: (context) => GangWeiNeiTuiWidget(key: GlobalKey(),)));
 							}
 							if (index == 8) {
-								Navigator.push(context, MaterialPageRoute(builder: (context) => BiShiTiKuWidget(key: GlobalKey(),)));
+								Navigator.push(context, MaterialPageRoute(builder: (context) => ZiXunGuWenWidget(key: GlobalKey(),)));
 							}
 							if (index == 9) {
-								Navigator.push(context, MaterialPageRoute(builder: (context) => MianShiJingYanWidget(key: GlobalKey(),)));
+								Navigator.push(context, MaterialPageRoute(builder: (context) => BiShiTiKuWidget(key: GlobalKey(),)));
 							}
 							if (index == 10) {
+								Navigator.push(context, MaterialPageRoute(builder: (context) => MianShiJingYanWidget(key: GlobalKey(),)));
+							}
+							if (index == 11) {
 								Navigator.push(context, MaterialPageRoute(builder: (context) => QiuZhiFuWuWidget(key: GlobalKey(),)));
 							}
 						},
@@ -210,47 +219,60 @@ class HomeState extends State<HomeWidget> with tapah.Callback {
 	}
 
 	Widget buildFenYeList() {
-		return Padding(
-			padding: const EdgeInsets.symmetric(horizontal: 10),
-			child: SizedBox(
-				height: 25,
-				child: ListView.builder(
-					scrollDirection: Axis.horizontal,
-					itemCount: tapah.fenyes.length,
-					itemBuilder: (context, index) {
-						var fenye = tapah.fenyes[index];
-						bool isSelected = fenyeindex == index;
-						return GestureDetector(
-							onTap: () async {
-								if (index == 1) {
-									await tapah.RequestArticle1();
-									articles = tapah.article1;
-									metas = {};
-									_loadingArticles.clear();
-									displayCount = 5;
-								}
-								if (index == 2) {
-									await tapah.RequestArticle2();
-									articles = tapah.article2;
-									metas = {};
-									_loadingArticles.clear();
-									displayCount = 5;
-								}
-								setState(() {
-									fenyeindex = index;
-								});
-							},
-							child: Container(
-								padding: EdgeInsets.symmetric(horizontal: 8),
-								child: Column(
-									mainAxisAlignment: MainAxisAlignment.end,
-									children: [
-										Text(fenye.title, style: TextStyle(fontSize: 14, color: Colors.black, fontWeight: isSelected ? FontWeight.bold : FontWeight.normal),),
-									],
-								),
-							),
-						);
-					},
+		//return Padding(
+		//	padding: const EdgeInsets.symmetric(horizontal: 10),
+		//	child: SizedBox(
+		//		height: 25,
+		//		child: ListView.builder(
+		//			scrollDirection: Axis.horizontal,
+		//			itemCount: tapah.fenyes.length,
+		//			itemBuilder: (context, index) {
+		//				var fenye = tapah.fenyes[index];
+		//				bool isSelected = fenyeindex == index;
+		//				return GestureDetector(
+		//					onTap: () async {
+		//						if (index == 1) {
+		//							await tapah.RequestArticle1();
+		//							articles = tapah.article1;
+		//							metas = {};
+		//							_loadingArticles.clear();
+		//							displayCount = 5;
+		//						}
+		//						if (index == 2) {
+		//							await tapah.RequestArticle2();
+		//							articles = tapah.article2;
+		//							metas = {};
+		//							_loadingArticles.clear();
+		//							displayCount = 5;
+		//						}
+		//						setState(() {
+		//							fenyeindex = index;
+		//						});
+		//					},
+		//					child: Container(
+		//						padding: EdgeInsets.symmetric(horizontal: 8),
+		//						child: Column(
+		//							mainAxisAlignment: MainAxisAlignment.end,
+		//							children: [
+		//								Text(fenye.title, style: TextStyle(fontSize: 14, color: Colors.black, fontWeight: isSelected ? FontWeight.bold : FontWeight.normal),),
+		//							],
+		//						),
+		//					),
+		//				);
+		//			},
+		//		),
+		//	),
+		//);
+		return Container(
+			height: 25,
+			child: Center(
+				child: Container(
+					padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+					decoration: BoxDecoration(
+						color: Colors.blue,
+						borderRadius: BorderRadius.circular(12),
+					),
+					child: Text("求职解析", style: TextStyle(fontSize: 13, color: Colors.white),),
 				),
 			),
 		);

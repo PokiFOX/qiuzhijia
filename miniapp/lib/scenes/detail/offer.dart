@@ -119,20 +119,6 @@ class OfferState extends State<OfferWidget> with tapah.Callback {
 														overflow: TextOverflow.ellipsis,
 													),
 												),
-												Align(
-													alignment: Alignment.bottomRight,
-													child: Row(
-														mainAxisSize: MainAxisSize.min,
-														children: [
-															Icon(Icons.visibility, size: 14, color: Colors.grey[400]),
-															const SizedBox(width: 2),
-															Text(
-																"${article.clicks}",
-																style: TextStyle(fontSize: 12, color: Colors.grey[400]),
-															),
-														],
-													),
-												),
 											],
 										),
 									),

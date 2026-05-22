@@ -32,6 +32,8 @@ class FieldDetailState extends State<FieldDetailWidget> with tapah.Callback {
 	int _activeTab = 0;
 	bool _isTabScrolling = false;
 	int expandindex = -1;
+	double _enterpriseDragStartY = 0.0;
+	double _enterpriseDragStartScroll = 0.0;
 
 	@override
 	void initState() {
@@ -314,32 +316,59 @@ class FieldDetailState extends State<FieldDetailWidget> with tapah.Callback {
 				color: Colors.white,
 				borderRadius: BorderRadius.circular(14),
 			),
-			child: GestureDetector(
-				behavior: HitTestBehavior.opaque,
-				onVerticalDragEnd: (details) {
-						if (pageCount <= 1) return;
-						final velocity = details.primaryVelocity ?? 0;
-						if (velocity < -100 && safePage < pageCount - 1) {
-							setState(() => _enterprisePage = safePage + 1);
-						} else if (velocity > 100 && safePage > 0) {
-							setState(() => _enterprisePage = safePage - 1);
-						}
+		child: Listener(
+			onPointerDown: (event) {
+				_enterpriseDragStartY = event.localPosition.dy;
+				_enterpriseDragStartScroll = _scrollController.hasClients ? _scrollController.offset : 0.0;
+			},
+			onPointerUp: (event) {
+				if (pageCount <= 1) return;
+				final scrollDelta = _scrollController.hasClients
+						? (_scrollController.offset - _enterpriseDragStartScroll).abs()
+						: 0.0;
+				if (scrollDelta > 8) return; // 父级页面在滚动，忽略
+				final dy = event.localPosition.dy - _enterpriseDragStartY;
+				if (dy.abs() < 50) return;
+				if (dy < 0 && safePage < pageCount - 1) {
+					setState(() => _enterprisePage = safePage + 1);
+				} else if (dy > 0 && safePage > 0) {
+					setState(() => _enterprisePage = safePage - 1);
+				}
 				},
-				child: Column(
+				child: Row(
 					crossAxisAlignment: CrossAxisAlignment.start,
 					children: [
-						Row(
-							children: [
-								Expanded(child: _buildSectionTitle('热招企业')),
-							],
-						),
-						const SizedBox(height: 10),
-						if (list.isEmpty)
-							const Padding(
-								padding: EdgeInsets.symmetric(vertical: 12),
-								child: Text('暂无相关企业', style: TextStyle(fontSize: 13, color: Color(0xFF999999))),
+						Expanded(
+							child: Column(
+								crossAxisAlignment: CrossAxisAlignment.start,
+								children: [
+									Row(
+										children: [
+											Expanded(child: _buildSectionTitle('热招企业')),
+										],
+									),
+									const SizedBox(height: 10),
+								SizedBox(
+									height: 300,
+									child: Column(
+										children: [
+											if (list.isEmpty)
+												const Padding(
+													padding: EdgeInsets.symmetric(vertical: 12),
+													child: Text('暂无相关企业', style: TextStyle(fontSize: 13, color: Color(0xFF999999))),
+												),
+											...list.map((ent) => _buildEnterpriseCard(ent)),
+										],
+									),
+								),
+								],
 							),
-						...list.map((ent) => _buildEnterpriseCard(ent)),
+						),
+						if (pageCount > 1)
+							Padding(
+								padding: const EdgeInsets.only(left: 6, top: 34),
+								child: _buildEnterpriseScrollbar(safePage, pageCount),
+							),
 					],
 				),
 			),
@@ -347,81 +376,109 @@ class FieldDetailState extends State<FieldDetailWidget> with tapah.Callback {
 	}
 
 	Widget _buildEnterpriseCard(tapah.Enterprise ent) {
-		return GestureDetector(
-			onTap: () {
-				Navigator.pushNamed(context, '/enterprise/detail', arguments: ent);
-			},
-			child: Container(
-				margin: const EdgeInsets.only(bottom: 8),
-				padding: const EdgeInsets.all(10),
-				decoration: BoxDecoration(
-					color: const Color(0xFFF7F8FA),
-					borderRadius: BorderRadius.circular(12),
-					border: Border.all(color: const Color(0xFFE2E2E2), width: 0.8),
-				),
-				child: Row(
-					crossAxisAlignment: CrossAxisAlignment.end,
-					children: [
-						Container(
-							width: 58,
-							height: 58,
-							decoration: BoxDecoration(
-								color: Colors.white,
-								borderRadius: BorderRadius.circular(8),
-								border: Border.all(color: const Color(0xFFE3E3E3), width: 0.6),
-							),
-							child: Center(
-								child: ent.icon == null || ent.icon!.isEmpty
-									? const Icon(Icons.business, color: Color(0xFFB4B4B4), size: 28)
-									: Image.network(tapah.parseimage('小图标/${ent.icon}.png'), width: 44, height: 44),
-							),
+		return Container(
+			margin: const EdgeInsets.only(bottom: 8),
+			padding: const EdgeInsets.all(10),
+			decoration: BoxDecoration(
+				color: const Color(0xFFF7F8FA),
+				borderRadius: BorderRadius.circular(12),
+				border: Border.all(color: const Color(0xFFE2E2E2), width: 0.8),
+			),
+			child: Row(
+				crossAxisAlignment: CrossAxisAlignment.center,
+				children: [
+					Container(
+						width: 58,
+						height: 58,
+						decoration: BoxDecoration(
+							color: Colors.white,
+							borderRadius: BorderRadius.circular(8),
+							border: Border.all(color: const Color(0xFFE3E3E3), width: 0.6),
 						),
-						const SizedBox(width: 10),
-						Expanded(
-							child: Column(
-								crossAxisAlignment: CrossAxisAlignment.start,
-								children: [
-									Text(
-										ent.name ?? '--',
-										maxLines: 1,
-										overflow: TextOverflow.ellipsis,
-										style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFF333333)),
-									),
-									const SizedBox(height: 5),
-									SingleChildScrollView(
-										scrollDirection: Axis.horizontal,
-										child: Row(
-											children: (ent.tags.where((t) => t.trim().isNotEmpty).take(2)).map((tag) {
-												return Container(
-													margin: const EdgeInsets.only(right: 8),
-													padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-													decoration: BoxDecoration(
-														color: const Color(0xFFCFE0F7),
-														borderRadius: BorderRadius.circular(2),
-													),
-													child: Text(tag, style: const TextStyle(fontSize: 10, color: Color(0xFF4E79B3))),
-												);
-											}).toList(),
-										),
-									),
-									const SizedBox(height: 5),
-									Text('${ent.zone?.value ?? '--'} ${ent.city ?? '--'}', style: const TextStyle(fontSize: 11, color: Color(0xFF666666))),
-								],
-							),
+						child: Center(
+							child: ent.icon == null || ent.icon!.isEmpty
+								? const Icon(Icons.business, color: Color(0xFFB4B4B4), size: 28)
+								: Image.network(tapah.parseimage('小图标/${ent.icon}.png'), width: 44, height: 44),
 						),
-						const SizedBox(width: 8),
-						Column(
+					),
+					const SizedBox(width: 10),
+					Expanded(
+						child: Column(
+							crossAxisAlignment: CrossAxisAlignment.start,
 							children: [
-								GestureDetector(
-									onTap: () {
-										Navigator.pushNamed(context, '/enterprise/detail', arguments: ent);
-									},
-									child: Text('查看企业详情 >', style: const TextStyle(fontSize: 11, color: Color(0xFF2D7BFF))),
+								Text(
+									ent.name ?? '--',
+									maxLines: 1,
+									overflow: TextOverflow.ellipsis,
+									style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFF333333)),
 								),
+								const SizedBox(height: 5),
+								SingleChildScrollView(
+									scrollDirection: Axis.horizontal,
+									child: Row(
+										children: (ent.tags.where((t) => t.trim().isNotEmpty).take(2)).map((tag) {
+											return Container(
+												margin: const EdgeInsets.only(right: 8),
+												padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+												decoration: BoxDecoration(
+													color: const Color(0xFFCFE0F7),
+													borderRadius: BorderRadius.circular(2),
+												),
+												child: Text(tag, style: const TextStyle(fontSize: 10, color: Color(0xFF4E79B3))),
+											);
+										}).toList(),
+									),
+								),
+								const SizedBox(height: 5),
+								Text('${ent.zone?.value ?? '--'} ${ent.city ?? '--'}', style: const TextStyle(fontSize: 11, color: Color(0xFF666666))),
 							],
 						),
-					],
-				),
+					),
+					const SizedBox(width: 8),
+					Column(
+						children: [
+							GestureDetector(
+								onTap: () {
+									Navigator.pushNamed(context, '/enterprise/detail', arguments: ent);
+								},
+								child: Text('查看企业详情 >', style: const TextStyle(fontSize: 11, color: Color(0xFF2D7BFF))),
+							),
+						],
+					),
+				],
+			),
+		);
+	}
+
+	Widget _buildEnterpriseScrollbar(int currentPage, int pageCount) {
+		const trackHeight = 258.0;
+		final thumbHeight = trackHeight / pageCount;
+		final thumbTop = currentPage * thumbHeight;
+		return SizedBox(
+			width: 4,
+			height: trackHeight,
+			child: Stack(
+				children: [
+					Container(
+						width: 4,
+						height: trackHeight,
+						decoration: BoxDecoration(
+							color: const Color(0xFFE0E0E0),
+							borderRadius: BorderRadius.circular(2),
+						),
+					),
+					Positioned(
+						top: thumbTop,
+						child: Container(
+							width: 4,
+							height: thumbHeight,
+							decoration: BoxDecoration(
+								color: const Color(0xFF2D7BFF),
+								borderRadius: BorderRadius.circular(2),
+							),
+						),
+					),
+				],
 			),
 		);
 	}

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:flutter/services.dart';
 
 import 'package:qiuzhijia/tapah/class.dart' as tapah;
 import 'package:qiuzhijia/tapah/data.dart' as tapah;
@@ -19,6 +20,7 @@ class EnterpriseWidget extends StatefulWidget {
 
 class EnterpriseState extends State<EnterpriseWidget> with tapah.Callback {
 	int zone = 0, sector = 0, level = 0, page = 1;
+	String search = "";
 	final ScrollController scrollcontroller = ScrollController();
 	bool isLoading = false, isFinish = false;
 	@override
@@ -50,7 +52,7 @@ class EnterpriseState extends State<EnterpriseWidget> with tapah.Callback {
 	Future<void> getEnterpriseList() async {
 		page = 1;
 		tapah.enterpriselist = [];
-		isFinish = await tapah.RequestEnterpriseList(zone, sector, level, 0, 0, null, "", page) < 20;
+		isFinish = await tapah.RequestEnterpriseList(zone, sector, level, 0, 0, null, search, page) < 20;
 		if (mounted == false) return;
 		setState(() {});
 	}
@@ -184,7 +186,7 @@ class EnterpriseState extends State<EnterpriseWidget> with tapah.Callback {
 								}, "地区"),
 							),
 							SizedBox(
-								width: 100,
+								width: 65,
 								child: dropdown(level, tapah.levellist.where((e) {
 									return true;
 								}).toList(), (v) {
@@ -192,11 +194,26 @@ class EnterpriseState extends State<EnterpriseWidget> with tapah.Callback {
 									getEnterpriseList();
 								}, "档次"),
 							),
-							Expanded(
+							SizedBox(
+								width: 65,
 								child: dropdown(sector, tapah.sectorlist, (v) {
 									sector = v ?? 0;
 									getEnterpriseList();
 								}, "行业"),
+							),
+							Expanded(
+								child: TextField(
+									onSubmitted: (v) {
+										search = v;
+										getEnterpriseList();
+									},
+									decoration: const InputDecoration(
+										contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+										border: InputBorder.none,
+										hintText: "搜索企业",
+										hintStyle: TextStyle(fontSize: 14),
+									),
+								),
 							),
 						],
 					);

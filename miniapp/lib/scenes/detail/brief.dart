@@ -7,6 +7,7 @@ import 'package:qiuzhijia/tapah/enum.dart' as tapah;
 import 'package:qiuzhijia/tapah/function.dart' as tapah;
 import 'package:qiuzhijia/widgets/expandable_text.dart' as widgets;
 import 'package:qiuzhijia/widgets/copy.dart' as widgets;
+import 'package:qiuzhijia/scenes/kefu.dart';
 
 class BriefWidget extends StatefulWidget {
 	const BriefWidget({super.key, required this.enterprise});
@@ -49,16 +50,6 @@ class BriefState extends State<BriefWidget> with tapah.Callback {
 				),
 				const SizedBox(height: 10,),
 				buildInfo(),
-				const SizedBox(height: 10,),
-				Row(
-					mainAxisAlignment: MainAxisAlignment.center,
-					children: [
-						SizedBox(width: 10,),
-						Text("招聘专业", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14,),),
-						Expanded(child: Container(),),
-						SizedBox(width: 10,),
-					],
-				),
 				const SizedBox(height: 10,),
 			],
 		);
@@ -173,6 +164,10 @@ class BriefState extends State<BriefWidget> with tapah.Callback {
 								builder: (_) => widgets.CopyWidget(
 									widget.enterprise.website1!,
 									onLater: () => Navigator.of(context).pop(),
+									onConsult: () {
+										Navigator.of(context).pop();
+										Navigator.of(context).push(MaterialPageRoute(builder: (_) => KeFuWidget(key: GlobalKey(),)));
+									},
 								),
 							);
 							wxapi.wx.setClipboardData(wxapi.SetClipboardDataOption()..data = widget.enterprise.website1!);
@@ -185,6 +180,10 @@ class BriefState extends State<BriefWidget> with tapah.Callback {
 								builder: (_) => widgets.CopyWidget(
 									widget.enterprise.website2!,
 									onLater: () => Navigator.of(context).pop(),
+									onConsult: () {
+										Navigator.of(context).pop();
+										Navigator.of(context).push(MaterialPageRoute(builder: (_) => KeFuWidget(key: GlobalKey(),)));
+									},
 								),
 							);
 							wxapi.wx.setClipboardData(wxapi.SetClipboardDataOption()..data = widget.enterprise.website2!);
