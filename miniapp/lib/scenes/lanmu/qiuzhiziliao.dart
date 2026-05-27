@@ -26,16 +26,9 @@ class QiuZhiZiLiaoState extends State<QiuZhiZiLiaoWidget> with tapah.Callback {
 		super.dispose();
 	}
 
-	Widget backButton(BuildContext context) {
-		return GestureDetector(
-			onTap: () => Navigator.pop(context),
-			child: Icon(Icons.arrow_back_ios_new, size: 20),
-		);
-	}
-
 	@override
 	Widget build(BuildContext context) {
-		List<Widget> children = [
+		return tapah.buildMain1(context, [
 			SizedBox(
 				height: 44,
 				child: Center(child: Text('求职资料', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),),
@@ -114,49 +107,7 @@ class QiuZhiZiLiaoState extends State<QiuZhiZiLiaoWidget> with tapah.Callback {
 					),
 				),
 			),
-		];
-
-		final safeAreaTop = MediaQuery.of(context).padding.top;
-		if (safeAreaTop > 0) {
-			return Material(
-				child: Stack(
-					children: [
-						SafeArea(
-							child: SingleChildScrollView(
-								child: Column(
-									crossAxisAlignment: CrossAxisAlignment.stretch,
-									children: [
-										...children,
-									],
-								),
-							),
-						),
-						Positioned(
-							top: 10,
-							left: 20,
-							child: SizedBox(
-								height: safeAreaTop,
-								child: backButton(context),
-							),
-						),
-					],
-				),
-			);
-		}
-		else {
-			return Material(
-				child: SingleChildScrollView(
-					child: Column(
-						crossAxisAlignment: CrossAxisAlignment.stretch,
-						children: [
-							backButton(context),
-							const SizedBox(height: 10),
-							...children,
-						],
-					),
-				),
-			);
-		}
+		]);
 	}
 
 	Widget _sectionTitle(String text) {

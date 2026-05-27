@@ -113,7 +113,7 @@ class Field:
 		self.content = content
 
 class Enterprise:
-	def __init__(self, id, zone, city, name, shortname, brief, upper, sector, level, website1, website2, tag, icon, images, enttype, financial, article1, article2):
+	def __init__(self, id, zone, city, name, shortname, brief, upper, sector, level, website1, website2, tag, icon, images, enttype, financial):
 		self.id = id
 		self.zone = zone
 		self.city = city
@@ -130,12 +130,18 @@ class Enterprise:
 		self.images = images
 		self.enttype = enttype
 		self.financial = financial
-		self.article1 = article1
-		self.article2 = article2
+		self.article1 = []
+		self.article2 = []
 		self.field = []
 
 	def addfield(self, field):
 		self.field.append(field)
+
+	def addarticle(self, index, article):
+		info = (article, time.time())
+		if index == 1: self.article1.append(info)
+		if index == 2: self.article2.append(info)
+		return info
 
 class Case:
 	def __init__(self, id, name, enterprise, field, tags, student, school1, stag1, field1, school2, stag2, field2, year, detail, dep):

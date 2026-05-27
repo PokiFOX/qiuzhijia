@@ -164,8 +164,8 @@ async def query_article1(req: Request):
 	link = []
 	for i in range(len(data.enterpriselist)):
 		enterprise = data.enterpriselist[i]
-		if enterprise.article1:
-			link.append(enterprise.article1)
+		for article in enterprise.article1:
+				link.append(article)
 
 	return JSONResponse(content = {
 		"code": 0,
@@ -180,8 +180,8 @@ async def query_article2(req: Request):
 	link = []
 	for i in range(len(data.enterpriselist)):
 		enterprise = data.enterpriselist[i]
-		if enterprise.article2:
-			link.append(enterprise.article2)
+		for article in enterprise.article2:
+				link.append(article)
 
 	return JSONResponse(content = {
 		"code": 0,
@@ -340,17 +340,29 @@ async def insert_enterprise(req: Request):
 	cursor = conn.cursor()
 
 	cursor.execute(
-		"INSERT INTO qzj_enterprise (zone, city, name, shortname, brief, upper, level, sector, tag, website1, website2, icon, images, enttype, financial, article1, article2) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-		(zone_item.id, city, name, shortname, brief, upper, level_item.id, sector_item.id, tag, website1, website2, icon, images, enttype, financial, article1, article2)
+		"INSERT INTO qzj_enterprise (zone, city, name, shortname, brief, upper, level, sector, tag, website1, website2, icon, images, enttype, financial) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+		(zone_item.id, city, name, shortname, brief, upper, level_item.id, sector_item.id, tag, website1, website2, icon, images, enttype, financial)
 	)
 	enterprise_id = cursor.lastrowid
-	enterprise = Enterprise(enterprise_id, zone_item.id, city, name, shortname, brief, upper, sector_item.id, level_item.id, website1, website2, tag.split(','), icon, images, enttype, financial, article1, article2)
+	enterprise = Enterprise(enterprise_id, zone_item.id, city, name, shortname, brief, upper, sector_item.id, level_item.id, website1, website2, tag.split(','), icon, images, enttype, financial)
 	for fid in fieldlist:
 		cursor.execute(
 			"INSERT IGNORE INTO qzj_enterprise_field (enterprise_id, field) VALUES (%s, %s)",
 			(enterprise_id, fid)
 		)
 		enterprise.addfield(fid)
+	for article in article1.split(','):
+		if article == "": continue
+		info = enterprise.addarticle(1, article)
+		cursor.execute("INSERT INTO qzj_enterprise_article(enterprise_id, `index`, article, `update`) VALUES (%s, 1, %s, %s)",
+			(enterprise_id, info[0], int(info[1]))
+		)
+	for article in article2.split(','):
+		if article == "": continue
+		info =  enterprise.addarticle(2, article)
+		cursor.execute("INSERT INTO qzj_enterprise_article(enterprise_id, `index`, article, `update`) VALUES (%s, 2, %s, %s)",
+			(enterprise_id, info[0], int(info[1]))
+		)
 	data.enterpriselist.append(enterprise)
 
 	cursor.close()
@@ -731,8 +743,8 @@ async def edit_enterprise(req: Request):
 	cursor = conn.cursor()
 
 	cursor.execute(
-		"UPDATE qzj_enterprise SET zone=%s, city=%s, name=%s, shortname=%s, brief=%s, upper=%s, level=%s, sector=%s, tag=%s, website1=%s, website2=%s, icon=%s, images=%s, enttype=%s, financial=%s, article1=%s, article2=%s WHERE id=%s",
-		(zone_id, city, name, shortname, brief, upper, level_id, sector_id, tag, website1, website2, icon, images, enttype, financial, article1, article2, id)
+		"UPDATE qzj_enterprise SET zone=%s, city=%s, name=%s, shortname=%s, brief=%s, upper=%s, level=%s, sector=%s, tag=%s, website1=%s, website2=%s, icon=%s, images=%s, enttype=%s, financial=%s WHERE id=%s",
+		(zone_id, city, name, shortname, brief, upper, level_id, sector_id, tag, website1, website2, icon, images, enttype, financial, id)
 	)
 	enterprise.zone = zone_id
 	enterprise.city = city
@@ -749,15 +761,26 @@ async def edit_enterprise(req: Request):
 	enterprise.images = images
 	enterprise.enttype = enttype
 	enterprise.financial = financial
-	enterprise.article1 = article1
-	enterprise.article2 = article2
 	cursor.execute("DELETE FROM qzj_enterprise_field WHERE enterprise_id=%s", (id,))
 	for fid in fieldlist:
 		cursor.execute(
-			"INSERT IGNORE INTO qzj_enterprise_field (enterprise_id, field) VALUES (%s, %s)",
+			"INSERT IGNORE INTO qzj_enterprise_field(enterprise_id, field) VALUES (%s, %s)",
 			(id, fid)
 		)
 	enterprise.field = fieldlist
+	cursor.execute("DELETE FROM qzj_enterprise_article WHERE enterprise_id=%s", (id,))
+	for article in article1:
+		if article == "": continue
+		info = enterprise.addarticle(1, article)
+		cursor.execute("INSERT IGNORE INTO qzj_enterprise_article(enterprise_id, `index`, article, `update`) VALUES(%s, 1, %s, %s)",
+			(id, info[0], int(info[1]))
+		)
+	for article in article2:
+		if article == "": continue
+		info = enterprise.addarticle(2, article)
+		cursor.execute("INSERT IGNORE INTO qzj_enterprise_article(enterprise_id, `index`, article, `update`) VALUES(%s, 2, %s, %s)",
+			(id, info[0], int(info[1]))
+		)
 
 	cursor.close()
 	data.mysql_pool.release(conn)

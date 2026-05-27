@@ -57,13 +57,6 @@ class FilterState extends State<FilterWidget> with tapah.Callback {
 		setState(() {});
 	}
 
-	Widget backButton(BuildContext context) {
-		return GestureDetector(
-			onTap: () => Navigator.pop(context),
-			child: Icon(Icons.arrow_back_ios_new, size: 20),
-		);
-	}
-
 	@override
 	Widget build(BuildContext context) {
 		String rowname = "企业列表";
@@ -71,61 +64,14 @@ class FilterState extends State<FilterWidget> with tapah.Callback {
 		if (widget.enttype == 2) rowname = "中央企业";
 		if (widget.enttype == 0 && widget.financial) rowname = "金融企业";
 
-		List<Widget> children = [
+		return tapah.buildMain1(context, [
 			Center(child: Text(rowname, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),),
 			SizedBox(height: 10),
 			buildFilterRow(),
 			SizedBox(height: 10),
 			Expanded(child: buildEnterpriseList(),),
 			SizedBox(height: 10),
-		];
-		final safeAreaTop = MediaQuery.of(context).padding.top;
-
-		if (safeAreaTop > 0) {
-			return Material(
-				child: Container(
-					height: double.infinity,
-					decoration: const BoxDecoration(
-						color: Color(0xFFE2EDFF),
-					),
-					child: Stack(
-						children: [
-							SafeArea(
-								child: Column(
-									mainAxisAlignment: MainAxisAlignment.start,
-									children: children,
-								),
-							),
-							Positioned(
-								top: 10,
-								left: 20,
-								child: SizedBox(
-									height: safeAreaTop,
-									child: backButton(context),
-								),
-							),
-						],
-					),
-				),
-			);
-		}
-		else {
-			return Material(
-				child: Container(
-					height: double.infinity,
-					decoration: const BoxDecoration(
-						color: Color(0xFFE2EDFF),
-					),
-					child: Column(
-						mainAxisAlignment: MainAxisAlignment.start,
-						children: [
-							backButton(context),
-							...children,
-						],
-					),
-				),
-			);
-		}
+		]);
 	}
 
 	Widget buildFilterRow() {

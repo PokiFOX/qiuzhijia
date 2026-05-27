@@ -34,8 +34,8 @@ class InfoState extends State<InfoWidget> with tapah.Callback {
 	Future<void> loadArticles() async {
 		List<tapah.ArticleMeta> result = [];
 		for (var url in widget.enterprise.article1) {
-			if (url.trim().isEmpty) continue;
-			var meta = await tapah.RequestArticleMeta(url.trim());
+			if (url.article.trim().isEmpty) continue;
+			var meta = await tapah.RequestArticleMeta(url.article.trim());
 			result.add(meta);
 		}
 		if (mounted) {
@@ -64,7 +64,7 @@ class InfoState extends State<InfoWidget> with tapah.Callback {
 				var article = articles[index];
 				return GestureDetector(
 					onTap: () {
-						MPFlutter_Wechat_WebView.open(widget.enterprise.article1[index], onLoad: (_) {
+						MPFlutter_Wechat_WebView.open(widget.enterprise.article1[index].article, onLoad: (_) {
 							print("webview loaded");
 						});
 					},

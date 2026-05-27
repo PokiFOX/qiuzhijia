@@ -32,3 +32,118 @@ void KeFu(BuildContext context) {
 	//};
 	//wxapi.wx.openCustomerServiceChat(option);
 }
+
+Widget wrapSwipePop(BuildContext context, Widget child) {
+	return GestureDetector(
+		behavior: HitTestBehavior.translucent,
+		onHorizontalDragEnd: (details) {
+			if (details.primaryVelocity != null && details.primaryVelocity! < -200) {
+				if (Navigator.canPop(context)) {
+					Navigator.pop(context);
+				}
+			}
+		},
+		child: child,
+	);
+}
+
+Widget backButton(BuildContext context) {
+	return GestureDetector(
+		onTap: () {
+			if (Navigator.canPop(context)) {
+				Navigator.pop(context);
+			}
+		},
+		child: Icon(Icons.arrow_back_ios_new, size: 20),
+	);
+}
+
+Widget buildMain1(BuildContext context, List<Widget> children) {
+	final safeAreaTop = MediaQuery.of(context).padding.top;
+	if (safeAreaTop > 0) {
+		return wrapSwipePop(context, Material(
+			child: Stack(
+				children: [
+					SafeArea(
+						child: SingleChildScrollView(
+							child: Column(
+								crossAxisAlignment: CrossAxisAlignment.stretch,
+								children: [
+									...children,
+								],
+							),
+						),
+					),
+					Positioned(
+						top: 30,
+						left: 30,
+						child: SizedBox(
+							height: safeAreaTop,
+							child: backButton(context),
+						),
+					),
+				],
+			),
+		));
+	}
+	else {
+		return wrapSwipePop(context, Material(
+			child: SingleChildScrollView(
+				child: Column(
+					crossAxisAlignment: CrossAxisAlignment.stretch,
+					children: [
+						backButton(context),
+						const SizedBox(height: 10),
+						...children,
+					],
+				),
+			),
+		));
+	}
+}
+
+Widget buildMain2(BuildContext context, List<Widget> children, Widget bottom) {
+	final safeAreaTop = MediaQuery.of(context).padding.top;
+	if (safeAreaTop > 0) {
+		return wrapSwipePop(context, Scaffold(
+			body: Stack(
+				children: [
+					SafeArea(
+						child: SingleChildScrollView(
+							child: Column(
+								crossAxisAlignment: CrossAxisAlignment.stretch,
+								children: [
+									...children,
+								],
+							),
+						),
+					),
+					Positioned(
+						top: 10,
+						left: 20,
+						child: SizedBox(
+							height: safeAreaTop,
+							child: backButton(context),
+						),
+					),
+				],
+			),
+			bottomNavigationBar: bottom,
+		));
+	}
+	else {
+		return wrapSwipePop(context, Scaffold(
+			body: SingleChildScrollView(
+				child: Column(
+					crossAxisAlignment: CrossAxisAlignment.stretch,
+					children: [
+						backButton(context),
+						const SizedBox(height: 10),
+						...children,
+					],
+				),
+			),
+			bottomNavigationBar: bottom,
+		));
+	}
+}

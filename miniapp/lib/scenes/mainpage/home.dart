@@ -31,7 +31,7 @@ class HomeState extends State<HomeWidget> with tapah.Callback {
 	late PageController topimagecontroller;
 	late Timer topimagetimer;
 	late ScrollController scrollController;
-	List<String> articles = [];
+	List<tapah.Article> articles = [];
 	Map<int, tapah.ArticleMeta> metas = {};
 	int displayCount = 5;
 	bool isLoadingMore = false;
@@ -288,7 +288,7 @@ class HomeState extends State<HomeWidget> with tapah.Callback {
 		if (_loadingArticles.contains(index)) return;
 		_loadingArticles.add(index);
 		try {
-			var meta = await tapah.RequestArticleMeta(articles[index].trim());
+			var meta = await tapah.RequestArticleMeta(articles[index].article.trim());
 			if (_loadingArticles.contains(index) == false) return;
 			if (mounted) {
 				setState(() {
@@ -325,7 +325,7 @@ class HomeState extends State<HomeWidget> with tapah.Callback {
 				var meta = metas[index];
 				return GestureDetector(
 					onTap: () {
-						MPFlutter_Wechat_WebView.open(article, onLoad: (_) {
+						MPFlutter_Wechat_WebView.open(article.article, onLoad: (_) {
 							print("webview loaded");
 						});
 					},

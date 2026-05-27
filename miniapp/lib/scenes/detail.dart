@@ -165,7 +165,7 @@ class DetailState extends State<DetailWidget> with tapah.Callback {
 		);
 		final safeAreaTop = MediaQuery.of(context).padding.top;
 		if (safeAreaTop > 0) {
-			return Scaffold(
+			return tapah.wrapSwipePop(context, Scaffold(
 				body: Stack(
 					children: [
 						SafeArea(
@@ -200,21 +200,21 @@ class DetailState extends State<DetailWidget> with tapah.Callback {
 							left: 30,
 							child: SizedBox(
 								height: safeAreaTop,
-								child: backButton(context),
+								child: tapah.backButton(context),
 							),
 						),
 					],
 				),
 				bottomNavigationBar: bottom,
-			);
+			));
 		}
 		else {
-			return Scaffold(
+			return tapah.wrapSwipePop(context, Scaffold(
 				body: Container(
 					child: CustomScrollView(
 						controller: scrollcontroller,
 						slivers: [
-							backButton(context),
+							tapah.backButton(context),
 							const SliverToBoxAdapter(child: SizedBox(height: 10)),
 							SliverToBoxAdapter(child: buildTopImage()),
 							const SliverToBoxAdapter(child: SizedBox(height: 10)),
@@ -237,15 +237,8 @@ class DetailState extends State<DetailWidget> with tapah.Callback {
 					),
 				),
 				bottomNavigationBar: bottom,
-			);
+			));
 		}
-	}
-
-	Widget backButton(BuildContext context) {
-		return GestureDetector(
-			onTap: () => Navigator.pop(context),
-			child: Icon(Icons.arrow_back_ios_new, size: 20),
-		);
 	}
 
 	void startTopImagePlay() {

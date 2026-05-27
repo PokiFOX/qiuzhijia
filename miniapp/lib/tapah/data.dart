@@ -25,6 +25,6 @@ List<Field> fieldlist = [];
 List<Field> myfieldlist = [];
 List<Enterprise> enterpriselist = [];
 List<Case> caselist = [];
-List<String> article1 = [], article2 = [];
+List<Article> article1 = [], article2 = [];
 
 AccountInfo? accountinfo;

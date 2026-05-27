@@ -90,8 +90,12 @@ Future<int> RequestEnterpriseList(int zone, int sector, int level, int enttype, 
 		if (item["enttype"] != '国企') enterprise.enttype = 1;
 		if (item["enttype"] == '央企') enterprise.enttype = 2;
 		enterprise.financial = item["financial"] == "是";
-		enterprise.article1 = item["article1"].split('\n');
-		enterprise.article2 = item["article2"].split('\n');
+		for (var article in item["article1"]) {
+			enterprise.article1.add(Article(article[0], article[1]));
+		}
+		for (var article in item["article2"]) {
+			enterprise.article2.add(Article(article[0], article[1]));
+		}
 		enterpriselist.add(enterprise);
 	});
 	return json.length;
@@ -137,8 +141,12 @@ Future<List<Enterprise>> RequestEnterprise(int zone, int sector, int level, int 
 		if (item["enttype"] != '国企') enterprise.enttype = 1;
 		if (item["enttype"] == '央企') enterprise.enttype = 2;
 		enterprise.financial = item["financial"] == "是";
-		enterprise.article1 = item["article1"].split('\n');
-		enterprise.article2 = item["article2"].split('\n');
+		for (var article in item["article1"].split('\n')) {
+			enterprise.article1.add(Article(article[0], article[1]));
+		}
+		for (var article in item["article2"].split('\n')) {
+			enterprise.article2.add(Article(article[0], article[1]));
+		}
 		list.add(enterprise);
 	});
 	return list;
@@ -151,8 +159,9 @@ Future<int> RequestArticle1() async {
 	}
 	var json = response.data["data"]["link"];
 	json.forEach((item) {
-		article1.add(item);
+		article1.add(new Article(item[0], item[1]));
 	});
+	article1.sort((a, b) => b.update.compareTo(a.update));
 	return json.length;
 }
 
@@ -163,7 +172,7 @@ Future<int> RequestArticle2() async {
 	}
 	var json = response.data["data"]["link"];
 	json.forEach((item) {
-		article2.add(item);
+		article2.add(new Article(item[0], item[1]));
 	});
 	return json.length;
 }

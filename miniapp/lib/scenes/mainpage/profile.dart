@@ -113,8 +113,7 @@ class ProfileState extends State<ProfileWidget> with tapah.Callback {
 			child: login,
 		);
 
-		final safeAreaTop = MediaQuery.of(context).padding.top;
-		List<Widget> children = [
+		return tapah.buildMain1(context, [
 			Center(child: const Text('个人中心', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),),
 			const SizedBox(height: 10,),
 			Row(
@@ -252,76 +251,6 @@ class ProfileState extends State<ProfileWidget> with tapah.Callback {
 				),
 			),
 			const SizedBox(height: 20,),
-		];
-
-		if (safeAreaTop > 0) {
-			return Scaffold(
-				body: Container(
-					height: double.infinity,
-					decoration: const BoxDecoration(
-						gradient: LinearGradient(
-							begin: Alignment.topCenter,
-							end: Alignment.bottomCenter,
-							colors: [
-								Color(0xFFCCE1FD),
-								Color(0xFFFFFFFF),
-							],
-						),
-					),
-					child: Stack(
-						children: [
-							SafeArea(
-								child: Column(
-									mainAxisAlignment: MainAxisAlignment.start,
-									children: children,
-								),
-							),
-							Positioned(
-								top: 30,
-								left: 20,
-								child: SizedBox(
-									height: safeAreaTop,
-									child: backButton(context),
-								),
-							),
-						],
-					),
-				),
-			);
-		}
-		else {
-			return Scaffold(
-				body: Container(
-					height: double.infinity,
-					decoration: const BoxDecoration(
-						gradient: LinearGradient(
-							begin: Alignment.topCenter,
-							end: Alignment.bottomCenter,
-							colors: [
-								Color(0xFFCCE1FD),
-								Color(0xFFFFFFFF),
-							],
-						),
-					),
-					child: Column(
-						mainAxisAlignment: MainAxisAlignment.start,
-						children: [
-							backButton(context),
-							const SizedBox(height: 10,),
-							...children,
-						],
-					),
-				),
-			);
-		}
-	}
-
-	Widget backButton(BuildContext context) {
-		return GestureDetector(
-			onTap: () {
-				Navigator.pop(context);
-			},
-			child: Icon(Icons.arrow_back_ios_new, size: 20),
-		);
+		]);
 	}
 }

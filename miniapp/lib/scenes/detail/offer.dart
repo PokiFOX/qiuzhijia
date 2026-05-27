@@ -28,8 +28,8 @@ class OfferState extends State<OfferWidget> with tapah.Callback {
 	Future<void> loadArticles() async {
 		List<tapah.ArticleMeta> result = [];
 		for (var url in widget.enterprise.article2) {
-			if (url.trim().isEmpty) continue;
-			var meta = await tapah.RequestArticleMeta(url.trim());
+			if (url.article.trim().isEmpty) continue;
+			var meta = await tapah.RequestArticleMeta(url.article.trim());
 			result.add(meta);
 		}
 		if (mounted) {
@@ -64,7 +64,7 @@ class OfferState extends State<OfferWidget> with tapah.Callback {
 				var article = articles[index];
 				return GestureDetector(
 					onTap: () {
-						MPFlutter_Wechat_WebView.open(widget.enterprise.article2[index], onLoad: (_) {
+						MPFlutter_Wechat_WebView.open(widget.enterprise.article2[index].article, onLoad: (_) {
 							print("webview loaded");
 						});
 					},

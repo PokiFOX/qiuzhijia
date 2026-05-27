@@ -55,54 +55,14 @@ class FavoriteState extends State<FavoriteWidget> with tapah.Callback {
 				list = buildFieldList();
 			}
 		}
-		return Scaffold(
-			body: Container(
-				height: double.infinity,
-				decoration: const BoxDecoration(
-					gradient: LinearGradient(
-						begin: Alignment.topCenter,
-						end: Alignment.bottomCenter,
-						colors: [
-							Color(0xFFCCE1FD),
-							Color(0xFFFFFFFF),
-						],
-					),
-				),
-				child: Column(
-					mainAxisAlignment: MainAxisAlignment.start,
-					children: [
-						SafeArea(
-							bottom: false,
-							child: SizedBox(
-								width: double.infinity,
-								height: 44,
-								child: Stack(
-									alignment: Alignment.center,
-									children: [
-										const Text('我的关注', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),
-										Align(
-											alignment: Alignment.centerLeft,
-											child: GestureDetector(
-												onTap: () => Navigator.pop(context),
-												child: const Padding(
-													padding: EdgeInsets.symmetric(horizontal: 16),
-													child: Icon(Icons.chevron_left, size: 28, color: Colors.black87),
-												),
-											),
-										),
-									],
-								),
-							),
-						),
-						const SizedBox(height: 10,),
-						buildTabHeader(),
-						Expanded(
-							child: list,
-						),
-					],
-				),
+		return tapah.buildMain1(context, [
+			const Text('我的关注', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),
+			const SizedBox(height: 10,),
+			buildTabHeader(),
+			Expanded(
+				child: list,
 			),
-		);
+		]);
 	}
 
 	Widget buildTabHeader() {

@@ -101,7 +101,7 @@ class FieldDetailState extends State<FieldDetailWidget> with tapah.Callback {
 			),
 		];
 		if (safeAreaTop > 0) {
-			return Scaffold(
+			return tapah.wrapSwipePop(context, Scaffold(
 				backgroundColor: const Color(0xFFF1F2F4),
 				body: Stack(
 					children: [
@@ -117,7 +117,7 @@ class FieldDetailState extends State<FieldDetailWidget> with tapah.Callback {
 							left: 20,
 							child: SizedBox(
 								height: safeAreaTop,
-								child: backButton(context),
+								child: tapah.backButton(context),
 							),
 						),
 					],
@@ -203,28 +203,19 @@ class FieldDetailState extends State<FieldDetailWidget> with tapah.Callback {
 						],
 					),
 				),
-			);
+			));
 		}
 		else {
-			return Material(
+			return tapah.wrapSwipePop(context, Material(
 				child: Column(
 					children: [
-						backButton(context),
+						tapah.backButton(context),
 						const SizedBox(height: 20,),
 						...children,
 					]
 				),
-			);
+			));
 		}
-	}
-
-	Widget backButton(BuildContext context) {
-		return GestureDetector(
-			onTap: () {
-				Navigator.pop(context);
-			},
-			child: Icon(Icons.arrow_back_ios_new, size: 20),
-		);
 	}
 
 	Widget _buildTabHeader() {
