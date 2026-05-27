@@ -52,7 +52,7 @@ class MainPageState extends State<MainPageWidget> with tapah.Callback {
 				child: Stack(
 					children: [
 						Padding(
-							padding: const EdgeInsets.only(bottom: 80), 
+							padding: const EdgeInsets.only(bottom: 50), 
 							child: IndexedStack(
 								index: currentindex,
 								children: [
@@ -123,6 +123,10 @@ class MainPageState extends State<MainPageWidget> with tapah.Callback {
 										),
 										GestureDetector(
 											onTap: () {
+												if (tapah.accountinfo == null) {
+													Navigator.pushNamed(context, '/profile');
+													return;
+												}
 												Navigator.push(context, MaterialPageRoute(builder: (context) => scenes.ExampleWidget(key: GlobalKey(),)));
 											},
 											child: Column(

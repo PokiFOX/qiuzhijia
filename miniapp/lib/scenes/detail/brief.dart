@@ -74,10 +74,10 @@ class BriefState extends State<BriefWidget> with tapah.Callback {
 										margin: const EdgeInsets.only(right: 6),
 										padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1,),
 										decoration: BoxDecoration(
-											color: Color(0xFFFEEBE5),
+											color: Color(0xFFFEEDDF),
 											borderRadius: BorderRadius.circular(4),
 										),
-										child: Text(t, style: const TextStyle(color: Color(0xFFF66923), fontSize: 10)),
+										child: Text(t, style: const TextStyle(color: Color(0xFF692E1F), fontSize: 10)),
 									)).toList(),
 								),
 							),

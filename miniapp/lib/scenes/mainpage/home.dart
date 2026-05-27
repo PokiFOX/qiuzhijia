@@ -67,31 +67,21 @@ class HomeState extends State<HomeWidget> with tapah.Callback {
 
 	@override
 	Widget build(BuildContext context) {
-		return Container(
-			height: double.infinity,
-			decoration: const BoxDecoration(
-				gradient: LinearGradient(
-					begin: Alignment.topCenter, 
-					end: Alignment.bottomCenter,
-					colors: [
-						Color(0xFF156CFF),
-						Color(0xFF7EAEFF),
-						Color(0xFFFFFFFF),
+		return SafeArea(
+			child: Container(
+				height: double.infinity,
+				child: Column(
+					mainAxisAlignment: MainAxisAlignment.start,
+					children: [
+						const SizedBox(height: 10),
+						buildTopImage(),
+						const SizedBox(height: 10),
+						buildLanMuList(),
+						const SizedBox(height: 10),
+						buildFenYeList(),
+						Expanded(child: buildWebsites()),
 					],
 				),
-			),
-			child: Column(
-				mainAxisAlignment: MainAxisAlignment.start,
-				children: [
-					const SizedBox(height: 10),
-					buildTopImage(),
-					const SizedBox(height: 10),
-					buildLanMuList(),
-					const SizedBox(height: 10),
-					buildFenYeList(),
-					const SizedBox(height: 10),
-					Expanded(child: buildWebsites()),
-				],
 			),
 		);
 	}
@@ -178,6 +168,10 @@ class HomeState extends State<HomeWidget> with tapah.Callback {
 								Navigator.push(context, MaterialPageRoute(builder: (context) => FieldWidget(key: GlobalKey(),)));
 							}
 							if (index == 3) {
+								if (tapah.accountinfo == null) {
+									Navigator.pushNamed(context, '/profile');
+									return;
+								}
 								Navigator.push(context, MaterialPageRoute(builder: (context) => ExampleWidget(key: GlobalKey(),)));
 							}
 							if (index == 5) {
@@ -263,15 +257,15 @@ class HomeState extends State<HomeWidget> with tapah.Callback {
 		//		),
 		//	),
 		//);
-		return Container(
-			height: 25,
-			child: Center(
-				child: Container(
-					padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-					decoration: BoxDecoration(
-						color: Colors.blue,
-						borderRadius: BorderRadius.circular(12),
-					),
+		return Padding(
+			padding: const EdgeInsets.symmetric(horizontal: 10),
+			child: Container(
+				height: 25,
+				width: double.infinity,
+				decoration: BoxDecoration(
+					color: Colors.blue,
+				),
+				child: Center(
 					child: Text("求职解析", style: TextStyle(fontSize: 13, color: Colors.white),),
 				),
 			),
@@ -314,7 +308,7 @@ class HomeState extends State<HomeWidget> with tapah.Callback {
 		final bool hasMore = displayCount < articles.length;
 		return ListView.separated(
 			controller: scrollController,
-			padding: const EdgeInsets.all(10),
+			padding: const EdgeInsets.symmetric(horizontal: 10),
 			itemCount: hasMore ? count + 1 : count,
 			separatorBuilder: (context, index) => const SizedBox(height: 10),
 			itemBuilder: (context, index) {
@@ -344,27 +338,6 @@ class HomeState extends State<HomeWidget> with tapah.Callback {
 						child: Row(
 							crossAxisAlignment: CrossAxisAlignment.start,
 							children: [
-								ClipRRect(
-									borderRadius: BorderRadius.circular(6),
-									child: meta != null && meta.image.isNotEmpty ? Image.network(
-										meta.image,
-										width: 100,
-										height: 80,
-										fit: BoxFit.cover,
-										errorBuilder: (context, error, stackTrace) => Container(
-											width: 100,
-											height: 80,
-											color: Colors.grey[200],
-											child: const Icon(Icons.article, size: 36, color: Colors.grey),
-										),
-									) : Container(
-										width: 100,
-										height: 80,
-										color: Colors.grey[200],
-										child: const Icon(Icons.article, size: 36, color: Colors.grey),
-									),
-								),
-								const SizedBox(width: 10),
 								Expanded(
 									child: SizedBox(
 										height: 80,
@@ -384,20 +357,6 @@ class HomeState extends State<HomeWidget> with tapah.Callback {
 														style: TextStyle(fontSize: 12, color: Colors.grey[600]),
 														maxLines: 2,
 														overflow: TextOverflow.ellipsis,
-													),
-												),
-												Align(
-													alignment: Alignment.bottomRight,
-													child: Row(
-														mainAxisSize: MainAxisSize.min,
-														children: [
-															Icon(Icons.visibility, size: 14, color: Colors.grey[400]),
-															const SizedBox(width: 2),
-															Text(
-																"${meta != null ? meta.clicks : 0}",
-																style: TextStyle(fontSize: 12, color: Colors.grey[400]),
-															),
-														],
 													),
 												),
 											],

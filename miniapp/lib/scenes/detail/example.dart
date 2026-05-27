@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 
 import 'package:qiuzhijia/tapah/class.dart' as tapah;
@@ -70,7 +72,7 @@ class ExampleState extends State<ExampleWidget> with tapah.Callback {
 			);
 		}
 
-		return ListView.separated(
+		Widget child = ListView.separated(
 			shrinkWrap: true,
 			physics: const NeverScrollableScrollPhysics(),
 			padding: const EdgeInsets.all(10),
@@ -118,14 +120,23 @@ class ExampleState extends State<ExampleWidget> with tapah.Callback {
 									Wrap(
 										spacing: 5,
 										runSpacing: 3,
-										children: c.tags.where((t) => t.trim().isNotEmpty).map((tag) => Container(
-											padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-											decoration: BoxDecoration(
-												color: const Color(0xFFE8F0FE),
-												borderRadius: BorderRadius.circular(4),
-											),
-											child: Text(tag, style: const TextStyle(fontSize: 11, color: Color(0xFF2D7BFF))),
-										)).toList(),
+								children: c.tags.where((t) => t.trim().isNotEmpty).toList().asMap().entries.map((entry) {
+									const tagColors = [
+										[Color(0xFFE8F0FE), Color(0xFF2D7BFF)], // 蓝
+										[Color(0xFFFEEDDF), Color(0xFF692E1F)], // 金
+										[Color(0xFFF3EEFF), Color(0xFF6B21A8)], // 紫
+									];
+									final bg = tagColors[entry.key % 3][0];
+									final fg = tagColors[entry.key % 3][1];
+									return Container(
+										padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+										decoration: BoxDecoration(
+											color: bg,
+											borderRadius: BorderRadius.circular(4),
+										),
+										child: Text(entry.value, style: TextStyle(fontSize: 11, color: fg)),
+									);
+								}).toList(),
 									),
 									Expanded(child: Container(),),
 									GestureDetector(
@@ -172,5 +183,37 @@ class ExampleState extends State<ExampleWidget> with tapah.Callback {
 				);
 			},
 		);
+		if (tapah.accountinfo == null) {
+			return Stack(
+				children: [
+					child,
+					Positioned.fill(
+						child: GestureDetector(
+							onTap: () {
+								Navigator.pushNamed(context, '/profile');
+							},
+							child: ClipRect(
+								child: BackdropFilter(
+									filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+									child: Container(
+										color: Colors.black.withOpacity(0.12),
+										alignment: Alignment.center,
+										child: const Text(
+											'请先登录后查看',
+											style: TextStyle(
+												color: Colors.white,
+												fontSize: 16,
+												fontWeight: FontWeight.w600,
+											),
+										),
+									),
+								),
+							),
+						),
+					),
+				],
+			);
+		}
+		return child;
 	}
 }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:bot_toast/bot_toast.dart';
 // import 'package:mpflutter_wechat_button/mpflutter_wechat_button.dart';
 
 import 'package:qiuzhijia/tapah/class.dart' as tapah;
@@ -78,114 +77,153 @@ class FieldDetailState extends State<FieldDetailWidget> with tapah.Callback {
 				break;
 			}
 		}
-		return Scaffold(
-			backgroundColor: const Color(0xFFF1F2F4),
-			body: Column(
-				children: [
-					SizedBox(height: 30),
-					_buildTabHeader(),
-					Expanded(
-						child: isLoading
-							? const Center(child: CircularProgressIndicator())
-							: SingleChildScrollView(
-								key: _scrollViewKey,
-								controller: _scrollController,
-								padding: const EdgeInsets.fromLTRB(12, 10, 12, 100),
-								child: Column(
-									crossAxisAlignment: CrossAxisAlignment.start,
-									children: [
-										Container(key: _detailSectionKey, child: _buildFieldInfoCard()),
-										const SizedBox(height: 12),
-										_buildEnterpriseSection(),
-										const SizedBox(height: 12),
-										_buildCaseSection(),
-									],
-								),
-							),
+		final safeAreaTop = MediaQuery.of(context).padding.top;
+		List<Widget> children = [
+			_buildTabHeader(),
+			Expanded(
+				child: isLoading
+					? const Center(child: CircularProgressIndicator())
+					: SingleChildScrollView(
+						key: _scrollViewKey,
+						controller: _scrollController,
+						padding: const EdgeInsets.fromLTRB(12, 10, 12, 100),
+						child: Column(
+							crossAxisAlignment: CrossAxisAlignment.start,
+							children: [
+								Container(key: _detailSectionKey, child: _buildFieldInfoCard()),
+								const SizedBox(height: 12),
+								_buildEnterpriseSection(),
+								const SizedBox(height: 12),
+								_buildCaseSection(),
+							],
+						),
 					),
-				],
 			),
-			bottomNavigationBar: Container(
-				height: 60,
-				decoration: BoxDecoration(
-					color: Colors.white,
-					border: Border(top: BorderSide(color: Colors.grey.shade200)),
-				),
-				child: Row(
-					mainAxisAlignment: MainAxisAlignment.center,
+		];
+		if (safeAreaTop > 0) {
+			return Scaffold(
+				backgroundColor: const Color(0xFFF1F2F4),
+				body: Stack(
 					children: [
-						InkWell(
-							onTap: () {
-								Navigator.pushReplacementNamed(context, '/mainpage');
-							},
-							child: Row(
+						SafeArea(
+							child: Column(
 								children: [
-									Image.network(tapah.parseimage('企业详情/首页.png'), fit: BoxFit.contain, width: 28, height: 28,),
-									Text("首页", style: TextStyle(color: Colors.black, fontSize: 10),),
+									...children,
 								],
 							),
 						),
-						const SizedBox(width: 20,),
-						InkWell(
-							onTap: () {
-								if (tapah.accountinfo == null) {
-									Navigator.pushNamed(context, '/profile');
-									return;
-								}
-								if (tapah.accountinfo!.field.contains(widget.field.id)) {
-									tapah.accountinfo!.field.remove(widget.field.id);
-								}
-								else {
-									tapah.accountinfo!.field.add(widget.field.id);
-								}
-								tapah.RequestUserInfo();
-								setState(() {});
-							},
-							child: Row(
-								children: [
-									Image.network(tapah.parseimage(fav ? '企业详情/已收藏.png' : '企业详情/关注.png'), fit: BoxFit.contain, width: 28, height: 28,),
-									Text(fav ? "已收藏" : "关注", style: TextStyle(color: Colors.black, fontSize: 10),),
-								],
-							),
-						),
-						const SizedBox(width: 20,),
-						// MPFlutter_Wechat_Button(
-						// 	onTap: (_) {
-						GestureDetector(
-							onTap: () {
-								tapah.KeFu(context);
-							},
-							child: Container(
-								width: 100,
-								height: 30,
-								decoration: BoxDecoration(
-									color: Color(0xFF82B2F5),
-									borderRadius: BorderRadius.circular(15),
-								),
-								child: Center(
-									child: Text("在线咨询", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold,),),
-								),
-							),
-						),
-						const SizedBox(width: 20,),
-						GestureDetector(
-							onTap: () {
-							},
-							child: Container(
-								width: 100,
-								height: 30,
-								decoration: BoxDecoration(
-									color: Color(0xFFFFC300),
-									borderRadius: BorderRadius.circular(15),
-								),
-								child: Center(
-									child: Text("电话咨询", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold,),),
-								),
+						Positioned(
+							top: 30,
+							left: 20,
+							child: SizedBox(
+								height: safeAreaTop,
+								child: backButton(context),
 							),
 						),
 					],
 				),
-			),
+				bottomNavigationBar: Container(
+					height: 60,
+					decoration: BoxDecoration(
+						color: Colors.white,
+						border: Border(top: BorderSide(color: Colors.grey.shade200)),
+					),
+					child: Row(
+						mainAxisAlignment: MainAxisAlignment.center,
+						children: [
+							InkWell(
+								onTap: () {
+									Navigator.pushReplacementNamed(context, '/mainpage');
+								},
+								child: Row(
+									children: [
+										Image.network(tapah.parseimage('企业详情/首页.png'), fit: BoxFit.contain, width: 28, height: 28,),
+										Text("首页", style: TextStyle(color: Colors.black, fontSize: 10),),
+									],
+								),
+							),
+							const SizedBox(width: 20,),
+							InkWell(
+								onTap: () {
+									if (tapah.accountinfo == null) {
+										Navigator.pushNamed(context, '/profile');
+										return;
+									}
+									if (tapah.accountinfo!.field.contains(widget.field.id)) {
+										tapah.accountinfo!.field.remove(widget.field.id);
+									}
+									else {
+										tapah.accountinfo!.field.add(widget.field.id);
+									}
+									tapah.RequestUserInfo();
+									setState(() {});
+								},
+								child: Row(
+									children: [
+										Image.network(tapah.parseimage(fav ? '企业详情/已收藏.png' : '企业详情/关注.png'), fit: BoxFit.contain, width: 28, height: 28,),
+										Text(fav ? "已收藏" : "关注", style: TextStyle(color: Colors.black, fontSize: 10),),
+									],
+								),
+							),
+							const SizedBox(width: 20,),
+							// MPFlutter_Wechat_Button(
+							// 	onTap: (_) {
+							GestureDetector(
+								onTap: () {
+									tapah.KeFu(context);
+								},
+								child: Container(
+									width: 100,
+									height: 30,
+									decoration: BoxDecoration(
+										color: Color(0xFF82B2F5),
+										borderRadius: BorderRadius.circular(15),
+									),
+									child: Center(
+										child: Text("在线咨询", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold,),),
+									),
+								),
+							),
+							const SizedBox(width: 20,),
+							GestureDetector(
+								onTap: () {
+								},
+								child: Container(
+									width: 100,
+									height: 30,
+									decoration: BoxDecoration(
+										color: Color(0xFFFFC300),
+										borderRadius: BorderRadius.circular(15),
+									),
+									child: Center(
+										child: Text("电话咨询", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold,),),
+									),
+								),
+							),
+						],
+					),
+				),
+			);
+		}
+		else {
+			return Material(
+				child: Column(
+					children: [
+						backButton(context),
+						const SizedBox(height: 20,),
+						...children,
+					]
+				),
+			);
+		}
+	}
+
+	Widget backButton(BuildContext context) {
+		return GestureDetector(
+			onTap: () {
+				Navigator.pop(context);
+			},
+			child: Icon(Icons.arrow_back_ios_new, size: 20),
 		);
 	}
 
@@ -199,20 +237,9 @@ class FieldDetailState extends State<FieldDetailWidget> with tapah.Callback {
 			),
 			child: Row(
 				children: [
-					IconButton(
-						onPressed: () => Navigator.pop(context),
-						icon: const Icon(Icons.arrow_back_ios_new, size: 20, color: Color(0xFF333333)),
-					),
-					Expanded(
-						child: Row(
-							children: [
-								Expanded(child: _buildTabItem('专业详情', 0)),
-								Expanded(child: _buildTabItem('招聘企业', 1)),
-								Expanded(child: _buildTabItem('成功案例', 2)),
-							],
-						),
-					),
-					const SizedBox(width: 8),
+					Expanded(child: _buildTabItem('专业详情', 0)),
+					Expanded(child: _buildTabItem('招聘企业', 1)),
+					Expanded(child: _buildTabItem('成功案例', 2)),
 				],
 			),
 		);
@@ -421,10 +448,10 @@ class FieldDetailState extends State<FieldDetailWidget> with tapah.Callback {
 												margin: const EdgeInsets.only(right: 8),
 												padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
 												decoration: BoxDecoration(
-													color: const Color(0xFFCFE0F7),
+													color: const Color(0xFFFEEDDF),
 													borderRadius: BorderRadius.circular(2),
 												),
-												child: Text(tag, style: const TextStyle(fontSize: 10, color: Color(0xFF4E79B3))),
+												child: Text(tag, style: const TextStyle(fontSize: 10, color: Color(0xFF692E1F))),
 											);
 										}).toList(),
 									),

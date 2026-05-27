@@ -64,17 +64,18 @@ class EnterpriseState extends State<EnterpriseWidget> with tapah.Callback {
 			decoration: const BoxDecoration(
 				color: Color(0xFFE2EDFF),
 			),
-			child: Column(
-				mainAxisAlignment: MainAxisAlignment.start,
-				children: [
-					SizedBox(height: 50),
-					buildTopRow(),
-					SizedBox(height: 10),
-					buildFilterRow(),
-					SizedBox(height: 10),
-					Expanded(child: buildEnterpriseList(),),
-					SizedBox(height: 10),
-				],
+			child: SafeArea(
+				child: Column(
+					mainAxisAlignment: MainAxisAlignment.start,
+					children: [
+						buildTopRow(),
+						SizedBox(height: 10),
+						buildFilterRow(),
+						SizedBox(height: 10),
+						Expanded(child: buildEnterpriseList(),),
+						SizedBox(height: 10),
+					],
+				),
 			),
 		);
 	}
@@ -203,6 +204,7 @@ class EnterpriseState extends State<EnterpriseWidget> with tapah.Callback {
 							),
 							Expanded(
 								child: TextField(
+									textAlignVertical: TextAlignVertical.center,
 									onSubmitted: (v) {
 										search = v;
 										getEnterpriseList();
@@ -212,6 +214,7 @@ class EnterpriseState extends State<EnterpriseWidget> with tapah.Callback {
 										border: InputBorder.none,
 										hintText: "搜索企业",
 										hintStyle: TextStyle(fontSize: 14),
+										suffixIcon: Icon(Icons.search, color: Color(0xFF2D7BFF)),
 									),
 								),
 							),
@@ -276,10 +279,10 @@ class EnterpriseState extends State<EnterpriseWidget> with tapah.Callback {
 															margin: const EdgeInsets.only(right: 6),
 															padding: const EdgeInsets.symmetric(horizontal: 2),
 															decoration: BoxDecoration(
-																color: Color(0xFF82B2F5),
+																color: Color(0xFFFEEDDF),
 																borderRadius: BorderRadius.circular(4),
 															),
-															child: Text(t, style: const TextStyle(color: Colors.white, fontSize: 10)),
+															child: Text(t, style: const TextStyle(color: Color(0xFF692E1F), fontSize: 10)),
 														)).toList(),
 													),
 												),

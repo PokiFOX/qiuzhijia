@@ -112,188 +112,216 @@ class ProfileState extends State<ProfileWidget> with tapah.Callback {
 			},
 			child: login,
 		);
-		return Scaffold(
-			body: Container(
-				height: double.infinity,
-				decoration: const BoxDecoration(
-					gradient: LinearGradient(
-						begin: Alignment.topCenter,
-						end: Alignment.bottomCenter,
-						colors: [
-							Color(0xFFCCE1FD),
-							Color(0xFFFFFFFF),
-						],
+
+		final safeAreaTop = MediaQuery.of(context).padding.top;
+		List<Widget> children = [
+			Center(child: const Text('个人中心', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),),
+			const SizedBox(height: 10,),
+			Row(
+				children: [
+					const SizedBox(width: 20,),
+					Expanded(
+						child: tapah.accountinfo == null ? loginbutton : login,
 					),
-				),
-				child: Column(
-					mainAxisAlignment: MainAxisAlignment.start,
-					children: [
-						SafeArea(
-							bottom: false,
-							child: SizedBox(
-								width: double.infinity,
-								height: 44,
-								child: Stack(
-									alignment: Alignment.center,
-									children: [
-										const Text('个人中心', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),
-										Align(
-											alignment: Alignment.centerLeft,
-											child: GestureDetector(
-												onTap: () {
-													if (Navigator.canPop(context)) {
-														Navigator.pop(context);
-													}
-												},
-												child: const Padding(
-													padding: EdgeInsets.symmetric(horizontal: 16),
-													child: Icon(Icons.chevron_left, size: 28, color: Colors.black87),
-												),
-											),
+					const SizedBox(width: 20,),
+				],
+			),
+			const SizedBox(height: 20,),
+			Row(
+				children: [
+					const SizedBox(width: 20,),
+					Expanded(
+						child: Container(
+							height: 100,
+							decoration: BoxDecoration(
+								borderRadius: BorderRadius.circular(10),
+								color: Colors.white,
+							),
+							child: Row(
+								children: [
+									const SizedBox(width: 20,),
+									Image.network(tapah.parseimage('客服/关注.png'),),
+									const SizedBox(width: 25,),
+									GestureDetector(
+										behavior: HitTestBehavior.translucent,
+										onTap: () {
+											if (tapah.accountinfo == null) {
+												return;
+											}
+											Navigator.push(context, MaterialPageRoute(builder: (context) => FavoriteWidget(key: GlobalKey(),)));
+										},
+										child: Column(
+											mainAxisAlignment: MainAxisAlignment.center,
+											crossAxisAlignment: CrossAxisAlignment.start,
+											children: const [
+												Text('我的关注', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
+												const SizedBox(height: 10,),
+												Text('查看已关注的公司与专业方向', style: TextStyle(fontSize: 13, color: Colors.grey)),
+											],
 										),
-									],
-								),
+									),
+									Expanded(child: Container(),),
+									Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey[400],),
+									const SizedBox(width: 10,),
+								],
 							),
 						),
-						const SizedBox(height: 10,),
-						Row(
-							children: [
-								const SizedBox(width: 20,),
-								Expanded(
-									child: tapah.accountinfo == null ? loginbutton : login,
-								),
-								const SizedBox(width: 20,),
-							],
-						),
-						const SizedBox(height: 20,),
-						Row(
-							children: [
-								const SizedBox(width: 20,),
-								Expanded(
-									child: Container(
-										height: 100,
-										decoration: BoxDecoration(
-											borderRadius: BorderRadius.circular(10),
-											color: Colors.white,
-										),
+					),
+					const SizedBox(width: 20,),
+				],
+			),
+			const SizedBox(height: 20,),
+			Row(
+				children: [
+					const SizedBox(width: 20,),
+					Expanded(
+						child: Container(
+							decoration: BoxDecoration(
+								borderRadius: BorderRadius.circular(10),
+								color: Colors.white,
+							),
+							child: Column(
+								children: [
+									const SizedBox(height: 10,),
+									//Row(
+									//	children: [
+									//		const SizedBox(width: 20),
+									//		Image.network(tapah.parseimage('客服/浏览记录.png',),),
+									//		const SizedBox(width: 10,),
+									//		const Text('浏览记录', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),),
+									//		Expanded(child: Container(),),
+									//		Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey[400],),
+									//		const SizedBox(width: 10,),
+									//	],
+									//),
+									//Divider(color: Colors.grey[300], thickness: 1, indent: 20, endIndent: 20,),
+									//Row(
+									//	children: [
+									//		const SizedBox(width: 20),
+									//		Image.network(tapah.parseimage('客服/求职资料.png',),),
+									//		const SizedBox(width: 10,),
+									//		const Text('求职资料', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),),
+									//		Expanded(child: Container(),),
+									//		Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey[400],),
+									//		const SizedBox(width: 10,),
+									//	],
+									//),
+									//Divider(color: Colors.grey[300], thickness: 1, indent: 20, endIndent: 20,),
+									GestureDetector(
+										behavior: HitTestBehavior.translucent,
+										onTap: () {
+											Navigator.push(context, MaterialPageRoute(builder: (context) => KeFuWidget(key: GlobalKey(),)));
+										},
 										child: Row(
 											children: [
-												const SizedBox(width: 20,),
-												Image.network(tapah.parseimage('客服/关注.png'),),
-												const SizedBox(width: 25,),
-												GestureDetector(
-													behavior: HitTestBehavior.translucent,
-													onTap: () {
-														if (tapah.accountinfo == null) {
-															return;
-														}
-														Navigator.push(context, MaterialPageRoute(builder: (context) => FavoriteWidget(key: GlobalKey(),)));
-													},
-													child: Column(
-														mainAxisAlignment: MainAxisAlignment.center,
-														crossAxisAlignment: CrossAxisAlignment.start,
-														children: const [
-															Text('我的关注', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
-															const SizedBox(height: 10,),
-															Text('查看已关注的公司与专业方向', style: TextStyle(fontSize: 13, color: Colors.grey)),
-														],
-													),
-												),
+												const SizedBox(width: 20),
+												Image.network(tapah.parseimage('客服/联系客服.png',),),
+												const SizedBox(width: 10,),
+												const Text('联系客服', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),),
 												Expanded(child: Container(),),
 												Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey[400],),
 												const SizedBox(width: 10,),
 											],
 										),
 									),
-								),
-								const SizedBox(width: 20,),
-							],
-						),
-						const SizedBox(height: 20,),
-						Row(
-							children: [
-								const SizedBox(width: 20,),
-								Expanded(
-									child: Container(
-										decoration: BoxDecoration(
-											borderRadius: BorderRadius.circular(10),
-											color: Colors.white,
-										),
-										child: Column(
-											children: [
-												const SizedBox(height: 10,),
-												Row(
-													children: [
-														const SizedBox(width: 20),
-														Image.network(tapah.parseimage('客服/浏览记录.png',),),
-														const SizedBox(width: 10,),
-														const Text('浏览记录', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),),
-														Expanded(child: Container(),),
-														Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey[400],),
-														const SizedBox(width: 10,),
-													],
-												),
-												Divider(color: Colors.grey[300], thickness: 1, indent: 20, endIndent: 20,),
-												Row(
-													children: [
-														const SizedBox(width: 20),
-														Image.network(tapah.parseimage('客服/求职资料.png',),),
-														const SizedBox(width: 10,),
-														const Text('求职资料', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),),
-														Expanded(child: Container(),),
-														Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey[400],),
-														const SizedBox(width: 10,),
-													],
-												),
-												Divider(color: Colors.grey[300], thickness: 1, indent: 20, endIndent: 20,),
-												GestureDetector(
-													behavior: HitTestBehavior.translucent,
-													onTap: () {
-														Navigator.push(context, MaterialPageRoute(builder: (context) => KeFuWidget(key: GlobalKey(),)));
-													},
-													child: Row(
-														children: [
-															const SizedBox(width: 20),
-															Image.network(tapah.parseimage('客服/联系客服.png',),),
-															const SizedBox(width: 10,),
-															const Text('联系客服', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),),
-															Expanded(child: Container(),),
-															Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey[400],),
-															const SizedBox(width: 10,),
-														],
-													),
-												),
-												const SizedBox(height: 10,),
-											],
-										),
-									),
-								),
-								const SizedBox(width: 20,),
-							],
-						),
-						const SizedBox(height: 20,),
-						Visibility(
-							visible: tapah.accountinfo != null,
-							child: GestureDetector(
-								onTap: () {
-									setState(() {
-										tapah.accountinfo = null;
-									});
-								},
-								child: Row(
-									mainAxisAlignment: MainAxisAlignment.center,
-									children: [
-										Image.network(tapah.parseimage('客服/退出登录.png',),),
-										const SizedBox(width: 10,),
-										const Text('退出登录', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),),
-									],
-								),
+									const SizedBox(height: 10,),
+								],
 							),
 						),
-						const SizedBox(height: 20,),
-					],
+					),
+					const SizedBox(width: 20,),
+				],
+			),
+			const SizedBox(height: 20,),
+			Visibility(
+				visible: tapah.accountinfo != null,
+				child: GestureDetector(
+					onTap: () {
+						setState(() {
+							tapah.accountinfo = null;
+						});
+					},
+					child: Row(
+						mainAxisAlignment: MainAxisAlignment.center,
+						children: [
+							Image.network(tapah.parseimage('客服/退出登录.png',),),
+							const SizedBox(width: 10,),
+							const Text('退出登录', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),),
+						],
+					),
 				),
 			),
+			const SizedBox(height: 20,),
+		];
+
+		if (safeAreaTop > 0) {
+			return Scaffold(
+				body: Container(
+					height: double.infinity,
+					decoration: const BoxDecoration(
+						gradient: LinearGradient(
+							begin: Alignment.topCenter,
+							end: Alignment.bottomCenter,
+							colors: [
+								Color(0xFFCCE1FD),
+								Color(0xFFFFFFFF),
+							],
+						),
+					),
+					child: Stack(
+						children: [
+							SafeArea(
+								child: Column(
+									mainAxisAlignment: MainAxisAlignment.start,
+									children: children,
+								),
+							),
+							Positioned(
+								top: 30,
+								left: 20,
+								child: SizedBox(
+									height: safeAreaTop,
+									child: backButton(context),
+								),
+							),
+						],
+					),
+				),
+			);
+		}
+		else {
+			return Scaffold(
+				body: Container(
+					height: double.infinity,
+					decoration: const BoxDecoration(
+						gradient: LinearGradient(
+							begin: Alignment.topCenter,
+							end: Alignment.bottomCenter,
+							colors: [
+								Color(0xFFCCE1FD),
+								Color(0xFFFFFFFF),
+							],
+						),
+					),
+					child: Column(
+						mainAxisAlignment: MainAxisAlignment.start,
+						children: [
+							backButton(context),
+							const SizedBox(height: 10,),
+							...children,
+						],
+					),
+				),
+			);
+		}
+	}
+
+	Widget backButton(BuildContext context) {
+		return GestureDetector(
+			onTap: () {
+				Navigator.pop(context);
+			},
+			child: Icon(Icons.arrow_back_ios_new, size: 20),
 		);
 	}
 }

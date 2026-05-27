@@ -198,10 +198,10 @@ class FavoriteState extends State<FavoriteWidget> with tapah.Callback {
 															margin: const EdgeInsets.only(right: 6),
 															padding: const EdgeInsets.symmetric(horizontal: 2),
 															decoration: BoxDecoration(
-																color: Color(0xFF82B2F5),
+																color: Color(0xFFFEEDDF),
 																borderRadius: BorderRadius.circular(4),
 															),
-															child: Text(t, style: const TextStyle(color: Colors.white, fontSize: 10)),
+															child: Text(t, style: const TextStyle(color: Color(0xFF692E1F), fontSize: 10)),
 														)).toList(),
 													),
 												),

@@ -82,23 +82,139 @@ class DetailState extends State<DetailWidget> with tapah.Callback {
 				break;
 			}
 		}
-		return Scaffold(
-			body: SafeArea(
-				child: Container(
-					decoration: const BoxDecoration(
-						gradient: LinearGradient(
-							begin: Alignment.topCenter, 
-							end: Alignment.bottomCenter,
-							colors: [
-								Color(0xFF7EAEFF),
-								Color(0xFFFFFFFF),
+		Widget bottom = Container(
+			height: 60,
+			decoration: BoxDecoration(
+				color: Colors.white,
+				border: Border(top: BorderSide(color: Colors.grey.shade200)),
+			),
+			child: Row(
+				mainAxisAlignment: MainAxisAlignment.center,
+				children: [
+					InkWell(
+						onTap: () {
+							openUrl(enterprise.website1);
+						},
+						child: Row(
+							children: [
+								Image.network(tapah.parseimage('企业详情/首页.png'), fit: BoxFit.contain, width: 28, height: 28,),
+								Text("首页", style: TextStyle(color: Colors.black, fontSize: 10),),
 							],
-							stops: [0.0, 0.3],
 						),
 					),
+					const SizedBox(width: 20,),
+					InkWell(
+						onTap: () {
+							if (tapah.accountinfo == null) {
+								Navigator.pushNamed(context, '/profile');
+								return;
+							}
+							if (tapah.accountinfo!.enterprise.contains(enterprise.id)) {
+								tapah.accountinfo!.enterprise.remove(enterprise.id);
+							}
+							else {
+								tapah.accountinfo!.enterprise.add(enterprise.id);
+							}
+							tapah.RequestUserInfo();
+							setState(() {});
+						},
+						child: Row(
+							children: [
+								Image.network(tapah.parseimage(fav ? '企业详情/已收藏.png' : '企业详情/关注.png'), fit: BoxFit.contain, width: 28, height: 28,),
+								Text(fav ? "已收藏" : "关注", style: TextStyle(color: Colors.black, fontSize: 10),),
+							],
+						),
+					),
+					const SizedBox(width: 20,),
+					// MPFlutter_Wechat_Button(
+					// 	onTap: (_) {
+					GestureDetector(
+						onTap: () {
+							tapah.KeFu(context);
+						},
+						child: Container(
+							width: 100,
+							height: 30,
+							decoration: BoxDecoration(
+								color: Color(0xFF82B2F5),
+								borderRadius: BorderRadius.circular(15),
+							),
+							child: Center(
+								child: Text("在线咨询", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold,),),
+							),
+						),
+					),
+					const SizedBox(width: 20,),
+					GestureDetector(
+						onTap: () {
+						},
+						child: Container(
+							width: 100,
+							height: 30,
+							decoration: BoxDecoration(
+								color: Color(0xFFFFC300),
+								borderRadius: BorderRadius.circular(15),
+							),
+							child: Center(
+								child: Text("电话咨询", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold,),),
+							),
+						),
+					),
+				],
+			),
+		);
+		final safeAreaTop = MediaQuery.of(context).padding.top;
+		if (safeAreaTop > 0) {
+			return Scaffold(
+				body: Stack(
+					children: [
+						SafeArea(
+							child: Container(
+								child: CustomScrollView(
+									controller: scrollcontroller,
+									slivers: [
+										const SliverToBoxAdapter(child: SizedBox(height: 10)),
+										SliverToBoxAdapter(child: buildTopImage()),
+										const SliverToBoxAdapter(child: SizedBox(height: 10)),
+										SliverPersistentHeader(
+											pinned: true,
+											delegate: TabBarDelegate(
+												child: Container(
+													key: tabbarkey,
+													decoration: BoxDecoration(
+														color: Colors.white,
+														border: Border(bottom: BorderSide(color: Colors.grey.shade200, width: 0.5)),
+													),
+													child: buildTabBar(),
+												),
+											),
+										),
+										SliverToBoxAdapter(child: buildSections()),
+										const SliverToBoxAdapter(child: SizedBox(height: 10)),
+									],
+								),
+							),
+						),
+						Positioned(
+							top: 30,
+							left: 30,
+							child: SizedBox(
+								height: safeAreaTop,
+								child: backButton(context),
+							),
+						),
+					],
+				),
+				bottomNavigationBar: bottom,
+			);
+		}
+		else {
+			return Scaffold(
+				body: Container(
 					child: CustomScrollView(
 						controller: scrollcontroller,
 						slivers: [
+							backButton(context),
 							const SliverToBoxAdapter(child: SizedBox(height: 10)),
 							SliverToBoxAdapter(child: buildTopImage()),
 							const SliverToBoxAdapter(child: SizedBox(height: 10)),
@@ -120,88 +236,15 @@ class DetailState extends State<DetailWidget> with tapah.Callback {
 						],
 					),
 				),
-			),
-			bottomNavigationBar: Container(
-				height: 60,
-				decoration: BoxDecoration(
-					color: Colors.white,
-					border: Border(top: BorderSide(color: Colors.grey.shade200)),
-				),
-				child: Row(
-					mainAxisAlignment: MainAxisAlignment.center,
-					children: [
-						InkWell(
-							onTap: () {
-								openUrl(enterprise.website1);
-							},
-							child: Row(
-								children: [
-									Image.network(tapah.parseimage('企业详情/首页.png'), fit: BoxFit.contain, width: 28, height: 28,),
-									Text("首页", style: TextStyle(color: Colors.black, fontSize: 10),),
-								],
-							),
-						),
-						const SizedBox(width: 20,),
-						InkWell(
-							onTap: () {
-								if (tapah.accountinfo == null) {
-									Navigator.pushNamed(context, '/profile');
-									return;
-								}
-								if (tapah.accountinfo!.enterprise.contains(enterprise.id)) {
-									tapah.accountinfo!.enterprise.remove(enterprise.id);
-								}
-								else {
-									tapah.accountinfo!.enterprise.add(enterprise.id);
-								}
-								tapah.RequestUserInfo();
-								setState(() {});
-							},
-							child: Row(
-								children: [
-									Image.network(tapah.parseimage(fav ? '企业详情/已收藏.png' : '企业详情/关注.png'), fit: BoxFit.contain, width: 28, height: 28,),
-									Text(fav ? "已收藏" : "关注", style: TextStyle(color: Colors.black, fontSize: 10),),
-								],
-							),
-						),
-						const SizedBox(width: 20,),
-						// MPFlutter_Wechat_Button(
-						// 	onTap: (_) {
-						GestureDetector(
-							onTap: () {
-								tapah.KeFu(context);
-							},
-							child: Container(
-								width: 100,
-								height: 30,
-								decoration: BoxDecoration(
-									color: Color(0xFF82B2F5),
-									borderRadius: BorderRadius.circular(15),
-								),
-								child: Center(
-									child: Text("在线咨询", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold,),),
-								),
-							),
-						),
-						const SizedBox(width: 20,),
-						GestureDetector(
-							onTap: () {
-							},
-							child: Container(
-								width: 100,
-								height: 30,
-								decoration: BoxDecoration(
-									color: Color(0xFFFFC300),
-									borderRadius: BorderRadius.circular(15),
-								),
-								child: Center(
-									child: Text("电话咨询", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold,),),
-								),
-							),
-						),
-					],
-				),
-			),
+				bottomNavigationBar: bottom,
+			);
+		}
+	}
+
+	Widget backButton(BuildContext context) {
+		return GestureDetector(
+			onTap: () => Navigator.pop(context),
+			child: Icon(Icons.arrow_back_ios_new, size: 20),
 		);
 	}
 
@@ -222,23 +265,7 @@ class DetailState extends State<DetailWidget> with tapah.Callback {
 
 	Widget buildTopImage() {
 		if (initialized == false || enterprise.images.isEmpty) {
-			return Column(
-				mainAxisAlignment: MainAxisAlignment.start,
-				children: [
-					Row(
-						mainAxisAlignment: MainAxisAlignment.start,
-						children: [
-							const SizedBox(width: 10),
-							IconButton(
-								icon: const Icon(Icons.arrow_back, color: Colors.white,),
-								onPressed: () {
-									Navigator.pop(context);
-								},
-							),
-						],
-					),
-				],
-			);
+			return Container();
 		}
 		return ConstrainedBox(
 			constraints: BoxConstraints(maxHeight: 200, minHeight: 200,),
@@ -255,23 +282,6 @@ class DetailState extends State<DetailWidget> with tapah.Callback {
 						itemBuilder: (context, index) {
 							return Image.network(tapah.parseimage('大图标/${enterprise.images[topimageindex]}.png',), fit: BoxFit.cover,);
 						},
-					),
-					Column(
-						mainAxisAlignment: MainAxisAlignment.start,
-						children: [
-							Row(
-								mainAxisAlignment: MainAxisAlignment.start,
-								children: [
-									const SizedBox(width: 10),
-									IconButton(
-										icon: const Icon(Icons.arrow_back, color: Colors.white,),
-										onPressed: () {
-											Navigator.pop(context);
-										},
-									),
-								],
-							),
-						],
 					),
 				],
 			),

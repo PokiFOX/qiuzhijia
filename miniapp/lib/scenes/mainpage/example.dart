@@ -63,45 +63,75 @@ class ExampleState extends State<ExampleWidget> with tapah.Callback {
 
 	@override
 	Widget build(BuildContext context) {
-		return Material(
-			child: Container(
-				height: double.infinity,
-				decoration: const BoxDecoration(
-					color: Color(0xFFE2EDFF),
-				),
-				child: Column(
-					mainAxisAlignment: MainAxisAlignment.start,
+		final safeAreaTop = MediaQuery.of(context).padding.top;
+		if (safeAreaTop > 0) {
+			return Material(
+				child: Stack(
 					children: [
-						SizedBox(height: 50),
-						Row(
-							children: [
-								GestureDetector(
-									onTap: () {
-										Navigator.pop(context);
-									},
-									child: Container(
-										width: 50,
-										height: 30,
-										margin: const EdgeInsets.only(left: 10),
-										decoration: BoxDecoration(
-											color: Colors.white,
-											borderRadius: BorderRadius.circular(15),
-										),
-										child: const Icon(Icons.arrow_back, size: 15,),
-									),
+						SafeArea(
+							child: Container(
+								height: double.infinity,
+								child: Column(
+									mainAxisAlignment: MainAxisAlignment.start,
+									children: [
+										SizedBox(height: 10),
+										Center(child: Text('过往案例', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),),
+										SizedBox(height: 10),
+										buildFilterRow(),
+										SizedBox(height: 10),
+										Expanded(child: buildExampleList(),),
+										SizedBox(height: 10),
+									],
 								),
-								const SizedBox(width: 10),
-								Text('过往案例', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),)
-							],
+							),
 						),
-						SizedBox(height: 10),
-						buildFilterRow(),
-						SizedBox(height: 10),
-						Expanded(child: buildExampleList(),),
-						SizedBox(height: 10),
+						Positioned(
+							top: 10,
+							left: 20,
+							child: SizedBox(
+								height: safeAreaTop,
+								child: backButton(context),
+							),
+						),
 					],
 				),
-			),
+			);
+		} else {
+			return Material(
+				child: Container(
+					height: double.infinity,
+					decoration: const BoxDecoration(
+						color: Color(0xFFE2EDFF),
+					),
+					child: Column(
+						mainAxisAlignment: MainAxisAlignment.start,
+						children: [
+							Padding(
+								padding: EdgeInsets.only(left: 10, top: 8, bottom: 4),
+								child: backButton(context),
+							),
+							SizedBox(height: 50),
+							Row(
+								children: [
+									Text('过往案例', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),)
+								],
+							),
+							SizedBox(height: 10),
+							buildFilterRow(),
+							SizedBox(height: 10),
+							Expanded(child: buildExampleList(),),
+							SizedBox(height: 10),
+						],
+					),
+				),
+			);
+		}
+	}
+
+	Widget backButton(BuildContext context) {
+		return GestureDetector(
+			onTap: () => Navigator.pop(context),
+			child: Icon(Icons.arrow_back_ios_new, size: 20),
 		);
 	}
 
@@ -238,14 +268,23 @@ class ExampleState extends State<ExampleWidget> with tapah.Callback {
 									Wrap(
 										spacing: 5,
 										runSpacing: 3,
-										children: c.tags.where((t) => t.trim().isNotEmpty).map((tag) => Container(
-											padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-											decoration: BoxDecoration(
-												color: const Color(0xFFE8F0FE),
-												borderRadius: BorderRadius.circular(4),
-											),
-											child: Text(tag, style: const TextStyle(fontSize: 11, color: Color(0xFF2D7BFF))),
-										)).toList(),
+								children: c.tags.where((t) => t.trim().isNotEmpty).toList().asMap().entries.map((entry) {
+									const tagColors = [
+										[Color(0xFFE8F0FE), Color(0xFF2D7BFF)], // 蓝
+										[Color(0xFFFEEDDF), Color(0xFF692E1F)], // 金
+										[Color(0xFFF3EEFF), Color(0xFF6B21A8)], // 紫
+									];
+									final bg = tagColors[entry.key % 3][0];
+									final fg = tagColors[entry.key % 3][1];
+									return Container(
+										padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+										decoration: BoxDecoration(
+											color: bg,
+											borderRadius: BorderRadius.circular(4),
+										),
+										child: Text(entry.value, style: TextStyle(fontSize: 11, color: fg)),
+									);
+								}).toList(),
 									),
 									Expanded(child: Container(),),
 									GestureDetector(

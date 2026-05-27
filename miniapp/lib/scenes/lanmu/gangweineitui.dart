@@ -26,125 +26,139 @@ class GangWeiNeiTuiState extends State<GangWeiNeiTuiWidget> with tapah.Callback 
 		super.dispose();
 	}
 
+	Widget backButton(BuildContext context) {
+		return GestureDetector(
+			onTap: () => Navigator.pop(context),
+			child: Icon(Icons.arrow_back_ios_new, size: 20),
+		);
+	}
+
 	@override
 	Widget build(BuildContext context) {
-		return Material(
-			child: Column(
-				children: [
-					SafeArea(
-						bottom: false,
-						child: SizedBox(
-							height: 44,
-							child: Stack(
-								alignment: Alignment.center,
-								children: [
-									const Text('岗位内推', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),
-									Align(
-										alignment: Alignment.centerLeft,
-										child: GestureDetector(
-											onTap: () => Navigator.pop(context),
-											child: const Padding(
-												padding: EdgeInsets.symmetric(horizontal: 16),
-												child: Icon(Icons.chevron_left, size: 28, color: Colors.black87),
-											),
-										),
-									),
-								],
-							),
-						),
-					),
-					Expanded(
-						child: SingleChildScrollView(
-							child: Column(
-								crossAxisAlignment: CrossAxisAlignment.stretch,
-								children: [
-									Image.network(
-										tapah.parseimage('栏目/岗位内推/顶部.png'),
-									),
-									Padding(
-										padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-										child: Column(
-											crossAxisAlignment: CrossAxisAlignment.start,
-											children: [
-												_sectionTitle('服务内容'),
-												const SizedBox(height: 12),
-												Row(
-													children: [
-														Expanded(child: _typeCard(
-															imageName: '栏目/岗位内推/校招岗位.png',
-															bgColor: const Color(0xFFC8DBFC),
-															label: '校招岗位',
-															sub: '应届/秋招/春招',
-														)),
-														const SizedBox(width: 12),
-														Expanded(child: _typeCard(
-															imageName: '栏目/岗位内推/社招岗位.png',
-															bgColor: const Color(0xFFDED8FD),
-															label: '社招岗位',
-															sub: '社会招聘/转岗方向',
-														)),
-													],
-												),
-												const SizedBox(height: 12),
-												Row(
-													children: [
-														Expanded(child: _typeCard(
-															imageName: '栏目/岗位内推/管培项目.png',
-															bgColor: const Color(0xFFFCE5D2),
-															label: '管培项目',
-															sub: '管培生/储备干部方向',
-														)),
-														const SizedBox(width: 12),
-														Expanded(child: _typeCard(
-															imageName: '栏目/岗位内推/定向推荐.png',
-															bgColor: const Color(0xFFD4F0E9),
-															label: '定向推荐',
-															sub: '结合背景精准匹配',
-														)),
-													],
-												),
-												const SizedBox(height: 24),
-												_sectionTitle('推荐优势'),
-												const SizedBox(height: 12),
-												_contentCard(
-													imageName: '栏目/岗位内推/精准岗位筛选.png',
-													title: '精准岗位筛选',
-													bullets: [
-														'结合学历、专业、经历与意向城市匹配岗位',
-														'帮助缩小投递范围，提高投递效率',
-													],
-												),
-												const SizedBox(height: 12),
-												_contentCard(
-													imageName: '栏目/岗位内推/投递支持服务.png',
-													title: '投递支持服务',
-													bullets: [
-														'简历优化、网申提醒、笔试面试节奏建议',
-														'从岗位推荐到投递跟进形成完整闭环',
-													],
-												),
-											],
-										),
-									),
-									Center(
-										// child: MPFlutter_Wechat_Button(
-										// 	onTap: (_) {
-										child: GestureDetector(
-											onTap: () {
-												tapah.KeFu(context);
-											},
-											child: Image.network(
-												tapah.parseimage('栏目/岗位内推/底部.png'),
-											),
-										),
-									),
-								],
-							),
-						),
-					),
-				],
+		List<Widget> children = [
+			Center(child: const Text('岗位内推', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),),
+			Image.network(
+				tapah.parseimage('栏目/岗位内推/顶部.png'),
 			),
-		);
+			Padding(
+				padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+				child: Column(
+					crossAxisAlignment: CrossAxisAlignment.start,
+					children: [
+						_sectionTitle('服务内容'),
+						const SizedBox(height: 12),
+						Row(
+							children: [
+								Expanded(child: _typeCard(
+									imageName: '栏目/岗位内推/校招岗位.png',
+									bgColor: const Color(0xFFC8DBFC),
+									label: '校招岗位',
+									sub: '应届/秋招/春招',
+								)),
+								const SizedBox(width: 12),
+								Expanded(child: _typeCard(
+									imageName: '栏目/岗位内推/社招岗位.png',
+									bgColor: const Color(0xFFDED8FD),
+									label: '社招岗位',
+									sub: '社会招聘/转岗方向',
+								)),
+							],
+						),
+						const SizedBox(height: 12),
+						Row(
+							children: [
+								Expanded(child: _typeCard(
+									imageName: '栏目/岗位内推/管培项目.png',
+									bgColor: const Color(0xFFFCE5D2),
+									label: '管培项目',
+									sub: '管培生/储备干部方向',
+								)),
+								const SizedBox(width: 12),
+								Expanded(child: _typeCard(
+									imageName: '栏目/岗位内推/定向推荐.png',
+									bgColor: const Color(0xFFD4F0E9),
+									label: '定向推荐',
+									sub: '结合背景精准匹配',
+								)),
+							],
+						),
+						const SizedBox(height: 24),
+						_sectionTitle('推荐优势'),
+						const SizedBox(height: 12),
+						_contentCard(
+							imageName: '栏目/岗位内推/精准岗位筛选.png',
+							title: '精准岗位筛选',
+							bullets: [
+								'结合学历、专业、经历与意向城市匹配岗位',
+								'帮助缩小投递范围，提高投递效率',
+							],
+						),
+						const SizedBox(height: 12),
+						_contentCard(
+							imageName: '栏目/岗位内推/投递支持服务.png',
+							title: '投递支持服务',
+							bullets: [
+								'简历优化、网申提醒、笔试面试节奏建议',
+								'从岗位推荐到投递跟进形成完整闭环',
+							],
+						),
+					],
+				),
+			),
+			Center(
+				// child: MPFlutter_Wechat_Button(
+				// 	onTap: (_) {
+				child: GestureDetector(
+					onTap: () {
+						tapah.KeFu(context);
+					},
+					child: Image.network(
+						tapah.parseimage('栏目/岗位内推/底部.png'),
+					),
+				),
+			),
+		];
+		final safeAreaTop = MediaQuery.of(context).padding.top;
+		if (safeAreaTop > 0) {
+			return Material(
+				child: Stack(
+					children: [
+						SafeArea(
+							child: SingleChildScrollView(
+								child: Column(
+									crossAxisAlignment: CrossAxisAlignment.stretch,
+									children: [
+										...children,
+									],
+								),
+							),
+						),
+						Positioned(
+							top: 10,
+							left: 20,
+							child: SizedBox(
+								height: safeAreaTop,
+								child: backButton(context),
+							),
+						),
+					],
+				),
+			);
+		}
+		else {
+			return Material(
+				child: SingleChildScrollView(
+					child: Column(
+						crossAxisAlignment: CrossAxisAlignment.stretch,
+						children: [
+							backButton(context),
+							const SizedBox(height: 10),
+							...children,
+						],
+					),
+				),
+			);
+		}
 	}
 
 	Widget _sectionTitle(String text) {
