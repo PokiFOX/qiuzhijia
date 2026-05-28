@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+
+import 'package:mpflutter_core/mpflutter_core.dart';
 import 'package:mpflutter_wechat_api/mpflutter_wechat_api.dart' as wxapi;
 
 import 'package:qiuzhijia/tapah/reserved.dart';
-import 'package:qiuzhijia/scenes/kefu.dart';
 
 String parseimage(String name) {
 	return '$urlheader/images/$name';
@@ -13,7 +14,7 @@ String parseurl(String url) {
 }
 
 void KeFu(BuildContext context) {
-	Navigator.push(context, MaterialPageRoute(builder: (context) => KeFuWidget(key: GlobalKey(),)));
+	navigator(context, '/kefu');
 	//var option = wxapi.OpenCustomerServiceChatOption();
 	//option.corpId = "ww9c9c584173a105cc";
 	//var extInfo = wxapi.ExtInfoOption();
@@ -146,4 +147,21 @@ Widget buildMain2(BuildContext context, List<Widget> children, Widget bottom) {
 			bottomNavigationBar: bottom,
 		));
 	}
+}
+
+void navigator(BuildContext context, String url, {Map<String, dynamic>? arguments}) {
+	String full = url;
+	if (arguments != null && arguments.isNotEmpty) {
+		full += "?";
+		arguments.forEach((key, value) {
+			full += "$key=$value&";
+		});
+		full = full.substring(0, full.length - 1);
+	}
+	if (kIsMPFlutter) {
+		wxapi.wx.navigateTo(wxapi.NavigateToOption()
+			..url = full
+		);
+	}
+	Navigator.pushNamed(context, url, arguments: arguments);
 }

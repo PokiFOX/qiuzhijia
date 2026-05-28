@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import 'package:mpflutter_wechat_webview/mpflutter_wechat_webview.dart';
-import 'package:qiuzhijia/scenes/lanmu/bishitiku.dart';
 
 import 'package:qiuzhijia/tapah/class.dart' as tapah;
 import 'package:qiuzhijia/tapah/data.dart' as tapah;
@@ -10,14 +9,6 @@ import 'package:qiuzhijia/tapah/enum.dart' as tapah;
 import 'package:qiuzhijia/tapah/function.dart' as tapah;
 import 'package:qiuzhijia/tapah/option.dart' as tapah;
 import 'package:qiuzhijia/tapah/request.dart' as tapah;
-import 'package:qiuzhijia/scenes/mainpage/field.dart';
-import 'package:qiuzhijia/scenes/mainpage/example.dart';
-import 'package:qiuzhijia/scenes/lanmu/qiuzhiziliao.dart';
-import 'package:qiuzhijia/scenes/lanmu/shixineitui.dart';
-import 'package:qiuzhijia/scenes/lanmu/gangweineitui.dart';
-import 'package:qiuzhijia/scenes/lanmu/qiuzhifuwu.dart';
-import 'package:qiuzhijia/scenes/lanmu/mianshijingyan.dart';
-import 'package:qiuzhijia/scenes/lanmu/zixunguwen.dart';
 
 class HomeWidget extends StatefulWidget {
 	const HomeWidget({super.key});
@@ -162,38 +153,38 @@ class HomeState extends State<HomeWidget> with tapah.Callback {
 					return GestureDetector(
 						onTap: () {
 							if (index == 0) {
-								tapah.EventManager().call(tapah.SceneID.mainpage, tapah.EventType.mainpage_activate, [1]);
+								tapah.navigator(context, "/mainpage", arguments: {"index": 1});
 							}
 							if (index == 1) {
-								Navigator.push(context, MaterialPageRoute(builder: (context) => FieldWidget(key: GlobalKey(),)));
+								tapah.navigator(context, '/mainpage/field');
 							}
 							if (index == 3) {
 								if (tapah.accountinfo == null) {
-									Navigator.pushNamed(context, '/profile');
+									tapah.navigator(context, '/mainpage/profile');
 									return;
 								}
-								Navigator.push(context, MaterialPageRoute(builder: (context) => ExampleWidget(key: GlobalKey(),)));
+								tapah.navigator(context, '/mainpage/example');
 							}
 							if (index == 5) {
-								Navigator.push(context, MaterialPageRoute(builder: (context) => QiuZhiZiLiaoWidget(key: GlobalKey(),)));
+								tapah.navigator(context, '/lanmu/qiuzhiziliao');
 							}
 							if (index == 6) {
-								Navigator.push(context, MaterialPageRoute(builder: (context) => ShiXiNeiTuiWidget(key: GlobalKey(),)));
+								tapah.navigator(context, '/lanmu/shixineitui');
 							}
 							if (index == 7) {
-								Navigator.push(context, MaterialPageRoute(builder: (context) => GangWeiNeiTuiWidget(key: GlobalKey(),)));
+								tapah.navigator(context, '/lanmu/gangweineitui');
 							}
 							if (index == 8) {
-								Navigator.push(context, MaterialPageRoute(builder: (context) => ZiXunGuWenWidget(key: GlobalKey(),)));
+								tapah.navigator(context, '/lanmu/zixunguwen');
 							}
 							if (index == 9) {
-								Navigator.push(context, MaterialPageRoute(builder: (context) => BiShiTiKuWidget(key: GlobalKey(),)));
+								tapah.navigator(context, '/lanmu/bishitiku');
 							}
 							if (index == 10) {
-								Navigator.push(context, MaterialPageRoute(builder: (context) => MianShiJingYanWidget(key: GlobalKey(),)));
+								tapah.navigator(context, '/lanmu/mianshijingyan');
 							}
 							if (index == 11) {
-								Navigator.push(context, MaterialPageRoute(builder: (context) => QiuZhiFuWuWidget(key: GlobalKey(),)));
+								tapah.navigator(context, '/lanmu/qiuzhifuwu');
 							}
 						},
 						child: SizedBox(

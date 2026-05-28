@@ -6,8 +6,6 @@ import 'package:qiuzhijia/tapah/class.dart' as tapah;
 import 'package:qiuzhijia/tapah/data.dart' as tapah;
 import 'package:qiuzhijia/tapah/enum.dart' as tapah;
 import 'package:qiuzhijia/tapah/function.dart' as tapah;
-import 'package:qiuzhijia/scenes/mainpage/fielddetail.dart' as mainpage;
-import 'package:qiuzhijia/scenes/mainpage/fieldlist.dart' as mainpage;
 
 class FieldWidget extends StatefulWidget {
 	final tapah.Field? field;
@@ -63,20 +61,8 @@ class FieldState extends State<FieldWidget> with tapah.Callback {
 					children: [
 						GestureDetector(
 							onTap: () async {
-								final result = await Navigator.push<List<tapah.Field>>(
-									context,
-									MaterialPageRoute(
-										builder: (context) => mainpage.FieldListWidget(
-											key: GlobalKey(),
-											selected: _selectedFields ?? [],
-										),
-									),
-								);
-								if (result != null) {
-									setState(() {
-										_selectedFields = result.isEmpty ? null : result;
-									});
-								}
+								String fields = _selectedFields!.map((e) => e.id).join(",");
+								tapah.navigator(context, "/mainpage/fieldlist", arguments: {"fields": fields},);
 							},
 							child: Row(
 								children: [
@@ -128,12 +114,7 @@ class FieldState extends State<FieldWidget> with tapah.Callback {
 						return GestureDetector(
 							key: itemKey,
 							onTap: () {
-								Navigator.push(
-									context,
-									MaterialPageRoute(
-										builder: (context) => mainpage.FieldDetailWidget(key: GlobalKey(),field: field,),
-									),
-								);
+								tapah.navigator(context, "/mainpage/fielddetail", arguments: {"field": field.id},);
 							},
 							child: Container(
 								width: double.infinity,

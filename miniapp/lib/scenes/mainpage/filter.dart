@@ -9,9 +9,7 @@ import 'package:qiuzhijia/tapah/function.dart' as tapah;
 import 'package:qiuzhijia/tapah/request.dart' as tapah;
 
 class FilterWidget extends StatefulWidget {
-	final int enttype;
-	final bool financial;
-	const FilterWidget({super.key, required this.enttype, required this.financial});
+	const FilterWidget({super.key});
 
 	@override
 	State<FilterWidget> createState() => FilterState();
@@ -22,13 +20,13 @@ class FilterState extends State<FilterWidget> with tapah.Callback {
 	final ScrollController scrollcontroller = ScrollController();
 	bool isLoading = false, isFinish = false;
 	TextEditingController searchcontroller = TextEditingController();
+	int enttype = 0; bool financial = false;
 
 	@override
 	void initState() {
 		super.initState();
 		initCallback(tapah.SceneID.mp_filter, widget.key!);
 		tapah.enterpriselist = [];
-		getEnterpriseList();
 
 		scrollcontroller.addListener(() async {
 			if (scrollcontroller.position.pixels >= scrollcontroller.position.maxScrollExtent * 0.9) {
@@ -36,11 +34,22 @@ class FilterState extends State<FilterWidget> with tapah.Callback {
 				if (isLoading) return;
 				isLoading = true;
 				page++;
-				isFinish = await tapah.RequestEnterpriseList(zone, 0, 0, widget.enttype, 0, widget.financial, searchcontroller.text, page) < 20;
+				isFinish = await tapah.RequestEnterpriseList(zone, 0, 0, enttype, 0, financial, searchcontroller.text, page) < 20;
 				isLoading = false;
 				setState(() {});
 			}
 		});
+	}
+
+	@override
+	void didChangeDependencies() {
+		super.didChangeDependencies();
+		final args = ModalRoute.of(context)?.settings.arguments;
+		if (args != null && args is Map<String, dynamic>) {
+			enttype = args["enttype"];
+			financial = args["financial"] == 1 ? true : false;
+		}
+		getEnterpriseList();
 	}
 
 	@override
@@ -52,7 +61,7 @@ class FilterState extends State<FilterWidget> with tapah.Callback {
 	Future<void> getEnterpriseList() async {
 		page = 1;
 		tapah.enterpriselist = [];
-		isFinish = await tapah.RequestEnterpriseList(zone, 0, 0, widget.enttype, 0, widget.financial, searchcontroller.text, page) < 20;
+		isFinish = await tapah.RequestEnterpriseList(zone, 0, 0, enttype, 0, financial, searchcontroller.text, page) < 20;
 		if (mounted == false) return;
 		setState(() {});
 	}
@@ -60,9 +69,9 @@ class FilterState extends State<FilterWidget> with tapah.Callback {
 	@override
 	Widget build(BuildContext context) {
 		String rowname = "企业列表";
-		if (widget.enttype == 1) rowname = "国有企业";
-		if (widget.enttype == 2) rowname = "中央企业";
-		if (widget.enttype == 0 && widget.financial) rowname = "金融企业";
+		if (enttype == 1) rowname = "国有企业";
+		if (enttype == 2) rowname = "中央企业";
+		if (enttype == 0 && financial) rowname = "金融企业";
 
 		return tapah.buildMain1(context, [
 			Center(child: Text(rowname, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),),
@@ -149,7 +158,7 @@ class FilterState extends State<FilterWidget> with tapah.Callback {
 					var enterprise = tapah.enterpriselist[index];
 					return GestureDetector(
 						onTap: () {
-							Navigator.pushNamed(context, '/enterprise/detail', arguments: enterprise);
+							tapah.navigator(context, '/enterprise/detail', arguments: {"enterprise": enterprise.id});
 						},
 						child: Container(
 							height: 100,

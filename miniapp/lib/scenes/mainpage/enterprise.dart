@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
 
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:flutter/services.dart';
 
 import 'package:qiuzhijia/tapah/class.dart' as tapah;
 import 'package:qiuzhijia/tapah/data.dart' as tapah;
 import 'package:qiuzhijia/tapah/enum.dart' as tapah;
 import 'package:qiuzhijia/tapah/function.dart' as tapah;
 import 'package:qiuzhijia/tapah/request.dart' as tapah;
-
-import 'package:qiuzhijia/scenes/mainpage/filter.dart';
 
 class EnterpriseWidget extends StatefulWidget {
 	const EnterpriseWidget({super.key});
@@ -86,7 +83,7 @@ class EnterpriseState extends State<EnterpriseWidget> with tapah.Callback {
 			children: [
 				GestureDetector(
 					onTap: () {
-						Navigator.push(context, MaterialPageRoute(builder: (context) => FilterWidget(key: GlobalKey(), enttype: 1, financial: false,)));
+						tapah.navigator(context, '/mainpage/filter', arguments: {"enttype": 1, "financial": 0});
 					},
 					child: Container(
 						width: 116,
@@ -106,7 +103,7 @@ class EnterpriseState extends State<EnterpriseWidget> with tapah.Callback {
 				),
 				GestureDetector(
 					onTap: () {
-						Navigator.push(context, MaterialPageRoute(builder: (context) => FilterWidget(key: GlobalKey(), enttype: 2, financial: false,)));
+						tapah.navigator(context, '/mainpage/filter', arguments: {"enttype": 2, "financial": 0});
 					},
 					child: Container(
 						width: 116,
@@ -126,7 +123,7 @@ class EnterpriseState extends State<EnterpriseWidget> with tapah.Callback {
 				),
 				GestureDetector(
 					onTap: () {
-						Navigator.push(context, MaterialPageRoute(builder: (context) => FilterWidget(key: GlobalKey(), enttype: 0, financial: true,)));
+						tapah.navigator(context, '/mainpage/filter', arguments: {"enttype": 0, "financial": 1});
 					},
 					child: Container(
 						width: 116,
@@ -239,7 +236,7 @@ class EnterpriseState extends State<EnterpriseWidget> with tapah.Callback {
 					var enterprise = tapah.enterpriselist[index];
 					return GestureDetector(
 						onTap: () {
-							Navigator.pushNamed(context, '/enterprise/detail', arguments: enterprise);
+							tapah.navigator(context, '/enterprise/detail', arguments: {"enterprise": enterprise.id});
 						},
 						child: Container(
 							height: 100,

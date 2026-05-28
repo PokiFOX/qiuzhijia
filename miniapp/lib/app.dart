@@ -10,7 +10,21 @@ import 'package:qiuzhijia/scenes/splash.dart' as scenes;
 import 'package:qiuzhijia/scenes/mainpage.dart' as scenes;
 import 'package:qiuzhijia/scenes/detail.dart' as scenes;
 import 'package:qiuzhijia/scenes/mainpage/profile.dart' as scenes;
-
+import 'package:qiuzhijia/scenes/mainpage/example.dart' as scenes;
+import 'package:qiuzhijia/scenes/mainpage/field.dart' as scenes;
+import 'package:qiuzhijia/scenes/mainpage/fielddetail.dart' as scenes;
+import 'package:qiuzhijia/scenes/lanmu/qiuzhiziliao.dart' as scenes;
+import 'package:qiuzhijia/scenes/lanmu/shixineitui.dart' as scenes;
+import 'package:qiuzhijia/scenes/lanmu/gangweineitui.dart' as scenes;
+import 'package:qiuzhijia/scenes/lanmu/zixunguwen.dart' as scenes;
+import 'package:qiuzhijia/scenes/lanmu/bishitiku.dart' as scenes;
+import 'package:qiuzhijia/scenes/lanmu/mianshijingyan.dart' as scenes;
+import 'package:qiuzhijia/scenes/lanmu/qiuzhifuwu.dart' as scenes;
+import 'package:qiuzhijia/scenes/kefu.dart' as scenes;
+import 'package:qiuzhijia/scenes/mainpage/favorite.dart' as scenes;
+import 'package:qiuzhijia/scenes/mainpage/filter.dart' as scenes;
+import 'package:qiuzhijia/scenes/mainpage/casefilter.dart' as scenes;
+import 'package:qiuzhijia/scenes/mainpage/fieldlist.dart' as scenes;
 
 class MainAppDelegate {
 	late MPFlutterWechatAppDelegate appDelegate;
@@ -46,8 +60,10 @@ class MainAppDelegate {
 
 	void onLaunchOrEnter(Map query) {
 		final navigator = MPNavigatorObserver.currentRoute?.navigator;
+		print('navigator: $navigator');
 		if (navigator != null) {
 			final routeName = query["routeName"];
+			print('routeName: $routeName');
 			switch (routeName) {
 				case "/mainpage":
 					navigator.pushNamed("/mainpage");
@@ -66,7 +82,7 @@ class MainApp extends StatelessWidget {
 			title: '求职家小程序',
 			navigatorKey: tapah.globalkey,
 			builder: BotToastInit(),
-			navigatorObservers: [BotToastNavigatorObserver()],
+			navigatorObservers: [BotToastNavigatorObserver(), MPNavigatorObserver()],
 			theme: ThemeData(
 				useMaterial3: true,
 				appBarTheme: AppBarTheme(
@@ -83,7 +99,22 @@ class MainApp extends StatelessWidget {
 				'/splash': (context) => scenes.SplashWidget(key: GlobalKey()),
 				'/mainpage': (context) => scenes.MainPageWidget(key: GlobalKey()),
 				'/enterprise/detail': (context) => scenes.DetailWidget(key: GlobalKey()),
-				'/profile': (context) => scenes.ProfileWidget(key: GlobalKey()),
+				'/mainpage/field': (context) => scenes.FieldWidget(key: GlobalKey()),
+				'/mainpage/profile': (context) => scenes.ProfileWidget(key: GlobalKey()),
+				'/mainpage/example': (context) => scenes.ExampleWidget(key: GlobalKey(),),
+				'/mainpage/fielddetail': (context) => scenes.FieldDetailWidget(key: GlobalKey(),),
+				'/lanmu/qiuzhiziliao': (context) => scenes.QiuZhiZiLiaoWidget(key: GlobalKey(),),
+				'/lanmu/shixineitui': (context) => scenes.ShiXiNeiTuiWidget(key: GlobalKey(),),
+				'/lanmu/gangweineitui': (context) => scenes.GangWeiNeiTuiWidget(key: GlobalKey(),),
+				'/lanmu/zixunguwen': (context) => scenes.ZiXunGuWenWidget(key: GlobalKey(),),
+				'/lanmu/bishitiku': (context) => scenes.BiShiTiKuWidget(key: GlobalKey(),),
+				'/lanmu/mianshijingyan': (context) => scenes.MianShiJingYanWidget(key: GlobalKey(),),
+				'/lanmu/qiuzhifuwu': (context) => scenes.QiuZhiFuWuWidget(key: GlobalKey(),),
+				'/kefu': (context) => scenes.KeFuWidget(key: GlobalKey(),),
+				'/mainpage/favorite': (context) => scenes.FavoriteWidget(key: GlobalKey(),),
+				'/mainpage/filter': (context) => scenes.FilterWidget(key: GlobalKey(),),
+				'/mainpage/casefilter': (context) => scenes.CaseFilterWidget(key: GlobalKey(),),
+				'/mainpage/fieldlist': (context) => scenes.FieldListWidget(key: GlobalKey(),),
 			},
 			home: scenes.SplashWidget(key: GlobalKey()),
 		);

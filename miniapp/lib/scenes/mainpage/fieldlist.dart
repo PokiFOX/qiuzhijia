@@ -4,8 +4,7 @@ import 'package:qiuzhijia/tapah/class.dart' as tapah;
 import 'package:qiuzhijia/tapah/data.dart' as tapah;
 
 class FieldListWidget extends StatefulWidget {
-	final List<tapah.Field> selected;
-	const FieldListWidget({super.key, required this.selected});
+	const FieldListWidget({super.key});
 
 	@override
 	State<FieldListWidget> createState() => FieldListState();
@@ -29,9 +28,18 @@ class FieldListState extends State<FieldListWidget> {
 		for (var key in typeKeys) {
 			_sectionKeys[key] = GlobalKey();
 		}
-		for (var f in widget.selected) {
-			_selectedIds.add(f.id);
+	}
+
+	@override
+	void didChangeDependencies() {
+		super.didChangeDependencies();
+		final args = ModalRoute.of(context)?.settings.arguments;
+		if (args != null && args is Map<String, dynamic>) {
+			for (var id in args["fields"].split(',')) {
+				_selectedIds.add(int.parse(id));
+			}
 		}
+		setState(() {});
 	}
 
 	void _scrollToSection(String type) {

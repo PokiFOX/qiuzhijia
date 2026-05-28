@@ -1,10 +1,12 @@
 import 'dart:ui';
-
 import 'package:flutter/material.dart';
+
+import 'package:mpflutter_wechat_button/mpflutter_wechat_button.dart';
 
 import 'package:qiuzhijia/tapah/class.dart' as tapah;
 import 'package:qiuzhijia/tapah/data.dart' as tapah;
-import 'package:qiuzhijia/tapah/enum.dart' as tapah;import 'package:qiuzhijia/tapah/request.dart' as tapah;
+import 'package:qiuzhijia/tapah/enum.dart' as tapah;
+import 'package:qiuzhijia/tapah/request.dart' as tapah;
 import 'package:qiuzhijia/widgets/expandable_text.dart' as widgets;
 
 class ExampleWidget extends StatefulWidget {
@@ -188,9 +190,12 @@ class ExampleState extends State<ExampleWidget> with tapah.Callback {
 				children: [
 					child,
 					Positioned.fill(
-						child: GestureDetector(
-							onTap: () {
-								Navigator.pushNamed(context, '/profile');
+						child: MPFlutter_Wechat_Button(
+							openType: "getPhoneNumber",
+							onGetPhoneNumber: (result) async {
+								await tapah.RequestWxCode(result["code"]);
+								if (!mounted) return;
+								setState(() {});
 							},
 							child: ClipRect(
 								child: BackdropFilter(

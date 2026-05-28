@@ -141,10 +141,10 @@ Future<List<Enterprise>> RequestEnterprise(int zone, int sector, int level, int 
 		if (item["enttype"] != '国企') enterprise.enttype = 1;
 		if (item["enttype"] == '央企') enterprise.enttype = 2;
 		enterprise.financial = item["financial"] == "是";
-		for (var article in item["article1"].split('\n')) {
+		for (var article in item["article1"]) {
 			enterprise.article1.add(Article(article[0], article[1]));
 		}
-		for (var article in item["article2"].split('\n')) {
+		for (var article in item["article2"]) {
 			enterprise.article2.add(Article(article[0], article[1]));
 		}
 		list.add(enterprise);

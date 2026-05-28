@@ -6,8 +6,7 @@ import 'package:qiuzhijia/tapah/enum.dart' as tapah;
 import 'package:qiuzhijia/tapah/request.dart' as tapah;
 
 class CaseFilterWidget extends StatefulWidget {
-	final int level, sector, stag, year;
-	const CaseFilterWidget({super.key, required this.level, required this.sector, required this.stag, required this.year,});
+	const CaseFilterWidget({super.key});
 
 	@override
 	State<CaseFilterWidget> createState() => CaseFilterState();
@@ -32,10 +31,6 @@ class CaseFilterState extends State<CaseFilterWidget> with tapah.Callback {
 	@override
 	void initState() {
 		super.initState();
-		selections[0] = widget.stag;
-		selections[1] = widget.year;
-		selections[2] = widget.level;
-		selections[3] = widget.sector;
 		initCallback(tapah.SceneID.mp_casefilter, widget.key!);
 		rightScrollController.addListener(onScroll);
 	}
@@ -45,6 +40,19 @@ class CaseFilterState extends State<CaseFilterWidget> with tapah.Callback {
 		rightScrollController.dispose();
 		uninitCallback();
 		super.dispose();
+	}
+
+	@override
+	void didChangeDependencies() {
+		super.didChangeDependencies();
+		final args = ModalRoute.of(context)?.settings.arguments;
+		if (args != null && args is Map<String, dynamic>) {
+			selections[0] = args['stag'] ?? 0;
+			selections[1] = args['year'] ?? 0;
+			selections[2] = args['level'] ?? 0;
+			selections[3] = args['sector'] ?? 0;
+		}
+		setState(() {});
 	}
 
 	void onScroll() {

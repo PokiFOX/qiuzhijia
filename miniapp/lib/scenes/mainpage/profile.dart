@@ -2,15 +2,12 @@ import 'package:flutter/material.dart';
 
 import 'package:mpflutter_wechat_button/mpflutter_wechat_button.dart';
 import 'package:mpflutter_wechat_editable/mpflutter_wechat_editable.dart';
-import 'package:mpflutter_wechat_api/mpflutter_wechat_api.dart' as wxapi;
 
 import 'package:qiuzhijia/tapah/class.dart' as tapah;
 import 'package:qiuzhijia/tapah/data.dart' as tapah;
 import 'package:qiuzhijia/tapah/enum.dart' as tapah;
 import 'package:qiuzhijia/tapah/function.dart' as tapah;
 import 'package:qiuzhijia/tapah/request.dart' as tapah;
-import 'package:qiuzhijia/scenes/mainpage/favorite.dart';
-import 'package:qiuzhijia/scenes/kefu.dart';
 
 class ProfileWidget extends StatefulWidget {
 	const ProfileWidget({super.key});
@@ -147,7 +144,7 @@ class ProfileState extends State<ProfileWidget> with tapah.Callback {
 											if (tapah.accountinfo == null) {
 												return;
 											}
-											Navigator.push(context, MaterialPageRoute(builder: (context) => FavoriteWidget(key: GlobalKey(),)));
+											tapah.navigator(context, '/mainpage/favorite');
 										},
 										child: Column(
 											mainAxisAlignment: MainAxisAlignment.center,
@@ -209,7 +206,7 @@ class ProfileState extends State<ProfileWidget> with tapah.Callback {
 									GestureDetector(
 										behavior: HitTestBehavior.translucent,
 										onTap: () {
-											Navigator.push(context, MaterialPageRoute(builder: (context) => KeFuWidget(key: GlobalKey(),)));
+											tapah.KeFu(context);
 										},
 										child: Row(
 											children: [

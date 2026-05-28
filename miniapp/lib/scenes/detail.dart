@@ -2,8 +2,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import 'package:bot_toast/bot_toast.dart';
+
 import 'package:mpflutter_wechat_api/mpflutter_wechat_api.dart' as wxapi;
-// import 'package:mpflutter_wechat_button/mpflutter_wechat_button.dart';
+import 'package:mpflutter_wechat_button/mpflutter_wechat_button.dart';
 
 import 'package:qiuzhijia/tapah/class.dart' as tapah;
 import 'package:qiuzhijia/tapah/data.dart' as tapah;
@@ -47,13 +48,22 @@ class DetailState extends State<DetailWidget> with tapah.Callback {
 	void didChangeDependencies() {
 		super.didChangeDependencies();
 		final args = ModalRoute.of(context)?.settings.arguments;
-		if (args != null && args is tapah.Enterprise) {
-			enterprise = args;
-			initialized = true;
-			if (enterprise.images.isNotEmpty) {
-				startTopImagePlay();
+		if (args != null && args is Map<String, dynamic>) {
+			final enterpriseid = args["enterprise"];
+			if (enterpriseid != null && enterpriseid is int) {
+				for (var f in tapah.enterpriselist) {
+					if (f.id == enterpriseid) {
+						enterprise = f;
+						break;
+					}
+				}
 			}
 		}
+		initialized = true;
+		if (enterprise.images.isNotEmpty) {
+			startTopImagePlay();
+		}
+		setState(() {});
 	}
 
 	@override
@@ -103,12 +113,21 @@ class DetailState extends State<DetailWidget> with tapah.Callback {
 						),
 					),
 					const SizedBox(width: 20,),
-					InkWell(
+					tapah.accountinfo == null ? MPFlutter_Wechat_Button(
+						openType: "getPhoneNumber",
+						onGetPhoneNumber: (result) async {
+							await tapah.RequestWxCode(result["code"]);
+							if (!mounted) return;
+							setState(() {});
+						},
+						child: Row(
+							children: [
+								Image.network(tapah.parseimage(fav ? '企业详情/已收藏.png' : '企业详情/关注.png'), fit: BoxFit.contain, width: 28, height: 28,),
+								Text(fav ? "已收藏" : "关注", style: TextStyle(color: Colors.black, fontSize: 10),),
+							],
+						),
+					) : InkWell(
 						onTap: () {
-							if (tapah.accountinfo == null) {
-								Navigator.pushNamed(context, '/profile');
-								return;
-							}
 							if (tapah.accountinfo!.enterprise.contains(enterprise.id)) {
 								tapah.accountinfo!.enterprise.remove(enterprise.id);
 							}

@@ -8,7 +8,6 @@ import 'package:qiuzhijia/tapah/data.dart' as tapah;
 import 'package:qiuzhijia/tapah/enum.dart' as tapah;
 import 'package:qiuzhijia/tapah/function.dart' as tapah;
 import 'package:qiuzhijia/tapah/request.dart' as tapah;
-import 'package:qiuzhijia/scenes/mainpage/fielddetail.dart' as mainpage;
 
 class FavoriteWidget extends StatefulWidget {
 	const FavoriteWidget({super.key});
@@ -118,7 +117,7 @@ class FavoriteState extends State<FavoriteWidget> with tapah.Callback {
 					var enterprise = tapah.enterpriselist[index];
 					return GestureDetector(
 						onTap: () {
-							Navigator.pushNamed(context, '/enterprise/detail', arguments: enterprise);
+							tapah.navigator(context, '/enterprise/detail', arguments: {"enterprise": enterprise.id});
 						},
 						child: Container(
 							height: 100,
@@ -195,12 +194,7 @@ class FavoriteState extends State<FavoriteWidget> with tapah.Callback {
 					}
 					return GestureDetector(
 						onTap: () {
-							Navigator.push(
-								context,
-								MaterialPageRoute(
-									builder: (context) => mainpage.FieldDetailWidget(key: GlobalKey(),field: field,),
-								),
-							);
+							tapah.navigator(context, '/mainpage/fielddetail', arguments: {"field": field.id});
 						},
 						child: Container(
 							width: double.infinity,

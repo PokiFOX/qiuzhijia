@@ -6,8 +6,6 @@ import 'package:qiuzhijia/tapah/enum.dart' as tapah;
 import 'package:qiuzhijia/tapah/function.dart' as tapah;
 import 'package:qiuzhijia/tapah/request.dart' as tapah;
 import 'package:qiuzhijia/widgets/expandable_text.dart' as widgets;
-import 'package:qiuzhijia/scenes/mainpage/casefilter.dart';
-import 'package:qiuzhijia/scenes/mainpage/fielddetail.dart';
 
 class ExampleWidget extends StatefulWidget {
 	const ExampleWidget({super.key,});
@@ -109,7 +107,7 @@ class ExampleState extends State<ExampleWidget> with tapah.Callback {
 							height: 50,
 							child: GestureDetector(
 								onTap: () {
-									Navigator.push(context, MaterialPageRoute(builder: (context) => CaseFilterWidget(key: GlobalKey(), level: level, sector: sector, stag: stag, year: year,)));
+									tapah.navigator(context, '/mainpage/casefilter', arguments: {"stag": stag, "year": year, "level": level, "sector": sector,});
 								},
 								child: Row(
 									mainAxisAlignment: MainAxisAlignment.center,
@@ -268,7 +266,7 @@ class ExampleState extends State<ExampleWidget> with tapah.Callback {
 																Text("· 本科院校    	${c.school1 ?? '--'}", style: const TextStyle(fontSize: 12, color: Color(0xFF555555))),
 																GestureDetector(
 																	onTap: () {
-																		Navigator.push(context, MaterialPageRoute(builder: (context) => FieldDetailWidget(key: GlobalKey(), field: field1!,)));
+																		tapah.navigator(context, '/mainpage/fielddetail', arguments: {"field": field1!.id});
 																	},
 																	child: Row(
 																		children: [
@@ -288,7 +286,7 @@ class ExampleState extends State<ExampleWidget> with tapah.Callback {
 																Text("· 硕士院校    	${c.school2 ?? '--'}", style: const TextStyle(fontSize: 12, color: Color(0xFF555555))),
 																GestureDetector(
 																	onTap: () {
-																		Navigator.push(context, MaterialPageRoute(builder: (context) => FieldDetailWidget(key: GlobalKey(), field: field2!,)));
+																		tapah.navigator(context, '/mainpage/fielddetail', arguments: {"field": field2!.id});
 																	},
 																	child: Row(
 																		children: [
@@ -333,14 +331,13 @@ class ExampleState extends State<ExampleWidget> with tapah.Callback {
 														onTap: () async {
 															for (var i = 0;i < tapah.enterpriselist.length;i++) {
 																if (tapah.enterpriselist[i].name == c.entname) {
-																	var enterprise = tapah.enterpriselist[i];
-																	Navigator.pushNamed(context, '/enterprise/detail', arguments: enterprise);
+																	tapah.navigator(context, '/enterprise/detail', arguments: {"enterprise": tapah.enterpriselist[i].id});
 																	return;
 																}
 															}
 															var enterpriseList = await tapah.RequestEnterprise(0, 0, 0, 0, 0, null, c.entname ?? '', 1);
 															if (enterpriseList.isNotEmpty) {
-																Navigator.pushNamed(context, '/enterprise/detail', arguments: enterpriseList[0]);
+																tapah.navigator(context, '/enterprise/detail', arguments: {"enterprise": enterpriseList[0].id});
 															}
 														},
 														child: Text("${c.entname ?? '--'}", style: const TextStyle(fontSize: 12, color: Color(0xFF2D7BFF)),),

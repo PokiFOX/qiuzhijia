@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-// import 'package:mpflutter_wechat_button/mpflutter_wechat_button.dart';
+import 'package:mpflutter_wechat_button/mpflutter_wechat_button.dart';
 
 import 'package:qiuzhijia/tapah/class.dart' as tapah;
 import 'package:qiuzhijia/tapah/data.dart' as tapah;
@@ -10,14 +10,14 @@ import 'package:qiuzhijia/tapah/request.dart' as tapah;
 import 'package:qiuzhijia/widgets/expandable_text.dart' as widgets;
 
 class FieldDetailWidget extends StatefulWidget {
-	final tapah.Field field;
-	const FieldDetailWidget({super.key, required this.field});
+	const FieldDetailWidget({super.key});
 
 	@override
 	State<FieldDetailWidget> createState() => FieldDetailState();
 }
 
 class FieldDetailState extends State<FieldDetailWidget> with tapah.Callback {
+	tapah.Field? field;
 	List<tapah.Enterprise> enterprise = [];
 	List<tapah.Case> cases = [];
 	bool isLoading = true;
@@ -39,6 +39,23 @@ class FieldDetailState extends State<FieldDetailWidget> with tapah.Callback {
 		super.initState();
 		initCallback(tapah.SceneID.mp_fielddetail, widget.key!);
 		_scrollController.addListener(_onScroll);
+	}
+
+	@override
+	void didChangeDependencies() {
+		super.didChangeDependencies();
+		final args = ModalRoute.of(context)?.settings.arguments;
+		if (args != null && args is Map<String, dynamic>) {
+			final fieldId = args["field"];
+			if (fieldId != null && fieldId is int) {
+				for (var f in tapah.fieldlist) {
+					if (f.id == fieldId) {
+						field = f;
+						break;
+					}
+				}
+			}
+		}
 		loadEnterprise();
 	}
 
@@ -56,8 +73,8 @@ class FieldDetailState extends State<FieldDetailWidget> with tapah.Callback {
 			enterprise = [];
 			cases = [];
 		});
-		var enterpriseList = await tapah.RequestEnterprise(0, 0, 0, 0, widget.field.id, null, "", 1);
-		var caseList = await tapah.RequestCase(0, 0, 0, widget.field.id, 0, 0, 1);
+		var enterpriseList = await tapah.RequestEnterprise(0, 0, 0, 0, field!.id, null, "", 1);
+		var caseList = await tapah.RequestCase(0, 0, 0, field!.id, 0, 0, 1);
 		if (!mounted) return;
 		setState(() {
 			enterprise = enterpriseList;
@@ -72,7 +89,7 @@ class FieldDetailState extends State<FieldDetailWidget> with tapah.Callback {
 	Widget build(BuildContext context) {
 		bool fav = false;
 		for (var item in tapah.accountinfo?.field ?? {}) {
-			if (item == widget.field.id) {
+			if (item == field?.id) {
 				fav = true;
 				break;
 			}
@@ -133,7 +150,7 @@ class FieldDetailState extends State<FieldDetailWidget> with tapah.Callback {
 						children: [
 							InkWell(
 								onTap: () {
-									Navigator.pushReplacementNamed(context, '/mainpage');
+									tapah.navigator(context, '/mainpage');
 								},
 								child: Row(
 									children: [
@@ -143,17 +160,27 @@ class FieldDetailState extends State<FieldDetailWidget> with tapah.Callback {
 								),
 							),
 							const SizedBox(width: 20,),
-							InkWell(
+							tapah.accountinfo == null ? MPFlutter_Wechat_Button(
+								openType: "getPhoneNumber",
+								onGetPhoneNumber: (result) async {
+									await tapah.RequestWxCode(result["code"]);
+									if (!mounted) return;
+									setState(() {});
+								},
+								child: Row(
+									children: [
+										Image.network(tapah.parseimage(fav ? '企业详情/已收藏.png' : '企业详情/关注.png'), fit: BoxFit.contain, width: 28, height: 28,),
+										Text(fav ? "已收藏" : "关注", style: TextStyle(color: Colors.black, fontSize: 10),),
+									],
+								),
+							): InkWell(
 								onTap: () {
-									if (tapah.accountinfo == null) {
-										Navigator.pushNamed(context, '/profile');
-										return;
-									}
-									if (tapah.accountinfo!.field.contains(widget.field.id)) {
-										tapah.accountinfo!.field.remove(widget.field.id);
+									if (field == null) return;
+									if (tapah.accountinfo!.field.contains(field!.id)) {
+										tapah.accountinfo!.field.remove(field!.id);
 									}
 									else {
-										tapah.accountinfo!.field.add(widget.field.id);
+										tapah.accountinfo!.field.add(field!.id);
 									}
 									tapah.RequestUserInfo();
 									setState(() {});
@@ -267,17 +294,17 @@ class FieldDetailState extends State<FieldDetailWidget> with tapah.Callback {
 				crossAxisAlignment: CrossAxisAlignment.start,
 				children: [
 					Text(
-						widget.field.value,
+						field?.value ?? "",
 						style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Color(0xFF2D7BFF)),
 					),
 					const SizedBox(height: 4),
-					Text('学科门类: ${widget.field.type}', style: const TextStyle(fontSize: 13, color: Color(0xFF333333))),
+					Text('学科门类: ${field?.type ?? ""}', style: const TextStyle(fontSize: 13, color: Color(0xFF333333))),
 					const SizedBox(height: 4),
 					Row(
 						children: [
 							const Text('专业热门度: ', style: TextStyle(fontSize: 13, color: Color(0xFF333333))),
 							...List.generate(
-								widget.field.star.clamp(0, 8),
+								field?.star.clamp(0, 8) ?? 0,
 								(_) => const Padding(
 									padding: EdgeInsets.only(right: 2),
 									child: Icon(Icons.star, size: 17, color: Color(0xFFF6C44D)),
@@ -287,7 +314,7 @@ class FieldDetailState extends State<FieldDetailWidget> with tapah.Callback {
 					),
 					const SizedBox(height: 6),
 					widgets.ExpandableText(
-						widget.field.content,
+						field?.content ?? "",
 						maxLines: 2,
 						style: const TextStyle(fontSize: 11, color: Color(0xFF555555), height: 1.4),
 						expandText: '展开',
@@ -457,7 +484,7 @@ class FieldDetailState extends State<FieldDetailWidget> with tapah.Callback {
 						children: [
 							GestureDetector(
 								onTap: () {
-									Navigator.pushNamed(context, '/enterprise/detail', arguments: ent);
+									tapah.navigator(context, '/enterprise/detail', arguments: {"enterprise": ent.id});
 								},
 								child: Text('查看企业详情 >', style: const TextStyle(fontSize: 11, color: Color(0xFF2D7BFF))),
 							),

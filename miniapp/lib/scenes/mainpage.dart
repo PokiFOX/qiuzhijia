@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 
+import 'package:mpflutter_wechat_button/mpflutter_wechat_button.dart';
+
 import 'package:qiuzhijia/tapah/class.dart' as tapah;
 import 'package:qiuzhijia/tapah/data.dart' as tapah;
 import 'package:qiuzhijia/tapah/enum.dart' as tapah;
 import 'package:qiuzhijia/tapah/function.dart' as tapah;
-
+import 'package:qiuzhijia/tapah/request.dart' as tapah;
 import 'package:qiuzhijia/scenes/mainpage/home.dart' as scenes;
 import 'package:qiuzhijia/scenes/mainpage/enterprise.dart' as scenes;
 import 'package:qiuzhijia/scenes/mainpage/offer.dart' as scenes;
 import 'package:qiuzhijia/scenes/mainpage/service.dart' as scenes;
 import 'package:qiuzhijia/scenes/mainpage/profile.dart' as scenes;
-import 'package:qiuzhijia/scenes/mainpage/example.dart' as scenes;
 
 class MainPageWidget extends StatefulWidget {
 	const MainPageWidget({super.key});
@@ -37,6 +38,23 @@ class MainPageState extends State<MainPageWidget> with tapah.Callback {
 				currentindex = index[0];
 			});
 		});
+	}
+
+	@override
+	void didChangeDependencies() {
+		super.didChangeDependencies();
+		final args = ModalRoute.of(context)?.settings.arguments;
+		if (args != null && args is Map<String, dynamic>) {
+			var index = args["index"];
+			setState(() {
+				activated[0] = index == 0;
+				activated[1] = index == 1;
+				activated[2] = index == 2;
+				activated[3] = index == 3;
+				activated[4] = index == 4;
+				currentindex = index;
+			});
+		}
 	}
 
 	@override
@@ -121,13 +139,24 @@ class MainPageState extends State<MainPageWidget> with tapah.Callback {
 												],
 											),
 										),
-										GestureDetector(
+										tapah.accountinfo == null ? MPFlutter_Wechat_Button(
+											openType: "getPhoneNumber",
+											onGetPhoneNumber: (result) async {
+												await tapah.RequestWxCode(result["code"]);
+												if (!mounted) return;
+												setState(() {});
+											},
+											child: Column(
+												mainAxisSize: MainAxisSize.min,
+												children: [
+													Image.network(tapah.parseimage(activated[2] ? "底部按钮/offer-选中.png" : "底部按钮/offer-普通.png"), width: 60, height: 60, fit: BoxFit.contain,),
+													const SizedBox(height: 5),
+													Text("OFFER", style: TextStyle(fontSize: 10, color: Colors.black)),
+												],
+											),
+										) : GestureDetector(
 											onTap: () {
-												if (tapah.accountinfo == null) {
-													Navigator.pushNamed(context, '/profile');
-													return;
-												}
-												Navigator.push(context, MaterialPageRoute(builder: (context) => scenes.ExampleWidget(key: GlobalKey(),)));
+												tapah.navigator(context, '/mainpage/example');
 											},
 											child: Column(
 												mainAxisSize: MainAxisSize.min,
