@@ -5,6 +5,7 @@ import 'package:bot_toast/bot_toast.dart';
 
 import 'package:mpflutter_wechat_api/mpflutter_wechat_api.dart' as wxapi;
 import 'package:mpflutter_wechat_button/mpflutter_wechat_button.dart';
+import 'package:mpflutter_wechat_webview/mpflutter_wechat_webview.dart';
 
 import 'package:qiuzhijia/tapah/class.dart' as tapah;
 import 'package:qiuzhijia/tapah/data.dart' as tapah;
@@ -103,7 +104,13 @@ class DetailState extends State<DetailWidget> with tapah.Callback {
 				children: [
 					InkWell(
 						onTap: () {
-							openUrl(enterprise.website1);
+							if (enterprise.website1 == null || enterprise.website1!.isEmpty) {
+								BotToast.showText(text: '暂无链接');
+								return;
+							}
+							MPFlutter_Wechat_WebView.open(enterprise.website1!, onLoad: (_) {
+								print("webview loaded");
+							});
 						},
 						child: Row(
 							children: [
@@ -166,6 +173,7 @@ class DetailState extends State<DetailWidget> with tapah.Callback {
 					const SizedBox(width: 20,),
 					GestureDetector(
 						onTap: () {
+							wxapi.wx.makePhoneCall(wxapi.MakePhoneCallOption()..phoneNumber = '051281660895');
 						},
 						child: Container(
 							width: 100,

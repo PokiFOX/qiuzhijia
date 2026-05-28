@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:mpflutter_wechat_api/mpflutter_wechat_api.dart' as wxapi;
 import 'package:mpflutter_wechat_button/mpflutter_wechat_button.dart';
 
 import 'package:qiuzhijia/tapah/class.dart' as tapah;
@@ -214,6 +215,7 @@ class FieldDetailState extends State<FieldDetailWidget> with tapah.Callback {
 							const SizedBox(width: 20,),
 							GestureDetector(
 								onTap: () {
+									wxapi.wx.makePhoneCall(wxapi.MakePhoneCallOption()..phoneNumber = '051281660895');
 								},
 								child: Container(
 									width: 100,
