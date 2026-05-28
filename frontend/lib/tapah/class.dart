@@ -106,6 +106,12 @@ class Field {
 	Field({required this.id, required this.value, required this.type, required this.star, required this.content});
 }
 
+class Article {
+	String article;
+	int update;
+	Article({required this.article, required this.update});
+}
+
 class Enterprise {
 	int id;
 	Zone? zone;
@@ -123,8 +129,8 @@ class Enterprise {
 	List<String> images =  [];
 	int enttype = 0;
 	bool? financial;
-	List<String> article1 = [];
-	List<String> article2 = [];
+	List<Article> article1 = [];
+	List<Article> article2 = [];
 
 	Enterprise({required this.id});
 }

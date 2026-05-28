@@ -62,6 +62,7 @@ Future<void> RequestEnterpriseList(int page) async {
 		"level": 0,
 		"enttype": 0,
 		"financial": null,
+		"field": 0,
 		"name": "",
 		"page": page,
 	}, options: options,);
@@ -94,12 +95,14 @@ Future<void> RequestEnterpriseList(int page) async {
 		if (item["enttype"] == '中央企业') enterprise.enttype = 2;
 		if (item["financial"] == '是') enterprise.financial = true;
 		if (item["financial"] == '否') enterprise.financial = false;
-		(item["article1"] as String).split(',').forEach((article) {
-			if (article.isNotEmpty) enterprise.article1.add(article);
-		});
-		(item["article2"] as String).split(',').forEach((article) {
-			if (article.isNotEmpty) enterprise.article2.add(article);
-		});
+		for (int i = 0;i < item['article1'].length;i++) {
+			var article = item['article1'][i];
+			if (article[0].isNotEmpty) enterprise.article1.add(Article(article: article[0], update: article[1]));
+		}
+		for (int i = 0;i < item['article2'].length;i++) {
+			var article = item['article2'][i];
+			if (article[0].isNotEmpty) enterprise.article2.add(Article(article: article[0], update: article[1]));
+		}
 		enterpriselist.add(enterprise);
 	});
 }

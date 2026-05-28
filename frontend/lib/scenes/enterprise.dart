@@ -279,8 +279,8 @@ class EnterpriseState extends State<EnterpriseWidget> {
 					'images': PlutoCell(value: enterprise.images.join(',')),
 					'enttype': PlutoCell(value: enttype),
 					'financial': PlutoCell(value: financial),
-					'article1': PlutoCell(value: enterprise.article1.join(',')),
-					'article2': PlutoCell(value: enterprise.article2.join(',')),
+					'article1': PlutoCell(value: enterprise.article1.map((e) => e.article).join(',')),
+					'article2': PlutoCell(value: enterprise.article2.map((e) => e.article).join(',')),
 					'operation': PlutoCell(value: ""),
 				},
 			);
