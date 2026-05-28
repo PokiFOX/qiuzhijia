@@ -1,7 +1,7 @@
 import 'package:device_preview/device_preview.dart';
 
-String urlheader = "http://download.tapahtech.net";
+String urlheader = "https://qiuzhijia-cdn.tapahtech.com/";
 DeviceInfo deviceinfo = Devices.ios.iPhone16;
 
-String backendHost = 'www.tapahtech.com';
+String backendHost = 'qiuzhijia.tapahtech.com';
 int backendPort = 22006;
