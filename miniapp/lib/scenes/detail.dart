@@ -208,6 +208,7 @@ class DetailState extends State<DetailWidget> with tapah.Callback {
 					children: [
 						SafeArea(
 							child: Container(
+								padding: EdgeInsets.only(top: 20),
 								child: CustomScrollView(
 									controller: scrollcontroller,
 									slivers: [

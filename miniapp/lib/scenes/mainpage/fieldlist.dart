@@ -36,6 +36,7 @@ class FieldListState extends State<FieldListWidget> {
 		final args = ModalRoute.of(context)?.settings.arguments;
 		if (args != null && args is Map<String, dynamic>) {
 			for (var id in args["fields"].split(',')) {
+				if (id.isEmpty) continue;
 				_selectedIds.add(int.parse(id));
 			}
 		}

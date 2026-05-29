@@ -215,13 +215,14 @@ Future<int> RequestArticle2() async {
 	return json.length;
 }
 
-Future<int> RequestCaseList(int enterprise, int level, int sector, int field, int stag, int year, int page) async {
+Future<int> RequestCaseList(int enterprise, int level, int sector, int field, int stag1, int stag2, int year, int page) async {
 	var response = await dio.post(parseurl(url_query_case), data: {
 		"enterprise": enterprise,
 		"level": level,
 		"sector": sector,
 		"field": field,
-		"stag": stag,
+		"stag1": stag1,
+		"stag2": stag2,
 		"year": year,
 		"page": page,
 	});
@@ -247,13 +248,14 @@ Future<int> RequestCaseList(int enterprise, int level, int sector, int field, in
 	return json.length;
 }
 
-Future<List<Case>> RequestCase(int enterprise, int level, int sector, int field, int stag, int year, int page) async {
+Future<List<Case>> RequestCase(int enterprise, int level, int sector, int field, int stag1, int stag2, int year, int page) async {
 	var response = await dio.post(parseurl(url_query_case), data: {
 		"enterprise": enterprise,
 		"level": level,
 		"sector": sector,
 		"field": field,
-		"stag": stag,
+		"stag1": stag1,
+		"stag2": stag2,
 		"year": year,
 		"page": page,
 	});

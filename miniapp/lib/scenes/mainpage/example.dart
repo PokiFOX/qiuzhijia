@@ -14,7 +14,7 @@ class ExampleWidget extends StatefulWidget {
 }
 
 class ExampleState extends State<ExampleWidget> with tapah.Callback {
-	int level = 0, sector = 0, stag = 0, year = 0, page = 1;
+	int level = 0, sector = 0, stag1 = 0, stag2 = 0, year = 0, page = 1;
 	int expandindex = -1;
 	final ScrollController scrollcontroller = ScrollController();
 	bool isLoading = false, isFinish = false;
@@ -25,10 +25,11 @@ class ExampleState extends State<ExampleWidget> with tapah.Callback {
 		initCallback(tapah.SceneID.mp_example, widget.key!);
 		addCallback(tapah.EventType.mainpage_example_casefilter, (selections) {
 			page = 1;
-			stag = selections[0];
-			year = selections[1];
-			level = selections[2];
-			sector = selections[3];
+			stag1 = selections[0];
+			stag2 = selections[1];
+			year = selections[2];
+			level = selections[3];
+			sector = selections[4];
 			setState(() {});
 		});
 		loadCases();
@@ -38,7 +39,7 @@ class ExampleState extends State<ExampleWidget> with tapah.Callback {
 				if (isLoading) return;
 				isLoading = true;
 				page++;
-				isFinish = await tapah.RequestCaseList(0, level, sector, 0, stag, year, page) < 20;
+				isFinish = await tapah.RequestCaseList(0, level, sector, 0, stag1, stag2, year, page) < 20;
 				isLoading = false;
 				setState(() {});
 			}
@@ -54,7 +55,7 @@ class ExampleState extends State<ExampleWidget> with tapah.Callback {
 	Future<void> loadCases() async {
 		page = 1;
 		tapah.caselist = [];
-		isFinish = await tapah.RequestCaseList(0, level, sector, 0, stag, year, page) < 20;
+		isFinish = await tapah.RequestCaseList(0, level, sector, 0, stag1, stag2, year, page) < 20;
 		if (mounted == false) return; 
 		setState(() {});
 	}
@@ -106,7 +107,7 @@ class ExampleState extends State<ExampleWidget> with tapah.Callback {
 							height: 50,
 							child: GestureDetector(
 								onTap: () {
-									tapah.navigator(context, '/mainpage/casefilter', arguments: {"stag": stag, "year": year, "level": level, "sector": sector,});
+									tapah.navigator(context, '/mainpage/casefilter', arguments: {"stag1": stag1, "stag2": stag2, "year": year, "level": level, "sector": sector,});
 								},
 								child: Row(
 									mainAxisAlignment: MainAxisAlignment.center,

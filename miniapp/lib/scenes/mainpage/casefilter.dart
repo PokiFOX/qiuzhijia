@@ -14,16 +14,17 @@ class CaseFilterWidget extends StatefulWidget {
 
 class CaseFilterState extends State<CaseFilterWidget> with tapah.Callback {
 	int selectedCategory = 0;
-	List<int> selections = [0, 0, 0, 0];
+	List<int> selections = [0, 0, 0, 0, 0];
 
 	final ScrollController rightScrollController = ScrollController();
-	final List<GlobalKey> sectionKeys = [GlobalKey(), GlobalKey(), GlobalKey(), GlobalKey()];
+	final List<GlobalKey> sectionKeys = [GlobalKey(), GlobalKey(), GlobalKey(), GlobalKey(), GlobalKey()];
 	bool isProgramScroll = false;
 
-	final List<String> categories = ['院校层次', '目前状态', '单位层次', '单位类别'];
+	final List<String> categories = ['本科层次', '硕士层次', '目前状态', '单位层次', '单位类别'];
 	List<List<String>> get options => [
-		['985院校', '211院校', '普通本科', '海外本科'],
-		['应届生', '已毕业'],
+		['不限', '985院校', '211院校', '普通本科', '海外本科'],
+		['不限', '985院校', '211院校', '普通本科', '海外本科'],
+		['不限', '应届生', '已毕业'],
 		tapah.levellist.map((e) => e.value).toList(),
 		tapah.sectorlist.map((e) => e.value).toList(),
 	];
@@ -47,10 +48,11 @@ class CaseFilterState extends State<CaseFilterWidget> with tapah.Callback {
 		super.didChangeDependencies();
 		final args = ModalRoute.of(context)?.settings.arguments;
 		if (args != null && args is Map<String, dynamic>) {
-			selections[0] = args['stag'] ?? 0;
-			selections[1] = args['year'] ?? 0;
-			selections[2] = args['level'] ?? 0;
-			selections[3] = args['sector'] ?? 0;
+			selections[0] = args['stag1'] ?? 0;
+			selections[1] = args['stag2'] ?? 0;
+			selections[2] = args['year'] ?? 0;
+			selections[3] = args['level'] ?? 0;
+			selections[4] = args['sector'] ?? 0;
 		}
 		setState(() {});
 	}
@@ -87,7 +89,7 @@ class CaseFilterState extends State<CaseFilterWidget> with tapah.Callback {
 
 	void reset() {
 		setState(() {
-			selections = [0, 0, 0, 0];
+			selections = [0, 0, 0, 0, 0];
 		});
 	}
 
@@ -179,11 +181,11 @@ class CaseFilterState extends State<CaseFilterWidget> with tapah.Callback {
 							children: options[index].asMap().entries.map((entry) {
 								final i = entry.key;
 								final opt = entry.value;
-								final selected = selections[index] == i + 1;
+								final selected = selections[index] == i;
 								return GestureDetector(
 									onTap: () {
 										setState(() {
-											selections[index] = selected ? 0 : i + 1;
+											selections[index] = selected ? 0 : i;
 										});
 									},
 									child: Container(
@@ -239,8 +241,8 @@ class CaseFilterState extends State<CaseFilterWidget> with tapah.Callback {
 						child: GestureDetector(
 							onTap: () async {
 								tapah.caselist = [];
-								await tapah.RequestCaseList(0, selections[2], selections[3], 0, selections[0], selections[1], 1);
-								tapah.EventManager().call(tapah.SceneID.mp_example, tapah.EventType.mainpage_example_casefilter, [selections[0], selections[1], selections[2], selections[3],]);
+								await tapah.RequestCaseList(0, selections[3], selections[4], 0, selections[0], selections[1], selections[2], 1);
+								tapah.EventManager().call(tapah.SceneID.mp_example, tapah.EventType.mainpage_example_casefilter, [selections[0], selections[1], selections[2], selections[3], selections[4]]);
 								Navigator.pop(context);
 							},
 							child: Container(

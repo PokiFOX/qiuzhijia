@@ -62,7 +62,7 @@ class FieldState extends State<FieldWidget> with tapah.Callback {
 					children: [
 						GestureDetector(
 							onTap: () async {
-								String fields = _selectedFields!.map((e) => e.id).join(",");
+								String fields = _selectedFields?.map((e) => e.id).join(",") ?? "";
 								tapah.navigator(context, "/mainpage/fieldlist", arguments: {"fields": fields},);
 							},
 							child: Row(

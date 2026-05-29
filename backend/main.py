@@ -238,7 +238,8 @@ async def query_case(req: Request):
 	level = json.get("level")
 	sector = json.get("sector")
 	field = json.get("field")
-	stag = json.get("stag")
+	stag1 = json.get("stag1")
+	stag2 = json.get("stag2")
 	year = json.get("year")
 	page = json.get("page", 1)
 	caselist = []
@@ -257,7 +258,8 @@ async def query_case(req: Request):
 		if sector != 0 and ent.sector != sector: continue
 		if field != 0 and case.field != field: continue
 		if enterprise_id != 0 and enterprise != None and enterprise.id != case.enterprise: continue
-		if stag != 0 and case.stag1 != stag and case.stag2 != stag: continue
+		if stag1 != 0 and case.stag1 != stag1: continue
+		if stag2 != 0 and case.stag2 != stag2: continue
 		if year == 1 and case.year != 2026: continue
 		if year == 2 and case.year == 2026: continue
 		count += 1

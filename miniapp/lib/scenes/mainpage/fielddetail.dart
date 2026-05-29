@@ -34,6 +34,8 @@ class FieldDetailState extends State<FieldDetailWidget> with tapah.Callback {
 	int expandindex = -1;
 	double _enterpriseDragStartY = 0.0;
 	double _enterpriseDragStartScroll = 0.0;
+	double _caseDragStartY = 0.0;
+	double _caseDragStartScroll = 0.0;
 
 	@override
 	void initState() {
@@ -75,7 +77,7 @@ class FieldDetailState extends State<FieldDetailWidget> with tapah.Callback {
 			cases = [];
 		});
 		var enterpriseList = await tapah.RequestEnterprise(0, 0, 0, 0, field!.id, null, "", 1);
-		var caseList = await tapah.RequestCase(0, 0, 0, field!.id, 0, 0, 1);
+		var caseList = await tapah.RequestCase(0, 0, 0, field!.id, 0, 0, 0, 1);
 		if (!mounted) return;
 		setState(() {
 			enterprise = enterpriseList;
@@ -502,31 +504,44 @@ class FieldDetailState extends State<FieldDetailWidget> with tapah.Callback {
 		const trackHeight = 258.0;
 		final thumbHeight = trackHeight / pageCount;
 		final thumbTop = currentPage * thumbHeight;
-		return SizedBox(
-			width: 4,
-			height: trackHeight,
-			child: Stack(
-				children: [
-					Container(
+		return GestureDetector(
+			behavior: HitTestBehavior.translucent,
+			onTapDown: (details) {
+				final tappedPage = (details.localPosition.dy / trackHeight * pageCount).floor().clamp(0, pageCount - 1);
+				setState(() => _enterprisePage = tappedPage);
+			},
+			child: SizedBox(
+				width: 20,
+				height: trackHeight,
+				child: Center(
+					child: SizedBox(
 						width: 4,
 						height: trackHeight,
-						decoration: BoxDecoration(
-							color: const Color(0xFFE0E0E0),
-							borderRadius: BorderRadius.circular(2),
+						child: Stack(
+							children: [
+								Container(
+									width: 4,
+									height: trackHeight,
+									decoration: BoxDecoration(
+										color: const Color(0xFFE0E0E0),
+										borderRadius: BorderRadius.circular(2),
+									),
+								),
+								Positioned(
+									top: thumbTop,
+									child: Container(
+										width: 4,
+										height: thumbHeight,
+										decoration: BoxDecoration(
+											color: const Color(0xFF2D7BFF),
+											borderRadius: BorderRadius.circular(2),
+										),
+									),
+								),
+							],
 						),
 					),
-					Positioned(
-						top: thumbTop,
-						child: Container(
-							width: 4,
-							height: thumbHeight,
-							decoration: BoxDecoration(
-								color: const Color(0xFF2D7BFF),
-								borderRadius: BorderRadius.circular(2),
-							),
-						),
-					),
-				],
+				),
 			),
 		);
 	}
@@ -541,7 +556,6 @@ class FieldDetailState extends State<FieldDetailWidget> with tapah.Callback {
 		final start = safePage * pageSize;
 		final end = (start + pageSize).clamp(0, cases.length);
 		final list = pageCount == 0 ? <tapah.Case>[] : cases.sublist(start, end);
-
 		return Container(
 			key: _caseSectionKey,
 			width: double.infinity,
@@ -550,33 +564,106 @@ class FieldDetailState extends State<FieldDetailWidget> with tapah.Callback {
 				color: Colors.white,
 				borderRadius: BorderRadius.circular(14),
 			),
-			child: GestureDetector(
-				behavior: HitTestBehavior.opaque,
-				onVerticalDragEnd: (details) {
+			child: Listener(
+				onPointerDown: (event) {
+					_caseDragStartY = event.localPosition.dy;
+					_caseDragStartScroll = _scrollController.hasClients ? _scrollController.offset : 0.0;
+				},
+				onPointerUp: (event) {
 					if (pageCount <= 1) return;
-					final velocity = details.primaryVelocity ?? 0;
-					if (velocity < -100 && safePage < pageCount - 1) {
+					final scrollDelta = _scrollController.hasClients
+							? (_scrollController.offset - _caseDragStartScroll).abs()
+							: 0.0;
+					if (scrollDelta > 8) return; // 父级页面在滚动，忽略
+					final dy = event.localPosition.dy - _caseDragStartY;
+					if (dy.abs() < 50) return;
+					if (dy < 0 && safePage < pageCount - 1) {
 						setState(() => _casePage = safePage + 1);
-					} else if (velocity > 100 && safePage > 0) {
+					} else if (dy > 0 && safePage > 0) {
 						setState(() => _casePage = safePage - 1);
 					}
 				},
-				child: Column(
+				child: Row(
 					crossAxisAlignment: CrossAxisAlignment.start,
 					children: [
-						Row(
+						Expanded(
+							child: Column(
+								crossAxisAlignment: CrossAxisAlignment.start,
+								children: [
+									Row(
+										children: [
+											Expanded(child: _buildSectionTitle('成功案例')),
+										],
+									),
+									const SizedBox(height: 10),
+									SizedBox(
+										height: 300,
+										child: Column(
+											children: [
+												if (list.isEmpty)
+													const Padding(
+														padding: EdgeInsets.symmetric(vertical: 12),
+														child: Text('暂无相关案例', style: TextStyle(fontSize: 13, color: Color(0xFF999999))),
+													),
+												...list.map((c) => _buildCaseCard(c)),
+											],
+										),
+									),
+								],
+							),
+						),
+						if (pageCount > 1)
+							Padding(
+								padding: const EdgeInsets.only(left: 6, top: 34),
+								child: _buildCaseScrollbar(safePage, pageCount),
+							),
+					],
+				),
+			),
+		);
+	}
+
+	Widget _buildCaseScrollbar(int currentPage, int pageCount) {
+		const trackHeight = 258.0;
+		final thumbHeight = trackHeight / pageCount;
+		final thumbTop = currentPage * thumbHeight;
+		return GestureDetector(
+			behavior: HitTestBehavior.translucent,
+			onTapDown: (details) {
+				final tappedPage = (details.localPosition.dy / trackHeight * pageCount).floor().clamp(0, pageCount - 1);
+				setState(() => _casePage = tappedPage);
+			},
+			child: SizedBox(
+				width: 20,
+				height: trackHeight,
+				child: Center(
+					child: SizedBox(
+						width: 4,
+						height: trackHeight,
+						child: Stack(
 							children: [
-								Expanded(child: _buildSectionTitle('成功案例')),
+								Container(
+									width: 4,
+									height: trackHeight,
+									decoration: BoxDecoration(
+										color: const Color(0xFFE0E0E0),
+										borderRadius: BorderRadius.circular(2),
+									),
+								),
+								Positioned(
+									top: thumbTop,
+									child: Container(
+										width: 4,
+										height: thumbHeight,
+										decoration: BoxDecoration(
+											color: const Color(0xFF2D7BFF),
+											borderRadius: BorderRadius.circular(2),
+										),
+									),
+								),
 							],
 						),
-						const SizedBox(height: 10),
-						if (list.isEmpty)
-							const Padding(
-								padding: EdgeInsets.symmetric(vertical: 12),
-								child: Text('暂无相关案例', style: TextStyle(fontSize: 13, color: Color(0xFF999999))),
-							),
-						...list.map((c) => _buildCaseCard(c)),
-					],
+					),
 				),
 			),
 		);

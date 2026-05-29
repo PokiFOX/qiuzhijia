@@ -76,7 +76,7 @@ Widget buildMain1(BuildContext context, List<Widget> children) {
 						),
 					),
 					Positioned(
-						top: 30,
+						top: 50,
 						left: 30,
 						child: SizedBox(
 							height: safeAreaTop,
@@ -120,7 +120,7 @@ Widget buildMain2(BuildContext context, List<Widget> children, Widget bottom) {
 						),
 					),
 					Positioned(
-						top: 10,
+						top: 50,
 						left: 20,
 						child: SizedBox(
 							height: safeAreaTop,
