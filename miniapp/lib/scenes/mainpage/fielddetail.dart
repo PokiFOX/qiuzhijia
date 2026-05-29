@@ -97,6 +97,7 @@ class FieldDetailState extends State<FieldDetailWidget> with tapah.Callback {
 		}
 		final safeAreaTop = MediaQuery.of(context).padding.top;
 		List<Widget> children = [
+			const SizedBox(height: 30),
 			_buildTabHeader(),
 			Expanded(
 				child: isLoading

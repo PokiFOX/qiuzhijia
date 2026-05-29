@@ -7,6 +7,7 @@ import 'package:qiuzhijia/tapah/data.dart' as tapah;
 import 'package:qiuzhijia/tapah/enum.dart' as tapah;
 import 'package:qiuzhijia/tapah/function.dart' as tapah;
 import 'package:qiuzhijia/tapah/request.dart' as tapah;
+import 'package:qiuzhijia/widgets/marquee_tags.dart' as widgets;
 
 class FilterWidget extends StatefulWidget {
 	const FilterWidget({super.key});
@@ -183,7 +184,7 @@ class FilterState extends State<FilterWidget> with tapah.Callback {
 									const SizedBox(width: 10),
 									Expanded(
 										child: Column(
-											mainAxisAlignment: MainAxisAlignment.start,
+											mainAxisAlignment: MainAxisAlignment.center,
 											crossAxisAlignment: CrossAxisAlignment.start,
 											children: [
 												AutoSizeText(
@@ -194,22 +195,17 @@ class FilterState extends State<FilterWidget> with tapah.Callback {
 													overflow: TextOverflow.ellipsis,
 												),
 												const SizedBox(height: 4),
-												if (enterprise.tags.isNotEmpty) SingleChildScrollView(
-													scrollDirection: Axis.horizontal,
-													child: Row(
-														children: (enterprise.tags).map<Widget>((t) => Container(
-															height: 15,
-															margin: const EdgeInsets.only(right: 6),
-															padding: const EdgeInsets.symmetric(horizontal: 2),
-															decoration: BoxDecoration(
-																color: Color(0xFF82B2F5),
-																borderRadius: BorderRadius.circular(4),
-															),
-															child: Text(t, style: const TextStyle(color: Colors.white, fontSize: 10)),
-														)).toList(),
+												if (enterprise.tags.isNotEmpty) widgets.MarqueeTagsWidget(tags: enterprise.tags.map((tag) => Container(
+													height: 15,
+													margin: const EdgeInsets.only(right: 6),
+													padding: const EdgeInsets.symmetric(horizontal: 8),
+													decoration: BoxDecoration(
+														color: const Color(0xFFFEEDDF),
+														borderRadius: BorderRadius.circular(4),
 													),
-												),
-												const SizedBox(height: 4),
+													child: Text(tag, style: const TextStyle(color: Color(0xFF692E1F), fontSize: 10)),
+												)).toList()),
+												const SizedBox(height: 8),
 												Text("${enterprise.zone!.value} ${enterprise.city!}", style: const TextStyle(fontSize: 10),),
 											],
 										),

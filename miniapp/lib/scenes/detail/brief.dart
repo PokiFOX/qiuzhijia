@@ -7,6 +7,7 @@ import 'package:qiuzhijia/tapah/enum.dart' as tapah;
 import 'package:qiuzhijia/tapah/function.dart' as tapah;
 import 'package:qiuzhijia/widgets/expandable_text.dart' as widgets;
 import 'package:qiuzhijia/widgets/copy.dart' as widgets;
+import 'package:qiuzhijia/widgets/marquee_tags.dart' as widgets;
 import 'package:qiuzhijia/scenes/kefu.dart';
 
 class BriefWidget extends StatefulWidget {
@@ -67,19 +68,16 @@ class BriefState extends State<BriefWidget> with tapah.Callback {
 							children: [
 								Text(widget.enterprise.name!, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,),),
 								const SizedBox(height: 10),
-								Wrap(
-									spacing: 6,
-									runSpacing: 4,
-									children: (widget.enterprise.tags).map<Widget>((tag) => Container(
-										height: 18,
-										padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1,),
-										decoration: BoxDecoration(
-											color: Color(0xFFFEEDDF),
-											borderRadius: BorderRadius.circular(4),
-										),
-										child: Text(tag, style: const TextStyle(color: Color(0xFF692E1F), fontSize: 10)),
-									)).toList(),
-								),
+								if (widget.enterprise.tags.isNotEmpty) widgets.MarqueeTagsWidget(tags: widget.enterprise.tags.map((tag) => Container(
+									height: 15,
+									margin: const EdgeInsets.only(right: 6),
+									padding: const EdgeInsets.symmetric(horizontal: 8),
+									decoration: BoxDecoration(
+										color: const Color(0xFFFEEDDF),
+										borderRadius: BorderRadius.circular(4),
+									),
+									child: Text(tag, style: const TextStyle(color: Color(0xFF692E1F), fontSize: 10)),
+								)).toList()),
 								const SizedBox(height: 10),
 								Row(
 									mainAxisAlignment: MainAxisAlignment.start,

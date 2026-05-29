@@ -388,11 +388,11 @@ class DetailState extends State<DetailWidget> with tapah.Callback {
 	Widget buildSections() {
 		if (!initialized) return const SizedBox.shrink();
 		final sections = <Widget>[
-			scenes.BriefWidget(key: tapah.keyDTBrief, enterprise: enterprise!),
-			scenes.FieldWidget(key: tapah.keyDTField, enterprise: enterprise!),
-			scenes.InfoWidget(key: tapah.keyDTInfo, enterprise: enterprise!),
-			// scenes.OfferWidget(key: tapah.keyDTOffer, enterprise: enterprise!),
-			scenes.ExampleWidget(key: tapah.keyDTExample, enterprise: enterprise!),
+			scenes.BriefWidget(key: new GlobalKey(), enterprise: enterprise!),
+			scenes.FieldWidget(key: new GlobalKey(), enterprise: enterprise!),
+			scenes.InfoWidget(key: new GlobalKey(), enterprise: enterprise!),
+			// scenes.OfferWidget(key: new GlobalKey(), enterprise: enterprise!),
+			scenes.ExampleWidget(key: new GlobalKey(), enterprise: enterprise!),
 		];
 		List<Widget> children = [];
 		for (int i = 0; i < sections.length; i++) {

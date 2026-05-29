@@ -74,11 +74,11 @@ class MainPageState extends State<MainPageWidget> with tapah.Callback {
 							child: IndexedStack(
 								index: currentindex,
 								children: [
-									activated[0] ? scenes.HomeWidget(key: tapah.keyMPHome) : const SizedBox.shrink(),
-									activated[1] ? scenes.EnterpriseWidget(key: tapah.keyMPEntprise) : const SizedBox.shrink(),
-									activated[2] ? scenes.OfferWidget(key: tapah.keyMPOffer) : const SizedBox.shrink(),
-									activated[3] ? scenes.ServiceWidget(key: tapah.keyMPService) : const SizedBox.shrink(),
-									activated[4] ? scenes.ProfileWidget(key: tapah.keyMPProfile) : const SizedBox.shrink(),
+									activated[0] ? scenes.HomeWidget(key: new GlobalKey()) : const SizedBox.shrink(),
+									activated[1] ? scenes.EnterpriseWidget(key: new GlobalKey()) : const SizedBox.shrink(),
+									activated[2] ? scenes.OfferWidget(key: new GlobalKey()) : const SizedBox.shrink(),
+									activated[3] ? scenes.ServiceWidget(key: new GlobalKey()) : const SizedBox.shrink(),
+									activated[4] ? scenes.ProfileWidget(key: new GlobalKey()) : const SizedBox.shrink(),
 								],
 							),
 						),

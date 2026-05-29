@@ -6,7 +6,7 @@ import 'package:mpflutter_wechat_api/mpflutter_wechat_api.dart' as wxapi;
 import 'package:qiuzhijia/tapah/reserved.dart';
 
 String parseimage(String name) {
-	return '$urlheader/images/$name';
+	return useNativeCodec('$urlheader/images/$name');
 }
 
 String parseurl(String url) {

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:mpflutter_wechat_webview/mpflutter_wechat_webview.dart';
 
 import 'package:qiuzhijia/tapah/class.dart' as tapah;
+import 'package:qiuzhijia/tapah/const.dart' as tapah;
 import 'package:qiuzhijia/tapah/data.dart' as tapah;
 import 'package:qiuzhijia/tapah/enum.dart' as tapah;
 import 'package:qiuzhijia/tapah/function.dart' as tapah;
@@ -61,17 +62,82 @@ class HomeState extends State<HomeWidget> with tapah.Callback {
 		return SafeArea(
 			child: Container(
 				height: double.infinity,
-				child: Column(
-					mainAxisAlignment: MainAxisAlignment.start,
-					children: [
-						const SizedBox(height: 10),
-						buildTopImage(),
-						const SizedBox(height: 10),
-						buildLanMuList(),
-						const SizedBox(height: 10),
-						buildFenYeList(),
-						Expanded(child: buildWebsites()),
-					],
+				child: ListView.separated(
+					controller: scrollController,
+					padding: const EdgeInsets.symmetric(horizontal: 10),
+					itemCount: 5 + (articles.isEmpty ? 1 : displayCount.clamp(0, articles.length)),
+					itemBuilder: (context, index) {
+						if (index == 0) {
+							return buildTopImage();
+						}
+						if (index == 1 || index == 3) {
+							return const SizedBox(height: 20);
+						}
+						if (index == 2) {
+							return buildLanMuList();
+						}
+						if (index == 4) {
+							return buildFenYeList();
+						}
+						if (articles.isEmpty) {
+							return const Center(child: Text("暂无文章", style: TextStyle(fontSize: 16, color: Colors.grey)));
+						}
+						var article = articles[index - 5];
+						if (metas.containsKey(index - 5) == false) {
+							loadArticles(index - 5);
+						}
+						var meta = metas[index - 5];
+						return GestureDetector(
+							onTap: () {
+								MPFlutter_Wechat_WebView.open(article.article, onLoad: (_) {
+									print("webview loaded");
+								});
+							},
+							child: Container(
+								decoration: BoxDecoration(
+									color: Colors.white,
+									borderRadius: BorderRadius.circular(8),
+								),
+								padding: const EdgeInsets.all(10),
+								child: Row(
+									crossAxisAlignment: CrossAxisAlignment.start,
+									children: [
+										Expanded(
+											child: SizedBox(
+												height: 80,
+												child: Column(
+													crossAxisAlignment: CrossAxisAlignment.start,
+													children: [
+														Text(
+															meta != null && meta.title.isNotEmpty ? meta.title : "未知标题",
+															style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
+															maxLines: 2,
+															overflow: TextOverflow.ellipsis,
+														),
+														const SizedBox(height: 4),
+														Expanded(
+															child: Text(
+																meta != null && meta.description.isNotEmpty ? meta.description : "",
+																style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+																maxLines: 2,
+																overflow: TextOverflow.ellipsis,
+															),
+														),
+													],
+												),
+											),
+										),
+									],
+								),
+							),
+						);
+					},
+					separatorBuilder: (context, index) {
+						if (index >= 3 && articles.isNotEmpty) {
+							return const Divider(height: 1, thickness: 1, indent: 15, endIndent: 15);
+						}
+						return const SizedBox.shrink();
+					},
 				),
 			),
 		);
@@ -146,6 +212,7 @@ class HomeState extends State<HomeWidget> with tapah.Callback {
 					crossAxisCount: 4,
 					mainAxisSpacing: 18,
 					crossAxisSpacing: 18,
+					childAspectRatio: 0.85,
 				),
 				itemCount: tapah.lanmus.length,
 				itemBuilder: (context, index) {
@@ -164,6 +231,11 @@ class HomeState extends State<HomeWidget> with tapah.Callback {
 									return;
 								}
 								tapah.navigator(context, '/mainpage/example');
+							}
+							if (index == 4) {
+								MPFlutter_Wechat_WebView.open(tapah.url_boardcast, onLoad: (_) {
+									print("webview loaded");
+								});
 							}
 							if (index == 5) {
 								tapah.navigator(context, '/lanmu/qiuzhiziliao');
@@ -187,15 +259,12 @@ class HomeState extends State<HomeWidget> with tapah.Callback {
 								tapah.navigator(context, '/lanmu/qiuzhifuwu');
 							}
 						},
-						child: SizedBox(
-							width: 53,
-							height: 53,
-							child: Column(
-								children: [
-									Image.network(tapah.parseimage(lanmu.image), width: 53, height: 53,),
-									Text(lanmu.title, style: TextStyle(fontSize: 12)),
-								],
-							),
+						child: Column(
+							mainAxisAlignment: MainAxisAlignment.center,
+							children: [
+								Image.network(tapah.parseimage(lanmu.image), width: 53, height: 53,),
+								Text(lanmu.title, style: TextStyle(fontSize: 12)),
+							],
 						),
 					);
 				},
@@ -289,76 +358,5 @@ class HomeState extends State<HomeWidget> with tapah.Callback {
 		} finally {
 			_loadingArticles.remove(index);
 		}
-	}
-
-	Widget buildWebsites() {
-		if (articles.isEmpty) {
-			return const Center(child: Text("暂无文章", style: TextStyle(fontSize: 16, color: Colors.grey)));
-		}
-		final int count = displayCount.clamp(0, articles.length);
-		final bool hasMore = displayCount < articles.length;
-		return ListView.separated(
-			controller: scrollController,
-			padding: const EdgeInsets.symmetric(horizontal: 10),
-			itemCount: hasMore ? count + 1 : count,
-			separatorBuilder: (context, index) => const SizedBox(height: 10),
-			itemBuilder: (context, index) {
-				if (hasMore && index == count) {
-					return const Padding(
-						padding: EdgeInsets.symmetric(vertical: 12),
-						child: Center(child: Text("上拉加载更多", style: TextStyle(fontSize: 13, color: Colors.grey))),
-					);
-				}
-				var article = articles[index];
-				if (metas.containsKey(index) == false) {
-					loadArticles(index);
-				}
-				var meta = metas[index];
-				return GestureDetector(
-					onTap: () {
-						MPFlutter_Wechat_WebView.open(article.article, onLoad: (_) {
-							print("webview loaded");
-						});
-					},
-					child: Container(
-						decoration: BoxDecoration(
-							color: Colors.white,
-							borderRadius: BorderRadius.circular(8),
-						),
-						padding: const EdgeInsets.all(10),
-						child: Row(
-							crossAxisAlignment: CrossAxisAlignment.start,
-							children: [
-								Expanded(
-									child: SizedBox(
-										height: 80,
-										child: Column(
-											crossAxisAlignment: CrossAxisAlignment.start,
-											children: [
-												Text(
-													meta != null && meta.title.isNotEmpty ? meta.title : "未知标题",
-													style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
-													maxLines: 2,
-													overflow: TextOverflow.ellipsis,
-												),
-												const SizedBox(height: 4),
-												Expanded(
-													child: Text(
-														meta != null && meta.description.isNotEmpty ? meta.description : "",
-														style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-														maxLines: 2,
-														overflow: TextOverflow.ellipsis,
-													),
-												),
-											],
-										),
-									),
-								),
-							],
-						),
-					),
-				);
-			},
-		);
 	}
 }

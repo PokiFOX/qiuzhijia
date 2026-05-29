@@ -4,6 +4,7 @@ import 'package:mpflutter_wechat_webview/mpflutter_wechat_webview.dart';
 
 import 'package:qiuzhijia/tapah/class.dart' as tapah;
 import 'package:qiuzhijia/tapah/enum.dart' as tapah;
+import 'package:qiuzhijia/tapah/function.dart' as tapah;
 import 'package:qiuzhijia/tapah/request.dart' as tapah;
 
 class OfferWidget extends StatefulWidget {
@@ -80,7 +81,7 @@ class OfferState extends State<OfferWidget> with tapah.Callback {
 								ClipRRect(
 									borderRadius: BorderRadius.circular(6),
 									child: article.image.isNotEmpty ? Image.network(
-										article.image,
+										tapah.parseimage(article.image),
 										width: 100,
 										height: 80,
 										fit: BoxFit.cover,

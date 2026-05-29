@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 
-import 'package:auto_size_text/auto_size_text.dart';
 
 import 'package:qiuzhijia/tapah/class.dart' as tapah;
 import 'package:qiuzhijia/tapah/data.dart' as tapah;
 import 'package:qiuzhijia/tapah/enum.dart' as tapah;
 import 'package:qiuzhijia/tapah/function.dart' as tapah;
 import 'package:qiuzhijia/tapah/request.dart' as tapah;
+import 'package:qiuzhijia/widgets/marquee_tags.dart' as widgets;
+import 'package:qiuzhijia/widgets/marquee_text.dart' as widgets;
 
 class EnterpriseWidget extends StatefulWidget {
 	const EnterpriseWidget({super.key});
@@ -258,31 +259,26 @@ class EnterpriseState extends State<EnterpriseWidget> with tapah.Callback {
 									const SizedBox(width: 10),
 									Expanded(
 										child: Column(
-											mainAxisAlignment: MainAxisAlignment.start,
+											mainAxisAlignment: MainAxisAlignment.center,
 											crossAxisAlignment: CrossAxisAlignment.start,
 											children: [
-												AutoSizeText(
-													enterprise.name!,
+												widgets.MarqueeTextWidget(
+													text: enterprise.name!,
 													style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-													minFontSize: 10,
-													maxLines: 1,
-													overflow: TextOverflow.ellipsis,
+													height: 28,
 												),
 												const SizedBox(height: 4),
-												if (enterprise.tags.isNotEmpty) Wrap(
-													spacing: 6,
-													runSpacing: 4,
-													children: (enterprise.tags).map<Widget>((tag) => Container(
-														height: 15,
-														padding: const EdgeInsets.symmetric(horizontal: 2),
-														decoration: BoxDecoration(
-															color: Color(0xFFFEEDDF),
-															borderRadius: BorderRadius.circular(4),
-														),
-														child: Text(tag, style: const TextStyle(color: Color(0xFF692E1F), fontSize: 10)),
-													)).toList(),
-												),
-												const SizedBox(height: 4),
+												if (enterprise.tags.isNotEmpty) widgets.MarqueeTagsWidget(tags: enterprise.tags.map((tag) => Container(
+													height: 15,
+													margin: const EdgeInsets.only(right: 6),
+													padding: const EdgeInsets.symmetric(horizontal: 8),
+													decoration: BoxDecoration(
+														color: const Color(0xFFFEEDDF),
+														borderRadius: BorderRadius.circular(4),
+													),
+													child: Text(tag, style: const TextStyle(color: Color(0xFF692E1F), fontSize: 10)),
+												)).toList()),
+												const SizedBox(height: 8),
 												Text("${enterprise.zone!.value} ${enterprise.city!}", style: const TextStyle(fontSize: 10),),
 											],
 										),

@@ -316,8 +316,6 @@ class ExampleState extends State<ExampleWidget> with tapah.Callback {
 													style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF333333)),
 												),
 											),
-											Text("· 录取岗位    	${c.name}", style: const TextStyle(fontSize: 12, color: Color(0xFF555555))),
-											Text("· 所在部门    	${c.dep ?? '--'}", style: const TextStyle(fontSize: 12, color: Color(0xFF555555))),
 											Row(
 												children: [
 													Text("· 去向单位    	", style: const TextStyle(fontSize: 12, color: Color(0xFF555555))),
@@ -338,6 +336,8 @@ class ExampleState extends State<ExampleWidget> with tapah.Callback {
 													),
 												],
 											),
+											Text("· 所在部门    	${c.dep ?? '--'}", style: const TextStyle(fontSize: 12, color: Color(0xFF555555))),
+											Text("· 录取岗位    	${c.name}", style: const TextStyle(fontSize: 12, color: Color(0xFF555555))),
 										],
 									),
 								],

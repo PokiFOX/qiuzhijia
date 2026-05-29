@@ -11,3 +11,4 @@ String url_query_article2 = "query_article2";
 String url_query_wxcode = "wxcode";
 String url_query_userinfo = "userinfo";
 String url_query_favorite = "favorite";
+String url_boardcast= "http://a13683054750-101.m.wd8989.com";

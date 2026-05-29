@@ -15,7 +15,7 @@ final List<LanMuInfo> lanmus = [
 	LanMuInfo(title: '招聘专业', image: 'HOME栏目/招聘专业.png'),
 	LanMuInfo(title: '求职课程', image: 'HOME栏目/简历匹配.png'),
 	LanMuInfo(title: '过往案例', image: 'HOME栏目/过往案例.png'),
-	LanMuInfo(title: '讲座直播', image: 'HOME栏目/讲座直播.png'),
+	LanMuInfo(title: '辅导课程', image: 'HOME栏目/讲座直播.png'),
 	LanMuInfo(title: '求职资料', image: 'HOME栏目/求职资料.png'),
 	LanMuInfo(title: '实习内推', image: 'HOME栏目/实习内推.png'),
 	LanMuInfo(title: '岗位内推', image: 'HOME栏目/岗位内推.png'),

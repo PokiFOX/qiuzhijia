@@ -5,7 +5,6 @@ import 'package:mpflutter_core/mpjs/mpjs.dart' as mpjs;
 
 import 'package:bot_toast/bot_toast.dart';
 
-import 'package:qiuzhijia/tapah/data.dart' as tapah;
 import 'package:qiuzhijia/scenes/splash.dart' as scenes;
 import 'package:qiuzhijia/scenes/mainpage.dart' as scenes;
 import 'package:qiuzhijia/scenes/detail.dart' as scenes;
@@ -80,7 +79,7 @@ class MainApp extends StatelessWidget {
 	Widget build(BuildContext context) {
 		return MaterialApp(
 			title: '求职家小程序',
-			navigatorKey: tapah.globalkey,
+			navigatorKey: new GlobalKey(),
 			builder: BotToastInit(),
 			navigatorObservers: [BotToastNavigatorObserver(), MPNavigatorObserver()],
 			theme: ThemeData(
