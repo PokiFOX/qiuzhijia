@@ -24,6 +24,7 @@ class EnterpriseState extends State<EnterpriseWidget> with tapah.Callback {
 	@override
 	void initState() {
 		super.initState();
+		print('init');
 		initCallback(tapah.SceneID.mp_enterprise, widget.key!);
 		tapah.enterpriselist = [];
 		getEnterpriseList();
@@ -48,6 +49,7 @@ class EnterpriseState extends State<EnterpriseWidget> with tapah.Callback {
 	}
 
 	Future<void> getEnterpriseList() async {
+		print('get');
 		page = 1;
 		tapah.enterpriselist = [];
 		isFinish = await tapah.RequestEnterpriseList(zone, sector, level, 0, 0, null, search, page) < 20;
