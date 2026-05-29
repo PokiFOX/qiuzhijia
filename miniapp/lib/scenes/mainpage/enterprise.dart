@@ -65,6 +65,7 @@ class EnterpriseState extends State<EnterpriseWidget> with tapah.Callback {
 				child: Column(
 					mainAxisAlignment: MainAxisAlignment.start,
 					children: [
+						SizedBox(height: 30),
 						buildTopRow(),
 						SizedBox(height: 10),
 						buildFilterRow(),

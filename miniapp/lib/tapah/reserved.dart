@@ -1,6 +1,6 @@
 import 'package:device_preview/device_preview.dart';
 
-String urlheader= "http://qiuzhijia-cdn.tapahtech.com";
+String urlheader= "https://qiuzhijia-cdn.tapahtech.com";
 DeviceInfo deviceinfo = Devices.ios.iPhone16;
 
 String backendHost = 'qiuzhijia.tapahtech.com';

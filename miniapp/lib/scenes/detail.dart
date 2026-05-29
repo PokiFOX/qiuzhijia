@@ -25,7 +25,7 @@ class DetailWidget extends StatefulWidget {
 }
 
 class DetailState extends State<DetailWidget> with tapah.Callback {
-	late tapah.Enterprise enterprise;
+	tapah.Enterprise? enterprise;
 	bool initialized = false;
 	int fenyeindex = 0;
 	int topimageindex = 0;
@@ -48,6 +48,7 @@ class DetailState extends State<DetailWidget> with tapah.Callback {
 	void didChangeDependencies() {
 		super.didChangeDependencies();
 		final args = ModalRoute.of(context)?.settings.arguments;
+		enterprise = null;
 		if (args != null && args is Map<String, dynamic>) {
 			final enterpriseid = args["enterprise"];
 			if (enterpriseid != null && enterpriseid is int) {
@@ -58,12 +59,24 @@ class DetailState extends State<DetailWidget> with tapah.Callback {
 					}
 				}
 			}
+			if (enterprise == null) {
+				tapah.RequestEnterpriseDetail(enterpriseid).then((value) {
+					enterprise = value;
+					initialized = true;
+					if (enterprise != null && enterprise!.images.isNotEmpty) {
+						startTopImagePlay();
+					}
+					setState(() {});
+				});
+			}
+			else {
+				initialized = true;
+				if (enterprise != null && enterprise!.images.isNotEmpty) {
+					startTopImagePlay();
+				}
+				setState(() {});
+			}
 		}
-		initialized = true;
-		if (enterprise.images.isNotEmpty) {
-			startTopImagePlay();
-		}
-		setState(() {});
 	}
 
 	@override
@@ -85,9 +98,14 @@ class DetailState extends State<DetailWidget> with tapah.Callback {
 
 	@override
 	Widget build(BuildContext context) {
+		if (initialized == false) {
+			return tapah.wrapSwipePop(context, Scaffold(
+				body: Center(child: CircularProgressIndicator()),
+			));
+		}
 		bool fav = false;
 		for (var item in tapah.accountinfo?.enterprise ?? {}) {
-			if (item == enterprise.id) {
+			if (item == enterprise!.id) {
 				fav = true;
 				break;
 			}
@@ -128,11 +146,11 @@ class DetailState extends State<DetailWidget> with tapah.Callback {
 						),
 					) : InkWell(
 						onTap: () {
-							if (tapah.accountinfo!.enterprise.contains(enterprise.id)) {
-								tapah.accountinfo!.enterprise.remove(enterprise.id);
+							if (tapah.accountinfo!.enterprise.contains(enterprise!.id)) {
+								tapah.accountinfo!.enterprise.remove(enterprise!.id);
 							}
 							else {
-								tapah.accountinfo!.enterprise.add(enterprise.id);
+								tapah.accountinfo!.enterprise.add(enterprise!.id);
 							}
 							tapah.RequestUserInfo();
 							setState(() {});
@@ -264,10 +282,10 @@ class DetailState extends State<DetailWidget> with tapah.Callback {
 	void startTopImagePlay() {
 		topimagetimer?.cancel();
 		topimagetimer = Timer.periodic(Duration(seconds: tapah.topimageduration), (timer) {
-			if (!mounted || !topimagecontroller.hasClients || enterprise.images.isEmpty) {
+			if (!mounted || !topimagecontroller.hasClients || enterprise!.images.isEmpty) {
 				return;
 			}
-			int nextIndex = (topimageindex + 1) % enterprise.images.length;
+			int nextIndex = (topimageindex + 1) % enterprise!.images.length;
 			topimagecontroller.animateToPage(
 				nextIndex,
 				duration: const Duration(milliseconds: 300),
@@ -277,7 +295,7 @@ class DetailState extends State<DetailWidget> with tapah.Callback {
 	}
 
 	Widget buildTopImage() {
-		if (initialized == false || enterprise.images.isEmpty) {
+		if (initialized == false || enterprise!.images.isEmpty) {
 			return Container();
 		}
 		return ConstrainedBox(
@@ -286,14 +304,14 @@ class DetailState extends State<DetailWidget> with tapah.Callback {
 				children: [
 					PageView.builder(
 						controller: topimagecontroller,
-						itemCount: enterprise.images.length,
+						itemCount: enterprise!.images.length,
 						onPageChanged: (index) {
 							setState(() {
 								topimageindex = index;
 							});
 						},
 						itemBuilder: (context, index) {
-							return Image.network(tapah.parseimage('大图标/${enterprise.images[topimageindex]}.png',), fit: BoxFit.cover,);
+							return Image.network(tapah.parseimage('大图标/${enterprise!.images[topimageindex]}.png',), fit: BoxFit.cover,);
 						},
 					),
 				],
@@ -370,11 +388,11 @@ class DetailState extends State<DetailWidget> with tapah.Callback {
 	Widget buildSections() {
 		if (!initialized) return const SizedBox.shrink();
 		final sections = <Widget>[
-			scenes.BriefWidget(key: tapah.keyDTBrief, enterprise: enterprise),
-			scenes.FieldWidget(key: tapah.keyDTField, enterprise: enterprise),
-			scenes.InfoWidget(key: tapah.keyDTInfo, enterprise: enterprise),
-			// scenes.OfferWidget(key: tapah.keyDTOffer, enterprise: enterprise),
-			scenes.ExampleWidget(key: tapah.keyDTExample, enterprise: enterprise),
+			scenes.BriefWidget(key: tapah.keyDTBrief, enterprise: enterprise!),
+			scenes.FieldWidget(key: tapah.keyDTField, enterprise: enterprise!),
+			scenes.InfoWidget(key: tapah.keyDTInfo, enterprise: enterprise!),
+			// scenes.OfferWidget(key: tapah.keyDTOffer, enterprise: enterprise!),
+			scenes.ExampleWidget(key: tapah.keyDTExample, enterprise: enterprise!),
 		];
 		List<Widget> children = [];
 		for (int i = 0; i < sections.length; i++) {

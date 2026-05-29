@@ -159,6 +159,46 @@ async def query_enterprise(req: Request):
 		},
 	})
 
+@app.post("/query_enterprisedetail")
+async def query_enterprisedetail(req: Request):
+	json = await req.json()
+	enterprise_id = json.get("id")
+
+	for i in range(len(data.enterpriselist)):
+		enterprise = data.enterpriselist[i]
+		if enterprise.id != enterprise_id: continue
+		return JSONResponse(content = {
+			"code": 0,
+			"status": "success",
+			"data": {
+				"enterprise": {
+					"id": enterprise.id,
+					"zone": enterprise.zone,
+					"city": enterprise.city,
+					"name": enterprise.name,
+					"brief": enterprise.brief,
+					"upper": enterprise.upper,
+					"level": enterprise.level,
+					"sector": enterprise.sector,
+					"field": enterprise.field,
+					"tag": enterprise.tag,
+					"website1": enterprise.website1,
+					"website2": enterprise.website2,
+					"shortname": enterprise.shortname,
+					"icon": enterprise.icon,
+					"images": enterprise.images,
+					"enttype": enterprise.enttype,
+					"financial": enterprise.financial,
+					"article1": enterprise.article1,
+					"article2": enterprise.article2,
+				}
+			},
+		})
+	return JSONResponse(content = {
+		"code": 1,
+		"status": "enterprise_not_found",
+	})
+
 @app.get("/query_article1")
 async def query_article1(req: Request):
 	link = []

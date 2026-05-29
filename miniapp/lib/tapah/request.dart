@@ -152,6 +152,44 @@ Future<List<Enterprise>> RequestEnterprise(int zone, int sector, int level, int 
 	return list;
 }
 
+Future<Enterprise> RequestEnterpriseDetail(int id) async {
+	var response = await dio.post(parseurl(url_query_enterprise_detail), data: {"id": id});
+	if (response.data['code'] != 0) {
+		throw Exception('Error code: ${response.data['code']} status: ${response.data['status']}');
+	}
+	var item = response.data["data"]["enterprise"];
+	Enterprise enterprise = Enterprise(id: item["id"]);
+	enterprise.zone = zonelist.firstWhere((e) => e.id == item["zone"]);
+	enterprise.city = item["city"];
+	enterprise.name = item["name"];
+	enterprise.brief = item["brief"];
+	enterprise.upper = item["upper"];
+	enterprise.sector = sectorlist.firstWhere((e) => e.id == item["sector"]);
+	enterprise.level = levellist.firstWhere((e) => e.id == item["level"]);
+	item["field"].forEach((field) {
+		enterprise.fields.add(fieldlist.firstWhere((e) => e.id == field));
+	});
+	enterprise.tags = item["tag"].split(',');
+	enterprise.website1 = item["website1"];
+	enterprise.website2 = item["website2"];
+	enterprise.icon = item["icon"];
+	var images = item["images"].split(',');
+	for (var image in images) {
+		if (image.trim().isEmpty) continue;
+		enterprise.images.add(image.trim());
+	}
+	if (item["enttype"] != '国企') enterprise.enttype = 1;
+	if (item["enttype"] == '央企') enterprise.enttype = 2;
+	enterprise.financial = item["financial"] == "是";
+	for (var article in item["article1"]) {
+		enterprise.article1.add(Article(article[0], article[1]));
+	}
+	for (var article in item["article2"]) {
+		enterprise.article2.add(Article(article[0], article[1]));
+	}
+	return enterprise;
+}
+
 Future<int> RequestArticle1() async {
 	var response = await dio.get(parseurl(url_query_article1));
 	if (response.data['code'] != 0) {

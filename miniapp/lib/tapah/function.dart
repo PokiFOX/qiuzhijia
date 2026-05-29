@@ -10,7 +10,7 @@ String parseimage(String name) {
 }
 
 String parseurl(String url) {
-	return 'http://$backendHost:$backendPort/$url';
+	return 'https://$backendHost:$backendPort/$url';
 }
 
 void KeFu(BuildContext context) {
