@@ -60,56 +60,56 @@ class BriefState extends State<BriefWidget> with tapah.Callback {
 			padding: const EdgeInsets.fromLTRB(10, 0, 20, 0),
 			child: Row(
 				children: [
-					Column(
-						mainAxisAlignment: MainAxisAlignment.start,
-						crossAxisAlignment: CrossAxisAlignment.start,
-						children: [
-							Text(widget.enterprise.name!, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,),),
-							const SizedBox(height: 10),
-							SingleChildScrollView(
-								scrollDirection: Axis.horizontal,
-								child: Row(
-									children: (widget.enterprise.tags).map<Widget>((t) => Container(
+					Expanded(
+						child: Column(
+							mainAxisAlignment: MainAxisAlignment.start,
+							crossAxisAlignment: CrossAxisAlignment.start,
+							children: [
+								Text(widget.enterprise.name!, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,),),
+								const SizedBox(height: 10),
+								Wrap(
+									spacing: 6,
+									runSpacing: 4,
+									children: (widget.enterprise.tags).map<Widget>((tag) => Container(
 										height: 18,
-										margin: const EdgeInsets.only(right: 6),
 										padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1,),
 										decoration: BoxDecoration(
 											color: Color(0xFFFEEDDF),
 											borderRadius: BorderRadius.circular(4),
 										),
-										child: Text(t, style: const TextStyle(color: Color(0xFF692E1F), fontSize: 10)),
+										child: Text(tag, style: const TextStyle(color: Color(0xFF692E1F), fontSize: 10)),
 									)).toList(),
 								),
-							),
-							const SizedBox(height: 10),
-							Row(
-								mainAxisAlignment: MainAxisAlignment.start,
-								crossAxisAlignment: CrossAxisAlignment.start,
-								children: [
-									Container(
-										margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-										padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1,),
-										decoration: BoxDecoration(
-											color: Colors.grey[200],
-											borderRadius: BorderRadius.circular(4),
+								const SizedBox(height: 10),
+								Row(
+									mainAxisAlignment: MainAxisAlignment.start,
+									crossAxisAlignment: CrossAxisAlignment.start,
+									children: [
+										Container(
+											margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+											padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1,),
+											decoration: BoxDecoration(
+												color: Colors.grey[200],
+												borderRadius: BorderRadius.circular(4),
+											),
+											child: Text("${widget.enterprise.zone!.value}", style: const TextStyle(fontSize: 9, color: Colors.black,),),
 										),
-										child: Text("${widget.enterprise.zone!.value}", style: const TextStyle(fontSize: 9, color: Colors.black,),),
-									),
-									const SizedBox(width: 10,),
-									Container(
-										margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-										padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1,),
-										decoration: BoxDecoration(
-											color: Colors.grey[200],
-											borderRadius: BorderRadius.circular(4),
+										const SizedBox(width: 10,),
+										Container(
+											margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+											padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1,),
+											decoration: BoxDecoration(
+												color: Colors.grey[200],
+												borderRadius: BorderRadius.circular(4),
+											),
+											child: Text("${widget.enterprise.city!}", style: const TextStyle(fontSize: 9, color: Colors.black,),),
 										),
-										child: Text("${widget.enterprise.city!}", style: const TextStyle(fontSize: 9, color: Colors.black,),),
-									),
-								],
-							),
-						],
+									],
+								),
+							],
+						),
 					),
-					Expanded(child: Container(),),
+					const SizedBox(width: 10,),
 					Image.network(tapah.parseimage('小图标/${widget.enterprise.icon}.png'), width: 60, height: 60,),
 				],
 			),

@@ -28,17 +28,6 @@ class FilterState extends State<FilterWidget> with tapah.Callback {
 		initCallback(tapah.SceneID.mp_filter, widget.key!);
 		tapah.enterpriselist = [];
 
-		scrollcontroller.addListener(() async {
-			if (scrollcontroller.position.pixels >= scrollcontroller.position.maxScrollExtent * 0.9) {
-				if (isFinish) return;
-				if (isLoading) return;
-				isLoading = true;
-				page++;
-				isFinish = await tapah.RequestEnterpriseList(zone, 0, 0, enttype, 0, financial, searchcontroller.text, page) < 20;
-				isLoading = false;
-				setState(() {});
-			}
-		});
 	}
 
 	@override
@@ -73,14 +62,30 @@ class FilterState extends State<FilterWidget> with tapah.Callback {
 		if (enttype == 2) rowname = "中央企业";
 		if (enttype == 0 && financial) rowname = "金融企业";
 
-		return tapah.buildMain1(context, [
-			Center(child: Text(rowname, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),),
-			SizedBox(height: 10),
-			buildFilterRow(),
-			SizedBox(height: 10),
-			Expanded(child: buildEnterpriseList(),),
-			SizedBox(height: 10),
-		]);
+		return NotificationListener<ScrollNotification>(
+			onNotification: (notification) {
+				if (notification.metrics.pixels >= notification.metrics.maxScrollExtent * 0.9) {
+					if (!isFinish && !isLoading) {
+						isLoading = true;
+						page++;
+						tapah.RequestEnterpriseList(zone, 0, 0, enttype, 0, financial, searchcontroller.text, page).then((count) {
+							isFinish = count < 20;
+							isLoading = false;
+							setState(() {});
+						});
+					}
+				}
+				return false;
+			},
+			child: tapah.buildMain1(context, [
+				Center(child: Text(rowname, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),),
+				SizedBox(height: 10),
+				buildFilterRow(),
+				SizedBox(height: 10),
+				buildEnterpriseList(),
+				SizedBox(height: 10),
+			]),
+		);
 	}
 
 	Widget buildFilterRow() {
@@ -148,10 +153,9 @@ class FilterState extends State<FilterWidget> with tapah.Callback {
 		return Padding(
 			padding: const EdgeInsets.symmetric(horizontal: 10.0),
 			child: ListView.separated(
-				controller: scrollcontroller,
-				physics: const BouncingScrollPhysics(),
+				physics: const NeverScrollableScrollPhysics(),
 				padding: EdgeInsets.zero,
-				shrinkWrap: false,
+				shrinkWrap: true,
 				itemCount: tapah.enterpriselist.length,
 				separatorBuilder: (context, index) => const SizedBox(height: 10),
 				itemBuilder: (context, index) {

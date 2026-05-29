@@ -269,20 +269,18 @@ class EnterpriseState extends State<EnterpriseWidget> with tapah.Callback {
 													overflow: TextOverflow.ellipsis,
 												),
 												const SizedBox(height: 4),
-												if (enterprise.tags.isNotEmpty) SingleChildScrollView(
-													scrollDirection: Axis.horizontal,
-													child: Row(
-														children: (enterprise.tags).map<Widget>((t) => Container(
-															height: 15,
-															margin: const EdgeInsets.only(right: 6),
-															padding: const EdgeInsets.symmetric(horizontal: 2),
-															decoration: BoxDecoration(
-																color: Color(0xFFFEEDDF),
-																borderRadius: BorderRadius.circular(4),
-															),
-															child: Text(t, style: const TextStyle(color: Color(0xFF692E1F), fontSize: 10)),
-														)).toList(),
-													),
+												if (enterprise.tags.isNotEmpty) Wrap(
+													spacing: 6,
+													runSpacing: 4,
+													children: (enterprise.tags).map<Widget>((tag) => Container(
+														height: 15,
+														padding: const EdgeInsets.symmetric(horizontal: 2),
+														decoration: BoxDecoration(
+															color: Color(0xFFFEEDDF),
+															borderRadius: BorderRadius.circular(4),
+														),
+														child: Text(tag, style: const TextStyle(color: Color(0xFF692E1F), fontSize: 10)),
+													)).toList(),
 												),
 												const SizedBox(height: 4),
 												Text("${enterprise.zone!.value} ${enterprise.city!}", style: const TextStyle(fontSize: 10),),

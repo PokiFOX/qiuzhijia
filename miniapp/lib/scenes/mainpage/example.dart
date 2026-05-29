@@ -5,7 +5,6 @@ import 'package:qiuzhijia/tapah/data.dart' as tapah;
 import 'package:qiuzhijia/tapah/enum.dart' as tapah;
 import 'package:qiuzhijia/tapah/function.dart' as tapah;
 import 'package:qiuzhijia/tapah/request.dart' as tapah;
-import 'package:qiuzhijia/widgets/expandable_text.dart' as widgets;
 
 class ExampleWidget extends StatefulWidget {
 	const ExampleWidget({super.key,});
@@ -145,15 +144,11 @@ class ExampleState extends State<ExampleWidget> with tapah.Callback {
 				itemCount: tapah.caselist.length,
 				itemBuilder: (context, index) {
 					var c = tapah.caselist[index];
-					String tag = '';
-					if (c.stag1 == 1 || c.stag2 == 1) {
-						tag = "985";
-					} else if (c.stag1 == 2 || c.stag2 == 2) {
-						tag = "211";
-					} else if (c.stag1 == 3 || c.stag2 == 3) {
-						tag = "普通";
-					} else {
-						tag = "海外";
+					String stagStr(int? stag) {
+						if (stag == 1) return "985";
+						if (stag == 2) return "211";
+						if (stag == 3) return "普通";
+						return "海外";
 					}
 					tapah.Field? field1, field2;
 					for (var f in tapah.fieldlist) {
@@ -254,60 +249,59 @@ class ExampleState extends State<ExampleWidget> with tapah.Callback {
 													style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF333333)),
 												),
 											),
-											Row(
-												crossAxisAlignment: CrossAxisAlignment.start,
+											Table(
+												columnWidths: const {
+													0: IntrinsicColumnWidth(),
+													1: FlexColumnWidth(1),
+												},
+												defaultVerticalAlignment: TableCellVerticalAlignment.top,
 												children: [
-													Expanded(
-														child: Column(
-															crossAxisAlignment: CrossAxisAlignment.start,
-															children: [
-																Text("· 学生姓名    	${c.student ?? '--'}", style: const TextStyle(fontSize: 12, color: Color(0xFF555555))),
-																Text("· 学校层次    	$tag", style: const TextStyle(fontSize: 12, color: Color(0xFF555555))),
-																Text("· 本科院校    	${c.school1 ?? '--'}", style: const TextStyle(fontSize: 12, color: Color(0xFF555555))),
-																GestureDetector(
-																	onTap: () {
-																		tapah.navigator(context, '/mainpage/fielddetail', arguments: {"field": field1!.id});
-																	},
-																	child: Row(
-																		children: [
-																			Text("· 本科专业    	", style: const TextStyle(fontSize: 12, color: Color(0xFF555555))),
-																			Text("${c.field1 ?? '--'}", style: const TextStyle(fontSize: 12, color: Color(0xFF2D7BFF))),
-																		],
-																	),
-																),
-															],
+													TableRow(children: [
+														Padding(padding: const EdgeInsets.only(right: 8, bottom: 3), child: const Text("· 学生姓名", style: TextStyle(fontSize: 12, color: Color(0xFF555555)))),
+														Text(c.student ?? '--', style: const TextStyle(fontSize: 12, color: Color(0xFF555555))),
+													]),
+													TableRow(children: [
+														Padding(padding: const EdgeInsets.only(right: 8, bottom: 3), child: const Text("· 本科院校", style: TextStyle(fontSize: 12, color: Color(0xFF555555)))),
+														Text(c.school1 ?? '--', style: const TextStyle(fontSize: 12, color: Color(0xFF555555))),
+													]),
+													TableRow(children: [
+														Padding(padding: const EdgeInsets.only(right: 8, bottom: 3), child: const Text("· 本科层次", style: TextStyle(fontSize: 12, color: Color(0xFF555555)))),
+														Text(stagStr(c.stag1), style: const TextStyle(fontSize: 12, color: Color(0xFF555555))),
+													]),
+													TableRow(children: [
+														Padding(padding: const EdgeInsets.only(right: 8, bottom: 3), child: const Text("· 本科专业", style: TextStyle(fontSize: 12, color: Color(0xFF555555)))),
+														GestureDetector(
+															onTap: field1 != null ? () { tapah.navigator(context, '/mainpage/fielddetail', arguments: {"field": field1!.id}); } : null,
+															child: Text(c.field1 ?? '--', style: TextStyle(fontSize: 12, color: field1 != null ? const Color(0xFF2D7BFF) : const Color(0xFF555555))),
 														),
-													),
-													const SizedBox(width: 8),
-													Expanded(
-														child: Column(
-															crossAxisAlignment: CrossAxisAlignment.start,
-															children: [
-																Text("· 硕士院校    	${c.school2 ?? '--'}", style: const TextStyle(fontSize: 12, color: Color(0xFF555555))),
-																GestureDetector(
-																	onTap: () {
-																		tapah.navigator(context, '/mainpage/fielddetail', arguments: {"field": field2!.id});
-																	},
-																	child: Row(
-																		children: [
-																			Text("· 硕士专业    	", style: const TextStyle(fontSize: 12, color: Color(0xFF555555))),
-																			Text("${c.field2 ?? '--'}", style: const TextStyle(fontSize: 12, color: Color(0xFF2D7BFF))),
-																		],
-																	),
-																),
-																const SizedBox(height: 2),
-																const Text("· 主要实习", style: TextStyle(fontSize: 12, color: Color(0xFF555555))),
-																if (c.detail != null && c.detail!.trim().isNotEmpty)
-																	widgets.ExpandableText(
-																		c.detail!,
-																		style: const TextStyle(fontSize: 12, color: Color(0xFF555555)),
-																		maxLines: 2,
-																		expandText: '展开',
-																		collapseText: '收起',
-																	),
-															],
+													]),
+													TableRow(children: [
+														Padding(padding: const EdgeInsets.only(right: 8, bottom: 3), child: const Text("· 硕士院校", style: TextStyle(fontSize: 12, color: Color(0xFF555555)))),
+														Text(c.school2 ?? '--', style: const TextStyle(fontSize: 12, color: Color(0xFF555555))),
+													]),
+													TableRow(children: [
+														Padding(padding: const EdgeInsets.only(right: 8, bottom: 3), child: const Text("· 硕士层次", style: TextStyle(fontSize: 12, color: Color(0xFF555555)))),
+														Text(stagStr(c.stag2), style: const TextStyle(fontSize: 12, color: Color(0xFF555555))),
+													]),
+													TableRow(children: [
+														Padding(padding: const EdgeInsets.only(right: 8, bottom: 3), child: const Text("· 硕士专业", style: TextStyle(fontSize: 12, color: Color(0xFF555555)))),
+														GestureDetector(
+															onTap: field2 != null ? () { tapah.navigator(context, '/mainpage/fielddetail', arguments: {"field": field2!.id}); } : null,
+															child: Text(c.field2 ?? '--', style: TextStyle(fontSize: 12, color: field2 != null ? const Color(0xFF2D7BFF) : const Color(0xFF555555))),
 														),
-													),
+													]),
+													TableRow(children: [
+														Padding(padding: const EdgeInsets.only(right: 8), child: const Text("· 主要实习", style: TextStyle(fontSize: 12, color: Color(0xFF555555)))),
+														c.detail != null && c.detail!.trim().isNotEmpty
+															? Column(
+																crossAxisAlignment: CrossAxisAlignment.start,
+																children: c.detail!.split(',').map((s) => Text(
+																	s.trim(),
+																	style: const TextStyle(fontSize: 12, color: Color(0xFF555555)),
+																)).toList(),
+															)
+															: const SizedBox(),
+													]),
 												],
 											),
 											const SizedBox(height: 10),
