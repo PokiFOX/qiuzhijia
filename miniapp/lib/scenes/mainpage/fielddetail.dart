@@ -36,6 +36,10 @@ class FieldDetailState extends State<FieldDetailWidget> with tapah.Callback {
 	double _enterpriseDragStartScroll = 0.0;
 	double _caseDragStartY = 0.0;
 	double _caseDragStartScroll = 0.0;
+	int _enterpriseServerPage = 1;
+	int _caseServerPage = 1;
+	bool _isLoadingMoreEnterprise = false;
+	bool _isLoadingMoreCase = false;
 
 	@override
 	void initState() {
@@ -84,7 +88,41 @@ class FieldDetailState extends State<FieldDetailWidget> with tapah.Callback {
 			cases = caseList;
 			_enterprisePage = 0;
 			_casePage = 0;
+			_enterpriseServerPage = 1;
+			_caseServerPage = 1;
 			isLoading = false;
+		});
+	}
+
+	void _loadMoreEnterprise() async {
+		if (_isLoadingMoreEnterprise) return;
+		_isLoadingMoreEnterprise = true;
+		final nextPage = _enterpriseServerPage + 1;
+		var more = await tapah.RequestEnterprise(0, 0, 0, 0, field!.id, null, "", nextPage);
+		if (!mounted) return;
+		setState(() {
+			_isLoadingMoreEnterprise = false;
+			if (more.isNotEmpty) {
+				enterprise.addAll(more);
+				_enterpriseServerPage = nextPage;
+				_enterprisePage = _enterprisePage + 1;
+			}
+		});
+	}
+
+	void _loadMoreCase() async {
+		if (_isLoadingMoreCase) return;
+		_isLoadingMoreCase = true;
+		final nextPage = _caseServerPage + 1;
+		var more = await tapah.RequestCase(0, 0, 0, field!.id, 0, 0, 0, nextPage);
+		if (!mounted) return;
+		setState(() {
+			_isLoadingMoreCase = false;
+			if (more.isNotEmpty) {
+				cases.addAll(more);
+				_caseServerPage = nextPage;
+				_casePage = _casePage + 1;
+			}
 		});
 	}
 
@@ -379,8 +417,12 @@ class FieldDetailState extends State<FieldDetailWidget> with tapah.Callback {
 				if (scrollDelta > 8) return; // 父级页面在滚动，忽略
 				final dy = event.localPosition.dy - _enterpriseDragStartY;
 				if (dy.abs() < 50) return;
-				if (dy < 0 && safePage < pageCount - 1) {
-					setState(() => _enterprisePage = safePage + 1);
+				if (dy < 0) {
+					if (safePage < pageCount - 1) {
+						setState(() => _enterprisePage = safePage + 1);
+					} else {
+						_loadMoreEnterprise();
+					}
 				} else if (dy > 0 && safePage > 0) {
 					setState(() => _enterprisePage = safePage - 1);
 				}
@@ -507,8 +549,17 @@ class FieldDetailState extends State<FieldDetailWidget> with tapah.Callback {
 		return GestureDetector(
 			behavior: HitTestBehavior.translucent,
 			onTapDown: (details) {
-				final tappedPage = (details.localPosition.dy / trackHeight * pageCount).floor().clamp(0, pageCount - 1);
-				setState(() => _enterprisePage = tappedPage);
+				final rawPage = (details.localPosition.dy / trackHeight * pageCount).floor();
+				if (rawPage >= pageCount) {
+					_loadMoreEnterprise();
+				} else {
+					final tappedPage = rawPage.clamp(0, pageCount - 1);
+					if (tappedPage == pageCount - 1 && _enterprisePage == pageCount - 1) {
+						_loadMoreEnterprise();
+					} else {
+						setState(() => _enterprisePage = tappedPage);
+					}
+				}
 			},
 			child: SizedBox(
 				width: 20,
@@ -577,8 +628,12 @@ class FieldDetailState extends State<FieldDetailWidget> with tapah.Callback {
 					if (scrollDelta > 8) return; // 父级页面在滚动，忽略
 					final dy = event.localPosition.dy - _caseDragStartY;
 					if (dy.abs() < 50) return;
-					if (dy < 0 && safePage < pageCount - 1) {
-						setState(() => _casePage = safePage + 1);
+					if (dy < 0) {
+						if (safePage < pageCount - 1) {
+							setState(() => _casePage = safePage + 1);
+						} else {
+							_loadMoreCase();
+						}
 					} else if (dy > 0 && safePage > 0) {
 						setState(() => _casePage = safePage - 1);
 					}
@@ -630,8 +685,17 @@ class FieldDetailState extends State<FieldDetailWidget> with tapah.Callback {
 		return GestureDetector(
 			behavior: HitTestBehavior.translucent,
 			onTapDown: (details) {
-				final tappedPage = (details.localPosition.dy / trackHeight * pageCount).floor().clamp(0, pageCount - 1);
-				setState(() => _casePage = tappedPage);
+				final rawPage = (details.localPosition.dy / trackHeight * pageCount).floor();
+				if (rawPage >= pageCount) {
+					_loadMoreCase();
+				} else {
+					final tappedPage = rawPage.clamp(0, pageCount - 1);
+					if (tappedPage == pageCount - 1 && _casePage == pageCount - 1) {
+						_loadMoreCase();
+					} else {
+						setState(() => _casePage = tappedPage);
+					}
+				}
 			},
 			child: SizedBox(
 				width: 20,

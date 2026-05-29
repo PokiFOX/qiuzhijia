@@ -195,6 +195,7 @@ Future<int> RequestArticle1() async {
 	if (response.data['code'] != 0) {
 		throw Exception('Error code: ${response.data['code']} status: ${response.data['status']}');
 	}
+	article1.clear();
 	var json = response.data["data"]["link"];
 	json.forEach((item) {
 		article1.add(new Article(item[0], item[1]));
@@ -208,6 +209,7 @@ Future<int> RequestArticle2() async {
 	if (response.data['code'] != 0) {
 		throw Exception('Error code: ${response.data['code']} status: ${response.data['status']}');
 	}
+	article2.clear();
 	var json = response.data["data"]["link"];
 	json.forEach((item) {
 		article2.add(new Article(item[0], item[1]));
