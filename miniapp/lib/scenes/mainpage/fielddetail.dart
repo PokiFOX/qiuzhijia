@@ -32,10 +32,8 @@ class FieldDetailState extends State<FieldDetailWidget> with tapah.Callback {
 	int _activeTab = 0;
 	bool _isTabScrolling = false;
 	int expandindex = -1;
-	double _enterpriseDragStartY = 0.0;
-	double _enterpriseDragStartScroll = 0.0;
-	double _caseDragStartY = 0.0;
-	double _caseDragStartScroll = 0.0;
+	double _enterpriseDragAccum = 0.0;
+	double _caseDragAccum = 0.0;
 	int _enterpriseServerPage = 1;
 	int _caseServerPage = 1;
 	bool _isLoadingMoreEnterprise = false;
@@ -404,30 +402,30 @@ class FieldDetailState extends State<FieldDetailWidget> with tapah.Callback {
 				color: Colors.white,
 				borderRadius: BorderRadius.circular(14),
 			),
-		child: Listener(
-			onPointerDown: (event) {
-				_enterpriseDragStartY = event.localPosition.dy;
-				_enterpriseDragStartScroll = _scrollController.hasClients ? _scrollController.offset : 0.0;
+		child: GestureDetector(
+			behavior: HitTestBehavior.opaque,
+			onVerticalDragStart: (_) {
+				_enterpriseDragAccum = 0.0;
 			},
-			onPointerUp: (event) {
+			onVerticalDragUpdate: (details) {
+				_enterpriseDragAccum += details.delta.dy;
+			},
+			onVerticalDragEnd: (_) {
 				if (pageCount <= 1) return;
-				final scrollDelta = _scrollController.hasClients
-						? (_scrollController.offset - _enterpriseDragStartScroll).abs()
-						: 0.0;
-				if (scrollDelta > 8) return; // 父级页面在滚动，忽略
-				final dy = event.localPosition.dy - _enterpriseDragStartY;
-				if (dy.abs() < 50) return;
-				if (dy < 0) {
+				final accum = _enterpriseDragAccum;
+				_enterpriseDragAccum = 0.0;
+				if (accum.abs() < 30) return;
+				if (accum < 0) {
 					if (safePage < pageCount - 1) {
 						setState(() => _enterprisePage = safePage + 1);
 					} else {
 						_loadMoreEnterprise();
 					}
-				} else if (dy > 0 && safePage > 0) {
+				} else if (accum > 0 && safePage > 0) {
 					setState(() => _enterprisePage = safePage - 1);
 				}
-				},
-				child: Row(
+			},
+			child: Row(
 					crossAxisAlignment: CrossAxisAlignment.start,
 					children: [
 						Expanded(
@@ -602,11 +600,12 @@ class FieldDetailState extends State<FieldDetailWidget> with tapah.Callback {
 		if (cases.isEmpty) {
 			return Container();
 		}
-		final pageCount = cases.isEmpty ? 0 : ((cases.length + pageSize - 1) ~/ pageSize);
+		// floor 除法：末页始终显示满 pageSize 条
+		final pageCount = cases.length < pageSize ? 1 : cases.length ~/ pageSize;
 		final safePage = _casePage.clamp(0, pageCount - 1);
 		final start = safePage * pageSize;
 		final end = (start + pageSize).clamp(0, cases.length);
-		final list = pageCount == 0 ? <tapah.Case>[] : cases.sublist(start, end);
+		final list = cases.sublist(start, end);
 		return Container(
 			key: _caseSectionKey,
 			width: double.infinity,
@@ -615,33 +614,33 @@ class FieldDetailState extends State<FieldDetailWidget> with tapah.Callback {
 				color: Colors.white,
 				borderRadius: BorderRadius.circular(14),
 			),
-			child: Listener(
-				onPointerDown: (event) {
-					_caseDragStartY = event.localPosition.dy;
-					_caseDragStartScroll = _scrollController.hasClients ? _scrollController.offset : 0.0;
+			child: GestureDetector(
+				behavior: HitTestBehavior.opaque,
+				onVerticalDragStart: (_) {
+					_caseDragAccum = 0.0;
 				},
-				onPointerUp: (event) {
-					if (pageCount <= 1) return;
-					final scrollDelta = _scrollController.hasClients
-							? (_scrollController.offset - _caseDragStartScroll).abs()
-							: 0.0;
-					if (scrollDelta > 8) return; // 父级页面在滚动，忽略
-					final dy = event.localPosition.dy - _caseDragStartY;
-					if (dy.abs() < 50) return;
-					if (dy < 0) {
+				onVerticalDragUpdate: (details) {
+					_caseDragAccum += details.delta.dy;
+				},
+				onVerticalDragEnd: (_) {
+					final accum = _caseDragAccum;
+					_caseDragAccum = 0.0;
+					if (accum.abs() < 30) return;
+					if (accum < 0) {
 						if (safePage < pageCount - 1) {
 							setState(() => _casePage = safePage + 1);
 						} else {
 							_loadMoreCase();
 						}
-					} else if (dy > 0 && safePage > 0) {
+					} else if (accum > 0 && safePage > 0) {
 						setState(() => _casePage = safePage - 1);
 					}
 				},
-				child: Row(
-					crossAxisAlignment: CrossAxisAlignment.start,
+				// Stack 让 Positioned 滚动条自动拉伸到内容高度
+				child: Stack(
 					children: [
-						Expanded(
+						Padding(
+							padding: const EdgeInsets.only(right: 26),
 							child: Column(
 								crossAxisAlignment: CrossAxisAlignment.start,
 								children: [
@@ -651,25 +650,25 @@ class FieldDetailState extends State<FieldDetailWidget> with tapah.Callback {
 										],
 									),
 									const SizedBox(height: 10),
-									SizedBox(
-										height: 300,
-										child: Column(
-											children: [
-												if (list.isEmpty)
-													const Padding(
-														padding: EdgeInsets.symmetric(vertical: 12),
-														child: Text('暂无相关案例', style: TextStyle(fontSize: 13, color: Color(0xFF999999))),
-													),
-												...list.map((c) => _buildCaseCard(c)),
-											],
-										),
+									Column(
+										children: [
+											if (list.isEmpty)
+												const Padding(
+													padding: EdgeInsets.symmetric(vertical: 12),
+													child: Text('暂无相关案例', style: TextStyle(fontSize: 13, color: Color(0xFF999999))),
+												),
+											...list.map((c) => _buildCaseCard(c)),
+										],
 									),
 								],
 							),
 						),
 						if (pageCount > 1)
-							Padding(
-								padding: const EdgeInsets.only(left: 6, top: 34),
+							Positioned(
+								right: 0,
+								top: 0,
+								bottom: 0,
+								width: 26,
 								child: _buildCaseScrollbar(safePage, pageCount),
 							),
 					],
@@ -679,43 +678,53 @@ class FieldDetailState extends State<FieldDetailWidget> with tapah.Callback {
 	}
 
 	Widget _buildCaseScrollbar(int currentPage, int pageCount) {
-		const trackHeight = 258.0;
-		final thumbHeight = trackHeight / pageCount;
-		final thumbTop = currentPage * thumbHeight;
-		return GestureDetector(
-			behavior: HitTestBehavior.translucent,
-			onTapDown: (details) {
-				final rawPage = (details.localPosition.dy / trackHeight * pageCount).floor();
-				if (rawPage >= pageCount) {
-					_loadMoreCase();
-				} else {
-					final tappedPage = rawPage.clamp(0, pageCount - 1);
-					if (tappedPage == pageCount - 1 && _casePage == pageCount - 1) {
-						_loadMoreCase();
-					} else {
-						setState(() => _casePage = tappedPage);
-					}
-				}
-			},
-			child: SizedBox(
-				width: 20,
-				height: trackHeight,
-				child: Center(
+		const margin = 20.0;
+		// Positioned 父级给了有限高度，LayoutBuilder 可以正常拿到 maxHeight
+		return LayoutBuilder(
+			builder: (context, constraints) {
+				final available = constraints.maxHeight.isFinite ? constraints.maxHeight : 200.0;
+				final trackHeight = (available - margin * 2).clamp(20.0, double.infinity);
+				final thumbHeight = (trackHeight / pageCount).clamp(8.0, trackHeight);
+				final thumbTop = pageCount <= 1
+						? 0.0
+						: (currentPage * (trackHeight / pageCount)).clamp(0.0, trackHeight - thumbHeight);
+				return GestureDetector(
+					behavior: HitTestBehavior.translucent,
+					onTapDown: (details) {
+						final dy = details.localPosition.dy - margin;
+						if (dy < 0) return;
+						final rawPage = (dy / trackHeight * pageCount).floor();
+						if (rawPage >= pageCount) {
+							_loadMoreCase();
+						} else {
+							final tappedPage = rawPage.clamp(0, pageCount - 1);
+							if (tappedPage >= pageCount - 1 && _casePage >= pageCount - 1) {
+								_loadMoreCase();
+							} else {
+								setState(() => _casePage = tappedPage);
+							}
+						}
+					},
 					child: SizedBox(
-						width: 4,
-						height: trackHeight,
+						width: 26,
+						height: available,
 						child: Stack(
 							children: [
-								Container(
-									width: 4,
-									height: trackHeight,
-									decoration: BoxDecoration(
-										color: const Color(0xFFE0E0E0),
-										borderRadius: BorderRadius.circular(2),
+								Positioned(
+									top: margin,
+									left: 11,
+									child: Container(
+										width: 4,
+										height: trackHeight,
+										decoration: BoxDecoration(
+											color: const Color(0xFFE0E0E0),
+											borderRadius: BorderRadius.circular(2),
+										),
 									),
 								),
 								Positioned(
-									top: thumbTop,
+									top: margin + thumbTop,
+									left: 11,
 									child: Container(
 										width: 4,
 										height: thumbHeight,
@@ -728,31 +737,21 @@ class FieldDetailState extends State<FieldDetailWidget> with tapah.Callback {
 							],
 						),
 					),
-				),
-			),
+				);
+			},
 		);
 	}
 
 	Widget _buildCaseCard(tapah.Case c) {
-		Widget infoRow(String label, String? value) {
-			if (value == null || value.trim().isEmpty) return const SizedBox.shrink();
-			return Padding(
-				padding: const EdgeInsets.symmetric(vertical: 2),
-				child: Row(
-					crossAxisAlignment: CrossAxisAlignment.start,
-					children: [
-						SizedBox(
-							width: 70,
-							child: Text(label, style: TextStyle(fontSize: 13, color: Colors.grey[600])),
-						),
-						Expanded(
-							child: Text(value, style: const TextStyle(fontSize: 13, color: Colors.black)),
-						),
-					],
-				),
-			);
+		tapah.Field? field1, field2;
+		for (var f in tapah.fieldlist) {
+			if (f.value == c.field1) {
+				field1 = f;
+			}
+			if (f.value == c.field2) {
+				field2 = f;
+			}
 		}
-
 		return Container(
 			decoration: BoxDecoration(
 				color: Colors.white,
@@ -793,52 +792,144 @@ class FieldDetailState extends State<FieldDetailWidget> with tapah.Callback {
 							Wrap(
 								spacing: 5,
 								runSpacing: 3,
-								children: c.tags.where((t) => t.trim().isNotEmpty).map((tag) => Container(
-									padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-									decoration: BoxDecoration(
-										color: const Color(0xFFE8F0FE),
-										borderRadius: BorderRadius.circular(4),
-									),
-									child: Text(tag, style: const TextStyle(fontSize: 11, color: Color(0xFF2D7BFF))),
-								)).toList(),
+								children: c.tags.where((t) => t.trim().isNotEmpty).toList().asMap().entries.map((entry) {
+									const tagColors = [
+										[Color(0xFFE8F0FE), Color(0xFF2D7BFF)], // 蓝
+										[Color(0xFFFEEDDF), Color(0xFF692E1F)], // 金
+										[Color(0xFFF3EEFF), Color(0xFF6B21A8)], // 紫
+									];
+									final bg = tagColors[entry.key % 3][0];
+									final fg = tagColors[entry.key % 3][1];
+									return Container(
+										padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+										decoration: BoxDecoration(
+											color: bg,
+											borderRadius: BorderRadius.circular(4),
+										),
+										child: Text(entry.value, style: TextStyle(fontSize: 11, color: fg)),
+									);
+								}).toList(),
 							),
 							Expanded(child: Container(),),
 							GestureDetector(
 								onTap: () {
 									setState(() {
-										if (expandindex == c.id) {
+										if (expandindex == cases.indexOf(c)) {
 											expandindex = -1;
 										} else {
-											expandindex = c.id;
+											expandindex = cases.indexOf(c);
 										}
 									});
 								},
-								child: Text(expandindex == c.id ? "收起" : "展开", style: const TextStyle(fontSize: 12, color: Colors.blue),),
+								child: Text(expandindex == cases.indexOf(c) ? "收起" : "展开", style: const TextStyle(fontSize: 12, color: Colors.blue),),
 							),
 						],
 					),
-					if (expandindex == c.id) ...[
+					if (expandindex == cases.indexOf(c)) ...[
 						const Divider(height: 16, thickness: 0.5),
 						Column(
 							crossAxisAlignment: CrossAxisAlignment.start,
 							children: [
-								infoRow("本科院校", c.school1),
-								infoRow("本科专业", c.field1),
-								infoRow("硕士院校", c.school2),
-								infoRow("硕士专业", c.field2),
-								if (c.detail != null && c.detail!.trim().isNotEmpty) ...[
-									const SizedBox(height: 6),
-									Text("主要经历", style: TextStyle(fontSize: 13, color: Colors.grey[600])),
-									const SizedBox(height: 4),
-									widgets.ExpandableText(
-										c.detail!,
-										style: const TextStyle(fontSize: 13, color: Colors.black),
-										expandText: '展开',
-										collapseText: '收起',
-										maxLines: 3,
-										linkColor: Colors.blue,
+								Container(
+									margin: const EdgeInsets.only(bottom: 6),
+									padding: const EdgeInsets.only(left: 8),
+									decoration: const BoxDecoration(
+										border: Border(left: BorderSide(color: Color(0xFF2D7BFF), width: 3)),
 									),
-								],
+									child: const Text(
+										"基础信息",
+										style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF333333)),
+									),
+								),
+								Table(
+									columnWidths: const {
+										0: IntrinsicColumnWidth(),
+										1: FlexColumnWidth(1),
+									},
+									defaultVerticalAlignment: TableCellVerticalAlignment.top,
+									children: [
+										TableRow(children: [
+											Padding(padding: const EdgeInsets.only(right: 8, bottom: 3), child: const Text("· 学生姓名", style: TextStyle(fontSize: 12, color: Color(0xFF555555)))),
+											Text(c.student ?? '--', style: const TextStyle(fontSize: 12, color: Color(0xFF555555))),
+										]),
+										TableRow(children: [
+											Padding(padding: const EdgeInsets.only(right: 8, bottom: 3), child: const Text("· 本科院校", style: TextStyle(fontSize: 12, color: Color(0xFF555555)))),
+											Text(c.school1 ?? '--', style: const TextStyle(fontSize: 12, color: Color(0xFF555555))),
+										]),
+										TableRow(children: [
+											Padding(padding: const EdgeInsets.only(right: 8, bottom: 3), child: const Text("· 本科层次", style: TextStyle(fontSize: 12, color: Color(0xFF555555)))),
+											Text(tapah.stagStr(c.stag1), style: const TextStyle(fontSize: 12, color: Color(0xFF555555))),
+										]),
+										TableRow(children: [
+											Padding(padding: const EdgeInsets.only(right: 8, bottom: 3), child: const Text("· 本科专业", style: TextStyle(fontSize: 12, color: Color(0xFF555555)))),
+											GestureDetector(
+												onTap: field1 != null ? () { tapah.navigator(context, '/mainpage/fielddetail', arguments: {"field": field1!.id}); } : null,
+												child: Text(c.field1 ?? '--', style: TextStyle(fontSize: 12, color: field1 != null ? const Color(0xFF2D7BFF) : const Color(0xFF555555))),
+											),
+										]),
+										TableRow(children: [
+											Padding(padding: const EdgeInsets.only(right: 8, bottom: 3), child: const Text("· 硕士院校", style: TextStyle(fontSize: 12, color: Color(0xFF555555)))),
+											Text(c.school2 ?? '--', style: const TextStyle(fontSize: 12, color: Color(0xFF555555))),
+										]),
+										TableRow(children: [
+											Padding(padding: const EdgeInsets.only(right: 8, bottom: 3), child: const Text("· 硕士层次", style: TextStyle(fontSize: 12, color: Color(0xFF555555)))),
+											Text(tapah.stagStr(c.stag2), style: const TextStyle(fontSize: 12, color: Color(0xFF555555))),
+										]),
+										TableRow(children: [
+											Padding(padding: const EdgeInsets.only(right: 8, bottom: 3), child: const Text("· 硕士专业", style: TextStyle(fontSize: 12, color: Color(0xFF555555)))),
+											GestureDetector(
+												onTap: field2 != null ? () { tapah.navigator(context, '/mainpage/fielddetail', arguments: {"field": field2!.id}); } : null,
+												child: Text(c.field2 ?? '--', style: TextStyle(fontSize: 12, color: field2 != null ? const Color(0xFF2D7BFF) : const Color(0xFF555555))),
+											),
+										]),
+										TableRow(children: [
+											Padding(padding: const EdgeInsets.only(right: 8), child: const Text("· 主要实习", style: TextStyle(fontSize: 12, color: Color(0xFF555555)))),
+											c.detail != null && c.detail!.trim().isNotEmpty
+												? Column(
+													crossAxisAlignment: CrossAxisAlignment.start,
+													children: c.detail!.split(',').map((s) => Text(
+														s.trim(),
+														style: const TextStyle(fontSize: 12, color: Color(0xFF555555)),
+													)).toList(),
+												)
+												: const SizedBox(),
+										]),
+									],
+								),
+								const SizedBox(height: 10),
+								Container(
+									margin: const EdgeInsets.only(bottom: 6),
+									padding: const EdgeInsets.only(left: 8),
+									decoration: const BoxDecoration(
+										border: Border(left: BorderSide(color: Color(0xFF2D7BFF), width: 3)),
+									),
+									child: const Text(
+										"求职结果",
+										style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF333333)),
+									),
+								),
+								Row(
+									children: [
+										Text("· 去向单位    	", style: const TextStyle(fontSize: 12, color: Color(0xFF555555))),
+										GestureDetector(
+											onTap: () async {
+												for (var i = 0;i < tapah.enterpriselist.length;i++) {
+													if (tapah.enterpriselist[i].name == c.entname) {
+														tapah.navigator(context, '/enterprise/detail', arguments: {"enterprise": tapah.enterpriselist[i].id});
+														return;
+													}
+												}
+												var enterpriseList = await tapah.RequestEnterprise(0, 0, 0, 0, 0, null, c.entname ?? '', 1);
+												if (enterpriseList.isNotEmpty) {
+													tapah.navigator(context, '/enterprise/detail', arguments: {"enterprise": enterpriseList[0].id});
+												}
+											},
+											child: Text("${c.entname ?? '--'}", style: const TextStyle(fontSize: 12, color: Color(0xFF2D7BFF)),),
+										),
+									],
+								),
+								Text("· 所在部门    	${c.dep ?? '--'}", style: const TextStyle(fontSize: 12, color: Color(0xFF555555))),
+								Text("· 录取岗位    	${c.name}", style: const TextStyle(fontSize: 12, color: Color(0xFF555555))),
 							],
 						),
 					],

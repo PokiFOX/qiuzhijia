@@ -165,3 +165,10 @@ void navigator(BuildContext context, String url, {Map<String, dynamic>? argument
 	}
 	Navigator.pushNamed(context, url, arguments: arguments);
 }
+
+String stagStr(int? stag) {
+	if (stag == 1) return "985";
+	if (stag == 2) return "211";
+	if (stag == 3) return "普通";
+	return "海外";
+}

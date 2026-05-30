@@ -145,12 +145,6 @@ class ExampleState extends State<ExampleWidget> with tapah.Callback {
 				itemCount: tapah.caselist.length,
 				itemBuilder: (context, index) {
 					var c = tapah.caselist[index];
-					String stagStr(int? stag) {
-						if (stag == 1) return "985";
-						if (stag == 2) return "211";
-						if (stag == 3) return "普通";
-						return "海外";
-					}
 					tapah.Field? field1, field2;
 					for (var f in tapah.fieldlist) {
 						if (f.value == c.field1) {
@@ -201,23 +195,23 @@ class ExampleState extends State<ExampleWidget> with tapah.Callback {
 										Wrap(
 											spacing: 5,
 											runSpacing: 3,
-									children: c.tags.where((t) => t.trim().isNotEmpty).toList().asMap().entries.map((entry) {
-										const tagColors = [
-											[Color(0xFFE8F0FE), Color(0xFF2D7BFF)], // 蓝
-											[Color(0xFFFEEDDF), Color(0xFF692E1F)], // 金
-											[Color(0xFFF3EEFF), Color(0xFF6B21A8)], // 紫
-										];
-										final bg = tagColors[entry.key % 3][0];
-										final fg = tagColors[entry.key % 3][1];
-										return Container(
-											padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-											decoration: BoxDecoration(
-												color: bg,
-												borderRadius: BorderRadius.circular(4),
-											),
-											child: Text(entry.value, style: TextStyle(fontSize: 11, color: fg)),
-										);
-									}).toList(),
+											children: c.tags.where((t) => t.trim().isNotEmpty).toList().asMap().entries.map((entry) {
+												const tagColors = [
+													[Color(0xFFE8F0FE), Color(0xFF2D7BFF)], // 蓝
+													[Color(0xFFFEEDDF), Color(0xFF692E1F)], // 金
+													[Color(0xFFF3EEFF), Color(0xFF6B21A8)], // 紫
+												];
+												final bg = tagColors[entry.key % 3][0];
+												final fg = tagColors[entry.key % 3][1];
+												return Container(
+													padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+													decoration: BoxDecoration(
+														color: bg,
+														borderRadius: BorderRadius.circular(4),
+													),
+													child: Text(entry.value, style: TextStyle(fontSize: 11, color: fg)),
+												);
+											}).toList(),
 										),
 										Expanded(child: Container(),),
 										GestureDetector(
@@ -267,7 +261,7 @@ class ExampleState extends State<ExampleWidget> with tapah.Callback {
 													]),
 													TableRow(children: [
 														Padding(padding: const EdgeInsets.only(right: 8, bottom: 3), child: const Text("· 本科层次", style: TextStyle(fontSize: 12, color: Color(0xFF555555)))),
-														Text(stagStr(c.stag1), style: const TextStyle(fontSize: 12, color: Color(0xFF555555))),
+														Text(tapah.stagStr(c.stag1), style: const TextStyle(fontSize: 12, color: Color(0xFF555555))),
 													]),
 													TableRow(children: [
 														Padding(padding: const EdgeInsets.only(right: 8, bottom: 3), child: const Text("· 本科专业", style: TextStyle(fontSize: 12, color: Color(0xFF555555)))),
@@ -282,7 +276,7 @@ class ExampleState extends State<ExampleWidget> with tapah.Callback {
 													]),
 													TableRow(children: [
 														Padding(padding: const EdgeInsets.only(right: 8, bottom: 3), child: const Text("· 硕士层次", style: TextStyle(fontSize: 12, color: Color(0xFF555555)))),
-														Text(stagStr(c.stag2), style: const TextStyle(fontSize: 12, color: Color(0xFF555555))),
+														Text(tapah.stagStr(c.stag2), style: const TextStyle(fontSize: 12, color: Color(0xFF555555))),
 													]),
 													TableRow(children: [
 														Padding(padding: const EdgeInsets.only(right: 8, bottom: 3), child: const Text("· 硕士专业", style: TextStyle(fontSize: 12, color: Color(0xFF555555)))),

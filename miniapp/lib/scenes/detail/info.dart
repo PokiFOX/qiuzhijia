@@ -78,27 +78,6 @@ class InfoState extends State<InfoWidget> with tapah.Callback {
 						child: Row(
 							crossAxisAlignment: CrossAxisAlignment.start,
 							children: [
-								ClipRRect(
-									borderRadius: BorderRadius.circular(6),
-									child: article.image.isNotEmpty ? Image.network(
-										tapah.parseimage(article.image),
-										width: 100,
-										height: 80,
-										fit: BoxFit.cover,
-										errorBuilder: (context, error, stackTrace) => Container(
-											width: 100,
-											height: 80,
-											color: Colors.grey[200],
-											child: const Icon(Icons.article, size: 36, color: Colors.grey),
-										),
-									) : Container(
-										width: 100,
-										height: 80,
-										color: Colors.grey[200],
-										child: const Icon(Icons.article, size: 36, color: Colors.grey),
-									),
-								),
-								const SizedBox(width: 10),
 								Expanded(
 									child: SizedBox(
 										height: 80,

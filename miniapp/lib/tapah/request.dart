@@ -78,7 +78,11 @@ Future<int> RequestEnterpriseList(int zone, int sector, int level, int enttype, 
 		item["field"].forEach((field) {
 			enterprise.fields.add(fieldlist.firstWhere((e) => e.id == field));
 		});
-		enterprise.tags = item["tag"].split(',');
+		enterprise.tags = [];
+		item["tag"].split(',').forEach((tag) {
+			if (tag.trim().isEmpty) return;
+			enterprise.tags.add(tag);
+		});
 		enterprise.website1 = item["website1"];
 		enterprise.website2 = item["website2"];
 		enterprise.icon = item["icon"];
@@ -373,8 +377,12 @@ Future<void> RequestFavorite() async {
 		if (item["enttype"] != '国企') enterprise.enttype = 1;
 		if (item["enttype"] == '央企') enterprise.enttype = 2;
 		enterprise.financial = item["financial"] == "是";
-		enterprise.article1 = item["article1"].split('\n');
-		enterprise.article2 = item["article2"].split('\n');
-		enterpriselist.add(enterprise);
+		for (var article in item["article1"]) {
+			enterprise.article1.add(Article(article[0], article[1]));
+		}
+		for (var article in item["article2"]) {
+			enterprise.article2.add(Article(article[0], article[1]));
+		}
+		myenterpriselist.add(enterprise);
 	});
 }

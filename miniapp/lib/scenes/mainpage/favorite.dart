@@ -27,7 +27,7 @@ class FavoriteState extends State<FavoriteWidget> with tapah.Callback {
 	void initState() {
 		super.initState();
 		initCallback(tapah.SceneID.mp_favorite, widget.key!);
-		tapah.enterpriselist = [];
+		tapah.myenterpriselist = [];
 		tapah.myfieldlist = [];
 		WidgetsBinding.instance.addPostFrameCallback((_) async {
 			await tapah.RequestFavorite();
@@ -40,6 +40,8 @@ class FavoriteState extends State<FavoriteWidget> with tapah.Callback {
 
 	@override
 	void dispose() {
+		scrollcontroller1.dispose();
+		scrollcontroller2.dispose();
 		uninitCallback();
 		super.dispose();
 	}
@@ -55,12 +57,10 @@ class FavoriteState extends State<FavoriteWidget> with tapah.Callback {
 			}
 		}
 		return tapah.buildMain1(context, [
-			const Text('我的关注', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),
+			Center(child: const Text('我的关注', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),),
 			const SizedBox(height: 10,),
 			buildTabHeader(),
-			Expanded(
-				child: list,
-			),
+			list,
 		]);
 	}
 
@@ -107,14 +107,13 @@ class FavoriteState extends State<FavoriteWidget> with tapah.Callback {
 		return Padding(
 			padding: const EdgeInsets.symmetric(horizontal: 10.0),
 			child: ListView.separated(
-				controller: scrollcontroller1,
-				physics: const BouncingScrollPhysics(),
+				physics: const NeverScrollableScrollPhysics(),
 				padding: EdgeInsets.zero,
-				shrinkWrap: false,
-				itemCount: tapah.enterpriselist.length,
+				shrinkWrap: true,
+				itemCount: tapah.myenterpriselist.length,
 				separatorBuilder: (context, index) => const SizedBox(height: 10),
 				itemBuilder: (context, index) {
-					var enterprise = tapah.enterpriselist[index];
+					var enterprise = tapah.myenterpriselist[index];
 					return GestureDetector(
 						onTap: () {
 							tapah.navigator(context, '/enterprise/detail', arguments: {"enterprise": enterprise.id});

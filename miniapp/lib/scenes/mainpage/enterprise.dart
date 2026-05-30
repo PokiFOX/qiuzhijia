@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:math' as math;
 
 
 import 'package:qiuzhijia/tapah/class.dart' as tapah;
@@ -16,18 +17,62 @@ class EnterpriseWidget extends StatefulWidget {
 	State<EnterpriseWidget> createState() => EnterpriseState();
 }
 
-class EnterpriseState extends State<EnterpriseWidget> with tapah.Callback {
+class EnterpriseState extends State<EnterpriseWidget> with tapah.Callback, AutomaticKeepAliveClientMixin<EnterpriseWidget> {
+	static int _cachedZone = 0;
+	static int _cachedSector = 0;
+	static int _cachedLevel = 0;
+	static int _cachedPage = 1;
+	static String _cachedSearch = "";
+	static double _cachedOffset = 0;
+	static bool _hasCache = false;
+
 	int zone = 0, sector = 0, level = 0, page = 1;
 	String search = "";
 	final ScrollController scrollcontroller = ScrollController();
+	final TextEditingController searchController = TextEditingController();
 	bool isLoading = false, isFinish = false;
+
+	@override
+	bool get wantKeepAlive => true;
+
+	void _cacheCurrentState() {
+		_cachedZone = zone;
+		_cachedSector = sector;
+		_cachedLevel = level;
+		_cachedPage = page;
+		_cachedSearch = search;
+		_cachedOffset = scrollcontroller.hasClients ? scrollcontroller.offset : _cachedOffset;
+		_hasCache = true;
+	}
+
+	void _restoreScrollPosition() {
+		if (_cachedOffset <= 0) return;
+		WidgetsBinding.instance.addPostFrameCallback((_) {
+			if (!mounted || !scrollcontroller.hasClients) return;
+			final maxExtent = scrollcontroller.position.maxScrollExtent;
+			scrollcontroller.jumpTo(math.min(_cachedOffset, maxExtent));
+		});
+	}
+
 	@override
 	void initState() {
 		super.initState();
-		print('init');
 		initCallback(tapah.SceneID.mp_enterprise, widget.key!);
-		tapah.enterpriselist = [];
-		getEnterpriseList();
+
+		if (_hasCache) {
+			zone = _cachedZone;
+			sector = _cachedSector;
+			level = _cachedLevel;
+			page = _cachedPage;
+			search = _cachedSearch;
+		}
+		searchController.text = search;
+
+		if (tapah.enterpriselist.isEmpty) {
+			getEnterpriseList();
+		} else {
+			_restoreScrollPosition();
+		}
 
 		scrollcontroller.addListener(() async {
 			if (scrollcontroller.position.pixels >= scrollcontroller.position.maxScrollExtent * 0.9) {
@@ -35,8 +80,9 @@ class EnterpriseState extends State<EnterpriseWidget> with tapah.Callback {
 				if (isLoading) return;
 				isLoading = true;
 				page++;
-				isFinish = await tapah.RequestEnterpriseList(zone, sector, level, 0, 0, null, "", page) < 20;
+				isFinish = await tapah.RequestEnterpriseList(zone, sector, level, 0, 0, null, search, page) < 20;
 				isLoading = false;
+				_cacheCurrentState();
 				setState(() {});
 			}
 		});
@@ -44,21 +90,26 @@ class EnterpriseState extends State<EnterpriseWidget> with tapah.Callback {
 
 	@override
 	void dispose() {
+		_cacheCurrentState();
+		searchController.dispose();
+		scrollcontroller.dispose();
 		uninitCallback();
 		super.dispose();
 	}
 
 	Future<void> getEnterpriseList() async {
-		print('get');
 		page = 1;
 		tapah.enterpriselist = [];
 		isFinish = await tapah.RequestEnterpriseList(zone, sector, level, 0, 0, null, search, page) < 20;
 		if (mounted == false) return;
+		_cacheCurrentState();
 		setState(() {});
+		_restoreScrollPosition();
 	}
 
 	@override
 	Widget build(BuildContext context) {
+		super.build(context);
 		return Container(
 			height: double.infinity,
 			decoration: const BoxDecoration(
@@ -184,6 +235,7 @@ class EnterpriseState extends State<EnterpriseWidget> with tapah.Callback {
 								width: 65,
 								child: dropdown(zone, tapah.zonelist, (v) {
 									zone = v ?? 0;
+									_cacheCurrentState();
 									getEnterpriseList();
 								}, "地区"),
 							),
@@ -193,6 +245,7 @@ class EnterpriseState extends State<EnterpriseWidget> with tapah.Callback {
 									return true;
 								}).toList(), (v) {
 									level = v ?? 0;
+									_cacheCurrentState();
 									getEnterpriseList();
 								}, "档次"),
 							),
@@ -200,14 +253,17 @@ class EnterpriseState extends State<EnterpriseWidget> with tapah.Callback {
 								width: 65,
 								child: dropdown(sector, tapah.sectorlist, (v) {
 									sector = v ?? 0;
+									_cacheCurrentState();
 									getEnterpriseList();
 								}, "行业"),
 							),
 							Expanded(
 								child: TextField(
+									controller: searchController,
 									textAlignVertical: TextAlignVertical.center,
 									onSubmitted: (v) {
 										search = v;
+										_cacheCurrentState();
 										getEnterpriseList();
 									},
 									decoration: const InputDecoration(
@@ -240,6 +296,7 @@ class EnterpriseState extends State<EnterpriseWidget> with tapah.Callback {
 					var enterprise = tapah.enterpriselist[index];
 					return GestureDetector(
 						onTap: () {
+							_cacheCurrentState();
 							tapah.navigator(context, '/enterprise/detail', arguments: {"enterprise": enterprise.id});
 						},
 						child: Container(

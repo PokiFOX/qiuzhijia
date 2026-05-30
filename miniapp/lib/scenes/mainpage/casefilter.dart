@@ -22,8 +22,8 @@ class CaseFilterState extends State<CaseFilterWidget> with tapah.Callback {
 
 	final List<String> categories = ['本科层次', '硕士层次', '目前状态', '单位层次', '单位类别'];
 	List<List<String>> get options => [
-		['不限', '985院校', '211院校', '普通本科', '海外本科'],
-		['不限', '985院校', '211院校', '普通本科', '海外本科'],
+		['不限', 'C9', '985', '211', '双非', '海外Top10', '海外Top50', '海外Top100', '其他海外院校'],
+		['不限', 'C9', '985', '211', '双非', '海外Top10', '海外Top50', '海外Top100', '其他海外院校'],
 		['不限', '应届生', '已毕业'],
 		tapah.levellist.map((e) => e.value).toList(),
 		tapah.sectorlist.map((e) => e.value).toList(),

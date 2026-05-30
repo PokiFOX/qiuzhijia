@@ -25,6 +25,7 @@ List<Level> levellist = [];
 List<Field> fieldlist = [];
 List<Field> myfieldlist = [];
 List<Enterprise> enterpriselist = [];
+List<Enterprise> myenterpriselist = [];
 List<Case> caselist = [];
 List<Article> article1 = [], article2 = [];
 

@@ -226,10 +226,10 @@ class HomeState extends State<HomeWidget> with tapah.Callback {
 								tapah.navigator(context, '/mainpage/field');
 							}
 							if (index == 3) {
-								if (tapah.accountinfo == null) {
-									tapah.navigator(context, '/mainpage/profile');
-									return;
-								}
+								// if (tapah.accountinfo == null) {
+								// 	tapah.navigator(context, '/mainpage/profile');
+								// 	return;
+								// }
 								tapah.navigator(context, '/mainpage/example');
 							}
 							if (index == 4) {

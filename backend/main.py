@@ -883,18 +883,26 @@ async def edit_case(req: Request):
 	school1 = json.get("school1")
 	tag = json.get("school1_tag")
 	stag1 = 0
-	if tag == '985': stag1 = 1
-	if tag == '211': stag1 = 2
-	if tag == '普通': stag1 = 3
-	if tag == '海外': stag1 = 4
+	if tag == 'C9': stag1 = 1
+	if tag == '985': stag1 = 2
+	if tag == '211': stag1 = 3
+	if tag == '双非': stag1 = 4
+	if tag == '海外Top10': stag1 = 5
+	if tag == '海外Top50': stag1 = 6
+	if tag == '海外Top100': stag1 = 7
+	if tag == '其他海外院校': stag1 = 8
 	field1 = json.get("field1")
 	school2 = json.get("school2")
 	tag = json.get("school2_tag")
 	stag2 = 0
-	if tag == '985': stag2 = 1
-	if tag == '211': stag2 = 2
-	if tag == '普通': stag2 = 3
-	if tag == '海外': stag2 = 4
+	if tag == 'C9': stag2 = 1
+	if tag == '985': stag2 = 2
+	if tag == '211': stag2 = 3
+	if tag == '双非': stag2 = 4
+	if tag == '海外Top10': stag2 = 5
+	if tag == '海外Top50': stag2 = 6
+	if tag == '海外Top100': stag2 = 7
+	if tag == '其他海外院校': stag2 = 8
 	field2 = json.get("field2")
 	year = json.get("year")
 	detail = json.get("detail")

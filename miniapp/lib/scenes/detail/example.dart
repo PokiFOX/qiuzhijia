@@ -6,8 +6,8 @@ import 'package:mpflutter_wechat_button/mpflutter_wechat_button.dart';
 import 'package:qiuzhijia/tapah/class.dart' as tapah;
 import 'package:qiuzhijia/tapah/data.dart' as tapah;
 import 'package:qiuzhijia/tapah/enum.dart' as tapah;
+import 'package:qiuzhijia/tapah/function.dart' as tapah;
 import 'package:qiuzhijia/tapah/request.dart' as tapah;
-import 'package:qiuzhijia/widgets/expandable_text.dart' as widgets;
 
 class ExampleWidget extends StatefulWidget {
 	const ExampleWidget({super.key, required this.enterprise});
@@ -81,7 +81,16 @@ class ExampleState extends State<ExampleWidget> with tapah.Callback {
 			itemCount: cases.length,
 			separatorBuilder: (context, index) => const SizedBox(height: 10),
 			itemBuilder: (context, index) {
-				var c = tapah.caselist[index];
+				var c = cases[index];
+				tapah.Field? field1, field2;
+				for (var f in tapah.fieldlist) {
+					if (f.value == c.field1) {
+						field1 = f;
+					}
+					if (f.value == c.field2) {
+						field2 = f;
+					}
+				}
 				return Container(
 					decoration: BoxDecoration(
 						color: Colors.white,
@@ -122,23 +131,23 @@ class ExampleState extends State<ExampleWidget> with tapah.Callback {
 									Wrap(
 										spacing: 5,
 										runSpacing: 3,
-								children: c.tags.where((t) => t.trim().isNotEmpty).toList().asMap().entries.map((entry) {
-									const tagColors = [
-										[Color(0xFFE8F0FE), Color(0xFF2D7BFF)], // 蓝
-										[Color(0xFFFEEDDF), Color(0xFF692E1F)], // 金
-										[Color(0xFFF3EEFF), Color(0xFF6B21A8)], // 紫
-									];
-									final bg = tagColors[entry.key % 3][0];
-									final fg = tagColors[entry.key % 3][1];
-									return Container(
-										padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-										decoration: BoxDecoration(
-											color: bg,
-											borderRadius: BorderRadius.circular(4),
-										),
-										child: Text(entry.value, style: TextStyle(fontSize: 11, color: fg)),
-									);
-								}).toList(),
+										children: c.tags.where((t) => t.trim().isNotEmpty).toList().asMap().entries.map((entry) {
+											const tagColors = [
+												[Color(0xFFE8F0FE), Color(0xFF2D7BFF)], // 蓝
+												[Color(0xFFFEEDDF), Color(0xFF692E1F)], // 金
+												[Color(0xFFF3EEFF), Color(0xFF6B21A8)], // 紫
+											];
+											final bg = tagColors[entry.key % 3][0];
+											final fg = tagColors[entry.key % 3][1];
+											return Container(
+												padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+												decoration: BoxDecoration(
+													color: bg,
+													borderRadius: BorderRadius.circular(4),
+												),
+												child: Text(entry.value, style: TextStyle(fontSize: 11, color: fg)),
+											);
+										}).toList(),
 									),
 									Expanded(child: Container(),),
 									GestureDetector(
@@ -160,23 +169,107 @@ class ExampleState extends State<ExampleWidget> with tapah.Callback {
 								Column(
 									crossAxisAlignment: CrossAxisAlignment.start,
 									children: [
-										infoRow("本科院校", c.school1),
-										infoRow("本科专业", c.field1),
-										infoRow("硕士院校", c.school2),
-										infoRow("硕士专业", c.field2),
-										if (c.detail != null && c.detail!.trim().isNotEmpty) ...[
-											const SizedBox(height: 6),
-											Text("主要经历", style: TextStyle(fontSize: 13, color: Colors.grey[600])),
-											const SizedBox(height: 4),
-											widgets.ExpandableText(
-												c.detail!,
-												style: const TextStyle(fontSize: 13, color: Colors.black),
-												expandText: '展开',
-												collapseText: '收起',
-												maxLines: 3,
-												linkColor: Colors.blue,
+										Container(
+											margin: const EdgeInsets.only(bottom: 6),
+											padding: const EdgeInsets.only(left: 8),
+											decoration: const BoxDecoration(
+												border: Border(left: BorderSide(color: Color(0xFF2D7BFF), width: 3)),
 											),
-										],
+											child: const Text(
+												"基础信息",
+												style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF333333)),
+											),
+										),
+										Table(
+											columnWidths: const {
+												0: IntrinsicColumnWidth(),
+												1: FlexColumnWidth(1),
+											},
+											defaultVerticalAlignment: TableCellVerticalAlignment.top,
+											children: [
+												TableRow(children: [
+													Padding(padding: const EdgeInsets.only(right: 8, bottom: 3), child: const Text("· 学生姓名", style: TextStyle(fontSize: 12, color: Color(0xFF555555)))),
+													Text(c.student ?? '--', style: const TextStyle(fontSize: 12, color: Color(0xFF555555))),
+												]),
+												TableRow(children: [
+													Padding(padding: const EdgeInsets.only(right: 8, bottom: 3), child: const Text("· 本科院校", style: TextStyle(fontSize: 12, color: Color(0xFF555555)))),
+													Text(c.school1 ?? '--', style: const TextStyle(fontSize: 12, color: Color(0xFF555555))),
+												]),
+												TableRow(children: [
+													Padding(padding: const EdgeInsets.only(right: 8, bottom: 3), child: const Text("· 本科层次", style: TextStyle(fontSize: 12, color: Color(0xFF555555)))),
+													Text(tapah.stagStr(c.stag1), style: const TextStyle(fontSize: 12, color: Color(0xFF555555))),
+												]),
+												TableRow(children: [
+													Padding(padding: const EdgeInsets.only(right: 8, bottom: 3), child: const Text("· 本科专业", style: TextStyle(fontSize: 12, color: Color(0xFF555555)))),
+													GestureDetector(
+														onTap: c.field1 != null ? () { tapah.navigator(context, '/mainpage/fielddetail', arguments: {"field": field1!.id}); } : null,
+														child: Text(c.field1 ?? '--', style: TextStyle(fontSize: 12, color: c.field1 != null ? const Color(0xFF2D7BFF) : const Color(0xFF555555))),
+													),
+												]),
+												TableRow(children: [
+													Padding(padding: const EdgeInsets.only(right: 8, bottom: 3), child: const Text("· 硕士院校", style: TextStyle(fontSize: 12, color: Color(0xFF555555)))),
+													Text(c.school2 ?? '--', style: const TextStyle(fontSize: 12, color: Color(0xFF555555))),
+												]),
+												TableRow(children: [
+													Padding(padding: const EdgeInsets.only(right: 8, bottom: 3), child: const Text("· 硕士层次", style: TextStyle(fontSize: 12, color: Color(0xFF555555)))),
+													Text(tapah.stagStr(c.stag2), style: const TextStyle(fontSize: 12, color: Color(0xFF555555))),
+												]),
+												TableRow(children: [
+													Padding(padding: const EdgeInsets.only(right: 8, bottom: 3), child: const Text("· 硕士专业", style: TextStyle(fontSize: 12, color: Color(0xFF555555)))),
+													GestureDetector(
+														onTap: c.field2 != null ? () { tapah.navigator(context, '/mainpage/fielddetail', arguments: {"field": field2!.id}); } : null,
+														child: Text(c.field2 ?? '--', style: TextStyle(fontSize: 12, color: c.field2 != null ? const Color(0xFF2D7BFF) : const Color(0xFF555555))),
+													),
+												]),
+												TableRow(children: [
+													Padding(padding: const EdgeInsets.only(right: 8), child: const Text("· 主要实习", style: TextStyle(fontSize: 12, color: Color(0xFF555555)))),
+													c.detail != null && c.detail!.trim().isNotEmpty
+														? Column(
+															crossAxisAlignment: CrossAxisAlignment.start,
+															children: c.detail!.split(',').map((s) => Text(
+																s.trim(),
+																style: const TextStyle(fontSize: 12, color: Color(0xFF555555)),
+															)).toList(),
+														)
+														: const SizedBox(),
+												]),
+											],
+										),
+										const SizedBox(height: 10),
+										Container(
+											margin: const EdgeInsets.only(bottom: 6),
+											padding: const EdgeInsets.only(left: 8),
+											decoration: const BoxDecoration(
+												border: Border(left: BorderSide(color: Color(0xFF2D7BFF), width: 3)),
+											),
+											child: const Text(
+												"求职结果",
+												style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF333333)),
+											),
+										),
+										Row(
+											children: [
+												Text("· 去向单位    	", style: const TextStyle(fontSize: 12, color: Color(0xFF555555))),
+												// GestureDetector(
+												// 	onTap: () async {
+												// 		for (var i = 0;i < tapah.enterpriselist.length;i++) {
+												// 			if (tapah.enterpriselist[i].name == c.entname) {
+												// 				tapah.navigator(context, '/enterprise/detail', arguments: {"enterprise": tapah.enterpriselist[i].id});
+												// 				return;
+												// 			}
+												// 		}
+												// 		var enterpriseList = await tapah.RequestEnterprise(0, 0, 0, 0, 0, null, c.entname ?? '', 1);
+												// 		if (enterpriseList.isNotEmpty) {
+												// 			tapah.navigator(context, '/enterprise/detail', arguments: {"enterprise": enterpriseList[0].id});
+												// 		}
+												// 	},
+												// 	child: Text("${c.entname ?? '--'}", style: const TextStyle(fontSize: 12, color: Color(0xFF2D7BFF)),),
+												// ),
+												Text("${c.entname ?? '--'}", style: const TextStyle(fontSize: 12, color: Color(0xFF555555)),),
+											],
+										),
+										Text("· 所在部门    	${c.dep ?? '--'}", style: const TextStyle(fontSize: 12, color: Color(0xFF555555))),
+										Text("· 录取岗位    	${c.name}", style: const TextStyle(fontSize: 12, color: Color(0xFF555555))),
 									],
 								),
 							],
