@@ -30,25 +30,6 @@ class QiuZhiFuWuState extends State<QiuZhiFuWuWidget> with tapah.Callback {
 	Widget build(BuildContext context) {
 		return tapah.buildMain1(context, [
 			Center(child: const Text('求职服务', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),),
-			// 顶部文字区
-			Padding(
-				padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-				child: Column(
-					crossAxisAlignment: CrossAxisAlignment.start,
-					children: const [
-						Text(
-							'一站式求职规划，陪你高效上岸',
-							style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-						),
-						SizedBox(height: 8),
-						Text(
-							'求职规划 · 简历优化 · 笔面试辅导',
-							style: TextStyle(fontSize: 14, color: Color(0xFF666666)),
-						),
-						SizedBox(height: 16),
-					],
-				),
-			),
 			// 顶部大图
 			Padding(
 				padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -67,8 +48,8 @@ class QiuZhiFuWuState extends State<QiuZhiFuWuWidget> with tapah.Callback {
 				child: Column(
 					crossAxisAlignment: CrossAxisAlignment.start,
 					children: [
-						// 服务内容
-						_sectionTitle('服务内容'),
+						// 核心服务
+						_sectionTitle('核心服务'),
 						const SizedBox(height: 12),
 						Row(
 							children: [
@@ -98,37 +79,111 @@ class QiuZhiFuWuState extends State<QiuZhiFuWuWidget> with tapah.Callback {
 								)),
 								const SizedBox(width: 12),
 								Expanded(child: _typeCard(
-									imageName: '栏目/求职服务/笔面辅助.png',
+									imageName: '栏目/求职服务/笔面辅导.png',
 									bgColor: const Color(0xFFFDEEE4),
 									label: '笔面辅导',
 									sub: '提升笔试与面试表现',
 								)),
 							],
 						),
-						const SizedBox(height: 24),
-						// 适合哪些同学
-						_sectionTitle('适合哪些同学'),
 						const SizedBox(height: 12),
 						Row(
 							children: [
-								Expanded(child: _targetCard(
-									imageName: '栏目/求职服务/不知道投什么.png',
-									title: '不知道投什么',
-									sub: '明确岗位与行业方向',
+								Expanded(child: _typeCard(
+									imageName: '栏目/求职服务/首席导师团队.png',
+									bgColor: const Color(0xFFD4F0E9),
+									label: '首席导师团队',
+									sub: '顶尖行业导师',
 								)),
-								const SizedBox(width: 10),
-								Expanded(child: _targetCard(
-									imageName: '栏目/求职服务/简历没有亮点.png',
-									title: '简历没有亮点',
-									sub: '优化简历表达重点',
-								)),
-								const SizedBox(width: 10),
-								Expanded(child: _targetCard(
-									imageName: '栏目/求职服务/面试准备不足.png',
-									title: '面试准备不足',
-									sub: '补足答题思路与表达',
+								const SizedBox(width: 12),
+								Expanded(child: _typeCard(
+									imageName: '栏目/求职服务/实习内推.png',
+									bgColor: const Color(0xFFFDEEE4),
+									label: '实习内推',
+									sub: '定向内推实习',
 								)),
 							],
+						),
+						const SizedBox(height: 12),
+						Row(
+							children: [
+								Expanded(child: _typeCard(
+									imageName: '栏目/求职服务/24h贴心陪伴.png',
+									bgColor: const Color(0xFFD4F0E9),
+									label: '24h贴心陪伴',
+									sub: '专属辅导组',
+								)),
+								const SizedBox(width: 12),
+								Expanded(child: _typeCard(
+									imageName: '栏目/求职服务/能力提升工作坊.png',
+									bgColor: const Color(0xFFFDEEE4),
+									label: '能力提升工作坊',
+									sub: '助力能力提升',
+								)),
+							],
+						),
+						const SizedBox(height: 12),
+						Row(
+							children: [
+								Expanded(child: _typeCard(
+									imageName: '栏目/求职服务/其他增值服务.png',
+									bgColor: const Color(0xFFD4F0E9),
+									label: '其他增值服务',
+									sub: '行业资料持续更新',
+								)),
+								const SizedBox(width: 12),
+								Expanded(child: _typeCard(
+									imageName: '栏目/求职服务/专属社群支持.png',
+									bgColor: const Color(0xFFFDEEE4),
+									label: '专属社群支持',
+									sub: '消息及时同步',
+								)),
+							],
+						),
+						const SizedBox(height: 24),
+						Container(
+							padding: const EdgeInsets.all(14),
+							decoration: BoxDecoration(
+								color: Colors.white,
+								borderRadius: BorderRadius.circular(12),
+								boxShadow: [
+									BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 8, offset: const Offset(0, 2)),
+								],
+							),
+							child: Column(
+								crossAxisAlignment: CrossAxisAlignment.start,
+								children: [
+									_sectionTitle('服务流程'),
+									const SizedBox(height: 12),
+									Row(
+										mainAxisAlignment: MainAxisAlignment.spaceAround,
+										crossAxisAlignment: CrossAxisAlignment.start,
+										children: [
+											_flowStep('栏目/求职服务/需求沟通.png', '需求沟通',),
+											SizedBox(
+												height: 40,
+												child: Center(child: const Icon(Icons.arrow_forward, size: 16, color: Color(0xFFCCCCCC)),),
+											),
+											_flowStep('栏目/求职服务/策略制定.png', '策略制定',),
+											SizedBox(
+												height: 40,
+												child: Center(child: const Icon(Icons.arrow_forward, size: 16, color: Color(0xFFCCCCCC)),),
+											),
+											_flowStep('栏目/求职服务/技能提升.png', '技能提升',),
+											SizedBox(
+												height: 40,
+												child: Center(child: const Icon(Icons.arrow_forward, size: 16, color: Color(0xFFCCCCCC)),),
+											),
+											_flowStep('栏目/求职服务/信息推荐.png', '信息推荐',),
+											SizedBox(
+												height: 40,
+												child: Center(child: const Icon(Icons.arrow_forward, size: 16, color: Color(0xFFCCCCCC)),),
+											),
+											_flowStep('栏目/求职服务/面试上岸.png', '面试上岸',),
+										],
+									),
+								],
+							),
 						),
 					],
 				),
@@ -215,38 +270,26 @@ class QiuZhiFuWuState extends State<QiuZhiFuWuWidget> with tapah.Callback {
 		);
 	}
 
-	Widget _targetCard({
-		required String imageName,
-		required String title,
-		required String sub,
-	}) {
-		return Container(
-			padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
-			decoration: BoxDecoration(
-				color: Colors.white,
-				borderRadius: BorderRadius.circular(12),
-				boxShadow: [
-					BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 8, offset: const Offset(0, 2)),
-				],
-			),
-			child: Row(
-				children: [
-					const SizedBox(width: 5,),
-					Image.network(
-						tapah.parseimage(imageName),
+	Widget _flowStep(String imageName, String label) {
+		return Column(
+			children: [
+				Container(
+					width: 40,
+					height: 40,
+					decoration: BoxDecoration(
+						color: Colors.white,
+						borderRadius: BorderRadius.circular(26),
 					),
-					const SizedBox(width: 8),
-					Column(
-						crossAxisAlignment: CrossAxisAlignment.start,
-						children: [
-							const SizedBox(height: 8),
-							Text(title, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
-							const SizedBox(height: 4),
-							Text(sub, style: const TextStyle(fontSize: 8, color: Color(0xFF888888)), textAlign: TextAlign.center, maxLines: 2),
-						],
+					child: Padding(
+						padding: const EdgeInsets.all(10),
+						child: Image.network(
+							tapah.parseimage(imageName),
+						),
 					),
-				],
-			),
+				),
+				const SizedBox(height: 6),
+				Text(label, style: const TextStyle(fontSize: 12, color: Color(0xFF555555))),
+			],
 		);
 	}
 }

@@ -131,14 +131,24 @@ class ShiXiNeiTuiState extends State<ShiXiNeiTuiWidget> with tapah.Callback {
 									const SizedBox(height: 14),
 									Row(
 										mainAxisAlignment: MainAxisAlignment.spaceAround,
+										crossAxisAlignment: CrossAxisAlignment.start,
 										children: [
-											_flowStep('栏目/实习内推/流程-咨询评估.png', '咨询评估', const Color(0xFFC8DBFC),),
-											const Icon(Icons.arrow_forward, size: 16, color: Color(0xFFCCCCCC)),
-											_flowStep('栏目/实习内推/流程-岗位匹配.png', '岗位匹配', const Color(0xFFFCE5D2),),
-											const Icon(Icons.arrow_forward, size: 16, color: Color(0xFFCCCCCC)),
-											_flowStep('栏目/实习内推/流程-投递辅导.png', '投递辅导', const Color(0xFFD4F0E9),),
-											const Icon(Icons.arrow_forward, size: 16, color: Color(0xFFCCCCCC)),
-											_flowStep('栏目/实习内推/流程-跟进反馈.png', '跟进反馈', const Color(0xFFDED8FD),),
+											_flowStep('栏目/实习内推/流程-咨询评估.png', '咨询评估',),
+											SizedBox(
+												height: 40,
+												child: Center(child: const Icon(Icons.arrow_forward, size: 16, color: Color(0xFFCCCCCC)),),
+											),
+											_flowStep('栏目/实习内推/流程-岗位匹配.png', '岗位匹配',),
+											SizedBox(
+												height: 40,
+												child: Center(child: const Icon(Icons.arrow_forward, size: 16, color: Color(0xFFCCCCCC)),),
+											),
+											_flowStep('栏目/实习内推/流程-投递辅导.png', '投递辅导',),
+											SizedBox(
+												height: 40,
+												child: Center(child: const Icon(Icons.arrow_forward, size: 16, color: Color(0xFFCCCCCC)),),
+											),
+											_flowStep('栏目/实习内推/流程-跟进反馈.png', '跟进反馈',),
 										],
 									),
 								],
@@ -227,14 +237,14 @@ class ShiXiNeiTuiState extends State<ShiXiNeiTuiWidget> with tapah.Callback {
 		);
 	}
 
-	Widget _flowStep(String imageName, String label, Color bgColor) {
+	Widget _flowStep(String imageName, String label) {
 		return Column(
 			children: [
 				Container(
 					width: 40,
 					height: 40,
 					decoration: BoxDecoration(
-						color: bgColor,
+						color: Colors.white,
 						borderRadius: BorderRadius.circular(26),
 					),
 					child: Padding(
