@@ -11,4 +11,5 @@ String url_query_article2 = "query_article2";
 String url_query_wxcode = "wxcode";
 String url_query_userinfo = "userinfo";
 String url_query_favorite = "favorite";
-String url_boardcast= "https://a13683054750-101.m.eduwebportal.net";
+String url_boardcast= "https://m.tapahtech.com";
+String url_mpid = "wx320a7a97e2f254e2";
