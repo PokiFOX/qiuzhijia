@@ -30,3 +30,8 @@ List<Case> caselist = [];
 List<Article> article1 = [], article2 = [];
 
 AccountInfo? accountinfo;
+
+String? chataiToken;
+int? chataiTokenExpiresAt;
+String? chataiConversationId;
+String chataiAgent = "resume";

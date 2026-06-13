@@ -12,6 +12,7 @@ import 'package:qiuzhijia/scenes/mainpage/profile.dart' as scenes;
 import 'package:qiuzhijia/scenes/mainpage/example.dart' as scenes;
 import 'package:qiuzhijia/scenes/mainpage/field.dart' as scenes;
 import 'package:qiuzhijia/scenes/mainpage/fielddetail.dart' as scenes;
+import 'package:qiuzhijia/scenes/lanmu/aizhushou.dart' as scenes;
 import 'package:qiuzhijia/scenes/lanmu/qiuzhiziliao.dart' as scenes;
 import 'package:qiuzhijia/scenes/lanmu/shixineitui.dart' as scenes;
 import 'package:qiuzhijia/scenes/lanmu/gangweineitui.dart' as scenes;
@@ -102,6 +103,7 @@ class MainApp extends StatelessWidget {
 				'/mainpage/profile': (context) => scenes.ProfileWidget(key: GlobalKey()),
 				'/mainpage/example': (context) => scenes.ExampleWidget(key: GlobalKey(),),
 				'/mainpage/fielddetail': (context) => scenes.FieldDetailWidget(key: GlobalKey(),),
+				'/lanmu/aizhushou': (context) => scenes.AIZhuShouWidget(key: GlobalKey(),),
 				'/lanmu/qiuzhiziliao': (context) => scenes.QiuZhiZiLiaoWidget(key: GlobalKey(),),
 				'/lanmu/shixineitui': (context) => scenes.ShiXiNeiTuiWidget(key: GlobalKey(),),
 				'/lanmu/gangweineitui': (context) => scenes.GangWeiNeiTuiWidget(key: GlobalKey(),),

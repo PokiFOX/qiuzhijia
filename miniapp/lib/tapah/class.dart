@@ -166,6 +166,19 @@ class AccountInfo {
 	String openid = "";
 	String nickname = "微信名称";
 	String avatar = "";
+	String email = "";
+	String phone = "";
+	String realname = "";
+	String unionid = "";
+	String useridentity = "学生";
+	String usersource = "求职+";
 	Set<int> field = {};
 	Set<int> enterprise = {};
+}
+
+class ChatItem {
+	final bool isuser;
+	final String detail;
+	final int timestamp;
+	ChatItem({required this.isuser, required this.detail, required this.timestamp});
 }

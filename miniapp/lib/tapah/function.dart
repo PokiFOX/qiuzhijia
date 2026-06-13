@@ -59,7 +59,7 @@ Widget backButton(BuildContext context) {
 	);
 }
 
-Widget buildMain1(BuildContext context, List<Widget> children) {
+Widget buildMain1(BuildContext context, List<Widget> children, {ScrollController? scrollController}) {
 	final safeAreaTop = MediaQuery.of(context).padding.top;
 	if (safeAreaTop > 0) {
 		return wrapSwipePop(context, Material(
@@ -67,6 +67,7 @@ Widget buildMain1(BuildContext context, List<Widget> children) {
 				children: [
 					SafeArea(
 						child: SingleChildScrollView(
+							controller: scrollController,
 							child: Column(
 								crossAxisAlignment: CrossAxisAlignment.stretch,
 								children: [
@@ -90,6 +91,7 @@ Widget buildMain1(BuildContext context, List<Widget> children) {
 	else {
 		return wrapSwipePop(context, Material(
 			child: SingleChildScrollView(
+				controller: scrollController,
 				child: Column(
 					crossAxisAlignment: CrossAxisAlignment.stretch,
 					children: [

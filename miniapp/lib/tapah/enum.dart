@@ -19,6 +19,7 @@ enum SceneID {
 	dt_info,
 	dt_offer,
 	dt_example,
+	lm_aizhushou,
 	lm_qiuzhiziliao,
 	lm_shixineitui,
 	lm_gangweineitui,

@@ -1,6 +1,7 @@
 import asyncio
 import datetime
 import re
+import time
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -12,6 +13,7 @@ import shutil
 
 from tapah import data
 from tapah import function
+from tapah import chatai
 from tapah.struct import Linq, Zone, Level, Sector, Field, Enterprise, Case, User
 
 @asynccontextmanager
@@ -1014,6 +1016,7 @@ async def wxcode(req: Request):
 		"data": {
 			"id": user.id,
 			"openid": openid,
+			"unionid": unionid,
 			"nickname": user.nickname,
 			"avatar": user.avatar,
 		},
@@ -1110,5 +1113,133 @@ async def favorite(req: Request):
 		"data": {
 			"field": fieldlist,
 			"enterprise": enterpriselist,
+		},
+	})
+
+@app.post("/chatai_auth")
+async def chatai_auth(req: Request):
+	json = await req.json()
+	miniappid = json.get("miniappid", "")
+	if miniappid != data.appid:
+		return JSONResponse(content = {
+			"code": -1,
+			"status": "miniappid 不匹配",
+		})
+
+	phone = json.get("phone", "")
+	if not phone:
+		return JSONResponse(content = {
+			"code": -1,
+			"status": "缺少 phone",
+		})
+
+	body = chatai.build_auth_body(json)
+	timestamp = int(time.time())
+	signature = chatai.generate_signature(body, timestamp, data.chatai_secret_key, data.chatai_auth_path)
+	headers = {
+		"x-provider-code": data.chatai_provider_code,
+		"x-signature": signature,
+		"x-timestamp": str(timestamp),
+		"Content-Type": "application/json",
+	}
+	url = f"{data.chatai_base_url}{data.chatai_auth_path}"
+	response = requests.post(url, json = body, headers = headers)
+	result = response.json()['data']
+
+	if result.get("success"):
+		return JSONResponse(content = {
+			"code": 0,
+			"status": "success",
+			"data": result.get("data", {}),
+		})
+
+	print("chatai auth failed:", result)
+	return JSONResponse(content = {
+		"code": -1,
+		"status": result.get("message", "鉴权失败"),
+	})
+
+@app.get("/aichat_history")
+async def aichat_history(req: Request):
+	openid = req.query_params.get("openid", "")
+	agent = req.query_params.get("agent", "resume")
+	if not openid:
+		return JSONResponse(content = {
+			"code": -1,
+			"status": "缺少 openid",
+		})
+	if agent not in data.chatai_agents:
+		return JSONResponse(content = {
+			"code": -1,
+			"status": "无效的 agent",
+		})
+	messages, conversation_id = chatai.load_aichat_history(openid, agent)
+	return JSONResponse(content = {
+		"code": 0,
+		"status": "success",
+		"data": {
+			"messages": messages,
+			"conversationId": conversation_id,
+		},
+	})
+
+@app.post("/chatai_chat")
+async def chatai_chat(req: Request):
+	json = await req.json()
+	openid = json.get("openid", "")
+	token = json.get("token", "")
+	message = json.get("message", "")
+	conversation_id = json.get("conversationId", "")
+	agent = json.get("agent", "resume")
+
+	if not openid:
+		return JSONResponse(content = {"code": -1, "status": "缺少 openid"})
+	if not token:
+		return JSONResponse(content = {"code": -1, "status": "缺少 token"})
+	if not message:
+		return JSONResponse(content = {"code": -1, "status": "缺少 message"})
+	if agent not in data.chatai_agents:
+		return JSONResponse(content = {"code": -1, "status": "无效的 agent"})
+
+	body = {
+		"responseMode": "blocking",
+		"messages": [{"role": "user", "content": message}],
+		"includeReferences": False,
+		"generateSuggestions": False,
+	}
+	if conversation_id:
+		body["conversationId"] = conversation_id
+
+	api_key = chatai.get_api_key(agent)
+	headers = {
+		"Authorization": f"Bearer {api_key}",
+		"x-sso-token": token,
+		"Content-Type": "application/json",
+	}
+	url = f"{data.chatai_base_url}{data.chatai_chat_path}"
+	response = requests.post(url, json = body, headers = headers)
+	result = response.json()
+
+	if "response" not in result:
+		print("chatai chat failed:", result)
+		return JSONResponse(content = {
+			"code": -1,
+			"status": result.get("message", "对话失败"),
+		})
+
+	reply = result.get("response", "")
+	new_conversation_id = result.get("conversationId", conversation_id)
+	timestamp = int(time.time())
+
+	chatai.save_aichat_messages(openid, agent, message, reply, timestamp)
+	if new_conversation_id:
+		chatai.save_aichat_session(openid, agent, new_conversation_id, timestamp)
+
+	return JSONResponse(content = {
+		"code": 0,
+		"status": "success",
+		"data": {
+			"response": reply,
+			"conversationId": new_conversation_id,
 		},
 	})

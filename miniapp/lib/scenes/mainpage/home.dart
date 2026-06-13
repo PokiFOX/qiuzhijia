@@ -226,14 +226,7 @@ class HomeState extends State<HomeWidget> with tapah.Callback {
 							if (index == 1) {
 								tapah.navigator(context, '/mainpage/field');
 							}
-							if (index == 3) {
-								// if (tapah.accountinfo == null) {
-								// 	tapah.navigator(context, '/mainpage/profile');
-								// 	return;
-								// }
-								tapah.navigator(context, '/mainpage/example');
-							}
-							if (index == 4) {
+							if (index == 2) {
 								// MPFlutter_Wechat_WebView.open(tapah.url_boardcast, onLoad: (_) {
 								// 	print("webview loaded");
 								// });
@@ -247,6 +240,20 @@ class HomeState extends State<HomeWidget> with tapah.Callback {
 									print("navigateToMiniProgram fail: $error");
 								};
 								wxapi.wx.navigateToMiniProgram(option);
+							}
+							if (index == 3) {
+								 if (tapah.accountinfo == null) {
+								 	tapah.navigator(context, '/mainpage/profile');
+								 	return;
+								 }
+								tapah.navigator(context, '/mainpage/example');
+							}
+							if (index == 4) {
+								 if (tapah.accountinfo == null) {
+								 	tapah.navigator(context, '/mainpage/profile');
+								 	return;
+								 }
+								tapah.navigator(context, '/lanmu/aizhushou');
 							}
 							if (index == 5) {
 								tapah.navigator(context, '/lanmu/qiuzhiziliao');

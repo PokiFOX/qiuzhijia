@@ -386,3 +386,80 @@ Future<void> RequestFavorite() async {
 		myenterpriselist.add(enterprise);
 	});
 }
+
+Future<void> RequestChatAIAuth() async {
+	if (accountinfo == null) {
+		throw Exception('User not logged in');
+	}
+	var response = await dio.post(parseurl(url_query_chatai_auth), data: {
+		"openid": accountinfo!.openid,
+		"unionid": accountinfo!.unionid,
+		"nickname": accountinfo!.nickname,
+		"avatar": accountinfo!.avatar,
+		"phone": accountinfo!.openid,
+		"email": accountinfo!.email,
+		"realname": accountinfo!.realname,
+		"useridentity": accountinfo!.useridentity,
+		"usersource": accountinfo!.usersource,
+		"miniappid": miniappid,
+	});
+	if (response.data['code'] != 0) {
+		throw Exception(response.data['status'] ?? '鉴权失败');
+	}
+	var json = response.data['data'];
+	chataiToken = json['token'];
+	chataiTokenExpiresAt = json['expiresAt'];
+}
+
+Future<String> RequestChatAIChat(String message, {String? agent}) async {
+	if (accountinfo == null) {
+		throw Exception('User not logged in');
+	}
+	if (chataiToken == null || chataiToken!.isEmpty) {
+		throw Exception('未鉴权');
+	}
+	final agentKey = agent ?? chataiAgent;
+	var data = <String, dynamic>{
+		"openid": accountinfo!.openid,
+		"token": chataiToken,
+		"message": message,
+		"agent": agentKey,
+	};
+	if (chataiConversationId != null && chataiConversationId!.isNotEmpty) {
+		data["conversationId"] = chataiConversationId;
+	}
+	var response = await dio.post(parseurl(url_query_chatai_chat), data: data);
+	if (response.data['code'] != 0) {
+		throw Exception(response.data['status'] ?? '对话失败');
+	}
+	var json = response.data['data'];
+	chataiConversationId = json['conversationId'];
+	chataiAgent = agentKey;
+	return json['response'] ?? '';
+}
+
+Future<List<ChatItem>> RequestAIChatHistory({String? agent}) async {
+	if (accountinfo == null) {
+		throw Exception('User not logged in');
+	}
+	final agentKey = agent ?? chataiAgent;
+	var response = await dio.get(parseurl(url_query_aichat_history), queryParameters: {
+		"openid": accountinfo!.openid,
+		"agent": agentKey,
+	});
+	if (response.data['code'] != 0) {
+		throw Exception(response.data['status'] ?? '加载聊天记录失败');
+	}
+	var json = response.data['data'];
+	chataiConversationId = json['conversationId'];
+	chataiAgent = agentKey;
+	var list = <ChatItem>[];
+	for (var item in json['messages'] ?? []) {
+		list.add(ChatItem(
+			isuser: item['isuser'] == true,
+			detail: item['detail'] ?? '',
+			timestamp: item['timestamp'] ?? 0,
+		));
+	}
+	return list;
+}

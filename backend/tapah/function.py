@@ -1,3 +1,4 @@
+import hashlib
 import threading
 import time
 
@@ -91,3 +92,6 @@ def init_config():
 
 	cursor.close()
 	data.mysql_pool.release(conn)
+
+def md5_hex(text: str) -> str:
+	return hashlib.md5(text.encode("utf-8")).hexdigest()
