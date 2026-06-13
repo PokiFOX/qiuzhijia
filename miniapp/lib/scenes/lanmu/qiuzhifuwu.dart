@@ -29,7 +29,6 @@ class QiuZhiFuWuState extends State<QiuZhiFuWuWidget> with tapah.Callback {
 	@override
 	Widget build(BuildContext context) {
 		return tapah.buildMain1(context, [
-			Center(child: const Text('求职服务', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),),
 			// 顶部大图
 			Padding(
 				padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -214,7 +213,7 @@ class QiuZhiFuWuState extends State<QiuZhiFuWuWidget> with tapah.Callback {
 					const Text('已为数千名学员提供专业咨询服务', style: TextStyle(fontSize: 13, color: Color(0xFF555555))),
 				],
 			),
-		]);
+		], title: '求职服务');
 	}
 
 	Widget _sectionTitle(String text) {

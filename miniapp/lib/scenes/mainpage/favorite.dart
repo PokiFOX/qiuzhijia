@@ -57,11 +57,10 @@ class FavoriteState extends State<FavoriteWidget> with tapah.Callback {
 			}
 		}
 		return tapah.buildMain1(context, [
-			Center(child: const Text('我的关注', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),),
 			const SizedBox(height: 10,),
 			buildTabHeader(),
 			list,
-		]);
+		], title: '我的关注');
 	}
 
 	Widget buildTabHeader() {

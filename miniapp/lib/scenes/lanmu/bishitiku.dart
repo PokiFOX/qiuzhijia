@@ -29,7 +29,6 @@ class BiShiTiKuState extends State<BiShiTiKuWidget> with tapah.Callback {
 	@override
 	Widget build(BuildContext context) {
 		return tapah.buildMain1(context, [
-			Center(child: const Text('笔试题库', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),),
 			// 顶部标题区（白底文字 + 大图）
 			Padding(
 				padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
@@ -185,7 +184,7 @@ class BiShiTiKuState extends State<BiShiTiKuWidget> with tapah.Callback {
 					const Text('已为数千名学员提供专业咨询服务', style: TextStyle(fontSize: 13, color: Color(0xFF555555))),
 				],
 			),
-		]);
+		], title: '笔试题库');
 	}
 
 	Widget _typeCard({

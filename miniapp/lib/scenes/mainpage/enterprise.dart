@@ -115,19 +115,17 @@ class EnterpriseState extends State<EnterpriseWidget> with tapah.Callback, Autom
 			decoration: const BoxDecoration(
 				color: Color(0xFFE2EDFF),
 			),
-			child: SafeArea(
-				child: Column(
-					mainAxisAlignment: MainAxisAlignment.start,
-					children: [
-						SizedBox(height: 30),
-						buildTopRow(),
+			child: Column(
+				mainAxisAlignment: MainAxisAlignment.start,
+				children: [
+					tapah.wechatNavTopSpacer(context),
+					buildTopRow(),
 						SizedBox(height: 10),
 						buildFilterRow(),
 						SizedBox(height: 10),
 						Expanded(child: buildEnterpriseList(),),
-						SizedBox(height: 10),
-					],
-				),
+					SizedBox(height: 10),
+				],
 			),
 		);
 	}

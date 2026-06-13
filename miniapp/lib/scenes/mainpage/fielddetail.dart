@@ -133,157 +133,125 @@ class FieldDetailState extends State<FieldDetailWidget> with tapah.Callback {
 				break;
 			}
 		}
-		final safeAreaTop = MediaQuery.of(context).padding.top;
-		List<Widget> children = [
-			const SizedBox(height: 30),
-			_buildTabHeader(),
-			Expanded(
-				child: isLoading
-					? const Center(child: CircularProgressIndicator())
-					: SingleChildScrollView(
-						key: _scrollViewKey,
-						controller: _scrollController,
-						padding: const EdgeInsets.fromLTRB(12, 10, 12, 100),
-						child: Column(
-							crossAxisAlignment: CrossAxisAlignment.start,
+		final bottomBar = Container(
+			height: 60,
+			decoration: BoxDecoration(
+				color: Colors.white,
+				border: Border(top: BorderSide(color: Colors.grey.shade200)),
+			),
+			child: Row(
+				mainAxisAlignment: MainAxisAlignment.center,
+				children: [
+					InkWell(
+						onTap: () {
+							tapah.navigator(context, '/mainpage');
+						},
+						child: Row(
 							children: [
-								Container(key: _detailSectionKey, child: _buildFieldInfoCard()),
-								const SizedBox(height: 12),
-								_buildEnterpriseSection(),
-								const SizedBox(height: 12),
-								_buildCaseSection(),
+								Image.network(tapah.parseimage('企业详情/首页.png'), fit: BoxFit.contain, width: 28, height: 28,),
+								Text("首页", style: TextStyle(color: Colors.black, fontSize: 10),),
 							],
 						),
 					),
+					const SizedBox(width: 20,),
+					tapah.accountinfo == null ? MPFlutter_Wechat_Button(
+						openType: "getPhoneNumber",
+						onGetPhoneNumber: (result) async {
+							await tapah.RequestWxCode(result["code"]);
+							if (!mounted) return;
+							setState(() {});
+						},
+						child: Row(
+							children: [
+								Image.network(tapah.parseimage(fav ? '企业详情/已收藏.png' : '企业详情/关注.png'), fit: BoxFit.contain, width: 28, height: 28,),
+								Text(fav ? "已收藏" : "关注", style: TextStyle(color: Colors.black, fontSize: 10),),
+							],
+						),
+					): InkWell(
+						onTap: () {
+							if (field == null) return;
+							if (tapah.accountinfo!.field.contains(field!.id)) {
+								tapah.accountinfo!.field.remove(field!.id);
+							}
+							else {
+								tapah.accountinfo!.field.add(field!.id);
+							}
+							tapah.RequestUserInfo();
+							setState(() {});
+						},
+						child: Row(
+							children: [
+								Image.network(tapah.parseimage(fav ? '企业详情/已收藏.png' : '企业详情/关注.png'), fit: BoxFit.contain, width: 28, height: 28,),
+								Text(fav ? "已收藏" : "关注", style: TextStyle(color: Colors.black, fontSize: 10),),
+							],
+						),
+					),
+					const SizedBox(width: 20,),
+					GestureDetector(
+						onTap: () {
+							tapah.KeFu(context);
+						},
+						child: Container(
+							width: 100,
+							height: 30,
+							decoration: BoxDecoration(
+								color: Color(0xFF82B2F5),
+								borderRadius: BorderRadius.circular(15),
+							),
+							child: Center(
+								child: Text("在线咨询", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold,),),
+							),
+						),
+					),
+					const SizedBox(width: 20,),
+					GestureDetector(
+						onTap: () {
+							wxapi.wx.makePhoneCall(wxapi.MakePhoneCallOption()..phoneNumber = '051281660895');
+						},
+						child: Container(
+							width: 100,
+							height: 30,
+							decoration: BoxDecoration(
+								color: Color(0xFFFFC300),
+								borderRadius: BorderRadius.circular(15),
+							),
+							child: Center(
+								child: Text("电话咨询", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold,),),
+							),
+						),
+					),
+				],
 			),
-		];
-		if (safeAreaTop > 0) {
-			return tapah.wrapSwipePop(context, Scaffold(
-				backgroundColor: const Color(0xFFF1F2F4),
-				body: Stack(
-					children: [
-						SafeArea(
-							child: Column(
-								children: [
-									...children,
-								],
+		);
+		return tapah.wrapSwipePop(context, Scaffold(
+			backgroundColor: const Color(0xFFF1F2F4),
+			body: Column(
+				children: [
+					tapah.buildWechatNavBar(context, showBack: true),
+					_buildTabHeader(),
+					Expanded(
+						child: isLoading
+							? const Center(child: CircularProgressIndicator())
+							: SingleChildScrollView(
+								key: _scrollViewKey,
+								controller: _scrollController,
+								padding: const EdgeInsets.fromLTRB(12, 10, 12, 100),
+								child: Column(
+									crossAxisAlignment: CrossAxisAlignment.start,
+									children: [
+										Container(key: _detailSectionKey, child: _buildFieldInfoCard()),
+										const SizedBox(height: 12),
+										_buildEnterpriseSection(),
+										const SizedBox(height: 12),
+										_buildCaseSection(),
+									],
+								),
 							),
-						),
-						Positioned(
-							top: 30,
-							left: 20,
-							child: SizedBox(
-								height: safeAreaTop,
-								child: tapah.backButton(context),
-							),
-						),
-					],
-				),
-				bottomNavigationBar: Container(
-					height: 60,
-					decoration: BoxDecoration(
-						color: Colors.white,
-						border: Border(top: BorderSide(color: Colors.grey.shade200)),
 					),
-					child: Row(
-						mainAxisAlignment: MainAxisAlignment.center,
-						children: [
-							InkWell(
-								onTap: () {
-									tapah.navigator(context, '/mainpage');
-								},
-								child: Row(
-									children: [
-										Image.network(tapah.parseimage('企业详情/首页.png'), fit: BoxFit.contain, width: 28, height: 28,),
-										Text("首页", style: TextStyle(color: Colors.black, fontSize: 10),),
-									],
-								),
-							),
-							const SizedBox(width: 20,),
-							tapah.accountinfo == null ? MPFlutter_Wechat_Button(
-								openType: "getPhoneNumber",
-								onGetPhoneNumber: (result) async {
-									await tapah.RequestWxCode(result["code"]);
-									if (!mounted) return;
-									setState(() {});
-								},
-								child: Row(
-									children: [
-										Image.network(tapah.parseimage(fav ? '企业详情/已收藏.png' : '企业详情/关注.png'), fit: BoxFit.contain, width: 28, height: 28,),
-										Text(fav ? "已收藏" : "关注", style: TextStyle(color: Colors.black, fontSize: 10),),
-									],
-								),
-							): InkWell(
-								onTap: () {
-									if (field == null) return;
-									if (tapah.accountinfo!.field.contains(field!.id)) {
-										tapah.accountinfo!.field.remove(field!.id);
-									}
-									else {
-										tapah.accountinfo!.field.add(field!.id);
-									}
-									tapah.RequestUserInfo();
-									setState(() {});
-								},
-								child: Row(
-									children: [
-										Image.network(tapah.parseimage(fav ? '企业详情/已收藏.png' : '企业详情/关注.png'), fit: BoxFit.contain, width: 28, height: 28,),
-										Text(fav ? "已收藏" : "关注", style: TextStyle(color: Colors.black, fontSize: 10),),
-									],
-								),
-							),
-							const SizedBox(width: 20,),
-							// MPFlutter_Wechat_Button(
-							// 	onTap: (_) {
-							GestureDetector(
-								onTap: () {
-									tapah.KeFu(context);
-								},
-								child: Container(
-									width: 100,
-									height: 30,
-									decoration: BoxDecoration(
-										color: Color(0xFF82B2F5),
-										borderRadius: BorderRadius.circular(15),
-									),
-									child: Center(
-										child: Text("在线咨询", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold,),),
-									),
-								),
-							),
-							const SizedBox(width: 20,),
-							GestureDetector(
-								onTap: () {
-									wxapi.wx.makePhoneCall(wxapi.MakePhoneCallOption()..phoneNumber = '051281660895');
-								},
-								child: Container(
-									width: 100,
-									height: 30,
-									decoration: BoxDecoration(
-										color: Color(0xFFFFC300),
-										borderRadius: BorderRadius.circular(15),
-									),
-									child: Center(
-										child: Text("电话咨询", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold,),),
-									),
-								),
-							),
-						],
-					),
-				),
-			));
-		}
-		else {
-			return tapah.wrapSwipePop(context, Material(
-				child: Column(
-					children: [
-						tapah.backButton(context),
-						const SizedBox(height: 20,),
-						...children,
-					]
-				),
-			));
-		}
+				],
+			),
+			bottomNavigationBar: bottomBar,
+		));
 	}
 
 	Widget _buildTabHeader() {

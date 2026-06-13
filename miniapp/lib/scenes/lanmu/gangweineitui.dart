@@ -29,7 +29,6 @@ class GangWeiNeiTuiState extends State<GangWeiNeiTuiWidget> with tapah.Callback 
 	@override
 	Widget build(BuildContext context) {
 		return tapah.buildMain1(context, [
-			Center(child: const Text('岗位内推', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),),
 			Image.network(
 				tapah.parseimage('栏目/岗位内推/顶部.png'),
 			),
@@ -110,7 +109,7 @@ class GangWeiNeiTuiState extends State<GangWeiNeiTuiWidget> with tapah.Callback 
 					),
 				),
 			),
-		]);
+		], title: '岗位内推');
 	}
 
 	Widget _sectionTitle(String text) {

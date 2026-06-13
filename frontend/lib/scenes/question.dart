@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 
 import 'package:frontend/tapah/class.dart' as tapah;
+import 'package:frontend/tapah/const.dart' as tapah;
 import 'package:frontend/tapah/data.dart' as tapah;
 import 'package:frontend/tapah/request.dart' as tapah;
 
@@ -31,7 +32,7 @@ class QuestionState extends State<QuestionWidget> {
 			PlutoColumn(
 				title: '智能体',
 				field: 'agent',
-				type: PlutoColumnType.select(['resume', 'joblevel']),
+				type: PlutoColumnType.select(tapah.questionAgentLabelList),
 				enableEditingMode: true,
 				enableColumnDrag: false,
 			),
@@ -53,7 +54,7 @@ class QuestionState extends State<QuestionWidget> {
 					if (id == null || id.toString().isEmpty) {
 						return GestureDetector(
 							onTap: () async {
-								final agent = renderercontext.row.cells['agent']!.value?.toString() ?? '';
+								final agent = tapah.questionAgentKey(renderercontext.row.cells['agent']!.value?.toString() ?? '');
 								final question = renderercontext.row.cells['question']!.value?.toString() ?? '';
 								if (agent.isEmpty || question.isEmpty) return;
 								await tapah.RequestAddQuestion(agent, question);
@@ -113,7 +114,7 @@ class QuestionState extends State<QuestionWidget> {
 		List<PlutoRow> rows = tapah.questionlist.map((item) => PlutoRow(
 			cells: {
 				'id': PlutoCell(value: item.id),
-				'agent': PlutoCell(value: item.agent),
+				'agent': PlutoCell(value: tapah.questionAgentLabel(item.agent)),
 				'question': PlutoCell(value: item.question),
 				'operation': PlutoCell(value: ""),
 			},
@@ -121,7 +122,7 @@ class QuestionState extends State<QuestionWidget> {
 		rows.add(PlutoRow(
 			cells: {
 				'id': PlutoCell(value: ""),
-				'agent': PlutoCell(value: "resume"),
+				'agent': PlutoCell(value: tapah.questionAgentLabel('resume')),
 				'question': PlutoCell(value: ""),
 				'operation': PlutoCell(value: ""),
 			},
@@ -143,7 +144,7 @@ class QuestionState extends State<QuestionWidget> {
 					onChanged: (PlutoGridOnChangedEvent event) async {
 						if (event.row.cells['id']!.value == null || event.row.cells['id']!.value == '') return;
 						final item = tapah.questionlist.firstWhere((element) => element.id == event.row.cells['id']!.value);
-						item.agent = event.row.cells['agent']!.value.toString();
+						item.agent = tapah.questionAgentKey(event.row.cells['agent']!.value.toString());
 						item.question = event.row.cells['question']!.value.toString();
 						await tapah.RequestEditQuestion(item);
 						await getQuestionList();

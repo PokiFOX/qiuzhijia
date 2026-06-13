@@ -29,10 +29,6 @@ class QiuZhiZiLiaoState extends State<QiuZhiZiLiaoWidget> with tapah.Callback {
 	@override
 	Widget build(BuildContext context) {
 		return tapah.buildMain1(context, [
-			SizedBox(
-				height: 44,
-				child: Center(child: Text('求职资料', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),),
-			),
 			Image.network(
 				tapah.parseimage('栏目/求职资料/顶部.png'),
 			),
@@ -107,7 +103,7 @@ class QiuZhiZiLiaoState extends State<QiuZhiZiLiaoWidget> with tapah.Callback {
 					),
 				),
 			),
-		]);
+		], title: '求职资料');
 	}
 
 	Widget _sectionTitle(String text) {

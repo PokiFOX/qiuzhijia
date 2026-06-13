@@ -111,7 +111,6 @@ class ProfileState extends State<ProfileWidget> with tapah.Callback {
 		);
 
 		return tapah.buildMain1(context, [
-			Center(child: const Text('个人中心', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),),
 			const SizedBox(height: 10,),
 			Row(
 				children: [
@@ -248,6 +247,6 @@ class ProfileState extends State<ProfileWidget> with tapah.Callback {
 				),
 			),
 			const SizedBox(height: 20,),
-		]);
+		], title: '个人中心');
 	}
 }

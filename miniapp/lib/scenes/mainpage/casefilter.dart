@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:qiuzhijia/tapah/class.dart' as tapah;
 import 'package:qiuzhijia/tapah/data.dart' as tapah;
 import 'package:qiuzhijia/tapah/enum.dart' as tapah;
+import 'package:qiuzhijia/tapah/function.dart' as tapah;
 import 'package:qiuzhijia/tapah/request.dart' as tapah;
 
 class CaseFilterWidget extends StatefulWidget {
@@ -96,20 +97,19 @@ class CaseFilterState extends State<CaseFilterWidget> with tapah.Callback {
 	@override
 	Widget build(BuildContext context) {
 		return Material(
-			child: SafeArea(
-				child: Column(
-					children: [
-						Expanded(
-							child: Row(
-								children: [
-									buildLeftPanel(),
-									buildRightPanel(),
-								],
-							),
+			child: Column(
+				children: [
+					tapah.buildWechatNavBar(context, showBack: true),
+					Expanded(
+						child: Row(
+							children: [
+								buildLeftPanel(),
+								buildRightPanel(),
+							],
 						),
-						buildBottomBar(),
-					],
-				),
+					),
+					buildBottomBar(),
+				],
 			),
 		);
 	}

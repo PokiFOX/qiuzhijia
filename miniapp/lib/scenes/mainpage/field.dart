@@ -55,7 +55,6 @@ class FieldState extends State<FieldWidget> with tapah.Callback {
 			return e.value.contains(_searchText) || e.type.contains(_searchText);
 		}).toList();
 		return tapah.buildMain1(context, [
-			const SizedBox(height: 30),
 			Padding(
 				padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
 				child: Row(

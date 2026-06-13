@@ -79,13 +79,12 @@ class FilterState extends State<FilterWidget> with tapah.Callback {
 				return false;
 			},
 			child: tapah.buildMain1(context, [
-				Center(child: Text(rowname, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),),
 				SizedBox(height: 10),
 				buildFilterRow(),
 				SizedBox(height: 10),
 				buildEnterpriseList(),
 				SizedBox(height: 10),
-			]),
+			], title: rowname, titleStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
 		);
 	}
 

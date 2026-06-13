@@ -60,14 +60,15 @@ class HomeState extends State<HomeWidget> with tapah.Callback {
 
 	@override
 	Widget build(BuildContext context) {
-		return SafeArea(
-			child: Container(
-				height: double.infinity,
-				child: ListView.separated(
-					controller: scrollController,
-					padding: const EdgeInsets.symmetric(horizontal: 10),
-					itemCount: 5 + (articles.isEmpty ? 1 : displayCount.clamp(0, articles.length)),
-					itemBuilder: (context, index) {
+		return Column(
+			children: [
+				tapah.wechatNavTopSpacer(context),
+				Expanded(
+					child: ListView.separated(
+						controller: scrollController,
+						padding: const EdgeInsets.symmetric(horizontal: 10),
+						itemCount: 5 + (articles.isEmpty ? 1 : displayCount.clamp(0, articles.length)),
+						itemBuilder: (context, index) {
 						if (index == 0) {
 							return buildTopImage();
 						}
@@ -141,6 +142,7 @@ class HomeState extends State<HomeWidget> with tapah.Callback {
 					},
 				),
 			),
+		],
 		);
 	}
 

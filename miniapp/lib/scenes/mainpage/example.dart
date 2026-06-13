@@ -63,7 +63,6 @@ class ExampleState extends State<ExampleWidget> with tapah.Callback {
 	@override
 	Widget build(BuildContext context) {
 		return tapah.buildMain1(context, [
-			Center(child: Text('过往案例', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),),
 			SizedBox(height: 10),
 			Padding(
 				padding: const EdgeInsets.symmetric(horizontal: 10.0),
@@ -123,7 +122,7 @@ class ExampleState extends State<ExampleWidget> with tapah.Callback {
 			),
 			SizedBox(height: 10),
 			buildExampleList(),
-		]);
+		], title: '过往案例', titleStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold));
 	}
 
 	Widget buildExampleList() {

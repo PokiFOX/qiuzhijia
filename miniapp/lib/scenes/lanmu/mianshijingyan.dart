@@ -29,7 +29,6 @@ class MianShiJingYanState extends State<MianShiJingYanWidget> with tapah.Callbac
 	@override
 	Widget build(BuildContext context) {
 		return tapah.buildMain1(context, [
-			Center(child: const Text('面试经验', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),),
 			// 顶部文字区
 			Padding(
 				padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
@@ -184,7 +183,7 @@ class MianShiJingYanState extends State<MianShiJingYanWidget> with tapah.Callbac
 					const Text('已为数千名学员提供专业咨询服务', style: TextStyle(fontSize: 13, color: Color(0xFF555555))),
 				],
 			),
-		]);
+		], title: '面试经验');
 	}
 
 	Widget _typeCard({

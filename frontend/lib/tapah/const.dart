@@ -29,3 +29,19 @@ String url_import = "import_excel";
 var options = Options(
 	contentType: "application/json",
 );
+
+const Map<String, String> questionAgentLabels = {
+	'resume': '简历助手',
+	'joblevel': '岗位分析',
+};
+
+String questionAgentLabel(String key) => questionAgentLabels[key] ?? key;
+
+String questionAgentKey(String label) {
+	for (final entry in questionAgentLabels.entries) {
+		if (entry.value == label) return entry.key;
+	}
+	return label;
+}
+
+List<String> get questionAgentLabelList => questionAgentLabels.values.toList();

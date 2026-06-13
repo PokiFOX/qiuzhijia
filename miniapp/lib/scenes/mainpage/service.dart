@@ -31,18 +31,7 @@ class ServiceState extends State<ServiceWidget> with tapah.Callback {
 		return Material(
 			child: Column(
 				children: [
-					SafeArea(
-						bottom: false,
-						child: SizedBox(
-							height: 44,
-							child: Stack(
-								alignment: Alignment.center,
-								children: [
-									const Text('咨询顾问', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),
-								],
-							),
-						),
-					),
+					tapah.buildWechatNavBar(context, title: '咨询顾问', showBack: false),
 					Expanded(
 						child: SingleChildScrollView(
 							child: Column(

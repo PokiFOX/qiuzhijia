@@ -15,23 +15,57 @@ String parseurl(String url) {
 
 void KeFu(BuildContext context) {
 	navigator(context, '/kefu');
-	//var option = wxapi.OpenCustomerServiceChatOption();
-	//option.corpId = "ww9c9c584173a105cc";
-	//var extInfo = wxapi.ExtInfoOption();
-	//extInfo.url = 'https://work.weixin.qq.com/kfid/kfcb5ad5f141ba2d45d';
-	//option.extInfo = extInfo;
-	//option.success = (result) {
-	//	print("打开在线咨询成功:" + result.toString());
-	//};
-	//option.fail = (error) {
-	//	try {
-	//		final errMsg = error.$$context$$['errMsg'];
-	//		print("打开在线咨询失败详情: $errMsg");
-	//	} catch (e) {
-	//		print("解析错误对象失败: $error");
-	//	}
-	//};
-	//wxapi.wx.openCustomerServiceChat(option);
+}
+
+class WechatNavMetrics {
+	final double statusBarHeight;
+	final double navBarHeight;
+	final double capsuleTop;
+	final double capsuleHeight;
+	final double paddingHorizontal;
+
+	const WechatNavMetrics({
+		required this.statusBarHeight,
+		required this.navBarHeight,
+		required this.capsuleTop,
+		required this.capsuleHeight,
+		required this.paddingHorizontal,
+	});
+}
+
+/// 读取微信小程序胶囊按钮位置，用于自定义导航栏与系统胶囊垂直对齐。
+WechatNavMetrics getWechatNavMetrics(BuildContext context) {
+	if (kIsMPFlutter) {
+		try {
+			final system = wxapi.wx.getSystemInfoSync();
+			final capsule = wxapi.wx.getMenuButtonBoundingClientRect();
+			final statusBar = system.statusBarHeight.toDouble();
+			final capsuleTop = capsule.top.toDouble();
+			final capsuleHeight = capsule.height.toDouble();
+			final screenWidth = system.screenWidth.toDouble();
+			final paddingHorizontal = screenWidth - capsule.right.toDouble();
+			final navBarHeight = (capsuleTop - statusBar) * 2 + capsuleHeight + statusBar;
+			return WechatNavMetrics(
+				statusBarHeight: statusBar,
+				navBarHeight: navBarHeight,
+				capsuleTop: capsuleTop,
+				capsuleHeight: capsuleHeight,
+				paddingHorizontal: paddingHorizontal,
+			);
+		} catch (_) {}
+	}
+	final statusBar = MediaQuery.of(context).padding.top;
+	const capsuleHeight = 32.0;
+	const gap = 6.0;
+	final capsuleTop = statusBar > 0 ? statusBar + gap : gap;
+	final navBarHeight = capsuleTop + capsuleHeight + gap;
+	return WechatNavMetrics(
+		statusBarHeight: statusBar,
+		navBarHeight: navBarHeight,
+		capsuleTop: capsuleTop,
+		capsuleHeight: capsuleHeight,
+		paddingHorizontal: 16,
+	);
 }
 
 Widget wrapSwipePop(BuildContext context, Widget child) {
@@ -55,100 +89,107 @@ Widget backButton(BuildContext context) {
 				Navigator.pop(context);
 			}
 		},
-		child: Icon(Icons.arrow_back_ios_new, size: 20),
+		child: const Icon(Icons.arrow_back_ios_new, size: 20),
 	);
 }
 
-Widget buildMain1(BuildContext context, List<Widget> children, {ScrollController? scrollController}) {
-	final safeAreaTop = MediaQuery.of(context).padding.top;
-	if (safeAreaTop > 0) {
-		return wrapSwipePop(context, Material(
-			child: Stack(
-				children: [
-					SafeArea(
-						child: SingleChildScrollView(
-							controller: scrollController,
-							child: Column(
-								crossAxisAlignment: CrossAxisAlignment.stretch,
-								children: [
-									...children,
-								],
-							),
+Widget buildWechatNavBar(
+	BuildContext context, {
+	String? title,
+	TextStyle? titleStyle,
+	WechatNavMetrics? metrics,
+	bool showBack = true,
+}) {
+	final m = metrics ?? getWechatNavMetrics(context);
+	final style = titleStyle ?? const TextStyle(fontSize: 17, fontWeight: FontWeight.w600);
+	return SizedBox(
+		height: m.navBarHeight,
+		child: Stack(
+			children: [
+				if (title != null)
+					Positioned(
+						top: m.capsuleTop,
+						left: m.paddingHorizontal,
+						right: m.paddingHorizontal,
+						height: m.capsuleHeight,
+						child: Center(
+							child: Text(title, style: style, maxLines: 1, overflow: TextOverflow.ellipsis),
 						),
 					),
+				if (showBack)
 					Positioned(
-						top: 50,
-						left: 30,
-						child: SizedBox(
-							height: safeAreaTop,
+						top: m.capsuleTop,
+						left: m.paddingHorizontal,
+						height: m.capsuleHeight,
+						child: Align(
+							alignment: Alignment.centerLeft,
 							child: backButton(context),
 						),
 					),
-				],
-			),
-		));
-	}
-	else {
-		return wrapSwipePop(context, Material(
-			child: SingleChildScrollView(
-				controller: scrollController,
-				child: Column(
-					crossAxisAlignment: CrossAxisAlignment.stretch,
-					children: [
-						backButton(context),
-						const SizedBox(height: 10),
-						...children,
-					],
-				),
-			),
-		));
-	}
+			],
+		),
+	);
 }
 
-Widget buildMain2(BuildContext context, List<Widget> children, Widget bottom) {
-	final safeAreaTop = MediaQuery.of(context).padding.top;
-	if (safeAreaTop > 0) {
-		return wrapSwipePop(context, Scaffold(
-			body: Stack(
-				children: [
-					SafeArea(
-						child: SingleChildScrollView(
-							child: Column(
-								crossAxisAlignment: CrossAxisAlignment.stretch,
-								children: [
-									...children,
-								],
-							),
+/// 仅顶部留白，Tab 页等无导航栏控件时使用。
+Widget wechatNavTopSpacer(BuildContext context) {
+	return SizedBox(height: getWechatNavMetrics(context).navBarHeight);
+}
+
+Widget buildMain1(
+	BuildContext context,
+	List<Widget> children, {
+	ScrollController? scrollController,
+	String? title,
+	TextStyle? titleStyle,
+	bool? showBack,
+}) {
+	final metrics = getWechatNavMetrics(context);
+	final back = showBack ?? Navigator.canPop(context);
+	return wrapSwipePop(context, Material(
+		child: Column(
+			children: [
+				buildWechatNavBar(context, title: title, titleStyle: titleStyle, metrics: metrics, showBack: back),
+				Expanded(
+					child: SingleChildScrollView(
+						controller: scrollController,
+						child: Column(
+							crossAxisAlignment: CrossAxisAlignment.stretch,
+							children: children,
 						),
 					),
-					Positioned(
-						top: 50,
-						left: 20,
-						child: SizedBox(
-							height: safeAreaTop,
-							child: backButton(context),
-						),
-					),
-				],
-			),
-			bottomNavigationBar: bottom,
-		));
-	}
-	else {
-		return wrapSwipePop(context, Scaffold(
-			body: SingleChildScrollView(
-				child: Column(
-					crossAxisAlignment: CrossAxisAlignment.stretch,
-					children: [
-						backButton(context),
-						const SizedBox(height: 10),
-						...children,
-					],
 				),
-			),
-			bottomNavigationBar: bottom,
-		));
-	}
+			],
+		),
+	));
+}
+
+Widget buildMain2(
+	BuildContext context,
+	List<Widget> children,
+	Widget bottom, {
+	String? title,
+	TextStyle? titleStyle,
+	bool? showBack,
+}) {
+	final metrics = getWechatNavMetrics(context);
+	final back = showBack ?? Navigator.canPop(context);
+	return wrapSwipePop(context, Scaffold(
+		body: Column(
+			children: [
+				buildWechatNavBar(context, title: title, titleStyle: titleStyle, metrics: metrics, showBack: back),
+				Expanded(
+					child: SingleChildScrollView(
+						child: Column(
+							crossAxisAlignment: CrossAxisAlignment.stretch,
+							children: children,
+						),
+					),
+				),
+			],
+		),
+		bottomNavigationBar: bottom,
+	));
 }
 
 void navigator(BuildContext context, String url, {Map<String, dynamic>? arguments}) {

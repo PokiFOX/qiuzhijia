@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:qiuzhijia/tapah/class.dart' as tapah;
 import 'package:qiuzhijia/tapah/data.dart' as tapah;
+import 'package:qiuzhijia/tapah/function.dart' as tapah;
 
 class FieldListWidget extends StatefulWidget {
 	const FieldListWidget({super.key});
@@ -57,11 +58,11 @@ class FieldListState extends State<FieldListWidget> {
 	@override
 	Widget build(BuildContext context) {
 		return Material(
-			child: SafeArea(
-				child: Column(
-					children: [
-						Expanded(
-							child: Row(
+			child: Column(
+				children: [
+					tapah.buildWechatNavBar(context, showBack: true),
+					Expanded(
+						child: Row(
 								children: [
 									// 左侧：学科门类列表
 									SizedBox(
@@ -150,8 +151,8 @@ class FieldListState extends State<FieldListWidget> {
 								],
 							),
 						),
-						// 底部按钮
-						Container(
+					// 底部按钮
+					Container(
 							padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
 							decoration: const BoxDecoration(
 								border: Border(top: BorderSide(color: Color(0xFFE8E8E8))),
@@ -185,8 +186,7 @@ class FieldListState extends State<FieldListWidget> {
 								],
 							),
 						),
-					],
-				),
+				],
 			),
 		);
 	}

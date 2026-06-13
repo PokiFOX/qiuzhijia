@@ -31,28 +31,7 @@ class KeFuState extends State<KeFuWidget> with tapah.Callback {
 		return Material(
 			child: Column(
 				children: [
-					SafeArea(
-						bottom: false,
-						child: SizedBox(
-							height: 44,
-							child: Stack(
-								alignment: Alignment.center,
-								children: [
-									const Text('添加顾问', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),
-									Align(
-										alignment: Alignment.centerLeft,
-										child: GestureDetector(
-											onTap: () => Navigator.pop(context),
-											child: const Padding(
-												padding: EdgeInsets.symmetric(horizontal: 16),
-												child: Icon(Icons.chevron_left, size: 28, color: Colors.black87),
-											),
-										),
-									),
-								],
-							),
-						),
-					),
+					tapah.buildWechatNavBar(context, title: '添加顾问', showBack: true),
 					const SizedBox(height: 10,),
 					Expanded(
 						child: Padding(

@@ -201,83 +201,39 @@ class DetailState extends State<DetailWidget> with tapah.Callback {
 				],
 			),
 		);
-		final safeAreaTop = MediaQuery.of(context).padding.top;
-		if (safeAreaTop > 0) {
-			return tapah.wrapSwipePop(context, Scaffold(
-				body: Stack(
-					children: [
-						SafeArea(
-							child: Container(
-								padding: EdgeInsets.only(top: 20),
-								child: CustomScrollView(
-									controller: scrollcontroller,
-									slivers: [
-										const SliverToBoxAdapter(child: SizedBox(height: 10)),
-										SliverToBoxAdapter(child: buildTopImage()),
-										const SliverToBoxAdapter(child: SizedBox(height: 10)),
-										SliverPersistentHeader(
-											pinned: true,
-											delegate: TabBarDelegate(
-												child: Container(
-													key: tabbarkey,
-													decoration: BoxDecoration(
-														color: Colors.white,
-														border: Border(bottom: BorderSide(color: Colors.grey.shade200, width: 0.5)),
-													),
-													child: buildTabBar(),
-												),
+		return tapah.wrapSwipePop(context, Scaffold(
+			body: Column(
+				children: [
+					tapah.buildWechatNavBar(context, showBack: true),
+					Expanded(
+						child: CustomScrollView(
+							controller: scrollcontroller,
+							slivers: [
+								const SliverToBoxAdapter(child: SizedBox(height: 10)),
+								SliverToBoxAdapter(child: buildTopImage()),
+								const SliverToBoxAdapter(child: SizedBox(height: 10)),
+								SliverPersistentHeader(
+									pinned: true,
+									delegate: TabBarDelegate(
+										child: Container(
+											key: tabbarkey,
+											decoration: BoxDecoration(
+												color: Colors.white,
+												border: Border(bottom: BorderSide(color: Colors.grey.shade200, width: 0.5)),
 											),
+											child: buildTabBar(),
 										),
-										SliverToBoxAdapter(child: buildSections()),
-										const SliverToBoxAdapter(child: SizedBox(height: 10)),
-									],
-								),
-							),
-						),
-						Positioned(
-							top: 30,
-							left: 30,
-							child: SizedBox(
-								height: safeAreaTop,
-								child: tapah.backButton(context),
-							),
-						),
-					],
-				),
-				bottomNavigationBar: bottom,
-			));
-		}
-		else {
-			return tapah.wrapSwipePop(context, Scaffold(
-				body: Container(
-					child: CustomScrollView(
-						controller: scrollcontroller,
-						slivers: [
-							tapah.backButton(context),
-							const SliverToBoxAdapter(child: SizedBox(height: 10)),
-							SliverToBoxAdapter(child: buildTopImage()),
-							const SliverToBoxAdapter(child: SizedBox(height: 10)),
-							SliverPersistentHeader(
-								pinned: true,
-								delegate: TabBarDelegate(
-									child: Container(
-										key: tabbarkey,
-										decoration: BoxDecoration(
-											color: Colors.white,
-											border: Border(bottom: BorderSide(color: Colors.grey.shade200, width: 0.5)),
-										),
-										child: buildTabBar(),
 									),
 								),
-							),
-							SliverToBoxAdapter(child: buildSections()),
-							const SliverToBoxAdapter(child: SizedBox(height: 10)),
-						],
+								SliverToBoxAdapter(child: buildSections()),
+								const SliverToBoxAdapter(child: SizedBox(height: 10)),
+							],
+						),
 					),
-				),
-				bottomNavigationBar: bottom,
-			));
-		}
+				],
+			),
+			bottomNavigationBar: bottom,
+		));
 	}
 
 	void startTopImagePlay() {
