@@ -254,171 +254,194 @@ class AIZhuShouState extends State<AIZhuShouWidget> with tapah.Callback, Widgets
 	@override
 	Widget build(BuildContext context) {
 		final keyboardInset = MediaQuery.of(context).viewInsets.bottom;
-		return tapah.buildMain1(context, [
-			Center(child: const Text('求职家智能咨询', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),),
-			Center(child: const Text('智能客服在线，帮你快速了解服务内容', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF979797))),),
-			const SizedBox(height: 24),
-			Center(child: Image.network(tapah.parseimage('栏目/AI助手/机器人头像.png'),),),
-			const SizedBox(height: 24),
-			Center(child: const Text('你好，我是求职家智能ai助手👋', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: Color(0xFF1D2129))),),
-			const SizedBox(height: 24),
-			Center(child: Padding(
-				padding: const EdgeInsets.symmetric(horizontal: 50),
-				child:  const Text('我可以帮你解答课程服务、简历精修、模拟面试、秋招计划、岗位内推等内容。也可以为你提供求职建议。', style: TextStyle(fontSize: 16, color: Color(0xFF979797))),),
-			),
-			const SizedBox(height: 24),
-			Padding(
-				padding: const EdgeInsets.symmetric(horizontal: 30),
-				child: Container(
-					decoration: BoxDecoration(
-						color: Colors.white,
-						borderRadius: BorderRadius.circular(12),
-					),
-					child: Column(
-						crossAxisAlignment: CrossAxisAlignment.stretch,
-						children: [
-							const SizedBox(height: 10),
-							Row(
+		return tapah.wrapSwipePop(context, Material(
+			child: Column(
+				children: [
+					tapah.buildWechatNavBar(context, showBack: Navigator.canPop(context)),
+					Expanded(
+						child: SingleChildScrollView(
+							controller: _scrollController,
+							child: Column(
+								crossAxisAlignment: CrossAxisAlignment.stretch,
 								children: [
-									const SizedBox(width: 10),
-									Image.network(tapah.parseimage('栏目/AI助手/灯泡.png'),),
-									const SizedBox(width: 10),
-									const Text('猜你想问', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Color(0xFF1D2129))),
-								],
-							),
-							const SizedBox(height: 10),
-							...questions.map((q) {
-								return Padding(
-									padding: const EdgeInsets.only(left: 15, right: 15, bottom: 5),
-									child: GestureDetector(
-										onTap: _canSend ? () => sendMessage(q) : null,
-										child: Opacity(
-											opacity: _canSend ? 1 : 0.5,
-											child: Container(
-												width: double.infinity,
-												decoration: BoxDecoration(
-													color: Color(0xFFECF3FD),
-													border: Border.all(color: Color(0xFFD1DFFD)),
-													borderRadius: BorderRadius.circular(10),
-												),
-												child: Padding(
-													padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-													child: Text(q, style: TextStyle(fontSize: 16, color: Color(0xFF3774FD)), softWrap: true),
-												),
+									Center(child: const Text('求职家智能咨询', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),),
+									Center(child: const Text('智能客服在线，帮你快速了解服务内容', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF979797))),),
+									const SizedBox(height: 24),
+									Center(child: Image.network(tapah.parseimage('栏目/AI助手/机器人头像.png'),),),
+									const SizedBox(height: 24),
+									Center(child: const Text('你好，我是求职家智能ai助手👋', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: Color(0xFF1D2129))),),
+									const SizedBox(height: 24),
+									Center(child: Padding(
+										padding: const EdgeInsets.symmetric(horizontal: 50),
+										child:  const Text('我可以帮你解答课程服务、简历精修、模拟面试、秋招计划、岗位内推等内容。也可以为你提供求职建议。', style: TextStyle(fontSize: 16, color: Color(0xFF979797))),),
+									),
+									const SizedBox(height: 24),
+									Padding(
+										padding: const EdgeInsets.symmetric(horizontal: 30),
+										child: Container(
+											decoration: BoxDecoration(
+												color: Colors.white,
+												borderRadius: BorderRadius.circular(12),
+											),
+											child: Column(
+												crossAxisAlignment: CrossAxisAlignment.stretch,
+												children: [
+													const SizedBox(height: 10),
+													Row(
+														children: [
+															const SizedBox(width: 10),
+															Image.network(tapah.parseimage('栏目/AI助手/灯泡.png'),),
+															const SizedBox(width: 10),
+															const Text('猜你想问', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Color(0xFF1D2129))),
+														],
+													),
+													const SizedBox(height: 10),
+													...questions.map((q) {
+														return Padding(
+															padding: const EdgeInsets.only(left: 15, right: 15, bottom: 5),
+															child: GestureDetector(
+																onTap: _canSend ? () => sendMessage(q) : null,
+																child: Opacity(
+																	opacity: _canSend ? 1 : 0.5,
+																	child: Container(
+																		width: double.infinity,
+																		decoration: BoxDecoration(
+																			color: Color(0xFFECF3FD),
+																			border: Border.all(color: Color(0xFFD1DFFD)),
+																			borderRadius: BorderRadius.circular(10),
+																		),
+																		child: Padding(
+																			padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+																			child: Text(q, style: TextStyle(fontSize: 16, color: Color(0xFF3774FD)), softWrap: true),
+																		),
+																	),
+																),
+															),
+														);
+													},).toList(),
+													const SizedBox(height: 10),
+												],
 											),
 										),
 									),
-								);
-							},).toList(),
-							const SizedBox(height: 10),
-						],
-					),
-				),
-			),
-			buildChatList(),
-			if (_sending) Padding(
-				padding: const EdgeInsets.symmetric(horizontal: 30),
-				child: Align(
-					alignment: Alignment.centerLeft,
-					child: Padding(
-						padding: const EdgeInsets.only(bottom: 10),
-						child: buildTypingIndicator(),
-					),
-				),
-			),
-			const SizedBox(height: 24),
-			Container(
-				decoration: BoxDecoration(
-					color: Color(0xFFF8F9FC),
-					border: Border.all(color: Color(0xFFEDF0F4)),
-				),
-				child: Padding(
-					padding: const EdgeInsets.symmetric(vertical: 10),
-					child: Row(
-						mainAxisAlignment: MainAxisAlignment.center,
-						children: [
-							Text('没解决问题？联系人工顾问为你提供更专业的解答', style: TextStyle(fontSize: 13, color: Color(0xFF3D3D3D))),
-							const SizedBox(width: 10),
-							GestureDetector(
-								onTap: () => tapah.KeFu(context),
-								child: Container(
-									padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-									decoration: BoxDecoration(
-										color:  Colors.white,
-										borderRadius: BorderRadius.circular(15),
-										border: Border.all(color: Color(0xFF2D7BFF)),
+									buildChatList(),
+									if (_sending) Padding(
+										padding: const EdgeInsets.symmetric(horizontal: 30),
+										child: Align(
+											alignment: Alignment.centerLeft,
+											child: Padding(
+												padding: const EdgeInsets.only(bottom: 10),
+												child: buildTypingIndicator(),
+											),
+										),
 									),
-									child: Text('转人工', style: TextStyle(fontSize: 14, color: Color(0xFF2D7BFF))),
-								),
+									const SizedBox(height: 24),
+								],
 							),
-						],
-					),
-				),
-			),
-			const SizedBox(height: 10),
-			Row(
-				crossAxisAlignment: CrossAxisAlignment.end,
-				children: [
-					const SizedBox(width: 20),
-					SizedBox(
-						width: 72,
-						child: buildAgentDropdown(),
-					),
-					const SizedBox(width: 8),
-					Expanded(
-						child: TextField(
-							controller: messageController,
-							focusNode: _inputFocusNode,
-							enabled: _canSend,
-							minLines: 1,
-							maxLines: 10,
-							style: TextStyle(fontSize: 14, color: Color(0xFF3D3D3D), letterSpacing: 0.0,),
-							decoration: InputDecoration(
-								fillColor: Color(0xFFF5F7FB),
-								filled: true,
-								hintText: '请输入你想咨询的问题',
-								hintStyle: TextStyle(fontSize: 14, color: Color(0xFF3D3D3D)),
-								contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-								isDense: true,
-								border: OutlineInputBorder(
-									borderSide: BorderSide(color: Color(0xFFEDF0F4)),
-									borderRadius: BorderRadius.circular(18),
-								),
-								enabledBorder: OutlineInputBorder(
-									borderSide: BorderSide(color: Color(0xFFEDF0F4)),
-									borderRadius: BorderRadius.circular(18),
-								),
-								disabledBorder: OutlineInputBorder(
-									borderSide: BorderSide(color: Color(0xFFEDF0F4)),
-									borderRadius: BorderRadius.circular(18),
-								),
-								focusedBorder: OutlineInputBorder(
-									borderSide: BorderSide(color: Color(0xFF3774FD)),
-									borderRadius: BorderRadius.circular(18),
-								),
-							),
-							keyboardType: TextInputType.multiline,
 						),
 					),
-					const SizedBox(width: 8),
-					GestureDetector(
-						onTap: _canSend ? sendMessage : null,
-						child: Container(
-							constraints: const BoxConstraints(minHeight: 40),
-							padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-							decoration: BoxDecoration(
-								color: _canSend ? Color(0xFF3774FD) : Color(0xFFAAC4FE),
-								borderRadius: BorderRadius.circular(18),
-							),
-							child: Center(child: Text('发送', style: TextStyle(fontSize: 14, color: Colors.white))),
+					Padding(
+						padding: EdgeInsets.only(bottom: keyboardInset),
+						child: Column(
+							mainAxisSize: MainAxisSize.min,
+							crossAxisAlignment: CrossAxisAlignment.stretch,
+							children: [
+								Container(
+									decoration: BoxDecoration(
+										color: Color(0xFFF8F9FC),
+										border: Border.all(color: Color(0xFFEDF0F4)),
+									),
+									child: Padding(
+										padding: const EdgeInsets.symmetric(vertical: 10),
+										child: Row(
+											mainAxisAlignment: MainAxisAlignment.center,
+											children: [
+												Text('没解决问题？联系人工顾问为你提供更专业的解答', style: TextStyle(fontSize: 13, color: Color(0xFF3D3D3D))),
+												const SizedBox(width: 10),
+												GestureDetector(
+													onTap: () => tapah.KeFu(context),
+													child: Container(
+														padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+														decoration: BoxDecoration(
+															color:  Colors.white,
+															borderRadius: BorderRadius.circular(15),
+															border: Border.all(color: Color(0xFF2D7BFF)),
+														),
+														child: Text('转人工', style: TextStyle(fontSize: 14, color: Color(0xFF2D7BFF))),
+													),
+												),
+											],
+										),
+									),
+								),
+								const SizedBox(height: 10),
+								Row(
+									crossAxisAlignment: CrossAxisAlignment.end,
+									children: [
+										const SizedBox(width: 20),
+										SizedBox(
+											width: 72,
+											child: buildAgentDropdown(),
+										),
+										const SizedBox(width: 8),
+										Expanded(
+											child: TextField(
+												controller: messageController,
+												focusNode: _inputFocusNode,
+												enabled: _canSend,
+												minLines: 1,
+												maxLines: 10,
+												style: TextStyle(fontSize: 14, color: Color(0xFF3D3D3D), letterSpacing: 0.0,),
+												decoration: InputDecoration(
+													fillColor: Color(0xFFF5F7FB),
+													filled: true,
+													hintText: '请输入你想咨询的问题',
+													hintStyle: TextStyle(fontSize: 14, color: Color(0xFF3D3D3D)),
+													contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+													isDense: true,
+													border: OutlineInputBorder(
+														borderSide: BorderSide(color: Color(0xFFEDF0F4)),
+														borderRadius: BorderRadius.circular(18),
+													),
+													enabledBorder: OutlineInputBorder(
+														borderSide: BorderSide(color: Color(0xFFEDF0F4)),
+														borderRadius: BorderRadius.circular(18),
+													),
+													disabledBorder: OutlineInputBorder(
+														borderSide: BorderSide(color: Color(0xFFEDF0F4)),
+														borderRadius: BorderRadius.circular(18),
+													),
+													focusedBorder: OutlineInputBorder(
+														borderSide: BorderSide(color: Color(0xFF3774FD)),
+														borderRadius: BorderRadius.circular(18),
+													),
+												),
+												keyboardType: TextInputType.multiline,
+											),
+										),
+										const SizedBox(width: 8),
+										GestureDetector(
+											onTap: _canSend ? sendMessage : null,
+											child: Container(
+												constraints: const BoxConstraints(minHeight: 40),
+												padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+												decoration: BoxDecoration(
+													color: _canSend ? Color(0xFF3774FD) : Color(0xFFAAC4FE),
+													borderRadius: BorderRadius.circular(18),
+												),
+												child: Center(child: Text('发送', style: TextStyle(fontSize: 14, color: Colors.white))),
+											),
+										),
+										const SizedBox(width: 20),
+									],
+								),
+								const SizedBox(height: 10),
+							],
 						),
 					),
-					const SizedBox(width: 20),
 				],
 			),
-			const SizedBox(height: 10),
-			SizedBox(height: keyboardInset),
-		], scrollController: _scrollController);
+		));
 	}
 
 	Widget buildChatList() {

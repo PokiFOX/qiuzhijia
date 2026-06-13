@@ -353,15 +353,9 @@ class FieldDetailState extends State<FieldDetailWidget> with tapah.Callback {
 	}
 
 	Widget _buildEnterpriseSection() {
-		const pageSize = 3;
 		if (enterprise.isEmpty) {
 			return Container();
 		}
-		final pageCount = enterprise.isEmpty ? 0 : ((enterprise.length + pageSize - 1) ~/ pageSize);
-		final safePage = _enterprisePage.clamp(0, pageCount - 1);
-		final start = safePage * pageSize;
-		final end = (start + pageSize).clamp(0, enterprise.length);
-		final list = pageCount == 0 ? <tapah.Enterprise>[] : enterprise.sublist(start, end);
 		return Container(
 			key: _enterpriseSectionKey,
 			width: double.infinity,
@@ -370,65 +364,34 @@ class FieldDetailState extends State<FieldDetailWidget> with tapah.Callback {
 				color: Colors.white,
 				borderRadius: BorderRadius.circular(14),
 			),
-		child: GestureDetector(
-			behavior: HitTestBehavior.opaque,
-			onVerticalDragStart: (_) {
-				_enterpriseDragAccum = 0.0;
-			},
-			onVerticalDragUpdate: (details) {
-				_enterpriseDragAccum += details.delta.dy;
-			},
-			onVerticalDragEnd: (_) {
-				if (pageCount <= 1) return;
-				final accum = _enterpriseDragAccum;
-				_enterpriseDragAccum = 0.0;
-				if (accum.abs() < 30) return;
-				if (accum < 0) {
-					if (safePage < pageCount - 1) {
-						setState(() => _enterprisePage = safePage + 1);
-					} else {
-						_loadMoreEnterprise();
-					}
-				} else if (accum > 0 && safePage > 0) {
-					setState(() => _enterprisePage = safePage - 1);
-				}
-			},
-			child: Row(
-					crossAxisAlignment: CrossAxisAlignment.start,
-					children: [
-						Expanded(
-							child: Column(
-								crossAxisAlignment: CrossAxisAlignment.start,
-								children: [
-									Row(
-										children: [
-											Expanded(child: _buildSectionTitle('热招企业')),
-										],
-									),
-									const SizedBox(height: 10),
-								SizedBox(
-									height: 300,
-									child: Column(
-										children: [
-											if (list.isEmpty)
-												const Padding(
-													padding: EdgeInsets.symmetric(vertical: 12),
-													child: Text('暂无相关企业', style: TextStyle(fontSize: 13, color: Color(0xFF999999))),
-												),
-											...list.map((ent) => _buildEnterpriseCard(ent)),
-										],
-									),
+			child: Column(
+				crossAxisAlignment: CrossAxisAlignment.start,
+				children: [
+					Row(
+						children: [
+							Expanded(child: _buildSectionTitle('热招企业')),
+						],
+					),
+					const SizedBox(height: 10),
+					SizedBox(
+						height: 300,
+						child: NotificationListener<ScrollNotification>(
+							onNotification: (notification) {
+								if (notification.metrics.pixels >= notification.metrics.maxScrollExtent - 24) {
+									_loadMoreEnterprise();
+								}
+								return false;
+							},
+							child: SingleChildScrollView(
+								child: Column(
+									children: [
+										...enterprise.map((ent) => _buildEnterpriseCard(ent)),
+									],
 								),
-								],
 							),
 						),
-						if (pageCount > 1)
-							Padding(
-								padding: const EdgeInsets.only(left: 6, top: 34),
-								child: _buildEnterpriseScrollbar(safePage, pageCount),
-							),
-					],
-				),
+					),
+				],
 			),
 		);
 	}
@@ -564,16 +527,9 @@ class FieldDetailState extends State<FieldDetailWidget> with tapah.Callback {
 	}
 
 	Widget _buildCaseSection() {
-		const pageSize = 3;
 		if (cases.isEmpty) {
 			return Container();
 		}
-		// floor 除法：末页始终显示满 pageSize 条
-		final pageCount = cases.length < pageSize ? 1 : cases.length ~/ pageSize;
-		final safePage = _casePage.clamp(0, pageCount - 1);
-		final start = safePage * pageSize;
-		final end = (start + pageSize).clamp(0, cases.length);
-		final list = cases.sublist(start, end);
 		return Container(
 			key: _caseSectionKey,
 			width: double.infinity,
@@ -582,65 +538,34 @@ class FieldDetailState extends State<FieldDetailWidget> with tapah.Callback {
 				color: Colors.white,
 				borderRadius: BorderRadius.circular(14),
 			),
-			child: GestureDetector(
-				behavior: HitTestBehavior.opaque,
-				onVerticalDragStart: (_) {
-					_caseDragAccum = 0.0;
-				},
-				onVerticalDragUpdate: (details) {
-					_caseDragAccum += details.delta.dy;
-				},
-				onVerticalDragEnd: (_) {
-					final accum = _caseDragAccum;
-					_caseDragAccum = 0.0;
-					if (accum.abs() < 30) return;
-					if (accum < 0) {
-						if (safePage < pageCount - 1) {
-							setState(() => _casePage = safePage + 1);
-						} else {
-							_loadMoreCase();
-						}
-					} else if (accum > 0 && safePage > 0) {
-						setState(() => _casePage = safePage - 1);
-					}
-				},
-				// Stack 让 Positioned 滚动条自动拉伸到内容高度
-				child: Stack(
-					children: [
-						Padding(
-							padding: const EdgeInsets.only(right: 26),
-							child: Column(
-								crossAxisAlignment: CrossAxisAlignment.start,
-								children: [
-									Row(
-										children: [
-											Expanded(child: _buildSectionTitle('成功案例')),
-										],
-									),
-									const SizedBox(height: 10),
-									Column(
-										children: [
-											if (list.isEmpty)
-												const Padding(
-													padding: EdgeInsets.symmetric(vertical: 12),
-													child: Text('暂无相关案例', style: TextStyle(fontSize: 13, color: Color(0xFF999999))),
-												),
-											...list.map((c) => _buildCaseCard(c)),
-										],
-									),
-								],
+			child: Column(
+				crossAxisAlignment: CrossAxisAlignment.start,
+				children: [
+					Row(
+						children: [
+							Expanded(child: _buildSectionTitle('成功案例')),
+						],
+					),
+					const SizedBox(height: 10),
+					SizedBox(
+						height: 250,
+						child: NotificationListener<ScrollNotification>(
+							onNotification: (notification) {
+								if (notification.metrics.pixels >= notification.metrics.maxScrollExtent - 24) {
+									_loadMoreCase();
+								}
+								return false;
+							},
+							child: SingleChildScrollView(
+								child: Column(
+									children: [
+										...cases.map((c) => _buildCaseCard(c)),
+									],
+								),
 							),
 						),
-						if (pageCount > 1)
-							Positioned(
-								right: 0,
-								top: 0,
-								bottom: 0,
-								width: 26,
-								child: _buildCaseScrollbar(safePage, pageCount),
-							),
-					],
-				),
+					),
+				],
 			),
 		);
 	}
