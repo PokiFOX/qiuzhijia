@@ -112,6 +112,12 @@ class Field:
 		self.star = star
 		self.content = content
 
+class Question:
+	def __init__(self, id, agent, question):
+		self.id = id
+		self.agent = agent
+		self.question = question
+
 class Enterprise:
 	def __init__(self, id, zone, city, name, shortname, brief, upper, sector, level, website1, website2, tag, icon, images, enttype, financial):
 		self.id = id

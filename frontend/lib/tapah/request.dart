@@ -259,6 +259,68 @@ Future<void> RequestDeleteField(int id) async {
 	}
 }
 
+Future<void> RequestQuestionListAll() async {
+	questionlist = [];
+	for (final agent in ['resume', 'joblevel']) {
+		var response = await dio.get(parseurl(url_query_questions), queryParameters: {
+			"agent": agent,
+		});
+		if (response.data['code'] != 0) {
+			throw Exception('Error code: ${response.data['code']}');
+		}
+		var json = response.data["data"]["questions"];
+		json.forEach((item) {
+			questionlist.add(Question(
+				id: item["id"],
+				agent: item["agent"],
+				question: item["question"],
+			));
+		});
+	}
+}
+
+Future<void> RequestAddQuestion(String agent, String question) async {
+	var response = await dio.post(
+		parseurl(url_add_question),
+		data: [{
+			"agent": agent,
+			"question": question,
+		}],
+		options: options,
+	);
+	if (response.data['code'] != 0) {
+		throw Exception('Error code: ${response.data['code']}');
+	}
+}
+
+Future<void> RequestEditQuestion(Question question) async {
+	var response = await dio.post(
+		parseurl(url_edit_question),
+		data: {
+			"id": question.id,
+			"agent": question.agent,
+			"question": question.question,
+		},
+		options: options,
+	);
+	if (response.data['code'] != 0) {
+		throw Exception('Error code: ${response.data['code']}');
+	}
+}
+
+Future<void> RequestDeleteQuestion(int id) async {
+	var response = await dio.post(
+		parseurl(url_delete_question),
+		data: {
+			"id": id,
+		},
+		options: options,
+	);
+	if (response.data['code'] != 0) {
+		throw Exception('Error code: ${response.data['code']}');
+	}
+}
+
 Future<void> RequestAddEnterprise(Enterprise enterprise) async {
 	var response = await dio.post(
 		parseurl(url_add_enterprise),

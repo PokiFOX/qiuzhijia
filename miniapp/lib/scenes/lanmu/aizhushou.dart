@@ -25,12 +25,7 @@ class AIZhuShouState extends State<AIZhuShouWidget> with tapah.Callback, Widgets
 		"resume": "简历助手",
 		"joblevel": "岗位分析",
 	};
-	List<String> questions = [
-		"我是27届学生，目前还没有明确求职方向，适合先做求职规划吗？",
-		"我的简历比较空，没有相关实习经历，还可以做简历精修吗？",
-		"全程辅导具体包括哪些服务？适合什么时候开始准备？",
-		"我想了解岗位内推服务，能不能根据我的专业推荐合适岗位？",
-	];
+	List<String> questions = [];
 	List<tapah.ChatItem> chatlist = [];
 	final TextEditingController messageController = TextEditingController();
 	final ScrollController _scrollController = ScrollController();
@@ -49,7 +44,21 @@ class AIZhuShouState extends State<AIZhuShouWidget> with tapah.Callback, Widgets
 		WidgetsBinding.instance.addObserver(this);
 		initCallback(tapah.SceneID.lm_aizhushou, widget.key!);
 		_inputFocusNode.addListener(_onInputFocusChanged);
+		_loadQuestions();
 		_initChat();
+	}
+
+	Future<void> _loadQuestions() async {
+		try {
+			final list = await tapah.RequestQuestions(_selectedAgent);
+			if (!mounted) return;
+			setState(() {
+				questions = list;
+			});
+		} catch (e) {
+			if (!mounted) return;
+			print('load questions failed: $e');
+		}
 	}
 
 	void _onInputFocusChanged() {
@@ -166,6 +175,7 @@ class AIZhuShouState extends State<AIZhuShouWidget> with tapah.Callback, Widgets
 			_selectedAgent = agent;
 			chatlist = [];
 		});
+		await _loadQuestions();
 		if (tapah.accountinfo == null) return;
 		try {
 			final history = await tapah.RequestAIChatHistory(agent: agent);

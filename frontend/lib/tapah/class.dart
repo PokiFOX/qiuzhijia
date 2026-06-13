@@ -106,6 +106,13 @@ class Field {
 	Field({required this.id, required this.value, required this.type, required this.star, required this.content});
 }
 
+class Question {
+	int id;
+	String agent;
+	String question;
+	Question({required this.id, required this.agent, required this.question});
+}
+
 class Article {
 	String article;
 	int update;

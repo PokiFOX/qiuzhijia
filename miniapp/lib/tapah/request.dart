@@ -463,3 +463,18 @@ Future<List<ChatItem>> RequestAIChatHistory({String? agent}) async {
 	}
 	return list;
 }
+
+Future<List<String>> RequestQuestions(String agent) async {
+	var response = await dio.get(parseurl(url_query_questions), queryParameters: {
+		"agent": agent,
+	});
+	if (response.data['code'] != 0) {
+		throw Exception(response.data['status'] ?? '加载问题失败');
+	}
+	var list = <String>[];
+	for (var item in response.data['data']['questions'] ?? []) {
+		final question = item['question']?.toString() ?? '';
+		if (question.isNotEmpty) list.add(question);
+	}
+	return list;
+}

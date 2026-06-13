@@ -4,4 +4,5 @@ String urlheader = "https://qiuzhijia-cdn.tapahtech.com/";
 DeviceInfo deviceinfo = Devices.ios.iPhone16;
 
 String backendHost = 'qiuzhijia.tapahtech.com';
+//String backendHost = 'localhost';
 int backendPort = 22006;

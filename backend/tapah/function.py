@@ -4,7 +4,7 @@ import time
 
 from tapah import data
 from tapah import reserved
-from tapah.struct import MySQLPool, Zone, Sector, Level, Field, Enterprise, Case, User
+from tapah.struct import MySQLPool, Zone, Sector, Level, Field, Question, Enterprise, Case, User
 
 def keep_mysql_alive():
 	while True:
@@ -49,6 +49,12 @@ def init_config():
 		field = Field(row[0], row[1], row[2].split(','), row[3], row[4], row[5])
 		data.fieldlist.append(field)
 	print(f'field: {len(data.fieldlist)}')
+
+	cursor.execute("SELECT id, agent, question FROM qzj_questions ORDER BY id")
+	result = cursor.fetchall()
+	for row in result:
+		data.questionlist.append(Question(row[0], row[1], row[2]))
+	print(f'question: {len(data.questionlist)}')
 
 	cursor.execute("SELECT * FROM qzj_enterprise")
 	result = cursor.fetchall()

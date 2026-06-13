@@ -556,6 +556,107 @@ async def set_field(req: Request):
 		"status": "success",
 	})
 
+@app.get("/query_questions")
+async def query_questions(req: Request):
+	agent = req.query_params.get("agent", "")
+	if not agent:
+		return JSONResponse(content = {
+			"code": 1,
+			"status": "agent_required",
+		})
+	questions = []
+	for item in data.questionlist:
+		if item.agent != agent: continue
+		questions.append({
+			"id": item.id,
+			"agent": item.agent,
+			"question": item.question,
+		})
+	return JSONResponse(content = {
+		"code": 0,
+		"status": "success",
+		"data": {
+			"questions": questions,
+		},
+	})
+
+@app.post("/set_question")
+async def set_question(req: Request):
+	question_list = await req.json()
+
+	conn = data.mysql_pool.apply()
+	cursor = conn.cursor()
+
+	for item in question_list:
+		agent = (item.get("agent") or "").strip()
+		question = (item.get("question") or "").strip()
+		if agent == "" or question == "": continue
+		if Linq(data.questionlist).find(lambda q: q.agent == agent and q.question == question, None) is not None: continue
+		cursor.execute(
+			"INSERT INTO qzj_questions (agent, question) VALUES (%s, %s)",
+			(agent, question),
+		)
+		last_id = cursor.lastrowid
+		if last_id != 0:
+			data.questionlist.append(Question(last_id, agent, question))
+
+	cursor.close()
+	data.mysql_pool.release(conn)
+	return JSONResponse(content = {
+		"code": 0,
+		"status": "success",
+	})
+
+@app.post("/edit_question")
+async def edit_question(req: Request):
+	json = await req.json()
+	id = json.get("id")
+	agent = (json.get("agent") or "").strip()
+	question = (json.get("question") or "").strip()
+
+	question_item = Linq(data.questionlist).find(lambda q: q.id == id, None)
+	if question_item is None:
+		return JSONResponse(content = {"status": "not exists"})
+
+	conn = data.mysql_pool.apply()
+	cursor = conn.cursor()
+
+	cursor.execute(
+		"UPDATE qzj_questions SET agent=%s, question=%s WHERE id=%s",
+		(agent, question, id),
+	)
+	question_item.agent = agent
+	question_item.question = question
+
+	cursor.close()
+	data.mysql_pool.release(conn)
+	return JSONResponse(content = {
+		"code": 0,
+		"status": "success",
+	})
+
+@app.post("/delete_question")
+async def delete_question(req: Request):
+	json = await req.json()
+	id = json.get("id")
+
+	question_item = Linq(data.questionlist).find(lambda q: q.id == id, None)
+	if question_item is None:
+		return JSONResponse(content = {"status": "not exists"})
+
+	conn = data.mysql_pool.apply()
+	cursor = conn.cursor()
+
+	cursor.execute("DELETE FROM qzj_questions WHERE id=%s", (id,))
+	data.questionlist.remove(question_item)
+
+	cursor.close()
+	data.mysql_pool.release(conn)
+	return JSONResponse(content = {
+		"code": 0,
+		"status": "success",
+	})
+
 @app.post("/edit_zone")
 async def edit_zone(req: Request):
 	json = await req.json()

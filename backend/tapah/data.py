@@ -1,6 +1,6 @@
 from typing import List, Dict
 
-from tapah.struct import MySQLPool, Zone, Sector, Level, Field, Enterprise, Case, User
+from tapah.struct import MySQLPool, Zone, Sector, Level, Field, Question, Enterprise, Case, User
 
 mysql_pool : MySQLPool = None
 
@@ -8,6 +8,7 @@ zonelist : List[Zone] = []
 sectorlist : List[Sector] = []
 levellist : List[Level] = []
 fieldlist : List[Field] = []
+questionlist : List[Question] = []
 enterpriselist : List[Enterprise] = []
 caselist : List[Case] = []
 userlist : Dict[str, User] = {}
