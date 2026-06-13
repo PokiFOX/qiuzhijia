@@ -89,6 +89,7 @@ class AIZhuShouState extends State<AIZhuShouWidget> with tapah.Callback {
 			chatlist.add(tapah.ChatItem(isuser: true, detail: content, timestamp: ts));
 			if (text == null) messageController.clear();
 		});
+		_scrollToBottom();
 		try {
 			if (tapah.chataiToken == null || tapah.chataiToken!.isEmpty) {
 				await tapah.RequestChatAIAuth();
@@ -100,6 +101,7 @@ class AIZhuShouState extends State<AIZhuShouWidget> with tapah.Callback {
 				_sending = false;
 				_inCooldown = true;
 			});
+			_scrollToBottom();
 			Future.delayed(const Duration(seconds: 10), () {
 				if (!mounted) return;
 				setState(() {
@@ -204,6 +206,7 @@ class AIZhuShouState extends State<AIZhuShouWidget> with tapah.Callback {
 						borderRadius: BorderRadius.circular(12),
 					),
 					child: Column(
+						crossAxisAlignment: CrossAxisAlignment.stretch,
 						children: [
 							const SizedBox(height: 10),
 							Row(
@@ -223,6 +226,7 @@ class AIZhuShouState extends State<AIZhuShouWidget> with tapah.Callback {
 										child: Opacity(
 											opacity: _canSend ? 1 : 0.5,
 											child: Container(
+												width: double.infinity,
 												decoration: BoxDecoration(
 													color: Color(0xFFECF3FD),
 													border: Border.all(color: Color(0xFFD1DFFD)),
@@ -230,7 +234,7 @@ class AIZhuShouState extends State<AIZhuShouWidget> with tapah.Callback {
 												),
 												child: Padding(
 													padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-													child: Text(q, style: TextStyle(fontSize: 16, color: Color(0xFF3774FD))),
+													child: Text(q, style: TextStyle(fontSize: 16, color: Color(0xFF3774FD)), softWrap: true),
 												),
 											),
 										),
@@ -393,25 +397,42 @@ class AIZhuShouState extends State<AIZhuShouWidget> with tapah.Callback {
 		);
 	}
 
+	Widget buildBubbleText(String detail, TextStyle style) {
+		final normalized = detail.replaceAll('\r\n', '\n').replaceAll('\r', '\n');
+		final lines = normalized.split('\n');
+		if (lines.length == 1) {
+			return Text(lines[0], style: style, softWrap: true);
+		}
+		return Column(
+			crossAxisAlignment: CrossAxisAlignment.start,
+			mainAxisSize: MainAxisSize.min,
+			children: [
+				for (var i = 0; i < lines.length; i++)
+					Padding(
+						padding: EdgeInsets.only(top: i > 0 ? 4 : 0),
+						child: Text(lines[i].isEmpty ? ' ' : lines[i], style: style, softWrap: true),
+					),
+			],
+		);
+	}
+
 	Widget buildMessageBubble(tapah.ChatItem item) {
 		const avatarSize = 36.0;
 		const avatarGap = 8.0;
 		const sideWidth = avatarSize + avatarGap;
 		final isUser = item.isuser;
+		final textStyle = TextStyle(
+			fontSize: 16,
+			fontWeight: FontWeight.w400,
+			color: isUser ? Colors.white : Colors.black,
+		);
 		final bubble = Container(
 			padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
 			decoration: BoxDecoration(
 				color: isUser ? const Color(0xFF3774FD) : Colors.white,
 				borderRadius: BorderRadius.circular(12),
 			),
-			child: Text(
-				item.detail,
-				style: TextStyle(
-					fontSize: 16,
-					fontWeight: FontWeight.w400,
-					color: isUser ? Colors.white : Colors.black,
-				),
-			),
+			child: buildBubbleText(item.detail, textStyle),
 		);
 		return Padding(
 			padding: const EdgeInsets.only(bottom: 10),
@@ -420,9 +441,11 @@ class AIZhuShouState extends State<AIZhuShouWidget> with tapah.Callback {
 				children: isUser ? [
 					const SizedBox(width: sideWidth),
 					Expanded(
-						child: Align(
-							alignment: Alignment.centerRight,
-							child: bubble,
+						child: Row(
+							mainAxisAlignment: MainAxisAlignment.end,
+							children: [
+								Flexible(child: bubble),
+							],
 						),
 					),
 					const SizedBox(width: avatarGap),
@@ -431,9 +454,11 @@ class AIZhuShouState extends State<AIZhuShouWidget> with tapah.Callback {
 					buildChatAvatar(false),
 					const SizedBox(width: avatarGap),
 					Expanded(
-						child: Align(
-							alignment: Alignment.centerLeft,
-							child: bubble,
+						child: Row(
+							mainAxisAlignment: MainAxisAlignment.start,
+							children: [
+								Flexible(child: bubble),
+							],
 						),
 					),
 					const SizedBox(width: sideWidth),
