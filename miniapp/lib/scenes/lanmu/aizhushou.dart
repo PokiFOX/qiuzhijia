@@ -8,6 +8,7 @@ import 'package:qiuzhijia/tapah/class.dart' as tapah;
 import 'package:qiuzhijia/tapah/data.dart' as tapah;
 import 'package:qiuzhijia/tapah/enum.dart' as tapah;
 import 'package:qiuzhijia/tapah/function.dart' as tapah;
+import 'package:qiuzhijia/widgets/markdown_bubble.dart' as widgets;
 import 'package:qiuzhijia/tapah/request.dart' as tapah;
 
 class AIZhuShouWidget extends StatefulWidget {
@@ -417,9 +418,7 @@ class AIZhuShouState extends State<AIZhuShouWidget> with tapah.Callback {
 	}
 
 	Widget buildMessageBubble(tapah.ChatItem item) {
-		const avatarSize = 36.0;
 		const avatarGap = 8.0;
-		const sideWidth = avatarSize + avatarGap;
 		final isUser = item.isuser;
 		final textStyle = TextStyle(
 			fontSize: 16,
@@ -427,41 +426,24 @@ class AIZhuShouState extends State<AIZhuShouWidget> with tapah.Callback {
 			color: isUser ? Colors.white : Colors.black,
 		);
 		final bubble = Container(
+			width: double.infinity,
 			padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
 			decoration: BoxDecoration(
 				color: isUser ? const Color(0xFF3774FD) : Colors.white,
 				borderRadius: BorderRadius.circular(12),
 			),
-			child: buildBubbleText(item.detail, textStyle),
+			child: isUser
+				? buildBubbleText(item.detail, textStyle)
+				: widgets.MarkdownBubbleText(detail: item.detail, baseStyle: textStyle),
 		);
 		return Padding(
 			padding: const EdgeInsets.only(bottom: 10),
-			child: Row(
-				crossAxisAlignment: CrossAxisAlignment.start,
-				children: isUser ? [
-					const SizedBox(width: sideWidth),
-					Expanded(
-						child: Row(
-							mainAxisAlignment: MainAxisAlignment.end,
-							children: [
-								Flexible(child: bubble),
-							],
-						),
-					),
-					const SizedBox(width: avatarGap),
-					buildChatAvatar(true),
-				] : [
-					buildChatAvatar(false),
-					const SizedBox(width: avatarGap),
-					Expanded(
-						child: Row(
-							mainAxisAlignment: MainAxisAlignment.start,
-							children: [
-								Flexible(child: bubble),
-							],
-						),
-					),
-					const SizedBox(width: sideWidth),
+			child: Column(
+				crossAxisAlignment: isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+				children: [
+					buildChatAvatar(isUser),
+					SizedBox(height: avatarGap),
+					bubble,
 				],
 			),
 		);
