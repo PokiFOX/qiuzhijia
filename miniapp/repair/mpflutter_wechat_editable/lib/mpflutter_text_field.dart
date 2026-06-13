@@ -1616,7 +1616,12 @@ class _MPFlutterTextFieldState extends State<MPFlutterTextField>
             decoration: _getEffectiveDecoration(),
             baseStyle: widget.style,
             textAlign: widget.textAlign,
-            textAlignVertical: widget.textAlignVertical,
+            textAlignVertical: widget.textAlignVertical ??
+                ((widget.minLines != null &&
+                        widget.maxLines != null &&
+                        widget.minLines! < widget.maxLines!)
+                    ? TextAlignVertical.center
+                    : null),
             isHovering: _isHovering,
             isFocused: focusNode.hasFocus,
             isEmpty: controller.value.text.isEmpty,

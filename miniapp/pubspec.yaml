@@ -29,7 +29,7 @@ dependencies:
 
 dependency_overrides:
   mpflutter_wechat_editable:
-    path: packages/mpflutter_wechat_editable
+    path: repair/mpflutter_wechat_editable
 
 flutter:
   uses-material-design: true

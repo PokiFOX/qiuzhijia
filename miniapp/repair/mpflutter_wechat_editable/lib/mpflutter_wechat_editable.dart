@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mpflutter_core/mpflutter_core.dart';
@@ -182,21 +184,44 @@ class _MPFlutter_Wechat_EditableInputState
     final maxLines = widget.maxLines ?? 1;
     final minLines = widget.minLines ?? 1;
     final lineHeight = fontSize * 1.25;
+    final singleLineHeight = max(lineHeight, 20.0);
     final visibleLines = _currentLineCount.clamp(minLines, maxLines);
+    final contentHeight = visibleLines == 1
+        ? singleLineHeight
+        : lineHeight * visibleLines;
     final useAutoHeight = maxLines > 1 &&
         (widget.expands == true || widget.minLines != null);
+    final nativeAutoHeight = useAutoHeight && visibleLines > 1;
+    final paddingTop = visibleLines == 1
+        ? max(0.0, (contentHeight - lineHeight) / 2)
+        : 0.0;
+    final nativeFixedStyle = nativeAutoHeight
+        ? ''
+        : 'height:${contentHeight}px;padding-top:${paddingTop}px;';
+    final placeholderStyle = visibleLines == 1
+        ? 'line-height:${contentHeight}px;'
+        : 'line-height:${lineHeight}px;';
     return ConstrainedBox(
       constraints: BoxConstraints(maxHeight: lineHeight * maxLines),
       child: SizedBox(
-        height: lineHeight * visibleLines,
-        child: MPFlutterPlatformView(
+        height: contentHeight,
+        child: Align(
+          alignment: visibleLines > 1
+              ? Alignment.topLeft
+              : Alignment.centerLeft,
+          child: MPFlutterPlatformView(
         viewClazz: "MPFlutter_Wechat_EditableInput",
         viewProps: {
           "textarea": maxLines > 1,
           "maxLength": widget.maxLength ?? -1,
           "defaultText": _focused ? _lastNativeValue : controller.text,
           "cursor": _cursor,
-          "autoHeight": useAutoHeight,
+          "autoHeight": nativeAutoHeight,
+          "lineHeight": lineHeight,
+          "contentHeight": contentHeight,
+          "paddingTop": paddingTop,
+          "nativeFixedStyle": nativeFixedStyle,
+          "placeholderStyle": placeholderStyle,
           "hintText": widget.forceShowHintText
               ? widget.hintText
               : (focusNode.hasFocus ? widget.hintText : ""),
@@ -241,7 +266,13 @@ class _MPFlutter_Wechat_EditableInputState
             }
             return "text";
           })(),
-          "textInputAction": widget.textInputAction?.name ?? "done",
+          "textInputAction": (() {
+            if (maxLines > 1) {
+              final action = widget.textInputAction?.name ?? 'return';
+              return action == 'newline' ? 'return' : action;
+            }
+            return widget.textInputAction?.name ?? "done";
+          })(),
           "disabled": widget.disabled,
           "showConfirmBar": widget.showConfirmBar ?? true,
         },
@@ -269,8 +300,10 @@ class _MPFlutter_Wechat_EditableInputState
                 _inputFromNative = false;
                 if (maxLines > 1) {
                   final hardLineCount = newValue.text.split('\n').length;
-                  if (hardLineCount > _currentLineCount) {
-                    _currentLineCount = hardLineCount.clamp(minLines, maxLines);
+                  final nextLineCount =
+                      hardLineCount.clamp(minLines, maxLines);
+                  if (nextLineCount > _currentLineCount) {
+                    _currentLineCount = nextLineCount;
                     setState(() {});
                   }
                 }
@@ -325,6 +358,12 @@ class _MPFlutter_Wechat_EditableInputState
                     _currentLineCount =
                         lineCount.clamp(minLines, maxLines);
                   });
+                  if (lineCount > 1 &&
+                      widget.maxLines != null &&
+                      widget.maxLines! > 1) {
+                    mpjs.context["FlutterHostView"]['shared']
+                        ['textareaHasFocus'] = true;
+                  }
                 }
               }
               break;
@@ -334,11 +373,10 @@ class _MPFlutter_Wechat_EditableInputState
         },
         placeholder: IgnorePointer(
           ignoring: true,
-          child: Transform.translate(
-            offset: Offset(
-              (widget.maxLines ?? 1) > 1 ? 4 : -1,
-              (widget.maxLines ?? 1) > 1 ? 4 : -1,
-            ),
+          child: Align(
+            alignment: visibleLines > 1
+                ? Alignment.topLeft
+                : Alignment.centerLeft,
             child: Stack(
               children: [
                 EditableText(
@@ -360,10 +398,15 @@ class _MPFlutter_Wechat_EditableInputState
                         widget.forceShowHintText && controller.text.isEmpty,
                     child: Opacity(
                       opacity: 0.6,
-                      child: Text(
-                        widget.hintText ?? "",
-                        style: widget.style ?? TextStyle(),
-                        textAlign: widget.textAlign,
+                      child: Align(
+                        alignment: visibleLines > 1
+                            ? Alignment.topLeft
+                            : Alignment.centerLeft,
+                        child: Text(
+                          widget.hintText ?? "",
+                          style: widget.style ?? TextStyle(),
+                          textAlign: widget.textAlign,
+                        ),
                       ),
                     ),
                   ),
@@ -372,8 +415,9 @@ class _MPFlutter_Wechat_EditableInputState
             ),
           ),
         ),
+          ),
+        ),
       ),
-    ),
     );
   }
 }
