@@ -264,12 +264,20 @@ class EnterpriseState extends State<EnterpriseWidget> with tapah.Callback, Autom
 										_cacheCurrentState();
 										getEnterpriseList();
 									},
-									decoration: const InputDecoration(
+									decoration: InputDecoration(
 										contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 0),
 										border: InputBorder.none,
 										hintText: "搜索企业",
 										hintStyle: TextStyle(fontSize: 14),
-										suffixIcon: Icon(Icons.search, color: Color(0xFF2D7BFF)),
+										suffixIcon: IconButton(
+											icon: Icon(Icons.search, color: Color(0xFF2D7BFF)),
+											onPressed: () {
+												search = searchController.text;
+												_cacheCurrentState();
+												getEnterpriseList();
+											},
+										),
+									
 									),
 								),
 							),
