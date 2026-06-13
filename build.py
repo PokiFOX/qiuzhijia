@@ -26,16 +26,16 @@ with open('build/wechat/project.config.json', 'w') as f:
 with open('build/wechat/pages/index/index.json', 'r') as f:
 	indexdata = json.loads(f.read())
 	indexdata['pageOrientation'] = 'portrait'
- 
+
 with open('build/wechat/pages/index/index.json', 'w') as f:
 	f.write(json.dumps(indexdata, ensure_ascii = False, indent = '\t'))
 
 os.chdir('..')
 shutil.copyfile('./main.web', 'miniapp/lib/main.dart')
 
-with zipfile.ZipFile(f'wechat.{datetime.datetime.now().strftime("%Y%m%d.%H%M")}.zip', 'w', zipfile.ZIP_DEFLATED) as zipf:
-	for root, dirs, files in os.walk('miniapp/build/wechat'):
-		for file in files:
-			file_path = os.path.join(root, file)
-			arcname = os.path.relpath(file_path, 'miniapp/build')
-			zipf.write(file_path, arcname)
+#with zipfile.ZipFile(f'wechat.{datetime.datetime.now().strftime("%Y%m%d.%H%M")}.zip', 'w', zipfile.ZIP_DEFLATED) as zipf:
+#	for root, dirs, files in os.walk('miniapp/build/wechat'):
+#		for file in files:
+#			file_path = os.path.join(root, file)
+#			arcname = os.path.relpath(file_path, 'miniapp/build')
+#			zipf.write(file_path, arcname)

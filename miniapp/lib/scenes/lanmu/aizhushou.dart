@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'package:mpflutter_wechat_api/mpflutter_wechat_api.dart' as wxapi;
@@ -18,7 +20,7 @@ class AIZhuShouWidget extends StatefulWidget {
 	State<AIZhuShouWidget> createState() => AIZhuShouState();
 }
 
-class AIZhuShouState extends State<AIZhuShouWidget> with tapah.Callback {
+class AIZhuShouState extends State<AIZhuShouWidget> with tapah.Callback, WidgetsBindingObserver {
 	static const _agents = {
 		"resume": "简历助手",
 		"joblevel": "岗位分析",
@@ -27,22 +29,41 @@ class AIZhuShouState extends State<AIZhuShouWidget> with tapah.Callback {
 		"我是27届学生，目前还没有明确求职方向，适合先做求职规划吗？",
 		"我的简历比较空，没有相关实习经历，还可以做简历精修吗？",
 		"全程辅导具体包括哪些服务？适合什么时候开始准备？",
-		"全程辅导具体包括哪些服务？适合什么时候开始准备？",
+		"我想了解岗位内推服务，能不能根据我的专业推荐合适岗位？",
 	];
 	List<tapah.ChatItem> chatlist = [];
 	final TextEditingController messageController = TextEditingController();
 	final ScrollController _scrollController = ScrollController();
+	final FocusNode _inputFocusNode = FocusNode();
 	bool _sending = false;
 	bool _inCooldown = false;
 	String _selectedAgent = "resume";
+	Timer? _typingTimer;
+	int _typingDotCount = 1;
 
 	bool get _canSend => !_sending && !_inCooldown;
 
 	@override
 	void initState() {
 		super.initState();
+		WidgetsBinding.instance.addObserver(this);
 		initCallback(tapah.SceneID.lm_aizhushou, widget.key!);
+		_inputFocusNode.addListener(_onInputFocusChanged);
 		_initChat();
+	}
+
+	void _onInputFocusChanged() {
+		if (_inputFocusNode.hasFocus) {
+			_scrollToBottom();
+		}
+	}
+
+	@override
+	void didChangeMetrics() {
+		super.didChangeMetrics();
+		if (_inputFocusNode.hasFocus) {
+			_scrollToBottom();
+		}
 	}
 
 	Future<void> _initChat() async {
@@ -75,6 +96,21 @@ class AIZhuShouState extends State<AIZhuShouWidget> with tapah.Callback {
 		});
 	}
 
+	void _startTypingAnimation() {
+		_stopTypingAnimation();
+		setState(() => _typingDotCount = 1);
+		_typingTimer = Timer.periodic(const Duration(milliseconds: 500), (_) {
+			if (!mounted) return;
+			setState(() => _typingDotCount = _typingDotCount % 3 + 1);
+		});
+	}
+
+	void _stopTypingAnimation() {
+		_typingTimer?.cancel();
+		_typingTimer = null;
+		_typingDotCount = 1;
+	}
+
 	Future<void> sendMessage([String? text]) async {
 		final content = (text ?? messageController.text).trim();
 		if (content.isEmpty || !_canSend) return;
@@ -90,6 +126,7 @@ class AIZhuShouState extends State<AIZhuShouWidget> with tapah.Callback {
 			chatlist.add(tapah.ChatItem(isuser: true, detail: content, timestamp: ts));
 			if (text == null) messageController.clear();
 		});
+		_startTypingAnimation();
 		_scrollToBottom();
 		try {
 			if (tapah.chataiToken == null || tapah.chataiToken!.isEmpty) {
@@ -102,6 +139,7 @@ class AIZhuShouState extends State<AIZhuShouWidget> with tapah.Callback {
 				_sending = false;
 				_inCooldown = true;
 			});
+			_stopTypingAnimation();
 			_scrollToBottom();
 			Future.delayed(const Duration(seconds: 10), () {
 				if (!mounted) return;
@@ -114,6 +152,7 @@ class AIZhuShouState extends State<AIZhuShouWidget> with tapah.Callback {
 			setState(() {
 				_sending = false;
 			});
+			_stopTypingAnimation();
 			print('send message failed: $e');
 			var toastOption = wxapi.ShowToastOption();
 			toastOption.title = '发送失败';
@@ -179,13 +218,32 @@ class AIZhuShouState extends State<AIZhuShouWidget> with tapah.Callback {
 
 	@override
 	void dispose() {
+		WidgetsBinding.instance.removeObserver(this);
+		_inputFocusNode.removeListener(_onInputFocusChanged);
+		_inputFocusNode.dispose();
+		_stopTypingAnimation();
 		_scrollController.dispose();
 		uninitCallback();
 		super.dispose();
 	}
 
+	Widget buildTypingIndicator() {
+		const style = TextStyle(fontSize: 14, color: Color(0xFFC9CDD4));
+		return Row(
+			mainAxisSize: MainAxisSize.min,
+			children: [
+				const Text('正在输入(大概需要30秒)', style: style),
+				SizedBox(
+					width: 18,
+					child: Text('.' * _typingDotCount, style: style),
+				),
+			],
+		);
+	}
+
 	@override
 	Widget build(BuildContext context) {
+		final keyboardInset = MediaQuery.of(context).viewInsets.bottom;
 		return tapah.buildMain1(context, [
 			Center(child: const Text('求职家智能咨询', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),),
 			Center(child: const Text('智能客服在线，帮你快速了解服务内容', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF979797))),),
@@ -254,7 +312,7 @@ class AIZhuShouState extends State<AIZhuShouWidget> with tapah.Callback {
 					alignment: Alignment.centerLeft,
 					child: Padding(
 						padding: const EdgeInsets.only(bottom: 10),
-						child: Text('正在输入...', style: TextStyle(fontSize: 14, color: Color(0xFFC9CDD4))),
+						child: buildTypingIndicator(),
 					),
 				),
 			),
@@ -289,7 +347,7 @@ class AIZhuShouState extends State<AIZhuShouWidget> with tapah.Callback {
 			),
 			const SizedBox(height: 10),
 			Row(
-				mainAxisAlignment: MainAxisAlignment.center,
+				crossAxisAlignment: CrossAxisAlignment.end,
 				children: [
 					const SizedBox(width: 20),
 					SizedBox(
@@ -300,11 +358,18 @@ class AIZhuShouState extends State<AIZhuShouWidget> with tapah.Callback {
 					Expanded(
 						child: TextField(
 							controller: messageController,
+							focusNode: _inputFocusNode,
 							enabled: _canSend,
+							minLines: 1,
+							maxLines: 10,
+							style: TextStyle(fontSize: 14, color: Color(0xFF3D3D3D), letterSpacing: 0.0,),
 							decoration: InputDecoration(
 								fillColor: Color(0xFFF5F7FB),
+								filled: true,
 								hintText: '请输入你想咨询的问题',
 								hintStyle: TextStyle(fontSize: 14, color: Color(0xFF3D3D3D)),
+								contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+								isDense: true,
 								border: OutlineInputBorder(
 									borderSide: BorderSide(color: Color(0xFFEDF0F4)),
 									borderRadius: BorderRadius.circular(18),
@@ -313,19 +378,24 @@ class AIZhuShouState extends State<AIZhuShouWidget> with tapah.Callback {
 									borderSide: BorderSide(color: Color(0xFFEDF0F4)),
 									borderRadius: BorderRadius.circular(18),
 								),
+								disabledBorder: OutlineInputBorder(
+									borderSide: BorderSide(color: Color(0xFFEDF0F4)),
+									borderRadius: BorderRadius.circular(18),
+								),
 								focusedBorder: OutlineInputBorder(
 									borderSide: BorderSide(color: Color(0xFF3774FD)),
 									borderRadius: BorderRadius.circular(18),
 								),
 							),
+							keyboardType: TextInputType.multiline,
 						),
 					),
-					const SizedBox(width: 20),
+					const SizedBox(width: 8),
 					GestureDetector(
 						onTap: _canSend ? sendMessage : null,
 						child: Container(
-							height: 40,
-							padding: const EdgeInsets.symmetric(horizontal: 15),
+							constraints: const BoxConstraints(minHeight: 40),
+							padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
 							decoration: BoxDecoration(
 								color: _canSend ? Color(0xFF3774FD) : Color(0xFFAAC4FE),
 								borderRadius: BorderRadius.circular(18),
@@ -336,6 +406,8 @@ class AIZhuShouState extends State<AIZhuShouWidget> with tapah.Callback {
 					const SizedBox(width: 20),
 				],
 			),
+			const SizedBox(height: 10),
+			SizedBox(height: keyboardInset),
 		], scrollController: _scrollController);
 	}
 
