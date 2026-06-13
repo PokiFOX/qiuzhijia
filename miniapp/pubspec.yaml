@@ -27,6 +27,10 @@ dependencies:
   flutter_markdown_plus: ^1.0.0+1
   flutter_screenutil: ^5.9.3
 
+dependency_overrides:
+  mpflutter_wechat_editable:
+    path: packages/mpflutter_wechat_editable
+
 flutter:
   uses-material-design: true
 

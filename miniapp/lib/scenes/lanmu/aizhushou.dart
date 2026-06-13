@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'package:mpflutter_wechat_api/mpflutter_wechat_api.dart' as wxapi;
 
-// import 'package:mpflutter_wechat_button/mpflutter_wechat_button.dart';
+import 'package:mpflutter_wechat_editable/mpflutter_text_field.dart';
 
 import 'package:qiuzhijia/tapah/class.dart' as tapah;
 import 'package:qiuzhijia/tapah/data.dart' as tapah;
@@ -385,7 +385,7 @@ class AIZhuShouState extends State<AIZhuShouWidget> with tapah.Callback, Widgets
 										),
 										const SizedBox(width: 8),
 										Expanded(
-											child: TextField(
+											child: MPFlutterTextField(
 												controller: messageController,
 												focusNode: _inputFocusNode,
 												enabled: _canSend,
