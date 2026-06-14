@@ -125,7 +125,13 @@ class FilterState extends State<FilterWidget> with tapah.Callback {
 									textAlignVertical: TextAlignVertical.center,
 									decoration: InputDecoration(
 										hintText: '请输入企业名称',
-										prefixIcon: Icon(Icons.search, color: Colors.grey),
+										prefixIcon: IconButton(
+											icon: Icon(Icons.search, color: Colors.grey),
+											onPressed: () {
+												getEnterpriseList();
+												FocusScope.of(context).unfocus();
+											},
+										),
 										border: InputBorder.none,
 									),
 									onSubmitted: (value) {

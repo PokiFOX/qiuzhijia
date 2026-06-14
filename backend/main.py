@@ -127,7 +127,7 @@ async def query_enterprise(req: Request):
 		if financial == True and enterprise.financial != '是': continue
 		if financial == False and enterprise.financial != '否': continue
 		if field_id != 0 and field_id not in enterprise.field: continue
-		if enterprise_name and enterprise_name not in enterprise.name: continue
+		if enterprise_name and enterprise_name not in enterprise.name and enterprise_name not in enterprise.shortname: continue
 		count += 1
 		if page > 0 and count <= (page - 1) * 20: continue
 		if page > 0 and count > page * 20: break

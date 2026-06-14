@@ -52,7 +52,7 @@ class FieldState extends State<FieldWidget> with tapah.Callback {
 				if (!_selectedFields!.any((sf) => sf.id == e.id)) return false;
 			}
 			if (_searchText.isEmpty) return true;
-			return e.value.contains(_searchText) || e.type.contains(_searchText);
+			return e.value.contains(_searchText) || e.type.contains(_searchText) || e.content.contains(_searchText);
 		}).toList();
 		return tapah.buildMain1(context, [
 			Padding(

@@ -38,7 +38,7 @@ def load_aichat_history(openid: str, agent: str) -> tuple[list, str]:
 	conn = data.mysql_pool.apply()
 	cursor = conn.cursor()
 	cursor.execute(
-		"SELECT isuser, detail, timestamp FROM qzj_aichat_message WHERE openid=%s AND agent=%s ORDER BY timestamp ASC",
+		"SELECT isuser, detail, timestamp FROM qzj_aichat_message WHERE openid=%s AND agent=%s ORDER BY timestamp ASC LIMIT 10",
 		(openid, agent),
 	)
 	rows = cursor.fetchall()

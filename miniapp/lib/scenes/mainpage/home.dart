@@ -95,41 +95,44 @@ class HomeState extends State<HomeWidget> with tapah.Callback {
 									print("webview loaded");
 								});
 							},
-							child: Container(
-								decoration: BoxDecoration(
-									color: Colors.white,
-									borderRadius: BorderRadius.circular(8),
-								),
-								padding: const EdgeInsets.all(10),
-								child: Row(
-									crossAxisAlignment: CrossAxisAlignment.start,
-									children: [
-										Expanded(
-											child: SizedBox(
-												height: 80,
-												child: Column(
-													crossAxisAlignment: CrossAxisAlignment.start,
-													children: [
-														Text(
-															meta != null && meta.title.isNotEmpty ? meta.title : "未知标题",
-															style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
-															maxLines: 2,
-															overflow: TextOverflow.ellipsis,
-														),
-														const SizedBox(height: 4),
-														Expanded(
-															child: Text(
-																meta != null && meta.description.isNotEmpty ? meta.description : "",
-																style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+							child: Padding(
+								padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+								child: Container(
+									decoration: BoxDecoration(
+										color: Colors.white,
+										borderRadius: BorderRadius.circular(8),
+									),
+									padding: const EdgeInsets.all(10),
+									child: Row(
+										crossAxisAlignment: CrossAxisAlignment.start,
+										children: [
+											Expanded(
+												child: SizedBox(
+													height: 80,
+													child: Column(
+														crossAxisAlignment: CrossAxisAlignment.start,
+														children: [
+															Text(
+																meta != null && meta.title.isNotEmpty ? meta.title : "未知标题",
+																style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
 																maxLines: 2,
 																overflow: TextOverflow.ellipsis,
 															),
-														),
-													],
+															const SizedBox(height: 4),
+															Expanded(
+																child: Text(
+																	meta != null && meta.description.isNotEmpty ? meta.description : "",
+																	style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+																	maxLines: 2,
+																	overflow: TextOverflow.ellipsis,
+																),
+															),
+														],
+													),
 												),
 											),
-										),
-									],
+										],
+									),
 								),
 							),
 						);
@@ -207,87 +210,96 @@ class HomeState extends State<HomeWidget> with tapah.Callback {
 	Widget buildLanMuList() {
 		return Padding(
 			padding: const EdgeInsets.symmetric(horizontal: 20),
-			child: GridView.builder(
-				shrinkWrap: true,
-				physics: const NeverScrollableScrollPhysics(),
-				padding: EdgeInsets.zero,
-				gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-					crossAxisCount: 4,
-					mainAxisSpacing: 18,
-					crossAxisSpacing: 18,
-					childAspectRatio: 0.85,
+			child: Container(
+				decoration: BoxDecoration(
+					color: Colors.white,
+					borderRadius: BorderRadius.circular(5),
 				),
-				itemCount: tapah.lanmus.length,
-				itemBuilder: (context, index) {
-					var lanmu = tapah.lanmus[index];
-					return GestureDetector(
-						onTap: () {
-							if (index == 0) {
-								tapah.navigator(context, "/mainpage", arguments: {"index": 1});
-							}
-							if (index == 1) {
-								tapah.navigator(context, '/mainpage/field');
-							}
-							if (index == 2) {
-								// MPFlutter_Wechat_WebView.open(tapah.url_boardcast, onLoad: (_) {
-								// 	print("webview loaded");
-								// });
-								wxapi.NavigateToMiniProgramOption option = wxapi.NavigateToMiniProgramOption();
-								option.appId = tapah.url_mpid;
-								option.path = "/pages/entry/share?o=store&type=39&id=2";
-								option.success = (result) {
-									print("navigateToMiniProgram success: $result");
-								};
-								option.fail = (error) {
-									print("navigateToMiniProgram fail: $error");
-								};
-								wxapi.wx.navigateToMiniProgram(option);
-							}
-							if (index == 3) {
-								 if (tapah.accountinfo == null) {
-								 	tapah.navigator(context, '/mainpage/profile');
-								 	return;
-								 }
-								tapah.navigator(context, '/mainpage/example');
-							}
-							if (index == 4) {
-								 if (tapah.accountinfo == null) {
-								 	tapah.navigator(context, '/mainpage/profile');
-								 	return;
-								 }
-								tapah.navigator(context, '/lanmu/aizhushou');
-							}
-							if (index == 5) {
-								tapah.navigator(context, '/lanmu/qiuzhiziliao');
-							}
-							if (index == 6) {
-								tapah.navigator(context, '/lanmu/shixineitui');
-							}
-							if (index == 7) {
-								tapah.navigator(context, '/lanmu/gangweineitui');
-							}
-							if (index == 8) {
-								tapah.navigator(context, '/lanmu/zixunguwen');
-							}
-							if (index == 9) {
-								tapah.navigator(context, '/lanmu/bishitiku');
-							}
-							if (index == 10) {
-								tapah.navigator(context, '/lanmu/mianshijingyan');
-							}
-							if (index == 11) {
-								tapah.navigator(context, '/lanmu/qiuzhifuwu');
-							}
-						},
-						child: Column(
-							mainAxisAlignment: MainAxisAlignment.center,
-							children: [
-								Image.network(tapah.parseimage(lanmu.image), width: 53, height: 53,),
-								Text(lanmu.title, style: TextStyle(fontSize: 12)),
-							],
+				child: Padding(
+					padding: const EdgeInsets.all(5),
+					child: GridView.builder(
+						shrinkWrap: true,
+						physics: const NeverScrollableScrollPhysics(),
+						padding: EdgeInsets.zero,
+						gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+							crossAxisCount: 4,
+							mainAxisSpacing: 18,
+							crossAxisSpacing: 18,
+							childAspectRatio: 0.85,
 						),
-					);
-				},
+						itemCount: tapah.lanmus.length,
+						itemBuilder: (context, index) {
+							var lanmu = tapah.lanmus[index];
+							return GestureDetector(
+								onTap: () {
+									if (index == 0) {
+										tapah.navigator(context, "/mainpage", arguments: {"index": 1});
+									}
+									if (index == 1) {
+										tapah.navigator(context, '/mainpage/field');
+									}
+									if (index == 2) {
+										// MPFlutter_Wechat_WebView.open(tapah.url_boardcast, onLoad: (_) {
+										// 	print("webview loaded");
+										// });
+										wxapi.NavigateToMiniProgramOption option = wxapi.NavigateToMiniProgramOption();
+										option.appId = tapah.url_mpid;
+										option.path = "/pages/entry/share?o=store&type=39&id=2";
+										option.success = (result) {
+											print("navigateToMiniProgram success: $result");
+										};
+										option.fail = (error) {
+											print("navigateToMiniProgram fail: $error");
+										};
+										wxapi.wx.navigateToMiniProgram(option);
+									}
+									if (index == 3) {
+										if (tapah.accountinfo == null) {
+											tapah.navigator(context, '/mainpage/profile');
+											return;
+										}
+										tapah.navigator(context, '/mainpage/example');
+									}
+									if (index == 4) {
+										if (tapah.accountinfo == null) {
+											tapah.navigator(context, '/mainpage/profile');
+											return;
+										}
+										tapah.navigator(context, '/lanmu/aizhushou');
+									}
+									if (index == 5) {
+										tapah.navigator(context, '/lanmu/qiuzhiziliao');
+									}
+									if (index == 6) {
+										tapah.navigator(context, '/lanmu/shixineitui');
+									}
+									if (index == 7) {
+										tapah.navigator(context, '/lanmu/gangweineitui');
+									}
+									if (index == 8) {
+										tapah.navigator(context, '/lanmu/zixunguwen');
+									}
+									if (index == 9) {
+										tapah.navigator(context, '/lanmu/bishitiku');
+									}
+									if (index == 10) {
+										tapah.navigator(context, '/lanmu/mianshijingyan');
+									}
+									if (index == 11) {
+										tapah.navigator(context, '/lanmu/qiuzhifuwu');
+									}
+								},
+								child: Column(
+									mainAxisAlignment: MainAxisAlignment.center,
+									children: [
+										Image.network(tapah.parseimage(lanmu.image), width: 53, height: 53,),
+										Text(lanmu.title, style: TextStyle(fontSize: 12)),
+									],
+								),
+							);
+						},
+					),
+				),
 			),
 		);
 	}

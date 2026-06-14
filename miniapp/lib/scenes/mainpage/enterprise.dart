@@ -263,6 +263,7 @@ class EnterpriseState extends State<EnterpriseWidget> with tapah.Callback, Autom
 										search = v;
 										_cacheCurrentState();
 										getEnterpriseList();
+										FocusScope.of(context).unfocus();
 									},
 									decoration: InputDecoration(
 										contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 0),
@@ -275,6 +276,7 @@ class EnterpriseState extends State<EnterpriseWidget> with tapah.Callback, Autom
 												search = searchController.text;
 												_cacheCurrentState();
 												getEnterpriseList();
+												FocusScope.of(context).unfocus();
 											},
 										),
 									
