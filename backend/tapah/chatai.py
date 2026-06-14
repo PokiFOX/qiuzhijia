@@ -33,16 +33,26 @@ def get_api_key(agent: str) -> str:
 	from tapah import data
 	return data.chatai_agents.get(agent, data.chatai_agents["resume"])
 
-def load_aichat_history(openid: str, agent: str) -> tuple[list, str]:
+def load_aichat_history(openid: str, agent: str, before: int | None = None, limit: int = 10) -> tuple[list, str, bool]:
 	from tapah import data
+	limit = max(1, min(limit, 50))
 	conn = data.mysql_pool.apply()
 	cursor = conn.cursor()
-	cursor.execute(
-		"SELECT isuser, detail, timestamp FROM qzj_aichat_message WHERE openid=%s AND agent=%s ORDER BY timestamp ASC LIMIT 10",
-		(openid, agent),
-	)
+	if before is not None:
+		cursor.execute(
+			"SELECT isuser, detail, timestamp FROM qzj_aichat_message "
+			"WHERE openid=%s AND agent=%s AND timestamp < %s ORDER BY timestamp DESC LIMIT %s",
+			(openid, agent, before, limit),
+		)
+	else:
+		cursor.execute(
+			"SELECT isuser, detail, timestamp FROM qzj_aichat_message "
+			"WHERE openid=%s AND agent=%s ORDER BY timestamp DESC LIMIT %s",
+			(openid, agent, limit),
+		)
 	rows = cursor.fetchall()
-	messages = [{"isuser": bool(row[0]), "detail": row[1], "timestamp": row[2]} for row in rows]
+	has_more = len(rows) == limit
+	messages = [{"isuser": bool(row[0]), "detail": row[1], "timestamp": row[2]} for row in reversed(rows)]
 	cursor.execute(
 		"SELECT conversation_id FROM qzj_aichat_session WHERE openid=%s AND agent=%s",
 		(openid, agent),
@@ -51,7 +61,7 @@ def load_aichat_history(openid: str, agent: str) -> tuple[list, str]:
 	conversation_id = row[0] if row else ""
 	cursor.close()
 	data.mysql_pool.release(conn)
-	return messages, conversation_id
+	return messages, conversation_id, has_more
 
 def save_aichat_messages(openid: str, agent: str, message: str, reply: str, timestamp: int):
 	from tapah import data

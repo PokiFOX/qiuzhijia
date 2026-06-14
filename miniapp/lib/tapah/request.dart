@@ -438,21 +438,38 @@ Future<String> RequestChatAIChat(String message, {String? agent}) async {
 	return json['response'] ?? '';
 }
 
-Future<List<ChatItem>> RequestAIChatHistory({String? agent}) async {
+class AIChatHistoryResult {
+	final List<ChatItem> messages;
+	final bool hasMore;
+	AIChatHistoryResult({required this.messages, required this.hasMore});
+}
+
+Future<AIChatHistoryResult> RequestAIChatHistory({
+	String? agent,
+	int? before,
+	int limit = 10,
+}) async {
 	if (accountinfo == null) {
 		throw Exception('User not logged in');
 	}
 	final agentKey = agent ?? chataiAgent;
-	var response = await dio.get(parseurl(url_query_aichat_history), queryParameters: {
+	final queryParameters = <String, dynamic>{
 		"openid": accountinfo!.openid,
 		"agent": agentKey,
-	});
+		"limit": limit,
+	};
+	if (before != null) {
+		queryParameters["before"] = before;
+	}
+	var response = await dio.get(parseurl(url_query_aichat_history), queryParameters: queryParameters);
 	if (response.data['code'] != 0) {
 		throw Exception(response.data['status'] ?? '加载聊天记录失败');
 	}
 	var json = response.data['data'];
-	chataiConversationId = json['conversationId'];
-	chataiAgent = agentKey;
+	if (before == null) {
+		chataiConversationId = json['conversationId'];
+		chataiAgent = agentKey;
+	}
 	var list = <ChatItem>[];
 	for (var item in json['messages'] ?? []) {
 		list.add(ChatItem(
@@ -461,7 +478,10 @@ Future<List<ChatItem>> RequestAIChatHistory({String? agent}) async {
 			timestamp: item['timestamp'] ?? 0,
 		));
 	}
-	return list;
+	return AIChatHistoryResult(
+		messages: list,
+		hasMore: json['hasMore'] == true,
+	);
 }
 
 Future<List<String>> RequestQuestions(String agent) async {

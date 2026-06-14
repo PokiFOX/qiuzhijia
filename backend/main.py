@@ -1264,6 +1264,8 @@ async def chatai_auth(req: Request):
 async def aichat_history(req: Request):
 	openid = req.query_params.get("openid", "")
 	agent = req.query_params.get("agent", "resume")
+	before_raw = req.query_params.get("before", "")
+	limit_raw = req.query_params.get("limit", "10")
 	if not openid:
 		return JSONResponse(content = {
 			"code": -1,
@@ -1274,13 +1276,27 @@ async def aichat_history(req: Request):
 			"code": -1,
 			"status": "无效的 agent",
 		})
-	messages, conversation_id = chatai.load_aichat_history(openid, agent)
+	before = None
+	if before_raw:
+		try:
+			before = int(before_raw)
+		except ValueError:
+			return JSONResponse(content = {
+				"code": -1,
+				"status": "无效的 before",
+			})
+	try:
+		limit = int(limit_raw)
+	except ValueError:
+		limit = 10
+	messages, conversation_id, has_more = chatai.load_aichat_history(openid, agent, before, limit)
 	return JSONResponse(content = {
 		"code": 0,
 		"status": "success",
 		"data": {
 			"messages": messages,
 			"conversationId": conversation_id,
+			"hasMore": has_more,
 		},
 	})
 

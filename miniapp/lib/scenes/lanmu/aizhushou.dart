@@ -29,9 +29,12 @@ class AIZhuShouState extends State<AIZhuShouWidget> with tapah.Callback, Widgets
 	List<tapah.ChatItem> chatlist = [];
 	final TextEditingController messageController = TextEditingController();
 	final ScrollController _scrollController = ScrollController();
+	final GlobalKey _chatTopKey = GlobalKey();
 	final FocusNode _inputFocusNode = FocusNode();
 	bool _sending = false;
 	bool _inCooldown = false;
+	bool _historyLoading = false;
+	bool _historyHasMore = true;
 	String _selectedAgent = "resume";
 	Timer? _typingTimer;
 	int _typingDotCount = 1;
@@ -44,8 +47,62 @@ class AIZhuShouState extends State<AIZhuShouWidget> with tapah.Callback, Widgets
 		WidgetsBinding.instance.addObserver(this);
 		initCallback(tapah.SceneID.lm_aizhushou, widget.key!);
 		_inputFocusNode.addListener(_onInputFocusChanged);
+		_scrollController.addListener(_onScroll);
 		_loadQuestions();
 		_initChat();
+	}
+
+	void _onScroll() {
+		if (!_historyHasMore || _historyLoading || chatlist.isEmpty) return;
+		if (!_scrollController.hasClients) return;
+		final anchorContext = _chatTopKey.currentContext;
+		if (anchorContext == null) return;
+		final anchorBox = anchorContext.findRenderObject() as RenderBox?;
+		if (anchorBox == null || !anchorBox.hasSize) return;
+		final scrollContext = _scrollController.position.context.storageContext;
+		final scrollBox = scrollContext.findRenderObject() as RenderBox?;
+		if (scrollBox == null || !scrollBox.hasSize) return;
+		final anchorTop = anchorBox.localToGlobal(Offset.zero, ancestor: scrollBox).dy;
+		if (anchorTop >= -20 && anchorTop <= 120) {
+			_loadOlderHistory();
+		}
+	}
+
+	Future<void> _loadOlderHistory() async {
+		if (_historyLoading || !_historyHasMore || chatlist.isEmpty) return;
+		if (tapah.accountinfo == null) return;
+		setState(() => _historyLoading = true);
+		try {
+			final before = chatlist.first.timestamp;
+			final oldPixels = _scrollController.hasClients ? _scrollController.position.pixels : 0.0;
+			final oldMax = _scrollController.hasClients ? _scrollController.position.maxScrollExtent : 0.0;
+			final result = await tapah.RequestAIChatHistory(
+				agent: _selectedAgent,
+				before: before,
+			);
+			if (!mounted) return;
+			if (result.messages.isEmpty) {
+				setState(() {
+					_historyHasMore = false;
+					_historyLoading = false;
+				});
+				return;
+			}
+			setState(() {
+				chatlist.insertAll(0, result.messages);
+				_historyHasMore = result.hasMore;
+				_historyLoading = false;
+			});
+			WidgetsBinding.instance.addPostFrameCallback((_) {
+				if (!mounted || !_scrollController.hasClients) return;
+				final newMax = _scrollController.position.maxScrollExtent;
+				_scrollController.jumpTo(oldPixels + (newMax - oldMax));
+			});
+		} catch (e) {
+			if (!mounted) return;
+			setState(() => _historyLoading = false);
+			print('load older history failed: $e');
+		}
 	}
 
 	Future<void> _loadQuestions() async {
@@ -82,10 +139,11 @@ class AIZhuShouState extends State<AIZhuShouWidget> with tapah.Callback, Widgets
 			if (tapah.chataiToken == null || (tapah.chataiTokenExpiresAt != null && now >= tapah.chataiTokenExpiresAt!)) {
 				await tapah.RequestChatAIAuth();
 			}
-			final history = await tapah.RequestAIChatHistory(agent: _selectedAgent);
+			final result = await tapah.RequestAIChatHistory(agent: _selectedAgent);
 			if (!mounted) return;
 			setState(() {
-				chatlist = history;
+				chatlist = result.messages;
+				_historyHasMore = result.hasMore;
 			});
 			_scrollToBottom();
 		} catch (e) {
@@ -174,14 +232,16 @@ class AIZhuShouState extends State<AIZhuShouWidget> with tapah.Callback, Widgets
 		setState(() {
 			_selectedAgent = agent;
 			chatlist = [];
+			_historyHasMore = true;
 		});
 		await _loadQuestions();
 		if (tapah.accountinfo == null) return;
 		try {
-			final history = await tapah.RequestAIChatHistory(agent: agent);
+			final result = await tapah.RequestAIChatHistory(agent: agent);
 			if (!mounted) return;
 			setState(() {
-				chatlist = history;
+				chatlist = result.messages;
+				_historyHasMore = result.hasMore;
 			});
 			_scrollToBottom();
 		} catch (e) {
@@ -230,6 +290,7 @@ class AIZhuShouState extends State<AIZhuShouWidget> with tapah.Callback, Widgets
 	void dispose() {
 		WidgetsBinding.instance.removeObserver(this);
 		_inputFocusNode.removeListener(_onInputFocusChanged);
+		_scrollController.removeListener(_onScroll);
 		_inputFocusNode.dispose();
 		_stopTypingAnimation();
 		_scrollController.dispose();
@@ -445,12 +506,43 @@ class AIZhuShouState extends State<AIZhuShouWidget> with tapah.Callback, Widgets
 	}
 
 	Widget buildChatList() {
-		if (chatlist.isEmpty) return const SizedBox.shrink();
+		if (chatlist.isEmpty && !_historyLoading) return const SizedBox.shrink();
 		return Padding(
 			padding: const EdgeInsets.symmetric(horizontal: 30),
 			child: Column(
 				children: [
 					const SizedBox(height: 24),
+					KeyedSubtree(
+						key: _chatTopKey,
+						child: Column(
+							mainAxisSize: MainAxisSize.min,
+							children: [
+								if (_historyLoading)
+									const Padding(
+										padding: EdgeInsets.only(bottom: 12),
+										child: Center(
+											child: SizedBox(
+												width: 20,
+												height: 20,
+												child: CircularProgressIndicator(strokeWidth: 2),
+											),
+										),
+									)
+								else if (_historyHasMore)
+									const Padding(
+										padding: EdgeInsets.only(bottom: 12),
+										child: Center(
+											child: Text(
+												'上滑加载更多',
+												style: TextStyle(fontSize: 12, color: Color(0xFFC9CDD4)),
+											),
+										),
+									)
+								else
+									const SizedBox(height: 1),
+							],
+						),
+					),
 					...chatlist.asMap().entries.expand((entry) {
 						final widgets = <Widget>[];
 						if (entry.key == 0 || chatlist[entry.key].timestamp - chatlist[entry.key - 1].timestamp > 300) {
