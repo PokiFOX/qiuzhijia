@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 
 import 'package:mpflutter_wechat_api/mpflutter_wechat_api.dart' as wxapi;
 
+import 'package:mpflutter_wechat_button/mpflutter_wechat_button.dart';
+
 import 'package:mpflutter_wechat_editable/mpflutter_text_field.dart';
 
 import 'package:qiuzhijia/tapah/class.dart' as tapah;
@@ -40,6 +42,8 @@ class AIZhuShouState extends State<AIZhuShouWidget> with tapah.Callback, Widgets
 	int _typingDotCount = 1;
 
 	bool get _canSend => !_sending && !_inCooldown;
+	bool get _loggedIn => tapah.accountinfo != null;
+	bool get _canInteract => _loggedIn && _canSend;
 
 	@override
 	void initState() {
@@ -264,7 +268,7 @@ class AIZhuShouState extends State<AIZhuShouWidget> with tapah.Callback, Widgets
 				child: DropdownButton<String>(
 					value: _selectedAgent,
 					isExpanded: true,
-					icon: Icon(Icons.arrow_drop_down, size: 18, color: _canSend ? Color(0xFF3774FD) : Color(0xFFAAC4FE)),
+					icon: Icon(Icons.arrow_drop_down, size: 18, color: _canInteract ? Color(0xFF3774FD) : Color(0xFFAAC4FE)),
 					selectedItemBuilder: (context) {
 						return _agents.entries.map((e) {
 							final label = e.value.length > 4 ? e.value.substring(0, 4) : e.value;
@@ -280,7 +284,7 @@ class AIZhuShouState extends State<AIZhuShouWidget> with tapah.Callback, Widgets
 							child: Text(e.value, style: textStyle),
 						);
 					}).toList(),
-					onChanged: _canSend ? _onAgentChanged : null,
+					onChanged: _canInteract ? _onAgentChanged : null,
 				),
 			),
 		);
@@ -361,9 +365,9 @@ class AIZhuShouState extends State<AIZhuShouWidget> with tapah.Callback, Widgets
 														return Padding(
 															padding: const EdgeInsets.only(left: 15, right: 15, bottom: 5),
 															child: GestureDetector(
-																onTap: _canSend ? () => sendMessage(q) : null,
+																onTap: _canInteract ? () => sendMessage(q) : null,
 																child: Opacity(
-																	opacity: _canSend ? 1 : 0.5,
+																	opacity: _canInteract ? 1 : 0.5,
 																	child: Container(
 																		width: double.infinity,
 																		decoration: BoxDecoration(
@@ -436,67 +440,105 @@ class AIZhuShouState extends State<AIZhuShouWidget> with tapah.Callback, Widgets
 									),
 								),
 								const SizedBox(height: 10),
-								Row(
-									crossAxisAlignment: CrossAxisAlignment.end,
-									children: [
-										const SizedBox(width: 20),
-										SizedBox(
-											width: 72,
-											child: buildAgentDropdown(),
-										),
-										const SizedBox(width: 8),
-										Expanded(
-											child: MPFlutterTextField(
-												controller: messageController,
-												focusNode: _inputFocusNode,
-												enabled: _canSend,
-												minLines: 1,
-												maxLines: 10,
-												style: TextStyle(fontSize: 14, color: Color(0xFF3D3D3D), letterSpacing: 0.0,),
-												decoration: InputDecoration(
-													fillColor: Color(0xFFF5F7FB),
-													filled: true,
-													hintText: '请输入你想咨询的问题',
-													hintStyle: TextStyle(fontSize: 14, color: Color(0xFF3D3D3D)),
-													contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-													isDense: true,
-													border: OutlineInputBorder(
-														borderSide: BorderSide(color: Color(0xFFEDF0F4)),
-														borderRadius: BorderRadius.circular(18),
-													),
-													enabledBorder: OutlineInputBorder(
-														borderSide: BorderSide(color: Color(0xFFEDF0F4)),
-														borderRadius: BorderRadius.circular(18),
-													),
-													disabledBorder: OutlineInputBorder(
-														borderSide: BorderSide(color: Color(0xFFEDF0F4)),
-														borderRadius: BorderRadius.circular(18),
-													),
-													focusedBorder: OutlineInputBorder(
-														borderSide: BorderSide(color: Color(0xFF3774FD)),
-														borderRadius: BorderRadius.circular(18),
-													),
-												),
-												keyboardType: TextInputType.multiline,
+								if (_loggedIn)
+									Row(
+										crossAxisAlignment: CrossAxisAlignment.end,
+										children: [
+											const SizedBox(width: 20),
+											SizedBox(
+												width: 72,
+												child: buildAgentDropdown(),
 											),
-										),
-										const SizedBox(width: 8),
-										GestureDetector(
-											onTap: _canSend ? sendMessage : null,
+											const SizedBox(width: 8),
+											Expanded(
+												child: MPFlutterTextField(
+													controller: messageController,
+													focusNode: _inputFocusNode,
+													enabled: _canInteract,
+													minLines: 1,
+													maxLines: 10,
+													style: TextStyle(fontSize: 14, color: Color(0xFF3D3D3D), letterSpacing: 0.0,),
+													decoration: InputDecoration(
+														fillColor: Color(0xFFF5F7FB),
+														filled: true,
+														hintText: '请输入你想咨询的问题',
+														hintStyle: TextStyle(fontSize: 14, color: Color(0xFF3D3D3D)),
+														contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+														isDense: true,
+														border: OutlineInputBorder(
+															borderSide: BorderSide(color: Color(0xFFEDF0F4)),
+															borderRadius: BorderRadius.circular(18),
+														),
+														enabledBorder: OutlineInputBorder(
+															borderSide: BorderSide(color: Color(0xFFEDF0F4)),
+															borderRadius: BorderRadius.circular(18),
+														),
+														disabledBorder: OutlineInputBorder(
+															borderSide: BorderSide(color: Color(0xFFEDF0F4)),
+															borderRadius: BorderRadius.circular(18),
+														),
+														focusedBorder: OutlineInputBorder(
+															borderSide: BorderSide(color: Color(0xFF3774FD)),
+															borderRadius: BorderRadius.circular(18),
+														),
+													),
+													keyboardType: TextInputType.multiline,
+												),
+											),
+											const SizedBox(width: 8),
+											GestureDetector(
+												onTap: _canInteract ? sendMessage : null,
+												child: Container(
+													constraints: const BoxConstraints(minHeight: 40),
+													padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+													decoration: BoxDecoration(
+														color: _canInteract ? Color(0xFF3774FD) : Color(0xFFAAC4FE),
+														borderRadius: BorderRadius.circular(18),
+													),
+													child: Center(child: Text('发送', style: TextStyle(fontSize: 14, color: Colors.white))),
+												),
+											),
+											const SizedBox(width: 20),
+										],
+									)
+								else
+									Padding(
+										padding: const EdgeInsets.symmetric(horizontal: 20),
+										child: MPFlutter_Wechat_Button(
+											openType: "getPhoneNumber",
+											onGetPhoneNumber: (result) async {
+												await tapah.RequestWxCode(result["code"]);
+												if (!mounted) return;
+												setState(() {});
+												await _initChat();
+											},
 											child: Container(
-												constraints: const BoxConstraints(minHeight: 40),
-												padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+												height: 40,
+												alignment: Alignment.center,
 												decoration: BoxDecoration(
-													color: _canSend ? Color(0xFF3774FD) : Color(0xFFAAC4FE),
+													color: Color(0xFFF5F7FB),
 													borderRadius: BorderRadius.circular(18),
+													border: Border.all(color: Color(0xFFEDF0F4)),
 												),
-												child: Center(child: Text('发送', style: TextStyle(fontSize: 14, color: Colors.white))),
+												child: const Text(
+													'请先登录再提问',
+													style: TextStyle(
+														color: Color(0xFF3D3D3D),
+														fontSize: 14,
+														fontWeight: FontWeight.w600,
+													),
+												),
 											),
 										),
-										const SizedBox(width: 20),
-									],
+									),
+								const SizedBox(height: 6),
+								const Center(
+									child: Text(
+										'内容由AI生成，仅供参考',
+										style: TextStyle(fontSize: 11, color: Color(0xFFC9CDD4)),
+									),
 								),
-								const SizedBox(height: 10),
+								const SizedBox(height: 8),
 							],
 						),
 					),

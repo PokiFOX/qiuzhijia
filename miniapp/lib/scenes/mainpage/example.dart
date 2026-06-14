@@ -1,4 +1,8 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
+
+import 'package:mpflutter_wechat_button/mpflutter_wechat_button.dart';
 
 import 'package:qiuzhijia/tapah/class.dart' as tapah;
 import 'package:qiuzhijia/tapah/data.dart' as tapah;
@@ -125,24 +129,73 @@ class ExampleState extends State<ExampleWidget> with tapah.Callback {
 		], title: '过往案例', titleStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold));
 	}
 
-	Widget buildExampleList() {
-		if (isLoading) {
-			return const Center(child: CircularProgressIndicator());
-		}
-		if (tapah.caselist.isEmpty) {
-			return const Center(child: Text("暂无成功案例", style: TextStyle(fontSize: 16, color: Colors.grey)));
-		}
+	Widget _wrapLoginOverlay(Widget child) {
+		return Stack(
+			children: [
+				child,
+				Positioned.fill(
+					child: MPFlutter_Wechat_Button(
+						openType: "getPhoneNumber",
+						onGetPhoneNumber: (result) async {
+							await tapah.RequestWxCode(result["code"]);
+							if (!mounted) return;
+							setState(() {});
+						},
+						child: ClipRect(
+							child: BackdropFilter(
+								filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+								child: Container(
+									color: Colors.black.withOpacity(0.12),
+									alignment: Alignment.center,
+									child: const Text(
+										'请先登录再查看',
+										style: TextStyle(
+											color: Colors.white,
+											fontSize: 16,
+											fontWeight: FontWeight.w600,
+										),
+									),
+								),
+							),
+						),
+					),
+				),
+			],
+		);
+	}
 
-		return Padding(
-			padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
-			child: ListView.separated(
-				controller: scrollcontroller,
-				padding: EdgeInsets.zero,
-				shrinkWrap: true,
-				physics: const NeverScrollableScrollPhysics(),
-				separatorBuilder: (context, index) => const SizedBox(height: 10),
-				itemCount: tapah.caselist.length,
-				itemBuilder: (context, index) {
+	Widget buildExampleList() {
+		Widget child;
+		if (isLoading) {
+			child = const Center(child: CircularProgressIndicator());
+		} else if (tapah.caselist.isEmpty) {
+			child = const Center(child: Text("暂无成功案例", style: TextStyle(fontSize: 16, color: Colors.grey)));
+		} else {
+			child = Padding(
+				padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+				child: ListView.separated(
+					controller: scrollcontroller,
+					padding: EdgeInsets.zero,
+					shrinkWrap: true,
+					physics: const NeverScrollableScrollPhysics(),
+					separatorBuilder: (context, index) => const SizedBox(height: 10),
+					itemCount: tapah.caselist.length,
+					itemBuilder: (context, index) {
+						return buildExampleItem(index);
+					},
+				),
+			);
+		}
+		if (tapah.accountinfo == null) {
+			return ConstrainedBox(
+				constraints: BoxConstraints(minHeight: MediaQuery.of(context).size.height * 0.45),
+				child: _wrapLoginOverlay(child),
+			);
+		}
+		return child;
+	}
+
+	Widget buildExampleItem(int index) {
 					var c = tapah.caselist[index];
 					tapah.Field? field1, field2;
 					for (var f in tapah.fieldlist) {
@@ -338,8 +391,5 @@ class ExampleState extends State<ExampleWidget> with tapah.Callback {
 							],
 						),
 					);
-				},
-			),
-		);
 	}
 }

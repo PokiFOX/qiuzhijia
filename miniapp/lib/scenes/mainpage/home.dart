@@ -254,17 +254,9 @@ class HomeState extends State<HomeWidget> with tapah.Callback {
 										wxapi.wx.navigateToMiniProgram(option);
 									}
 									if (index == 3) {
-										if (tapah.accountinfo == null) {
-											tapah.navigator(context, '/mainpage/profile');
-											return;
-										}
 										tapah.navigator(context, '/mainpage/example');
 									}
 									if (index == 4) {
-										if (tapah.accountinfo == null) {
-											tapah.navigator(context, '/mainpage/profile');
-											return;
-										}
 										tapah.navigator(context, '/lanmu/aizhushou');
 									}
 									if (index == 5) {
