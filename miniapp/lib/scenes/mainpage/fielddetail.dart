@@ -32,8 +32,6 @@ class FieldDetailState extends State<FieldDetailWidget> with tapah.Callback {
 	int _activeTab = 0;
 	bool _isTabScrolling = false;
 	int expandindex = -1;
-	double _enterpriseDragAccum = 0.0;
-	double _caseDragAccum = 0.0;
 	int _enterpriseServerPage = 1;
 	int _caseServerPage = 1;
 	bool _isLoadingMoreEnterprise = false;

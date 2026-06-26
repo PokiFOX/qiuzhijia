@@ -96,7 +96,7 @@ class HomeState extends State<HomeWidget> with tapah.Callback {
 								});
 							},
 							child: Padding(
-								padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+								padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 10),
 								child: Container(
 									decoration: BoxDecoration(
 										color: Colors.white,
@@ -138,9 +138,9 @@ class HomeState extends State<HomeWidget> with tapah.Callback {
 						);
 					},
 					separatorBuilder: (context, index) {
-						if (index >= 3 && articles.isNotEmpty) {
-							return const Divider(height: 1, thickness: 1, indent: 15, endIndent: 15);
-						}
+						//if (index >= 3 && articles.isNotEmpty) {
+						//	return const Divider(height: 1, thickness: 1, indent: 15, endIndent: 15);
+						//}
 						return const SizedBox.shrink();
 					},
 				),
@@ -162,7 +162,7 @@ class HomeState extends State<HomeWidget> with tapah.Callback {
 
 	Widget buildTopImage() {
 		return Padding(
-			padding: EdgeInsets.symmetric(horizontal: 20),
+			padding: EdgeInsets.symmetric(horizontal: 10),
 			child: AspectRatio(
 				aspectRatio: 16 / 9,
 				child: Stack(
@@ -209,7 +209,7 @@ class HomeState extends State<HomeWidget> with tapah.Callback {
 
 	Widget buildLanMuList() {
 		return Padding(
-			padding: const EdgeInsets.symmetric(horizontal: 20),
+			padding: const EdgeInsets.symmetric(horizontal: 10),
 			child: Container(
 				decoration: BoxDecoration(
 					color: Colors.white,
@@ -347,10 +347,14 @@ class HomeState extends State<HomeWidget> with tapah.Callback {
 				height: 25,
 				width: double.infinity,
 				decoration: BoxDecoration(
-					color: Colors.blue,
+					color: Colors.transparent,
 				),
-				child: Center(
-					child: Text("求职解析", style: TextStyle(fontSize: 13, color: Colors.white),),
+				child: Row(
+					mainAxisAlignment: MainAxisAlignment.start,
+					children: [
+						const SizedBox(width: 5,),
+						Text("求职解析", style: TextStyle(fontSize: 13, color: Colors.black),),
+					],
 				),
 			),
 		);
