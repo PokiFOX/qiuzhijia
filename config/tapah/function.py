@@ -4,7 +4,7 @@ import unicodedata
 from tapah import reserved
 
 def url(path):
-	return f'http://{reserved.backend_host}:{reserved.backend_port}/{path}'
+	return f'https://{reserved.backend_host}:{reserved.backend_port}/{path}'
 
 def getcell(sheet, row, col):
 	if isinstance(col, str):

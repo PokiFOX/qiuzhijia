@@ -22,7 +22,23 @@ class MainPageWidget extends StatefulWidget {
 
 class MainPageState extends State<MainPageWidget> with tapah.Callback {
 	int currentindex = 0;
-	List<bool> activated = [true, false, false, false, false];
+	List<bool> activated = [false, false, false, false, false];
+	bool _tabInitialized = false;
+
+	void _setTabIndex(int index) {
+		activated[0] = index == 0;
+		activated[1] = index == 1;
+		activated[2] = index == 2;
+		activated[3] = index == 3;
+		activated[4] = index == 4;
+		currentindex = index;
+	}
+
+	int? _parseRouteIndex(dynamic raw) {
+		if (raw is int) return raw;
+		if (raw is String) return int.tryParse(raw);
+		return null;
+	}
 
 	@override
 	void initState() {
@@ -30,12 +46,7 @@ class MainPageState extends State<MainPageWidget> with tapah.Callback {
 		initCallback(tapah.SceneID.mainpage, widget.key!);
 		addCallback(tapah.EventType.mainpage_activate, (index) {
 			setState(() {
-				activated[0] = index[0] == 0;
-				activated[1] = index[0] == 1;
-				activated[2] = index[0] == 2;
-				activated[3] = index[0] == 3;
-				activated[4] = index[0] == 4;
-				currentindex = index[0];
+				_setTabIndex(index[0] as int);
 			});
 		});
 	}
@@ -44,17 +55,21 @@ class MainPageState extends State<MainPageWidget> with tapah.Callback {
 	void didChangeDependencies() {
 		super.didChangeDependencies();
 		final args = ModalRoute.of(context)?.settings.arguments;
-		if (args != null && args is Map<String, dynamic>) {
-			var index = args["index"];
-			setState(() {
-				activated[0] = index == 0;
-				activated[1] = index == 1;
-				activated[2] = index == 2;
-				activated[3] = index == 3;
-				activated[4] = index == 4;
-				currentindex = index;
-			});
+		if (_tabInitialized) {
+			if (args is Map<String, dynamic>) {
+				final index = _parseRouteIndex(args["index"]);
+				if (index != null && index != currentindex) {
+					setState(() => _setTabIndex(index));
+				}
+			}
+			return;
 		}
+		_tabInitialized = true;
+		int index = 0;
+		if (args is Map<String, dynamic>) {
+			index = _parseRouteIndex(args["index"]) ?? 0;
+		}
+		_setTabIndex(index);
 	}
 
 	@override
@@ -101,14 +116,7 @@ class MainPageState extends State<MainPageWidget> with tapah.Callback {
 									children: [
 										GestureDetector(
 											onTap: () {
-												setState(() {
-													activated[0] = true;
-													activated[1] = false;
-													activated[2] = false;
-													activated[3] = false;
-													activated[4] = false;
-													currentindex = 0;
-												});
+												setState(() => _setTabIndex(0));
 											},
 											child: Column(
 												mainAxisAlignment: MainAxisAlignment.end,
@@ -122,13 +130,8 @@ class MainPageState extends State<MainPageWidget> with tapah.Callback {
 										GestureDetector(
 											onTap: () {
 												setState(() {
-													activated[0] = false;
-													activated[1] = true;
-													activated[2] = false;
-													activated[3] = false;
-													activated[4] = false;
+													_setTabIndex(1);
 												});
-												currentindex = 1;
 											},
 											child: Column(
 												mainAxisAlignment: MainAxisAlignment.end,
@@ -169,14 +172,7 @@ class MainPageState extends State<MainPageWidget> with tapah.Callback {
 										),
 										GestureDetector(
 											onTap: () {
-												setState(() {
-													activated[0] = false;
-													activated[1] = false;
-													activated[2] = false;
-													activated[3] = true;
-													activated[4] = false;
-													currentindex = 3;
-												});
+												setState(() => _setTabIndex(3));
 											},
 											child: Column(
 												mainAxisAlignment: MainAxisAlignment.end,
@@ -189,14 +185,7 @@ class MainPageState extends State<MainPageWidget> with tapah.Callback {
 										),
 										GestureDetector(
 											onTap: () {
-												setState(() {
-													activated[0] = false;
-													activated[1] = false;
-													activated[2] = false;
-													activated[3] = false;
-													activated[4] = true;
-													currentindex = 4;
-												});
+												setState(() => _setTabIndex(4));
 											},
 											child: Column(
 												mainAxisAlignment: MainAxisAlignment.end,

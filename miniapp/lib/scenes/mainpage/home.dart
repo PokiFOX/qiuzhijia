@@ -233,7 +233,7 @@ class HomeState extends State<HomeWidget> with tapah.Callback {
 							return GestureDetector(
 								onTap: () {
 									if (index == 0) {
-										tapah.navigator(context, "/mainpage", arguments: {"index": 1});
+										tapah.activateMainPageTab(context, 1);
 									}
 									if (index == 1) {
 										tapah.navigator(context, '/mainpage/field');

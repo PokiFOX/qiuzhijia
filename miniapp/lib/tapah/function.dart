@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:mpflutter_core/mpflutter_core.dart';
 import 'package:mpflutter_wechat_api/mpflutter_wechat_api.dart' as wxapi;
 
+import 'package:qiuzhijia/tapah/class.dart';
+import 'package:qiuzhijia/tapah/enum.dart';
 import 'package:qiuzhijia/tapah/reserved.dart';
 
 String parseimage(String name) {
@@ -190,6 +192,16 @@ Widget buildMain2(
 		),
 		bottomNavigationBar: bottom,
 	));
+}
+
+void activateMainPageTab(BuildContext context, int index) {
+	final navigator = Navigator.of(context);
+	if (navigator.canPop()) {
+		navigator.popUntil((route) {
+			return route.settings.name == '/mainpage' || route.isFirst;
+		});
+	}
+	EventManager().call(SceneID.mainpage, EventType.mainpage_activate, [index]);
 }
 
 void navigator(BuildContext context, String url, {Map<String, dynamic>? arguments}) {

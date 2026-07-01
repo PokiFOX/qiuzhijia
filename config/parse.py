@@ -8,15 +8,15 @@ from tapah import data
 from tapah import function
 from tapah import reserved
 
-data.mysql_conn = mysql.connector.connect(
-	host		= reserved.mysql_host,
-	port		= reserved.mysql_port,
-	user		= reserved.mysql_username,
-	password	= reserved.mysql_password,
-	database	= reserved.mysql_database,
-	auth_plugin = 'caching_sha2_password',
-)
-data.mysql_conn.connect()
+# data.mysql_conn = mysql.connector.connect(
+# 	host		= reserved.mysql_host,
+# 	port		= reserved.mysql_port,
+# 	user		= reserved.mysql_username,
+# 	password	= reserved.mysql_password,
+# 	database	= reserved.mysql_database,
+# 	auth_plugin = 'caching_sha2_password',
+# )
+# data.mysql_conn.connect()
 zone = []
 sector = []
 level = []
