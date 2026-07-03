@@ -14,7 +14,7 @@ import shutil
 from tapah import data
 from tapah import function
 from tapah import chatai
-from tapah.struct import Linq, Zone, Level, Sector, Field, Enterprise, Case, User
+from tapah.struct import Linq, Zone, Level, Sector, Field, Enterprise, Case, User, Question
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -420,6 +420,10 @@ async def insert_enterprise(req: Request):
 @app.post("/insert_case")
 async def insert_case(req: Request):
 	json = await req.json()
+	case_id = json.get("id")
+	if case_id is None:
+		return JSONResponse(content = {"code": 1, "status": "id_required"})
+	case_id = int(case_id)
 	name = json.get("name")
 	enterprise = json.get("enterprise")
 	field = json.get("field")
@@ -464,14 +468,25 @@ async def insert_case(req: Request):
 	conn = data.mysql_pool.apply()
 	cursor = conn.cursor()
 
+	cursor.execute("SELECT id FROM qzj_case WHERE id=%s", (case_id,))
+	if cursor.fetchone() is not None:
+		cursor.close()
+		data.mysql_pool.release(conn)
+		return JSONResponse(content = {
+			"code": 0,
+			"status": "skipped",
+		})
+
 	try:
 		cursor.execute(
-			"INSERT INTO qzj_case (name, enterprise, field, tags, student, school1, stag1, field1, school2, stag2, field2, year, detail, dep) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-			(name, einfo.id, finfo.id, tags, student, school1, stag1, field1, school2, stag2, field2, year, detail, dep)
+			"INSERT INTO qzj_case (id, name, enterprise, field, tags, student, school1, stag1, field1, school2, stag2, field2, year, detail, dep) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+			(case_id, name, einfo.id, finfo.id, tags, student, school1, stag1, field1, school2, stag2, field2, year, detail, dep)
 		)
 	except Exception as e:
 		print(e)
-	case_id = cursor.lastrowid
+		cursor.close()
+		data.mysql_pool.release(conn)
+		return JSONResponse(content = {"code": 1, "status": str(e)})
 	data.caselist.append(Case(case_id, name, einfo.id, finfo.id, tags, student, school1, stag1, field1, school2, stag2, field2, year, detail, dep))
 
 	cursor.close()

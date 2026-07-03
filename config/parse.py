@@ -149,6 +149,7 @@ def parse_enterprise(page):
 def parse_case(page):
 	for row in range(2, page.max_row + 1):
 		case = {
+			"id": row - 1,
 			"name": function.getcell_str(page, row, 1),				# 岗位名称
 			"enterprise": function.getcell_str(page, row, 2),		# 公司名称
 			"field": function.getcell_str(page, row, 3),			# 专业名称
