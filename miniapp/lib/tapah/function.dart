@@ -222,8 +222,14 @@ void navigator(BuildContext context, String url, {Map<String, dynamic>? argument
 }
 
 String stagStr(int? stag) {
-	if (stag == 1) return "985";
-	if (stag == 2) return "211";
+	if (stag == 1) return "C9";
+	if (stag == 2) return "985";
+	if (stag == 3) return "211";
+	if (stag == 4) return "双非";
 	if (stag == 3) return "普通";
-	return "海外";
+	if (stag == 4) return "海外Top10";
+	if (stag == 5) return "海外Top50";
+	if (stag == 6) return "海外Top100";
+	if (stag == 7) return "其他海外院校";
+	return "未知";
 }
