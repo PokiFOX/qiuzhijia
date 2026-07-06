@@ -99,11 +99,12 @@ class Sector {
 
 class Field {
 	int id;
+	List<String> mapping = [];
 	String value;
 	String type;
 	int star;
 	String content;
-	Field({required this.id, required this.value, required this.type, required this.star, required this.content});
+	Field({required this.id, required this.value, required this.type, required this.star, required this.content, required this.mapping});
 }
 
 class Question {
@@ -135,9 +136,10 @@ class Enterprise {
 	String? icon;
 	List<String> images =  [];
 	int enttype = 0;
-	bool? financial;
+	bool financial = false;
 	List<Article> article1 = [];
 	List<Article> article2 = [];
+	String? mapping;
 
 	Enterprise({required this.id});
 }

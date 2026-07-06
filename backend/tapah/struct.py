@@ -119,7 +119,7 @@ class Question:
 		self.question = question
 
 class Enterprise:
-	def __init__(self, id, zone, city, name, shortname, brief, upper, sector, level, website1, website2, tag, icon, images, enttype, financial):
+	def __init__(self, id, zone, city, name, shortname, brief, upper, sector, level, website1, website2, tag, icon, images, enttype, financial, mapping):
 		self.id = id
 		self.zone = zone
 		self.city = city
@@ -139,6 +139,7 @@ class Enterprise:
 		self.article1 = []
 		self.article2 = []
 		self.field = []
+		self.mapping = mapping
 
 	def addfield(self, field):
 		self.field.append(field)

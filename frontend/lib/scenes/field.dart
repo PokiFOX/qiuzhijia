@@ -63,7 +63,7 @@ class FieldState extends State<FieldWidget> {
 				enableEditingMode: false,
 				enableColumnDrag: false,
 				renderer: (renderercontext) {
-					var field = tapah.fieldlist.firstWhere((element) => element.id == renderercontext.row.cells['id']!.value, orElse: () => tapah.Field(id: 0, value: "", type: "", star: 0, content: ""));
+					var field = tapah.fieldlist.firstWhere((element) => element.id == renderercontext.row.cells['id']!.value, orElse: () => tapah.Field(id: 0, value: "", type: "", star: 0, content: "", mapping: []));
 					if (field.id == 0) {
 						return GestureDetector(
 							onTap: () async {

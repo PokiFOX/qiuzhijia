@@ -104,24 +104,9 @@ class EnterpriseState extends State<EnterpriseWidget> {
 			PlutoColumn(
 				title: '招聘学科',
 				field: 'field',
-				type: PlutoColumnType.select(tapah.fieldlist.map((e) => e.value).toList()),
+				type: PlutoColumnType.text(),
 				enableEditingMode: true,
 				enableColumnDrag: false,
-				renderer: (renderercontext) {
-					var fields = renderercontext.row.cells['field']!.value.toString().split(',').where((element) => element.isNotEmpty).toList();
-					return GestureDetector(
-						onTap: () async {
-							var enterprise = tapah.enterpriselist.firstWhere((element) => element.id == renderercontext.row.cells['id']!.value);
-							List<tapah.Field>? fields = await widgets.showInputFieldDialog(context, enterprise.fields);
-							if (fields == null) return;
-							enterprise.fields = fields;
-							await tapah.RequestEditEnterprise(enterprise);
-							await getEnterpriseList();
-							setState(() {});
-						},
-						child: Text(fields.join(', '), style: const TextStyle(color: Colors.blue, decoration: TextDecoration.underline,),),
-					);
-				},
 			),
 			PlutoColumn(
 				title: '标签',
@@ -271,7 +256,7 @@ class EnterpriseState extends State<EnterpriseWidget> {
 					'upper': PlutoCell(value: enterprise.upper ?? ""),
 					'sector': PlutoCell(value: enterprise.sector?.value ?? ""),
 					'level': PlutoCell(value: enterprise.level?.value ?? ""),
-					'field': PlutoCell(value: enterprise.fields.map((e) => e.value).join(',')),
+					'field': PlutoCell(value: enterprise.mapping ?? ""),
 					'tag': PlutoCell(value: enterprise.tags.join(',')),
 					'website1': PlutoCell(value: enterprise.website1 ?? ""),
 					'website2': PlutoCell(value: enterprise.website2 ?? ""),

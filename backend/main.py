@@ -31,6 +31,12 @@ app.add_middleware(
 	allow_headers = ["*"],
 )
 
+def field_matches_token(fld, token):
+	t = token.strip()
+	if not t:
+		return False
+	return t in fld.mapping
+
 @app.get("/")
 async def entry():
 	return {"message": "求职家后台."}
@@ -151,6 +157,7 @@ async def query_enterprise(req: Request):
 			"financial": enterprise.financial,
 			"article1": enterprise.article1,
 			"article2": enterprise.article2,
+			"mapping": enterprise.mapping,
 		})
 
 	return JSONResponse(content = {
@@ -193,6 +200,7 @@ async def query_enterprisedetail(req: Request):
 					"financial": enterprise.financial,
 					"article1": enterprise.article1,
 					"article2": enterprise.article2,
+					"mapping": enterprise.mapping,
 				}
 			},
 		})
@@ -375,7 +383,7 @@ async def insert_enterprise(req: Request):
 	fieldlist = []
 	for f in field.split(','):
 		if f.strip() == "": continue
-		field_item = Linq(data.fieldlist).find(lambda fld: f.strip() in fld.mapping, None)
+		field_item = Linq(data.fieldlist).find(lambda fld: field_matches_token(fld, f), None)
 		if field_item is None:
 			return JSONResponse(content = {"status": f"field_not_found: {f}"})
 		if field_item.id not in fieldlist: fieldlist.append(field_item.id)
@@ -384,11 +392,11 @@ async def insert_enterprise(req: Request):
 	cursor = conn.cursor()
 
 	cursor.execute(
-		"INSERT INTO qzj_enterprise (zone, city, name, shortname, brief, upper, level, sector, tag, website1, website2, icon, images, enttype, financial) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-		(zone_item.id, city, name, shortname, brief, upper, level_item.id, sector_item.id, tag, website1, website2, icon, images, enttype, financial)
+		"INSERT INTO qzj_enterprise (zone, city, name, shortname, brief, upper, level, sector, tag, website1, website2, icon, images, enttype, financial, mapping) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+		(zone_item.id, city, name, shortname, brief, upper, level_item.id, sector_item.id, tag, website1, website2, icon, images, enttype, financial, field)
 	)
 	enterprise_id = cursor.lastrowid
-	enterprise = Enterprise(enterprise_id, zone_item.id, city, name, shortname, brief, upper, sector_item.id, level_item.id, website1, website2, tag.split(','), icon, images, enttype, financial)
+	enterprise = Enterprise(enterprise_id, zone_item.id, city, name, shortname, brief, upper, sector_item.id, level_item.id, website1, website2, tag.split(','), icon, images, enttype, financial, field)
 	for fid in fieldlist:
 		cursor.execute(
 			"INSERT IGNORE INTO qzj_enterprise_field (enterprise_id, field) VALUES (%s, %s)",
@@ -905,7 +913,7 @@ async def edit_enterprise(req: Request):
 	fieldlist = []
 	for f in field.split(','):
 		if f.strip() == "": continue
-		field_item = Linq(data.fieldlist).find(lambda fld: f.strip() in fld.mapping, None)
+		field_item = Linq(data.fieldlist).find(lambda fld: field_matches_token(fld, f), None)
 		if field_item is None:
 			return JSONResponse(content = {"status": f"field_not_found: {f}"})
 		if field_item.id not in fieldlist: fieldlist.append(field_item.id)
@@ -914,17 +922,18 @@ async def edit_enterprise(req: Request):
 	cursor = conn.cursor()
 
 	cursor.execute(
-		"UPDATE qzj_enterprise SET zone=%s, city=%s, name=%s, shortname=%s, brief=%s, upper=%s, level=%s, sector=%s, tag=%s, website1=%s, website2=%s, icon=%s, images=%s, enttype=%s, financial=%s WHERE id=%s",
-		(zone_id, city, name, shortname, brief, upper, level_id, sector_id, tag, website1, website2, icon, images, enttype, financial, id)
+		"UPDATE qzj_enterprise SET zone=%s, city=%s, name=%s, shortname=%s, brief=%s, upper=%s, level=%s, sector=%s, tag=%s, website1=%s, website2=%s, icon=%s, images=%s, enttype=%s, financial=%s, mapping=%s WHERE id=%s",
+		(zone_id.id, city, name, shortname, brief, upper, level_id.id, sector_id.id, tag, website1, website2, icon, images, enttype, financial, field, id)
 	)
-	enterprise.zone = zone_id
+	enterprise.zone = zone_id.id
 	enterprise.city = city
 	enterprise.name = name
 	enterprise.shortname = shortname
 	enterprise.brief = brief
 	enterprise.upper = upper
-	enterprise.level = level_id
-	enterprise.sector = sector_id
+	enterprise.level = level_id.id
+	enterprise.sector = sector_id.id
+	enterprise.mapping = field
 	enterprise.tag = tag
 	enterprise.website1 = website1
 	enterprise.website2 = website2

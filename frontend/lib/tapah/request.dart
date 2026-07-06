@@ -51,7 +51,17 @@ Future<void> RequestFieldList() async {
 	var json = response.data["data"]["fieldlist"];
 	fieldlist = [];
 	json.forEach((item) {
-		fieldlist.add(Field(id: item["id"], value: item["name"], type: item["type"], star: item["star"], content: item["content"]));
+		fieldlist.add(Field(
+			id: item["id"],
+			value: item["name"],
+			type: item["type"],
+			star: item["star"],
+			content: item["content"],
+			mapping: List<String>.from((item["mapping"] as List?)?.map((e) => e.toString()) ?? [])
+				.map((e) => e.trim())
+				.where((e) => e.isNotEmpty)
+				.toList(),
+		));
 	});
 }
 
@@ -82,7 +92,7 @@ Future<void> RequestEnterpriseList(int page) async {
 		enterprise.sector = sectorlist.firstWhere((e) => e.id == item["sector"], orElse: () => Sector(id: 0, value: ""));
 		enterprise.level = levellist.firstWhere((e) => e.id == item["level"], orElse: () => Level(id: 0, value: ""));
 		item["field"].forEach((field) {
-			enterprise.fields.add(fieldlist.firstWhere((e) => e.id == field, orElse: () => Field(id: 0, value: "", type: "", star: 0, content: "")));
+			enterprise.fields.add(fieldlist.firstWhere((e) => e.id == field, orElse: () => Field(id: 0, value: "", type: "", star: 0, content: "", mapping: [])));
 		});
 		enterprise.tags = item["tag"].split(',');
 		enterprise.website1 = item["website1"];
@@ -103,6 +113,7 @@ Future<void> RequestEnterpriseList(int page) async {
 			var article = item['article2'][i];
 			if (article[0].isNotEmpty) enterprise.article2.add(Article(article: article[0], update: article[1]));
 		}
+		enterprise.mapping = item["mapping"];
 		enterpriselist.add(enterprise);
 	});
 }
@@ -333,7 +344,7 @@ Future<void> RequestAddEnterprise(Enterprise enterprise) async {
 			"upper": enterprise.upper,
 			"sector": sectorlist.firstWhere((s) => s.id == enterprise.sector?.id).value,
 			"level": levellist.firstWhere((l) => l.id == enterprise.level?.id).value,
-			"field": enterprise.fields.map((e) => e.value).join(','),
+			"field": enterprise.mapping ?? "",
 			"tag": enterprise.tags.join(','),
 			"website1": enterprise.website1,
 			"website2": enterprise.website2,
@@ -364,7 +375,7 @@ Future<void> RequestEditEnterprise(Enterprise enterprise) async {
 			"upper": enterprise.upper,
 			"sector": sectorlist.firstWhere((s) => s.id == enterprise.sector?.id).value,
 			"level": levellist.firstWhere((l) => l.id == enterprise.level?.id).value,
-			"field": enterprise.fields.map((e) => e.value).join(','),
+			"field": enterprise.mapping ?? "",
 			"tag": enterprise.tags.join(','),
 			"website1": enterprise.website1,
 			"website2": enterprise.website2,
@@ -372,8 +383,8 @@ Future<void> RequestEditEnterprise(Enterprise enterprise) async {
 			"images": enterprise.images.join(','),
 			"enttype": enterprise.enttype,
 			"financial": enterprise.financial,
-			"article1": enterprise.article1.map((e) => [e.article, e.update]).toList(),
-			"article2": enterprise.article2.map((e) => [e.article, e.update]).toList(),
+			"article1": enterprise.article1.map((e) => e.article).toList(),
+			"article2": enterprise.article2.map((e) => e.article).toList(),
 		},
 		options: options,
 	);
