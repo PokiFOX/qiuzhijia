@@ -949,12 +949,14 @@ async def edit_enterprise(req: Request):
 		)
 	enterprise.field = fieldlist
 	cursor.execute("DELETE FROM qzj_enterprise_article WHERE enterprise_id=%s", (id,))
+	enterprise.article1 = []
 	for article in article1:
 		if article == "": continue
 		info = enterprise.addarticle(1, article)
 		cursor.execute("INSERT IGNORE INTO qzj_enterprise_article(enterprise_id, `index`, article, `update`) VALUES(%s, 1, %s, %s)",
 			(id, info[0], int(info[1]))
 		)
+	enterprise.article2 = []
 	for article in article2:
 		if article == "": continue
 		info = enterprise.addarticle(2, article)

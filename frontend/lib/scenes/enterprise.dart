@@ -5,7 +5,6 @@ import 'package:pluto_grid/pluto_grid.dart';
 import 'package:frontend/tapah/class.dart' as tapah;
 import 'package:frontend/tapah/data.dart' as tapah;
 import 'package:frontend/tapah/request.dart' as tapah;
-import 'package:frontend/wigets/inputfield.dart' as widgets;
 
 class EnterpriseWidget extends StatefulWidget {
 	const EnterpriseWidget({super.key});
@@ -317,7 +316,26 @@ class EnterpriseState extends State<EnterpriseWidget> {
 										onChanged: (PlutoGridOnChangedEvent event) async {
 											if (event.row.cells['id']!.value == null || event.row.cells['id']!.value == '') return;
 											var enterprise = tapah.enterpriselist.firstWhere((element) => element.id == event.row.cells['id']!.value);
-											enterprise.name = event.row.cells['value']!.value;
+											final field = event.column.field;
+											final value = event.value?.toString() ?? "";
+											switch (field) {
+												case 'article1':
+													enterprise.article1 = [];
+													for (var article in value.split(',')) {
+														enterprise.article1.add(tapah.Article(article: article, update: 0));
+													}
+													break;
+												case 'article2':
+													enterprise.article2 = [];
+													for (var article in value.split(',')) {
+														enterprise.article2.add(tapah.Article(article: article, update: 0));
+													}
+													break;
+												case 'value':
+													enterprise.name = value;
+													break;
+												default:
+											}
 											await tapah.RequestEditEnterprise(enterprise);
 											await getEnterpriseList();
 											setState(() {});

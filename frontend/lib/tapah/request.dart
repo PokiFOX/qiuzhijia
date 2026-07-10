@@ -7,6 +7,23 @@ import 'package:frontend/tapah/class.dart';
 import 'package:frontend/tapah/data.dart';
 import 'package:frontend/tapah/function.dart';
 
+List<Article> mergeArticlesFromCell(List<Article> existing, String cellValue) {
+	final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+	final urls = cellValue.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty);
+	final merged = <Article>[];
+	for (final url in urls) {
+		Article? old;
+		for (final item in existing) {
+			if (item.article == url) {
+				old = item;
+				break;
+			}
+		}
+		merged.add(old ?? Article(article: url, update: now));
+	}
+	return merged;
+}
+
 Future<void> RequestZoneList() async {
 	var response = await dio.get(parseurl(url_query_zonelist));
 	if (response.data['code'] != 0) {

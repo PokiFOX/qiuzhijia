@@ -145,7 +145,7 @@ class Enterprise:
 		self.field.append(field)
 
 	def addarticle(self, index, article):
-		info = (article, time.time())
+		info = (article, int(time.time()))
 		if index == 1: self.article1.append(info)
 		if index == 2: self.article2.append(info)
 		return info
