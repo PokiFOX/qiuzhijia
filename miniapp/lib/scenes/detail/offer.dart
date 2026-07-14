@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
-import 'package:mpflutter_wechat_webview/mpflutter_wechat_webview.dart';
+import 'package:mpflutter_wechat_button/mpflutter_wechat_button.dart';
 
 import 'package:qiuzhijia/tapah/class.dart' as tapah;
 import 'package:qiuzhijia/tapah/enum.dart' as tapah;
+import 'package:qiuzhijia/tapah/function.dart' as tapah;
 import 'package:qiuzhijia/tapah/request.dart' as tapah;
 
 class OfferWidget extends StatefulWidget {
@@ -62,11 +63,9 @@ class OfferState extends State<OfferWidget> with tapah.Callback {
 			separatorBuilder: (context, index) => const SizedBox(height: 10),
 			itemBuilder: (context, index) {
 				var article = articles[index];
-				return GestureDetector(
-					onTap: () {
-						MPFlutter_Wechat_WebView.open(widget.enterprise.article2[index].article, onLoad: (_) {
-							print("webview loaded");
-						});
+				return MPFlutter_Wechat_Button(
+					onTap: (_) {
+						tapah.openOfficialAccountArticle(widget.enterprise.article2[index].article);
 					},
 					child: Container(
 						decoration: BoxDecoration(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
-import 'package:mpflutter_wechat_webview/mpflutter_wechat_webview.dart';
+
+import 'package:qiuzhijia/tapah/function.dart' as tapah;
 
 class MarkdownBubbleText extends StatelessWidget {
 	const MarkdownBubbleText({
@@ -64,7 +65,8 @@ class MarkdownBubbleText extends StatelessWidget {
 			styleSheet: _buildStyleSheet(),
 			onTapLink: (text, href, title) {
 				if (href != null && href.isNotEmpty) {
-					MPFlutter_Wechat_WebView.open(href, onLoad: (_) {});
+					// Markdown 链接不是微信原生 tap，公众号文也走 web-view
+					tapah.openArticleWebView(href);
 				}
 			},
 		);

@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import 'package:mpflutter_wechat_api/mpflutter_wechat_api.dart' as wxapi;
-import 'package:mpflutter_wechat_webview/mpflutter_wechat_webview.dart';
+import 'package:mpflutter_wechat_button/mpflutter_wechat_button.dart';
 
 import 'package:qiuzhijia/tapah/class.dart' as tapah;
 import 'package:qiuzhijia/tapah/const.dart' as tapah;
@@ -89,11 +89,9 @@ class HomeState extends State<HomeWidget> with tapah.Callback {
 							loadArticles(index - 5);
 						}
 						var meta = metas[index - 5];
-						return GestureDetector(
-							onTap: () {
-								MPFlutter_Wechat_WebView.open(article.article, onLoad: (_) {
-									print("webview loaded");
-								});
+						return MPFlutter_Wechat_Button(
+							onTap: (_) {
+								tapah.openOfficialAccountArticle(article.article);
 							},
 							child: Padding(
 								padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 10),
@@ -239,9 +237,7 @@ class HomeState extends State<HomeWidget> with tapah.Callback {
 										tapah.navigator(context, '/mainpage/field');
 									}
 									if (index == 2) {
-										// MPFlutter_Wechat_WebView.open(tapah.url_boardcast, onLoad: (_) {
-										// 	print("webview loaded");
-										// });
+										// tapah.openOfficialAccountArticle(tapah.url_boardcast);
 										wxapi.NavigateToMiniProgramOption option = wxapi.NavigateToMiniProgramOption();
 										option.appId = tapah.url_mpid;
 										option.path = "/pages/entry/share?o=store&type=39&id=2";

@@ -106,6 +106,29 @@ class EnterpriseState extends State<EnterpriseWidget> {
 				type: PlutoColumnType.text(),
 				enableEditingMode: true,
 				enableColumnDrag: false,
+				renderer: (renderercontext) {
+					var fields = renderercontext.row.cells['field']!.value.toString().split(',').where((element) => element.isNotEmpty).toList();
+					return GestureDetector(
+						onTap: () async {
+							var enterprise = tapah.enterpriselist.firstWhere((element) => element.id == renderercontext.row.cells['id']!.value);
+							String? fields = await widgets.showInputFieldDialog(context, enterprise.mapping);
+							if (fields == null) return;
+							enterprise.fields = [];
+							for (var field in fields.split(',')) {
+								for (var f in tapah.fieldlist) {
+									if (f.mapping.contains(field)) {
+										enterprise.fields.add(f);
+									}
+								}
+							}
+							enterprise.mapping = fields;
+							await tapah.RequestEditEnterprise(enterprise);
+							await getEnterpriseList();
+							setState(() {});
+						},
+						child: Text(fields.join(', '), style: const TextStyle(color: Colors.blue, decoration: TextDecoration.underline,),),
+					);
+				},
 			),
 			PlutoColumn(
 				title: '标签',

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 import 'package:mpflutter_core/mpflutter_core.dart';
+import 'package:mpflutter_core/mpjs/mpjs.dart' as mpjs;
 import 'package:mpflutter_wechat_api/mpflutter_wechat_api.dart' as wxapi;
+import 'package:mpflutter_wechat_webview/mpflutter_wechat_webview.dart';
 
 import 'package:qiuzhijia/tapah/class.dart';
 import 'package:qiuzhijia/tapah/enum.dart';
@@ -219,6 +221,72 @@ void navigator(BuildContext context, String url, {Map<String, dynamic>? argument
 		);
 	}
 	Navigator.pushNamed(context, url, arguments: arguments);
+}
+
+/// 打开公众号文章（wx.openOfficialAccountArticle，基础库 >= 3.4.8）。
+/// 正式版不依赖 web-view 业务域名 / 公众号关联；须在原生 tap（如 MPFlutter_Wechat_Button.onTap）里同步调用。
+void openOfficialAccountArticle(String url) {
+	final trimmed = url.trim();
+	if (trimmed.isEmpty) return;
+
+	bool supported = false;
+	try {
+		supported = wxapi.wx.canIUse('openOfficialAccountArticle');
+	} catch (_) {
+		supported = false;
+	}
+	if (!supported) {
+		print('openOfficialAccountArticle unsupported, fallback to web-view: $trimmed');
+		openArticleWebView(trimmed);
+		return;
+	}
+
+	final option = wxapi.IAnyObject();
+	option.setValue('url', trimmed);
+	option.setValue('success', (res) {
+		print('openOfficialAccountArticle success');
+	});
+	option.setValue('fail', (res) {
+		final err = _wxCallbackDetail(res);
+		print('openOfficialAccountArticle fail: $err');
+		final toast = wxapi.ShowToastOption();
+		toast.title = '无法打开文章';
+		toast.icon = 'none';
+		wxapi.wx.showToast(toast);
+	});
+	wxapi.wx.$$context$$.callMethod('openOfficialAccountArticle', [option.$$context$$]);
+}
+
+/// Markdown 等非原生 tap 场景打开公众号/外链时用 web-view。
+void openArticleWebView(String url) {
+	final trimmed = url.trim();
+	if (trimmed.isEmpty) return;
+	MPFlutter_Wechat_WebView.open(trimmed, onLoad: (_) {});
+}
+
+bool isOfficialAccountArticleUrl(String url) {
+	final uri = Uri.tryParse(url.trim());
+	if (uri == null) return false;
+	return uri.host.contains('mp.weixin.qq.com');
+}
+
+String _wxCallbackDetail(dynamic res) {
+	try {
+		final ctx = res is mpjs.JSObject
+			? res
+			: (res is wxapi.IAnyObject ? res.$$context$$ : null);
+		if (ctx != null) {
+			final msg = ctx['errMsg'];
+			final code = ctx['errCode'];
+			return 'errMsg=$msg errCode=$code';
+		}
+		if (res is wxapi.IAnyObject) {
+			return 'errMsg=${res.getValue('errMsg')} errCode=${res.getValue('errCode')}';
+		}
+	} catch (e) {
+		return 'parseError=$e raw=$res';
+	}
+	return '$res';
 }
 
 String stagStr(int? stag) {
