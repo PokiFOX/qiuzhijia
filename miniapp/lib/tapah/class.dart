@@ -110,7 +110,18 @@ class Field {
 class Article {
 	String article;
 	int update;
-	Article(this.article, this.update);
+	String title;
+	String description;
+	Article({required this.article, required this.update, this.title = "", this.description = ""});
+
+	factory Article.fromJson(dynamic json) {
+		return Article(
+			article: (json["article"] ?? "").toString(),
+			update: json["update"] is int ? json["update"] : int.tryParse("${json["update"]}") ?? 0,
+			title: (json["title"] ?? "").toString(),
+			description: (json["description"] ?? "").toString(),
+		);
+	}
 }
 
 class Enterprise {
@@ -150,15 +161,6 @@ class Case {
 	int? stag1, stag2, year;
 	String? detail;
 	Case({required this.id, required this.name});
-}
-
-class ArticleMeta {
-	String url;
-	String title;
-	String description;
-	String image;
-	int clicks;
-	ArticleMeta({required this.url, this.title = "", this.description = "", this.image = "", this.clicks = 0});
 }
 
 class AccountInfo {

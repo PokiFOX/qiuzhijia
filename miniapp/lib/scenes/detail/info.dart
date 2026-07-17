@@ -5,7 +5,6 @@ import 'package:mpflutter_wechat_button/mpflutter_wechat_button.dart';
 import 'package:qiuzhijia/tapah/class.dart' as tapah;
 import 'package:qiuzhijia/tapah/enum.dart' as tapah;
 import 'package:qiuzhijia/tapah/function.dart' as tapah;
-import 'package:qiuzhijia/tapah/request.dart' as tapah;
 
 class InfoWidget extends StatefulWidget {
 	const InfoWidget({super.key, required this.enterprise});
@@ -16,14 +15,13 @@ class InfoWidget extends StatefulWidget {
 }
 
 class InfoState extends State<InfoWidget> with tapah.Callback {
-	List<tapah.ArticleMeta> articles = [];
-	bool isLoading = true;
+	late final List<tapah.Article> articles;
 
 	@override
 	void initState() {
 		super.initState();
 		initCallback(tapah.SceneID.dt_info, widget.key!);
-		loadArticles();
+		articles = widget.enterprise.article1.where((a) => a.article.trim().isNotEmpty).toList();
 	}
 
 	@override
@@ -32,26 +30,8 @@ class InfoState extends State<InfoWidget> with tapah.Callback {
 		super.dispose();
 	}
 
-	Future<void> loadArticles() async {
-		List<tapah.ArticleMeta> result = [];
-		for (var url in widget.enterprise.article1) {
-			if (url.article.trim().isEmpty) continue;
-			var meta = await tapah.RequestArticleMeta(url.article.trim());
-			result.add(meta);
-		}
-		if (mounted) {
-			setState(() {
-				articles = result;
-				isLoading = false;
-			});
-		}
-	}
-
 	@override
 	Widget build(BuildContext context) {
-		if (isLoading) {
-			return const Center(child: CircularProgressIndicator());
-		}
 		if (articles.isEmpty) {
 			return const Center(child: Text("暂无深度解读文章", style: TextStyle(fontSize: 16, color: Colors.grey)));
 		}
@@ -65,7 +45,7 @@ class InfoState extends State<InfoWidget> with tapah.Callback {
 				var article = articles[index];
 				return MPFlutter_Wechat_Button(
 					onTap: (_) {
-						tapah.openOfficialAccountArticle(widget.enterprise.article1[index].article);
+						tapah.openOfficialAccountArticle(article.article);
 					},
 					child: Container(
 						decoration: BoxDecoration(
@@ -91,7 +71,7 @@ class InfoState extends State<InfoWidget> with tapah.Callback {
 												const SizedBox(height: 4),
 												Expanded(
 													child: Text(
-														article.description.isNotEmpty ? article.description : "",
+														article.description,
 														style: TextStyle(fontSize: 12, color: Colors.grey[600]),
 														maxLines: 2,
 														overflow: TextOverflow.ellipsis,

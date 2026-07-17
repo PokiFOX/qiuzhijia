@@ -80,7 +80,8 @@ class EnterpriseState extends State<EnterpriseWidget> with tapah.Callback, Autom
 				if (isLoading) return;
 				isLoading = true;
 				page++;
-				isFinish = await tapah.RequestEnterpriseList(zone, sector, level, 0, 0, null, search, page) < 20;
+				final (count, pagesize) = await tapah.RequestEnterpriseList(zone, sector, level, 0, 0, null, search, page);
+				isFinish = count < pagesize;
 				isLoading = false;
 				_cacheCurrentState();
 				setState(() {});
@@ -100,7 +101,8 @@ class EnterpriseState extends State<EnterpriseWidget> with tapah.Callback, Autom
 	Future<void> getEnterpriseList() async {
 		page = 1;
 		tapah.enterpriselist = [];
-		isFinish = await tapah.RequestEnterpriseList(zone, sector, level, 0, 0, null, search, page) < 20;
+		final (count, pagesize) = await tapah.RequestEnterpriseList(zone, sector, level, 0, 0, null, search, page);
+		isFinish = count < pagesize;
 		if (mounted == false) return;
 		_cacheCurrentState();
 		setState(() {});

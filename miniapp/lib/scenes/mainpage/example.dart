@@ -43,7 +43,8 @@ class ExampleState extends State<ExampleWidget> with tapah.Callback {
 				isLoading = true;
 				setState(() {});
 				page++;
-				isFinish = await tapah.RequestCaseList(0, level, sector, 0, stag1, stag2, year, page) < 20;
+				final (count, pagesize) = await tapah.RequestCaseList(0, level, sector, 0, stag1, stag2, year, page);
+				isFinish = count < pagesize;
 				isLoading = false;
 				if (mounted == false) return;
 				setState(() {});
@@ -64,7 +65,8 @@ class ExampleState extends State<ExampleWidget> with tapah.Callback {
 		tapah.caselist = [];
 		isInitialLoading = true;
 		if (mounted) setState(() {});
-		isFinish = await tapah.RequestCaseList(0, level, sector, 0, stag1, stag2, year, page) < 20;
+		final (count, pagesize) = await tapah.RequestCaseList(0, level, sector, 0, stag1, stag2, year, page);
+		isFinish = count < pagesize;
 		isInitialLoading = false;
 		if (mounted == false) return;
 		setState(() {});

@@ -25,10 +25,8 @@ class HomeState extends State<HomeWidget> with tapah.Callback {
 	late Timer topimagetimer;
 	late ScrollController scrollController;
 	List<tapah.Article> articles = [];
-	Map<int, tapah.ArticleMeta> metas = {};
 	int displayCount = 5;
 	bool isLoadingMore = false;
-	final Set<int> _loadingArticles = {};
 
 	@override
 	void initState() {
@@ -41,8 +39,6 @@ class HomeState extends State<HomeWidget> with tapah.Callback {
 		WidgetsBinding.instance.addPostFrameCallback((_) async {
 			await tapah.RequestArticle1();
 			articles = tapah.article1;
-			metas = {};
-			_loadingArticles.clear();
 			displayCount = 5;
 			if (mounted == false) return;
 			setState(() {});
@@ -85,10 +81,6 @@ class HomeState extends State<HomeWidget> with tapah.Callback {
 							return const Center(child: Text("暂无文章", style: TextStyle(fontSize: 16, color: Colors.grey)));
 						}
 						var article = articles[index - 5];
-						if (metas.containsKey(index - 5) == false) {
-							loadArticles(index - 5);
-						}
-						var meta = metas[index - 5];
 						return MPFlutter_Wechat_Button(
 							onTap: (_) {
 								tapah.openOfficialAccountArticle(article.article);
@@ -111,7 +103,7 @@ class HomeState extends State<HomeWidget> with tapah.Callback {
 														crossAxisAlignment: CrossAxisAlignment.start,
 														children: [
 															Text(
-																meta != null && meta.title.isNotEmpty ? meta.title : "未知标题",
+																article.title.isNotEmpty ? article.title : "未知标题",
 																style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
 																maxLines: 2,
 																overflow: TextOverflow.ellipsis,
@@ -119,7 +111,7 @@ class HomeState extends State<HomeWidget> with tapah.Callback {
 															const SizedBox(height: 4),
 															Expanded(
 																child: Text(
-																	meta != null && meta.description.isNotEmpty ? meta.description : "",
+																	article.description,
 																	style: TextStyle(fontSize: 12, color: Colors.grey[600]),
 																	maxLines: 2,
 																	overflow: TextOverflow.ellipsis,
@@ -365,22 +357,6 @@ class HomeState extends State<HomeWidget> with tapah.Callback {
 				displayCount = (displayCount + 5).clamp(0, articles.length);
 				isLoadingMore = false;
 			});
-		}
-	}
-
-	Future<void> loadArticles(int index) async {
-		if (_loadingArticles.contains(index)) return;
-		_loadingArticles.add(index);
-		try {
-			var meta = await tapah.RequestArticleMeta(articles[index].article.trim());
-			if (_loadingArticles.contains(index) == false) return;
-			if (mounted) {
-				setState(() {
-					metas[index] = meta;
-				});
-			}
-		} finally {
-			_loadingArticles.remove(index);
 		}
 	}
 }

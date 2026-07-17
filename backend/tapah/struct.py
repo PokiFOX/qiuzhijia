@@ -118,6 +118,21 @@ class Question:
 		self.agent = agent
 		self.question = question
 
+class Article:
+	def __init__(self, article, update, title = "", description = ""):
+		self.article = article
+		self.update = update
+		self.title = title
+		self.description = description
+
+	def to_dict(self):
+		return {
+			"article": self.article,
+			"update": self.update,
+			"title": self.title,
+			"description": self.description,
+		}
+
 class Enterprise:
 	def __init__(self, id, zone, city, name, shortname, brief, upper, sector, level, website1, website2, tag, icon, images, enttype, financial, mapping):
 		self.id = id
@@ -145,10 +160,9 @@ class Enterprise:
 		self.field.append(field)
 
 	def addarticle(self, index, article):
-		info = (article, int(time.time()))
-		if index == 1: self.article1.append(info)
-		if index == 2: self.article2.append(info)
-		return info
+		if index == 1: self.article1.append(article)
+		if index == 2: self.article2.append(article)
+		return article
 
 class Case:
 	def __init__(self, id, name, enterprise, field, tags, student, school1, stag1, field1, school2, stag2, field2, year, detail, dep):

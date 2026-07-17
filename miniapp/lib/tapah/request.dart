@@ -51,7 +51,7 @@ Future<void> RequestFieldList() async {
 	});
 }
 
-Future<int> RequestEnterpriseList(int zone, int sector, int level, int enttype, int field, bool? financial, String name, int page) async {
+Future<(int, int)> RequestEnterpriseList(int zone, int sector, int level, int enttype, int field, bool? financial, String name, int page) async {
 	var response = await dio.post(parseurl(url_query_enterprise), data: {
 		"zone": zone,
 		"sector": sector,
@@ -65,7 +65,9 @@ Future<int> RequestEnterpriseList(int zone, int sector, int level, int enttype, 
 	if (response.data['code'] != 0) {
 		throw Exception('Error code: ${response.data['code']} status: ${response.data['status']}');
 	}
-	var json = response.data["data"]["enterpriselist"];
+	var data = response.data["data"];
+	var json = data["enterpriselist"];
+	var pagesize = data["pagesize"] is int ? data["pagesize"] : int.tryParse("${data["pagesize"]}") ?? 20;
 	json.forEach((item) {
 		Enterprise enterprise = Enterprise(id: item["id"]);
 		enterprise.zone = zonelist.firstWhere((e) => e.id == item["zone"]);
@@ -95,14 +97,14 @@ Future<int> RequestEnterpriseList(int zone, int sector, int level, int enttype, 
 		if (item["enttype"] == '央企') enterprise.enttype = 2;
 		enterprise.financial = item["financial"] == "是";
 		for (var article in item["article1"]) {
-			enterprise.article1.add(Article(article[0], article[1]));
+			enterprise.article1.add(Article.fromJson(article));
 		}
 		for (var article in item["article2"]) {
-			enterprise.article2.add(Article(article[0], article[1]));
+			enterprise.article2.add(Article.fromJson(article));
 		}
 		enterpriselist.add(enterprise);
 	});
-	return json.length;
+	return (json.length as int, pagesize as int);
 }
 
 Future<List<Enterprise>> RequestEnterprise(int zone, int sector, int level, int enttype, int field, bool? financial, String name, int page) async {
@@ -146,10 +148,10 @@ Future<List<Enterprise>> RequestEnterprise(int zone, int sector, int level, int 
 		if (item["enttype"] == '央企') enterprise.enttype = 2;
 		enterprise.financial = item["financial"] == "是";
 		for (var article in item["article1"]) {
-			enterprise.article1.add(Article(article[0], article[1]));
+			enterprise.article1.add(Article.fromJson(article));
 		}
 		for (var article in item["article2"]) {
-			enterprise.article2.add(Article(article[0], article[1]));
+			enterprise.article2.add(Article.fromJson(article));
 		}
 		list.add(enterprise);
 	});
@@ -186,10 +188,10 @@ Future<Enterprise> RequestEnterpriseDetail(int id) async {
 	if (item["enttype"] == '央企') enterprise.enttype = 2;
 	enterprise.financial = item["financial"] == "是";
 	for (var article in item["article1"]) {
-		enterprise.article1.add(Article(article[0], article[1]));
+		enterprise.article1.add(Article.fromJson(article));
 	}
 	for (var article in item["article2"]) {
-		enterprise.article2.add(Article(article[0], article[1]));
+		enterprise.article2.add(Article.fromJson(article));
 	}
 	return enterprise;
 }
@@ -202,7 +204,7 @@ Future<int> RequestArticle1() async {
 	article1.clear();
 	var json = response.data["data"]["link"];
 	json.forEach((item) {
-		article1.add(new Article(item[0], item[1]));
+		article1.add(Article.fromJson(item));
 	});
 	article1.sort((a, b) => b.update.compareTo(a.update));
 	return json.length;
@@ -216,12 +218,12 @@ Future<int> RequestArticle2() async {
 	article2.clear();
 	var json = response.data["data"]["link"];
 	json.forEach((item) {
-		article2.add(new Article(item[0], item[1]));
+		article2.add(Article.fromJson(item));
 	});
 	return json.length;
 }
 
-Future<int> RequestCaseList(int enterprise, int level, int sector, int field, int stag1, int stag2, int year, int page) async {
+Future<(int, int)> RequestCaseList(int enterprise, int level, int sector, int field, int stag1, int stag2, int year, int page) async {
 	var response = await dio.post(parseurl(url_query_case), data: {
 		"enterprise": enterprise,
 		"level": level,
@@ -235,7 +237,9 @@ Future<int> RequestCaseList(int enterprise, int level, int sector, int field, in
 	if (response.data['code'] != 0) {
 		throw Exception('Error code: ${response.data['code']} status: ${response.data['status']}');
 	}
-	var json = response.data["data"]["caselist"];
+	var data = response.data["data"];
+	var json = data["caselist"];
+	var pagesize = data["pagesize"] is int ? data["pagesize"] : int.tryParse("${data["pagesize"]}") ?? 20;
 	json.forEach((item) {
 		Case c = Case(id: item["id"], name: item["name"]);
 		c.entid = item["entid"];
@@ -251,7 +255,7 @@ Future<int> RequestCaseList(int enterprise, int level, int sector, int field, in
 		c.dep = item["dep"];
 		caselist.add(c);
 	});
-	return json.length;
+	return (json.length as int, pagesize as int);
 }
 
 Future<List<Case>> RequestCase(int enterprise, int level, int sector, int field, int stag1, int stag2, int year, int page) async {
@@ -286,22 +290,6 @@ Future<List<Case>> RequestCase(int enterprise, int level, int sector, int field,
 		list.add(c);
 	});
 	return list;
-}
-
-Future<ArticleMeta> RequestArticleMeta(String url) async {
-	var response = await dio.post(parseurl(url_query_article_meta), data: {
-		"url": url,
-	});
-	if (response.data['code'] != 0) {
-		return ArticleMeta(url: url);
-	}
-	var d = response.data["data"];
-	return ArticleMeta(
-		url: url,
-		title: d["title"] ?? "",
-		description: d["description"] ?? "",
-		image: d["image"] ?? "",
-	);
 }
 
 Future<void> RequestWxCode(String code) async {
@@ -378,10 +366,10 @@ Future<void> RequestFavorite() async {
 		if (item["enttype"] == '央企') enterprise.enttype = 2;
 		enterprise.financial = item["financial"] == "是";
 		for (var article in item["article1"]) {
-			enterprise.article1.add(Article(article[0], article[1]));
+			enterprise.article1.add(Article.fromJson(article));
 		}
 		for (var article in item["article2"]) {
-			enterprise.article2.add(Article(article[0], article[1]));
+			enterprise.article2.add(Article.fromJson(article));
 		}
 		myenterpriselist.add(enterprise);
 	});

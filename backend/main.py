@@ -1,16 +1,15 @@
 import asyncio
 import datetime
-import re
 import time
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import faulthandler
-import httpx
 import requests
 import shutil
 
+from tapah import const
 from tapah import data
 from tapah import function
 from tapah import chatai
@@ -135,8 +134,8 @@ async def query_enterprise(req: Request):
 		if field_id != 0 and field_id not in enterprise.field: continue
 		if enterprise_name and enterprise_name not in enterprise.name and enterprise_name not in enterprise.shortname: continue
 		count += 1
-		if page > 0 and count <= (page - 1) * 20: continue
-		if page > 0 and count > page * 20: break
+		if page > 0 and count <= (page - 1) * const.page_size: continue
+		if page > 0 and count > page * const.page_size: break
 		enterpriselist.append({
 			"id": enterprise.id,
 			"zone": enterprise.zone,
@@ -155,8 +154,8 @@ async def query_enterprise(req: Request):
 			"images": enterprise.images,
 			"enttype": enterprise.enttype,
 			"financial": enterprise.financial,
-			"article1": enterprise.article1,
-			"article2": enterprise.article2,
+			"article1": function.articles_to_json(enterprise.article1),
+			"article2": function.articles_to_json(enterprise.article2),
 			"mapping": enterprise.mapping,
 		})
 
@@ -165,6 +164,7 @@ async def query_enterprise(req: Request):
 		"status": "success",
 		"data": {
 			"enterpriselist": enterpriselist,
+			"pagesize": const.page_size,
 		},
 	})
 
@@ -198,8 +198,8 @@ async def query_enterprisedetail(req: Request):
 					"images": enterprise.images,
 					"enttype": enterprise.enttype,
 					"financial": enterprise.financial,
-					"article1": enterprise.article1,
-					"article2": enterprise.article2,
+					"article1": function.articles_to_json(enterprise.article1),
+					"article2": function.articles_to_json(enterprise.article2),
 					"mapping": enterprise.mapping,
 				}
 			},
@@ -215,7 +215,7 @@ async def query_article1(req: Request):
 	for i in range(len(data.enterpriselist)):
 		enterprise = data.enterpriselist[i]
 		for article in enterprise.article1:
-				link.append(article)
+				link.append(article.to_dict())
 
 	return JSONResponse(content = {
 		"code": 0,
@@ -231,7 +231,7 @@ async def query_article2(req: Request):
 	for i in range(len(data.enterpriselist)):
 		enterprise = data.enterpriselist[i]
 		for article in enterprise.article2:
-				link.append(article)
+				link.append(article.to_dict())
 
 	return JSONResponse(content = {
 		"code": 0,
@@ -273,8 +273,8 @@ async def query_case(req: Request):
 		if year == 1 and case.year != 2026: continue
 		if year == 2 and case.year == 2026: continue
 		count += 1
-		if page > 0 and count <= (page - 1) * 20: continue
-		if page > 0 and count > page * 20: break
+		if page > 0 and count <= (page - 1) * const.page_size: continue
+		if page > 0 and count > page * const.page_size: break
 		caselist.append({
 			"id": case.id,
 			"name": case.name,
@@ -299,48 +299,9 @@ async def query_case(req: Request):
 		"status": "success",
 		"data": {
 			"caselist": caselist,
+			"pagesize": const.page_size,
 		},
 	})
-
-@app.post("/query_article_meta")
-async def query_article_meta(req: Request):
-	json = await req.json()
-	url = json.get("url", "")
-	if not url:
-		return JSONResponse(content = {"code": 1, "status": "url_required"})
-	try:
-		async with httpx.AsyncClient(follow_redirects=True, timeout=10.0) as client:
-			resp = await client.get(url, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"})
-			html = resp.text
-		title = ""
-		description = ""
-		image = ""
-		m = re.search(r'<meta\s+property=["\']og:title["\']\s+content=["\'](.*?)["\']', html)
-		if m: title = m.group(1)
-		if not title:
-			m = re.search(r'<title>(.*?)</title>', html)
-			if m: title = m.group(1)
-		m = re.search(r'<meta\s+property=["\']og:description["\']\s+content=["\'](.*?)["\']', html)
-		if m: description = m.group(1)
-		if not description:
-			m = re.search(r'<meta\s+name=["\']description["\']\s+content=["\'](.*?)["\']', html)
-			if m: description = m.group(1)
-		m = re.search(r'<meta\s+property=["\']og:image["\']\s+content=["\'](.*?)["\']', html)
-		if m: image = m.group(1)
-		if not image:
-			m = re.search(r'var\s+msg_cdn_url\s*=\s*["\'](.*?)["\']', html)
-			if m: image = m.group(1)
-		return JSONResponse(content = {
-			"code": 0,
-			"status": "success",
-			"data": {
-				"title": title,
-				"description": description,
-				"image": image,
-			},
-		})
-	except Exception as e:
-		return JSONResponse(content = {"code": 1, "status": str(e)})
 
 @app.post("/insert_enterprise")
 async def insert_enterprise(req: Request):
@@ -405,15 +366,15 @@ async def insert_enterprise(req: Request):
 		enterprise.addfield(fid)
 	for article in article1.split(','):
 		if article == "": continue
-		info = enterprise.addarticle(1, article)
+		info = enterprise.addarticle(1, function.create_article(article))
 		cursor.execute("INSERT INTO qzj_enterprise_article(enterprise_id, `index`, article, `update`) VALUES (%s, 1, %s, %s)",
-			(enterprise_id, info[0], int(info[1]))
+			(enterprise_id, info.article, int(info.update))
 		)
 	for article in article2.split(','):
 		if article == "": continue
-		info =  enterprise.addarticle(2, article)
+		info = enterprise.addarticle(2, function.create_article(article))
 		cursor.execute("INSERT INTO qzj_enterprise_article(enterprise_id, `index`, article, `update`) VALUES (%s, 2, %s, %s)",
-			(enterprise_id, info[0], int(info[1]))
+			(enterprise_id, info.article, int(info.update))
 		)
 	data.enterpriselist.append(enterprise)
 
@@ -952,16 +913,16 @@ async def edit_enterprise(req: Request):
 	enterprise.article1 = []
 	for article in article1:
 		if article == "": continue
-		info = enterprise.addarticle(1, article)
+		info = enterprise.addarticle(1, function.create_article(article))
 		cursor.execute("INSERT IGNORE INTO qzj_enterprise_article(enterprise_id, `index`, article, `update`) VALUES(%s, 1, %s, %s)",
-			(id, info[0], int(info[1]))
+			(id, info.article, int(info.update))
 		)
 	enterprise.article2 = []
 	for article in article2:
 		if article == "": continue
-		info = enterprise.addarticle(2, article)
+		info = enterprise.addarticle(2, function.create_article(article))
 		cursor.execute("INSERT IGNORE INTO qzj_enterprise_article(enterprise_id, `index`, article, `update`) VALUES(%s, 2, %s, %s)",
-			(id, info[0], int(info[1]))
+			(id, info.article, int(info.update))
 		)
 
 	cursor.close()
@@ -1241,8 +1202,8 @@ async def favorite(req: Request):
 					"images": enterprise.images,
 					"enttype": enterprise.enttype,
 					"financial": enterprise.financial,
-					"article1": enterprise.article1,
-					"article2": enterprise.article2,
+					"article1": function.articles_to_json(enterprise.article1),
+					"article2": function.articles_to_json(enterprise.article2),
 				})
 
 	return JSONResponse(content = {

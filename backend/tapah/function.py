@@ -1,10 +1,13 @@
 import hashlib
+import re
 import threading
 import time
 
+import requests
+
 from tapah import data
 from tapah import reserved
-from tapah.struct import MySQLPool, Zone, Sector, Level, Field, Question, Enterprise, Case, User
+from tapah.struct import MySQLPool, Zone, Sector, Level, Field, Question, Article, Enterprise, Case, User
 
 def keep_mysql_alive():
 	while True:
@@ -13,6 +16,43 @@ def keep_mysql_alive():
 			data.mysql_conn.ping(reconnect = True)
 		except:
 			pass
+
+def fetch_article_meta(url):
+	title = ""
+	description = ""
+	if not url or not str(url).strip():
+		return title, description
+	try:
+		resp = requests.get(
+			url,
+			headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"},
+			timeout = 10.0,
+			allow_redirects = True,
+		)
+		html = resp.text
+		m = re.search(r'<meta\s+property=["\']og:title["\']\s+content=["\'](.*?)["\']', html)
+		if m: title = m.group(1)
+		if not title:
+			m = re.search(r'<title>(.*?)</title>', html)
+			if m: title = m.group(1)
+		m = re.search(r'<meta\s+property=["\']og:description["\']\s+content=["\'](.*?)["\']', html)
+		if m: description = m.group(1)
+		if not description:
+			m = re.search(r'<meta\s+name=["\']description["\']\s+content=["\'](.*?)["\']', html)
+			if m: description = m.group(1)
+	except Exception:
+		pass
+	return title, description
+
+def create_article(url, update = None):
+	url = (url or "").strip()
+	if update is None:
+		update = int(time.time())
+	title, description = fetch_article_meta(url)
+	return Article(url, int(update), title, description)
+
+def articles_to_json(articles):
+	return [article.to_dict() for article in articles]
 
 def init_config():
 	data.mysql_pool = MySQLPool() 
@@ -69,13 +109,16 @@ def init_config():
 			if enterprise.id == row[1]:
 				enterprise.addfield(row[2])
 	cursor.execute("SELECT * FROM qzj_enterprise_article")
-	for article in cursor.fetchall():
+	article_rows = cursor.fetchall()
+	for article in article_rows:
 		for enterprise in data.enterpriselist:
 			if enterprise.id == article[1]:
+				info = create_article(article[3], article[4])
 				if article[2] == 1:
-					enterprise.article1.append((article[3], article[4]))
+					enterprise.article1.append(info)
 				elif article[2] == 2:
-					enterprise.article2.append((article[3], article[4]))
+					enterprise.article2.append(info)
+				break
 	print(f'enterprise: {len(data.enterpriselist)}')
 
 	cursor.execute("SELECT * FROM qzj_case")

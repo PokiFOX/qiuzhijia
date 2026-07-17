@@ -124,11 +124,15 @@ Future<void> RequestEnterpriseList(int page) async {
 		if (item["financial"] == '否') enterprise.financial = false;
 		for (int i = 0;i < item['article1'].length;i++) {
 			var article = item['article1'][i];
-			if (article[0].isNotEmpty) enterprise.article1.add(Article(article: article[0], update: article[1]));
+			var url = (article is Map ? article["article"] : article[0])?.toString() ?? "";
+			var update = article is Map ? article["update"] : article[1];
+			if (url.isNotEmpty) enterprise.article1.add(Article(article: url, update: update is int ? update : int.tryParse("$update") ?? 0));
 		}
 		for (int i = 0;i < item['article2'].length;i++) {
 			var article = item['article2'][i];
-			if (article[0].isNotEmpty) enterprise.article2.add(Article(article: article[0], update: article[1]));
+			var url = (article is Map ? article["article"] : article[0])?.toString() ?? "";
+			var update = article is Map ? article["update"] : article[1];
+			if (url.isNotEmpty) enterprise.article2.add(Article(article: url, update: update is int ? update : int.tryParse("$update") ?? 0));
 		}
 		enterprise.mapping = item["mapping"];
 		enterpriselist.add(enterprise);
