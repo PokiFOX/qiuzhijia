@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 
-import 'package:mpflutter_wechat_button/mpflutter_wechat_button.dart';
+import 'package:mpflutter_core/mpflutter_core.dart';
 
 import 'package:qiuzhijia/tapah/class.dart' as tapah;
 import 'package:qiuzhijia/tapah/data.dart' as tapah;
 import 'package:qiuzhijia/tapah/enum.dart' as tapah;
 import 'package:qiuzhijia/tapah/function.dart' as tapah;
-import 'package:qiuzhijia/tapah/request.dart' as tapah;
 import 'package:qiuzhijia/scenes/mainpage/home.dart' as scenes;
 import 'package:qiuzhijia/scenes/mainpage/enterprise.dart' as scenes;
 import 'package:qiuzhijia/scenes/mainpage/offer.dart' as scenes;
@@ -82,125 +81,133 @@ class MainPageState extends State<MainPageWidget> with tapah.Callback {
 	Widget build(BuildContext context) {
 		return Scaffold(
 			body: SizedBox.expand(
-				child: Stack(
-					children: [
-						Padding(
-							padding: const EdgeInsets.only(bottom: 50), 
-							child: IndexedStack(
-								index: currentindex,
-								children: [
-									activated[0] ? scenes.HomeWidget(key: tapah.keyMPHome) : const SizedBox.shrink(),
-									activated[1] ? scenes.EnterpriseWidget(key: tapah.keyMPEntprise) : const SizedBox.shrink(),
-									activated[2] ? scenes.OfferWidget(key: tapah.keyMPOffer) : const SizedBox.shrink(),
-									activated[3] ? scenes.ServiceWidget(key: tapah.keyMPService) : const SizedBox.shrink(),
-									activated[4] ? scenes.ProfileWidget(key: tapah.keyMPProfile) : const SizedBox.shrink(),
-								],
-							),
-						),
-						Positioned(
-							left: 0,
-							right: 0,
-							bottom: 0,
-							child: Container(
-								height: 80,
-								decoration: BoxDecoration(
-									image: DecorationImage(
-										image: NetworkImage(tapah.parseimage("底部按钮/底部按钮底板.png")),
-										fit: BoxFit.fitWidth,
-									),
-								),
-								padding: EdgeInsets.symmetric(horizontal: 10),
-								child: Row(
-									mainAxisAlignment: MainAxisAlignment.spaceAround,
-									crossAxisAlignment: CrossAxisAlignment.end,
+				child: MPFlutterPlatformViewport(
+					bottomHeight: 80,
+					child: Stack(
+						children: [
+							Padding(
+								padding: const EdgeInsets.only(bottom: 80),
+								child: IndexedStack(
+									index: currentindex,
 									children: [
-										GestureDetector(
-											onTap: () {
-												setState(() => _setTabIndex(0));
-											},
-											child: Column(
-												mainAxisAlignment: MainAxisAlignment.end,
-												children: [
-													Image.network(tapah.parseimage(activated[0] ? "底部按钮/首页-选中.png" : "底部按钮/首页-普通.png"), width: 30, height: 30, fit: BoxFit.contain,),
-													const SizedBox(height: 5),
-													Text("首页", style: TextStyle(fontSize: 10, color: Colors.black,),),
-												],
-											),
-										),
-										GestureDetector(
-											onTap: () {
-												setState(() {
-													_setTabIndex(1);
-												});
-											},
-											child: Column(
-												mainAxisAlignment: MainAxisAlignment.end,
-												children: [
-													Image.network(tapah.parseimage(activated[1] ? "底部按钮/招聘企业-选中.png" : "底部按钮/招聘企业-普通.png"), width: 30, height: 30, fit: BoxFit.contain,),
-													const SizedBox(height: 5),
-													Text("招聘企业", style: TextStyle(fontSize: 10, color: Colors.black,),),
-												],
-											),
-										),
-										tapah.accountinfo == null ? MPFlutter_Wechat_Button(
-											openType: "getPhoneNumber",
-											onGetPhoneNumber: (result) async {
-												await tapah.RequestWxCode(result["code"]);
-												if (!mounted) return;
-												setState(() {});
-											},
-											child: Column(
-												mainAxisSize: MainAxisSize.min,
-												children: [
-													Image.network(tapah.parseimage(activated[2] ? "底部按钮/offer-选中.png" : "底部按钮/offer-普通.png"), width: 60, height: 60, fit: BoxFit.contain,),
-													const SizedBox(height: 5),
-													Text("OFFER", style: TextStyle(fontSize: 10, color: Colors.black)),
-												],
-											),
-										) : GestureDetector(
-											onTap: () {
-												tapah.navigator(context, '/mainpage/example');
-											},
-											child: Column(
-												mainAxisSize: MainAxisSize.min,
-												children: [
-													Image.network(tapah.parseimage(activated[2] ? "底部按钮/offer-选中.png" : "底部按钮/offer-普通.png"), width: 60, height: 60, fit: BoxFit.contain,),
-													const SizedBox(height: 5),
-													Text("OFFER", style: TextStyle(fontSize: 10, color: Colors.black)),
-												],
-											),
-										),
-										GestureDetector(
-											onTap: () {
-												setState(() => _setTabIndex(3));
-											},
-											child: Column(
-												mainAxisAlignment: MainAxisAlignment.end,
-												children: [
-													Image.network(tapah.parseimage(activated[3] ? "底部按钮/服务-选中.png" : "底部按钮/服务-普通.png"), width: 30, height: 30, fit: BoxFit.contain,),
-													const SizedBox(height: 5),
-													Text("服务", style: TextStyle(fontSize: 10, color: Colors.black,),),
-												],
-											),
-										),
-										GestureDetector(
-											onTap: () {
-												setState(() => _setTabIndex(4));
-											},
-											child: Column(
-												mainAxisAlignment: MainAxisAlignment.end,
-												children: [
-													Image.network(tapah.parseimage(activated[4] ? "底部按钮/个人中心-选中.png" : "底部按钮/个人中心-普通.png"), width: 30, height: 30, fit: BoxFit.contain,),
-													const SizedBox(height: 5),
-													Text("个人中心", style: TextStyle(fontSize: 10, color: Colors.black,),),
-												],
-											),
-										),
+										activated[0] ? scenes.HomeWidget(key: tapah.keyMPHome) : const SizedBox.shrink(),
+										activated[1] ? scenes.EnterpriseWidget(key: tapah.keyMPEntprise) : const SizedBox.shrink(),
+										activated[2] ? scenes.OfferWidget(key: tapah.keyMPOffer) : const SizedBox.shrink(),
+										activated[3] ? scenes.ServiceWidget(key: tapah.keyMPService) : const SizedBox.shrink(),
+										activated[4] ? scenes.ProfileWidget(key: tapah.keyMPProfile) : const SizedBox.shrink(),
 									],
 								),
 							),
-						),
-					],
+							Positioned(
+								left: 0,
+								right: 0,
+								bottom: 0,
+								child: GestureDetector(
+									behavior: HitTestBehavior.opaque,
+									onTap: () {},
+									child: Container(
+										height: 80,
+										decoration: BoxDecoration(
+											image: DecorationImage(
+												image: NetworkImage(tapah.parseimage("底部按钮/底部按钮底板.png")),
+												fit: BoxFit.fitWidth,
+											),
+										),
+										padding: EdgeInsets.symmetric(horizontal: 10),
+										child: Row(
+											crossAxisAlignment: CrossAxisAlignment.end,
+											children: [
+												Expanded(
+													child: GestureDetector(
+														behavior: HitTestBehavior.opaque,
+														onTap: () {
+															setState(() => _setTabIndex(0));
+														},
+														child: Column(
+															mainAxisAlignment: MainAxisAlignment.end,
+															children: [
+																Image.network(tapah.parseimage(activated[0] ? "底部按钮/首页-选中.png" : "底部按钮/首页-普通.png"), width: 30, height: 30, fit: BoxFit.contain,),
+																const SizedBox(height: 5),
+																Text("首页", style: TextStyle(fontSize: 10, color: Colors.black,),),
+															],
+														),
+													),
+												),
+												Expanded(
+													child: GestureDetector(
+														behavior: HitTestBehavior.opaque,
+														onTap: () {
+															setState(() => _setTabIndex(1));
+														},
+														child: Column(
+															mainAxisAlignment: MainAxisAlignment.end,
+															children: [
+																Image.network(tapah.parseimage(activated[1] ? "底部按钮/招聘企业-选中.png" : "底部按钮/招聘企业-普通.png"), width: 30, height: 30, fit: BoxFit.contain,),
+																const SizedBox(height: 5),
+																Text("招聘企业", style: TextStyle(fontSize: 10, color: Colors.black,),),
+															],
+														),
+													),
+												),
+												Expanded(
+													child: GestureDetector(
+														behavior: HitTestBehavior.opaque,
+														onTap: () {
+															if (tapah.accountinfo == null) {
+																setState(() => _setTabIndex(4));
+															} else {
+																tapah.navigator(context, '/mainpage/example');
+															}
+														},
+														child: Column(
+															mainAxisSize: MainAxisSize.min,
+															children: [
+																Image.network(tapah.parseimage(activated[2] ? "底部按钮/offer-选中.png" : "底部按钮/offer-普通.png"), width: 60, height: 60, fit: BoxFit.contain,),
+																const SizedBox(height: 5),
+																Text("OFFER", style: TextStyle(fontSize: 10, color: Colors.black)),
+															],
+														),
+													),
+												),
+												Expanded(
+													child: GestureDetector(
+														behavior: HitTestBehavior.opaque,
+														onTap: () {
+															setState(() => _setTabIndex(3));
+														},
+														child: Column(
+															mainAxisAlignment: MainAxisAlignment.end,
+															children: [
+																Image.network(tapah.parseimage(activated[3] ? "底部按钮/服务-选中.png" : "底部按钮/服务-普通.png"), width: 30, height: 30, fit: BoxFit.contain,),
+																const SizedBox(height: 5),
+																Text("服务", style: TextStyle(fontSize: 10, color: Colors.black,),),
+															],
+														),
+													),
+												),
+												Expanded(
+													child: GestureDetector(
+														behavior: HitTestBehavior.opaque,
+														onTap: () {
+															setState(() => _setTabIndex(4));
+														},
+														child: Column(
+															mainAxisAlignment: MainAxisAlignment.end,
+															children: [
+																Image.network(tapah.parseimage(activated[4] ? "底部按钮/个人中心-选中.png" : "底部按钮/个人中心-普通.png"), width: 30, height: 30, fit: BoxFit.contain,),
+																const SizedBox(height: 5),
+																Text("个人中心", style: TextStyle(fontSize: 10, color: Colors.black,),),
+															],
+														),
+													),
+												),
+											],
+										),
+									),
+								),
+							),
+						],
+					),
 				),
 			),
 		);
