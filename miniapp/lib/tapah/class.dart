@@ -115,11 +115,20 @@ class Article {
 	Article({required this.article, required this.update, this.title = "", this.description = ""});
 
 	factory Article.fromJson(dynamic json) {
+		if (json is List) {
+			return Article(
+				article: json.isNotEmpty ? "${json[0]}" : "",
+				update: json.length > 1
+					? (json[1] is int ? json[1] : int.tryParse("${json[1]}") ?? 0)
+					: 0,
+			);
+		}
+		final map = json is Map ? json : <String, dynamic>{};
 		return Article(
-			article: (json["article"] ?? "").toString(),
-			update: json["update"] is int ? json["update"] : int.tryParse("${json["update"]}") ?? 0,
-			title: (json["title"] ?? "").toString(),
-			description: (json["description"] ?? "").toString(),
+			article: (map["article"] ?? "").toString(),
+			update: map["update"] is int ? map["update"] : int.tryParse("${map["update"]}") ?? 0,
+			title: (map["title"] ?? "").toString(),
+			description: (map["description"] ?? "").toString(),
 		);
 	}
 }

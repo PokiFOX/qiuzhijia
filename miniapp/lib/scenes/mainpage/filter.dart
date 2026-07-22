@@ -185,7 +185,7 @@ class FilterState extends State<FilterWidget> with tapah.Callback {
 									Column(
 										mainAxisAlignment: MainAxisAlignment.center,
 										children: [
-											enterprise.icon!.isEmpty ? Container(width: 45, height: 45, color: Colors.grey) : Image.network(tapah.parseimage('小图标/${enterprise.icon}.png'), width: 45, height: 45,)
+											enterprise.icon == null || enterprise.icon!.isEmpty ? Container(width: 45, height: 45, color: Colors.grey) : Image.network(tapah.parseimage('小图标/${enterprise.icon}.png'), width: 45, height: 45,)
 										],
 									),
 									const SizedBox(width: 10),
@@ -195,7 +195,7 @@ class FilterState extends State<FilterWidget> with tapah.Callback {
 											crossAxisAlignment: CrossAxisAlignment.start,
 											children: [
 												AutoSizeText(
-													enterprise.name!,
+													enterprise.name ?? "",
 													style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
 													minFontSize: 10,
 													maxLines: 1,
@@ -213,7 +213,7 @@ class FilterState extends State<FilterWidget> with tapah.Callback {
 													child: Text(tag, style: const TextStyle(color: Color(0xFF692E1F), fontSize: 10)),
 												)).toList()),
 												const SizedBox(height: 8),
-												Text("${enterprise.zone!.value} ${enterprise.city!}", style: const TextStyle(fontSize: 10),),
+												Text("${enterprise.zone?.value ?? ""} ${enterprise.city ?? ""}", style: const TextStyle(fontSize: 10),),
 											],
 										),
 									),

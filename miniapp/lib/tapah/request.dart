@@ -3,6 +3,19 @@ import 'package:qiuzhijia/tapah/class.dart';
 import 'package:qiuzhijia/tapah/data.dart';
 import 'package:qiuzhijia/tapah/function.dart';
 
+List<String> _splitCsv(dynamic value) {
+	if (value == null) return [];
+	if (value is List) {
+		return value.map((e) => e.toString().trim()).where((e) => e.isNotEmpty).toList();
+	}
+	return value.toString().split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
+}
+
+List<dynamic> _asList(dynamic value) {
+	if (value is List) return value;
+	return const [];
+}
+
 Future<void> RequestZoneList() async {
 	var response = await dio.get(parseurl(url_query_zonelist));
 	if (response.data['code'] != 0) {
@@ -81,25 +94,22 @@ Future<(int, int)> RequestEnterpriseList(int zone, int sector, int level, int en
 			enterprise.fields.add(fieldlist.firstWhere((e) => e.id == field));
 		});
 		enterprise.tags = [];
-		item["tag"].split(',').forEach((tag) {
-			if (tag.trim().isEmpty) return;
+		for (var tag in _splitCsv(item["tag"])) {
 			enterprise.tags.add(tag);
-		});
+		}
 		enterprise.website1 = item["website1"];
 		enterprise.website2 = item["website2"];
 		enterprise.icon = item["icon"];
-		var images = item["images"].split(',');
-		for (var image in images) {
-			if (image.trim().isEmpty) continue;
-			enterprise.images.add(image.trim());
+		for (var image in _splitCsv(item["images"])) {
+			enterprise.images.add(image);
 		}
 		if (item["enttype"] != '国企') enterprise.enttype = 1;
 		if (item["enttype"] == '央企') enterprise.enttype = 2;
 		enterprise.financial = item["financial"] == "是";
-		for (var article in item["article1"]) {
+		for (var article in _asList(item["article1"])) {
 			enterprise.article1.add(Article.fromJson(article));
 		}
-		for (var article in item["article2"]) {
+		for (var article in _asList(item["article2"])) {
 			enterprise.article2.add(Article.fromJson(article));
 		}
 		enterpriselist.add(enterprise);
@@ -135,22 +145,20 @@ Future<List<Enterprise>> RequestEnterprise(int zone, int sector, int level, int 
 		item["field"].forEach((field) {
 			enterprise.fields.add(fieldlist.firstWhere((e) => e.id == field));
 		});
-		enterprise.tags = item["tag"].split(',');
+		enterprise.tags = _splitCsv(item["tag"]);
 		enterprise.website1 = item["website1"];
 		enterprise.website2 = item["website2"];
 		enterprise.icon = item["icon"];
-		var images = item["images"].split(',');
-		for (var image in images) {
-			if (image.trim().isEmpty) continue;
-			enterprise.images.add(image.trim());
+		for (var image in _splitCsv(item["images"])) {
+			enterprise.images.add(image);
 		}
 		if (item["enttype"] != '国企') enterprise.enttype = 1;
 		if (item["enttype"] == '央企') enterprise.enttype = 2;
 		enterprise.financial = item["financial"] == "是";
-		for (var article in item["article1"]) {
+		for (var article in _asList(item["article1"])) {
 			enterprise.article1.add(Article.fromJson(article));
 		}
-		for (var article in item["article2"]) {
+		for (var article in _asList(item["article2"])) {
 			enterprise.article2.add(Article.fromJson(article));
 		}
 		list.add(enterprise);
@@ -175,22 +183,20 @@ Future<Enterprise> RequestEnterpriseDetail(int id) async {
 	item["field"].forEach((field) {
 		enterprise.fields.add(fieldlist.firstWhere((e) => e.id == field));
 	});
-	enterprise.tags = item["tag"].split(',');
+	enterprise.tags = _splitCsv(item["tag"]);
 	enterprise.website1 = item["website1"];
 	enterprise.website2 = item["website2"];
 	enterprise.icon = item["icon"];
-	var images = item["images"].split(',');
-	for (var image in images) {
-		if (image.trim().isEmpty) continue;
-		enterprise.images.add(image.trim());
+	for (var image in _splitCsv(item["images"])) {
+		enterprise.images.add(image);
 	}
 	if (item["enttype"] != '国企') enterprise.enttype = 1;
 	if (item["enttype"] == '央企') enterprise.enttype = 2;
 	enterprise.financial = item["financial"] == "是";
-	for (var article in item["article1"]) {
+	for (var article in _asList(item["article1"])) {
 		enterprise.article1.add(Article.fromJson(article));
 	}
-	for (var article in item["article2"]) {
+	for (var article in _asList(item["article2"])) {
 		enterprise.article2.add(Article.fromJson(article));
 	}
 	return enterprise;
@@ -353,22 +359,20 @@ Future<void> RequestFavorite() async {
 		item["field"].forEach((field) {
 			enterprise.fields.add(fieldlist.firstWhere((e) => e.id == field));
 		});
-		enterprise.tags = item["tag"].split(',');
+		enterprise.tags = _splitCsv(item["tag"]);
 		enterprise.website1 = item["website1"];
 		enterprise.website2 = item["website2"];
 		enterprise.icon = item["icon"];
-		var images = item["images"].split(',');
-		for (var image in images) {
-			if (image.trim().isEmpty) continue;
-			enterprise.images.add(image.trim());
+		for (var image in _splitCsv(item["images"])) {
+			enterprise.images.add(image);
 		}
 		if (item["enttype"] != '国企') enterprise.enttype = 1;
 		if (item["enttype"] == '央企') enterprise.enttype = 2;
 		enterprise.financial = item["financial"] == "是";
-		for (var article in item["article1"]) {
+		for (var article in _asList(item["article1"])) {
 			enterprise.article1.add(Article.fromJson(article));
 		}
-		for (var article in item["article2"]) {
+		for (var article in _asList(item["article2"])) {
 			enterprise.article2.add(Article.fromJson(article));
 		}
 		myenterpriselist.add(enterprise);

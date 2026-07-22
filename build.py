@@ -7,6 +7,7 @@ import zipfile
 shutil.copyfile('./main.wechat', 'miniapp/lib/main.dart')
 os.chdir('miniapp')
 os.system('dart scripts/build_wechat.dart')
+os.system('python3 scripts/patch_pc_wheel.py build/wechat/pages/index')
 
 with open('build/wechat/app.json', 'r') as f:
     appdata = json.loads(f.read())
