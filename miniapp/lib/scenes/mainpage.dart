@@ -153,11 +153,7 @@ class MainPageState extends State<MainPageWidget> with tapah.Callback {
 													child: GestureDetector(
 														behavior: HitTestBehavior.opaque,
 														onTap: () {
-															if (tapah.accountinfo == null) {
-																setState(() => _setTabIndex(4));
-															} else {
-																tapah.navigator(context, '/mainpage/example');
-															}
+															tapah.navigator(context, '/mainpage/example');
 														},
 														child: Column(
 															mainAxisSize: MainAxisSize.min,
