@@ -104,6 +104,7 @@ Future<void> RequestEnterpriseList(int page) async {
 		enterprise.city = item["city"];
 		enterprise.name = item["name"];
 		enterprise.shortname = item["shortname"];
+		enterprise.englishname = item["englishname"];
 		enterprise.brief = item["brief"];
 		enterprise.upper = item["upper"];
 		enterprise.sector = sectorlist.firstWhere((e) => e.id == item["sector"], orElse: () => Sector(id: 0, value: ""));
@@ -359,6 +360,7 @@ Future<void> RequestAddEnterprise(Enterprise enterprise) async {
 		data: {
 			"name": enterprise.name,
 			"shortname": enterprise.shortname,
+			"englishname": enterprise.englishname,
 			"zone": zonelist.firstWhere((z) => z.id == enterprise.zone?.id).value,
 			"city": enterprise.city,
 			"brief": enterprise.brief,
@@ -390,6 +392,7 @@ Future<void> RequestEditEnterprise(Enterprise enterprise) async {
 			"id": enterprise.id,
 			"name": enterprise.name,
 			"shortname": enterprise.shortname,
+			"englishname": enterprise.englishname,
 			"zone": zonelist.firstWhere((z) => z.id == enterprise.zone?.id).value,
 			"city": enterprise.city,
 			"brief": enterprise.brief,

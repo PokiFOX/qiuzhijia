@@ -126,6 +126,7 @@ class Enterprise {
 	String? city;
 	String? name;
 	String? shortname;
+	String? englishname;
 	String? brief;
 	String? upper;
 	Sector? sector;

@@ -134,12 +134,13 @@ class Article:
 		}
 
 class Enterprise:
-	def __init__(self, id, zone, city, name, shortname, brief, upper, sector, level, website1, website2, tag, icon, images, enttype, financial, mapping):
+	def __init__(self, id, zone, city, name, shortname, brief, upper, sector, level, website1, website2, tag, icon, images, enttype, financial, mapping, englishname=""):
 		self.id = id
 		self.zone = zone
 		self.city = city
 		self.name = name
 		self.shortname = shortname
+		self.englishname = englishname
 		self.brief = brief
 		self.upper = upper
 		self.sector = sector

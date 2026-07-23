@@ -119,14 +119,21 @@ class BriefState extends State<BriefWidget> with tapah.Callback {
 			return TableRow(
 				children: [
 					TableCell(
-						verticalAlignment: TableCellVerticalAlignment.middle,
-						child: Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14,), textAlign: TextAlign.end,),
+						verticalAlignment: TableCellVerticalAlignment.top,
+						child: Padding(
+							padding: const EdgeInsets.only(top: 6),
+							child: Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14,), textAlign: TextAlign.end,),
+						),
 					),
 					TableCell(
 						verticalAlignment: TableCellVerticalAlignment.middle,
 						child: Padding(
 							padding: const EdgeInsets.all(6.0),
-							child: Text(info, style: TextStyle(fontSize: 14, color: action == "" ? Colors.black : Colors.blue),),
+							child: Text(
+								info,
+								softWrap: true,
+								style: TextStyle(fontSize: 14, color: action == "" ? Colors.black : Colors.blue),
+							),
 						),
 					),
 					TableCell(
@@ -149,9 +156,11 @@ class BriefState extends State<BriefWidget> with tapah.Callback {
 					1: FlexColumnWidth(1),
 					2: FixedColumnWidth(70),
 				},
+				defaultVerticalAlignment: TableCellVerticalAlignment.top,
 				children: [
 					buildRow("全称:", widget.enterprise.name ?? '', "", null),
-					buildRow("简称:", '', "", null),
+					buildRow("英文名:", widget.enterprise.englishname ?? '', "", null),
+					buildRow("简称:", widget.enterprise.shortname ?? '', "", null),
 					buildRow("上级单位:", widget.enterprise.upper ?? '', "", null),
 					buildRow("行业类别:", widget.enterprise.sector?.value ?? '', "", null),
 					buildRow("公司层级:", widget.enterprise.level?.value ?? '', "", null),

@@ -5,6 +5,7 @@ import 'package:pluto_grid/pluto_grid.dart';
 import 'package:frontend/tapah/class.dart' as tapah;
 import 'package:frontend/tapah/data.dart' as tapah;
 import 'package:frontend/tapah/request.dart' as tapah;
+import 'package:frontend/wigets/inputfield.dart' as widgets;
 
 class EnterpriseWidget extends StatefulWidget {
 	const EnterpriseWidget({super.key});
@@ -73,6 +74,13 @@ class EnterpriseState extends State<EnterpriseWidget> {
 				enableColumnDrag: false,
 			),
 			PlutoColumn(
+				title: '英文名',
+				field: 'englishname',
+				type: PlutoColumnType.text(),
+				enableEditingMode: true,
+				enableColumnDrag: false,
+			),
+			PlutoColumn(
 				title: '简介',
 				field: 'brief',
 				type: PlutoColumnType.text(),
@@ -107,26 +115,19 @@ class EnterpriseState extends State<EnterpriseWidget> {
 				enableEditingMode: true,
 				enableColumnDrag: false,
 				renderer: (renderercontext) {
-					var fields = renderercontext.row.cells['field']!.value.toString().split(',').where((element) => element.isNotEmpty).toList();
+					var fieldLabels = renderercontext.row.cells['field']!.value.toString().split(',').where((element) => element.isNotEmpty).toList();
 					return GestureDetector(
 						onTap: () async {
 							var enterprise = tapah.enterpriselist.firstWhere((element) => element.id == renderercontext.row.cells['id']!.value);
-							String? fields = await widgets.showInputFieldDialog(context, enterprise.mapping);
-							if (fields == null) return;
-							enterprise.fields = [];
-							for (var field in fields.split(',')) {
-								for (var f in tapah.fieldlist) {
-									if (f.mapping.contains(field)) {
-										enterprise.fields.add(f);
-									}
-								}
-							}
-							enterprise.mapping = fields;
+							final selected = await widgets.showInputFieldDialog(context, List<tapah.Field>.from(enterprise.fields));
+							if (selected == null) return;
+							enterprise.fields = selected;
+							enterprise.mapping = selected.map((e) => e.value).join(',');
 							await tapah.RequestEditEnterprise(enterprise);
 							await getEnterpriseList();
 							setState(() {});
 						},
-						child: Text(fields.join(', '), style: const TextStyle(color: Colors.blue, decoration: TextDecoration.underline,),),
+						child: Text(fieldLabels.join(', '), style: const TextStyle(color: Colors.blue, decoration: TextDecoration.underline,),),
 					);
 				},
 			),
@@ -274,6 +275,7 @@ class EnterpriseState extends State<EnterpriseWidget> {
 					'zone': PlutoCell(value: enterprise.zone?.value ?? ""),
 					'city': PlutoCell(value: enterprise.city ?? ""),
 					'shortname': PlutoCell(value: enterprise.shortname ?? ""),
+					'englishname': PlutoCell(value: enterprise.englishname ?? ""),
 					'brief': PlutoCell(value: enterprise.brief ?? ""),
 					'upper': PlutoCell(value: enterprise.upper ?? ""),
 					'sector': PlutoCell(value: enterprise.sector?.value ?? ""),
@@ -299,6 +301,7 @@ class EnterpriseState extends State<EnterpriseWidget> {
 				'zone': PlutoCell(value: ""),
 				'city': PlutoCell(value: ""),
 				'shortname': PlutoCell(value: ""),
+				'englishname': PlutoCell(value: ""),
 				'brief': PlutoCell(value: ""),
 				'upper': PlutoCell(value: ""),
 				'sector': PlutoCell(value: ""),
@@ -356,6 +359,15 @@ class EnterpriseState extends State<EnterpriseWidget> {
 													break;
 												case 'value':
 													enterprise.name = value;
+													break;
+												case 'shortname':
+													enterprise.shortname = value;
+													break;
+												case 'englishname':
+													enterprise.englishname = value;
+													break;
+												case 'brief':
+													enterprise.brief = value;
 													break;
 												default:
 											}

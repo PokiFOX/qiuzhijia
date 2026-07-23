@@ -150,6 +150,7 @@ async def query_enterprise(req: Request):
 			"website1": enterprise.website1,
 			"website2": enterprise.website2,
 			"shortname": enterprise.shortname,
+			"englishname": getattr(enterprise, "englishname", "") or "",
 			"icon": enterprise.icon,
 			"images": enterprise.images,
 			"enttype": enterprise.enttype,
@@ -194,6 +195,7 @@ async def query_enterprisedetail(req: Request):
 					"website1": enterprise.website1,
 					"website2": enterprise.website2,
 					"shortname": enterprise.shortname,
+					"englishname": getattr(enterprise, "englishname", "") or "",
 					"icon": enterprise.icon,
 					"images": enterprise.images,
 					"enttype": enterprise.enttype,
@@ -310,6 +312,7 @@ async def insert_enterprise(req: Request):
 	city = json.get("city")
 	name = json.get("name")
 	shortname = json.get("shortname")
+	englishname = json.get("englishname") or ""
 	brief = json.get("brief")
 	upper = json.get("upper")
 	sector = json.get("sector")
@@ -353,11 +356,11 @@ async def insert_enterprise(req: Request):
 	cursor = conn.cursor()
 
 	cursor.execute(
-		"INSERT INTO qzj_enterprise (zone, city, name, shortname, brief, upper, level, sector, tag, website1, website2, icon, images, enttype, financial, mapping) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-		(zone_item.id, city, name, shortname, brief, upper, level_item.id, sector_item.id, tag, website1, website2, icon, images, enttype, financial, field)
+		"INSERT INTO qzj_enterprise (zone, city, name, shortname, brief, upper, level, sector, tag, website1, website2, icon, images, enttype, financial, mapping, englishname) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+		(zone_item.id, city, name, shortname, brief, upper, level_item.id, sector_item.id, tag, website1, website2, icon, images, enttype, financial, field, englishname)
 	)
 	enterprise_id = cursor.lastrowid
-	enterprise = Enterprise(enterprise_id, zone_item.id, city, name, shortname, brief, upper, sector_item.id, level_item.id, website1, website2, tag.split(','), icon, images, enttype, financial, field)
+	enterprise = Enterprise(enterprise_id, zone_item.id, city, name, shortname, brief, upper, sector_item.id, level_item.id, website1, website2, tag.split(','), icon, images, enttype, financial, field, englishname)
 	for fid in fieldlist:
 		cursor.execute(
 			"INSERT IGNORE INTO qzj_enterprise_field (enterprise_id, field) VALUES (%s, %s)",
@@ -841,6 +844,7 @@ async def edit_enterprise(req: Request):
 	city = json.get("city")
 	name = json.get("name")
 	shortname = json.get("shortname")
+	englishname = json.get("englishname") or ""
 	brief = json.get("brief")
 	upper = json.get("upper")
 	level = json.get("level")
@@ -883,13 +887,14 @@ async def edit_enterprise(req: Request):
 	cursor = conn.cursor()
 
 	cursor.execute(
-		"UPDATE qzj_enterprise SET zone=%s, city=%s, name=%s, shortname=%s, brief=%s, upper=%s, level=%s, sector=%s, tag=%s, website1=%s, website2=%s, icon=%s, images=%s, enttype=%s, financial=%s, mapping=%s WHERE id=%s",
-		(zone_id.id, city, name, shortname, brief, upper, level_id.id, sector_id.id, tag, website1, website2, icon, images, enttype, financial, field, id)
+		"UPDATE qzj_enterprise SET zone=%s, city=%s, name=%s, shortname=%s, brief=%s, upper=%s, level=%s, sector=%s, tag=%s, website1=%s, website2=%s, icon=%s, images=%s, enttype=%s, financial=%s, mapping=%s, englishname=%s WHERE id=%s",
+		(zone_id.id, city, name, shortname, brief, upper, level_id.id, sector_id.id, tag, website1, website2, icon, images, enttype, financial, field, englishname, id)
 	)
 	enterprise.zone = zone_id.id
 	enterprise.city = city
 	enterprise.name = name
 	enterprise.shortname = shortname
+	enterprise.englishname = englishname
 	enterprise.brief = brief
 	enterprise.upper = upper
 	enterprise.level = level_id.id
@@ -1198,6 +1203,7 @@ async def favorite(req: Request):
 					"website1": enterprise.website1,
 					"website2": enterprise.website2,
 					"shortname": enterprise.shortname,
+					"englishname": getattr(enterprise, "englishname", "") or "",
 					"icon": enterprise.icon,
 					"images": enterprise.images,
 					"enttype": enterprise.enttype,

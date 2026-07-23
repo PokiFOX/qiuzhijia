@@ -86,6 +86,8 @@ Future<(int, int)> RequestEnterpriseList(int zone, int sector, int level, int en
 		enterprise.zone = zonelist.firstWhere((e) => e.id == item["zone"]);
 		enterprise.city = item["city"];
 		enterprise.name = item["name"];
+		enterprise.shortname = item["shortname"];
+		enterprise.englishname = item["englishname"];
 		enterprise.brief = item["brief"];
 		enterprise.upper = item["upper"];
 		enterprise.sector = sectorlist.firstWhere((e) => e.id == item["sector"]);
@@ -138,6 +140,8 @@ Future<List<Enterprise>> RequestEnterprise(int zone, int sector, int level, int 
 		enterprise.zone = zonelist.firstWhere((e) => e.id == item["zone"]);
 		enterprise.city = item["city"];
 		enterprise.name = item["name"];
+		enterprise.shortname = item["shortname"];
+		enterprise.englishname = item["englishname"];
 		enterprise.brief = item["brief"];
 		enterprise.upper = item["upper"];
 		enterprise.sector = sectorlist.firstWhere((e) => e.id == item["sector"]);
@@ -176,6 +180,8 @@ Future<Enterprise> RequestEnterpriseDetail(int id) async {
 	enterprise.zone = zonelist.firstWhere((e) => e.id == item["zone"]);
 	enterprise.city = item["city"];
 	enterprise.name = item["name"];
+	enterprise.shortname = item["shortname"];
+	enterprise.englishname = item["englishname"];
 	enterprise.brief = item["brief"];
 	enterprise.upper = item["upper"];
 	enterprise.sector = sectorlist.firstWhere((e) => e.id == item["sector"]);
@@ -352,6 +358,8 @@ Future<void> RequestFavorite() async {
 		enterprise.zone = zonelist.firstWhere((e) => e.id == item["zone"]);
 		enterprise.city = item["city"];
 		enterprise.name = item["name"];
+		enterprise.shortname = item["shortname"];
+		enterprise.englishname = item["englishname"];
 		enterprise.brief = item["brief"];
 		enterprise.upper = item["upper"];
 		enterprise.sector = sectorlist.firstWhere((e) => e.id == item["sector"]);
