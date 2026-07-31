@@ -118,14 +118,14 @@ class FavoriteState extends State<FavoriteWidget> with tapah.Callback {
 							tapah.navigator(context, '/enterprise/detail', arguments: {"enterprise": enterprise.id});
 						},
 						child: Container(
-							height: 100,
+							height: 125,
 							decoration: BoxDecoration(
 								color: Colors.white,
 								borderRadius: BorderRadius.circular(8),
 							),
 							padding: const EdgeInsets.all(10),
 							child: Row(
-								mainAxisAlignment: MainAxisAlignment.start,
+								crossAxisAlignment: CrossAxisAlignment.center,
 								children: [
 									Column(
 										mainAxisAlignment: MainAxisAlignment.center,
@@ -136,7 +136,7 @@ class FavoriteState extends State<FavoriteWidget> with tapah.Callback {
 									const SizedBox(width: 10),
 									Expanded(
 										child: Column(
-											mainAxisAlignment: MainAxisAlignment.start,
+											mainAxisAlignment: MainAxisAlignment.center,
 											crossAxisAlignment: CrossAxisAlignment.start,
 											children: [
 												AutoSizeText(
@@ -146,6 +146,21 @@ class FavoriteState extends State<FavoriteWidget> with tapah.Callback {
 													maxLines: 1,
 													overflow: TextOverflow.ellipsis,
 												),
+												if ((enterprise.englishname ?? "").isNotEmpty) ...[
+													const SizedBox(height: 2),
+													SizedBox(
+														height: 28,
+														child: Align(
+															alignment: Alignment.centerLeft,
+															child: Text(
+																enterprise.englishname!,
+																style: const TextStyle(fontSize: 11, color: Color(0xFF888888), height: 1.25),
+																maxLines: 2,
+																overflow: TextOverflow.ellipsis,
+															),
+														),
+													),
+												],
 												const SizedBox(height: 4),
 												if (enterprise.tags.isNotEmpty) SingleChildScrollView(
 													scrollDirection: Axis.horizontal,

@@ -17,6 +17,7 @@ class FieldWidget extends StatefulWidget {
 
 class FieldState extends State<FieldWidget> with tapah.Callback {
 	final TextEditingController _searchController = TextEditingController();
+	final ScrollController _scrollController = ScrollController();
 	final Map<int, GlobalKey> _itemKeys = {};
 	bool _didAutoScroll = false;
 	String _searchText = "";
@@ -41,10 +42,12 @@ class FieldState extends State<FieldWidget> with tapah.Callback {
 	@override
 	void dispose() {
 		_searchController.dispose();
+		_scrollController.dispose();
 		uninitCallback();
 		super.dispose();
 	}
 
+	@override
 	Widget build(BuildContext context) {
 		_scheduleAutoScrollIfNeeded();
 		var displayList = tapah.fieldlist.where((e) {
@@ -54,103 +57,121 @@ class FieldState extends State<FieldWidget> with tapah.Callback {
 			if (_searchText.isEmpty) return true;
 			return e.value.contains(_searchText) || e.type.contains(_searchText) || e.content.contains(_searchText);
 		}).toList();
-		return tapah.buildMain1(context, [
-			Padding(
-				padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
-				child: Row(
-					children: [
-						GestureDetector(
-							onTap: () async {
-								String fields = _selectedFields?.map((e) => e.id).join(",") ?? "";
-								tapah.navigator(context, "/mainpage/fieldlist", arguments: {"fields": fields},);
-							},
-							child: Row(
-								children: [
-									Text("专业列表", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,),),
-									Icon(Icons.arrow_drop_down),
-								],
-							),
-						),
-						const SizedBox(width: 10,),
-						Expanded(child: Container(
-								padding: EdgeInsets.symmetric(horizontal: 12),
-								decoration: BoxDecoration(
-									color: Color(0xFFF2F4F8),
-									borderRadius: BorderRadius.circular(24),
-								),
-								child: TextField(
-									controller: _searchController,
-									decoration: InputDecoration(
-										hintText: '搜索你的专业',
-										border: InputBorder.none,
-										icon: Icon(Icons.search, color: Color(0xFF2D7BFF)),
-									),
-									onChanged: (value) {
-										setState(() {
-											_searchText = value.trim();
-										});
+		final metrics = tapah.getWechatNavMetrics(context);
+		final showBack = Navigator.canPop(context);
+		// Same scroll pattern as 招聘企业: Expanded + scrolling ListView
+		// (NeverScrollableScrollPhysics inside SingleChildScrollView steals wheel drags).
+		return tapah.wrapSwipePop(context, SizedBox.expand(
+			child: Material(
+			child: Column(
+				children: [
+					tapah.buildWechatNavBar(
+						context,
+						metrics: metrics,
+						showBack: showBack,
+					),
+					Padding(
+						padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+						child: Row(
+							children: [
+								GestureDetector(
+									onTap: () async {
+										String fields = _selectedFields?.map((e) => e.id).join(",") ?? "";
+										tapah.navigator(context, "/mainpage/fieldlist", arguments: {"fields": fields},);
 									},
+									child: Row(
+										children: [
+											Text("专业列表", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,),),
+											Icon(Icons.arrow_drop_down),
+										],
+									),
 								),
+								const SizedBox(width: 10,),
+								Expanded(child: Container(
+										padding: EdgeInsets.symmetric(horizontal: 12),
+										decoration: BoxDecoration(
+											color: Color(0xFFF2F4F8),
+											borderRadius: BorderRadius.circular(24),
+										),
+										child: TextField(
+											controller: _searchController,
+											decoration: InputDecoration(
+												hintText: '搜索你的专业',
+												border: InputBorder.none,
+												icon: Icon(Icons.search, color: Color(0xFF2D7BFF)),
+											),
+											onChanged: (value) {
+												setState(() {
+													_searchText = value.trim();
+												});
+											},
+										),
+									),
+								),
+							],
+						),
+					),
+					const SizedBox(height: 12),
+					Expanded(
+						child: Padding(
+							padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+							child: ListView.separated(
+								controller: _scrollController,
+								padding: EdgeInsets.zero,
+								physics: const BouncingScrollPhysics(),
+								primary: false,
+								shrinkWrap: false,
+								itemCount: displayList.length,
+								separatorBuilder: (context, index) => const SizedBox(height: 10),
+								itemBuilder: (context, index) {
+									var field = displayList[index];
+									if (field.id == 1) {
+										return const SizedBox.shrink();
+									}
+									var itemKey = _itemKeys.putIfAbsent(field.id, () => GlobalKey());
+									return GestureDetector(
+										key: itemKey,
+										onTap: () {
+											tapah.navigator(context, "/mainpage/fielddetail", arguments: {"field": field.id},);
+										},
+										child: Container(
+											width: double.infinity,
+											padding: EdgeInsets.all(10),
+											decoration: BoxDecoration(
+												border: Border.all(color: Color(0xFF2D7BFF), width: 1),
+												borderRadius: BorderRadius.circular(8),
+											),
+											child: Column(
+												mainAxisAlignment: MainAxisAlignment.start,
+												crossAxisAlignment: CrossAxisAlignment.start,
+												children: [
+													Text(field.value, style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold,),),
+													const SizedBox(height: 5,),
+													Text("学科门类: ${field.type}", style: TextStyle(fontSize: 11, color: Colors.black),),
+													Row(
+														mainAxisAlignment: MainAxisAlignment.start,
+														children: [
+															Text("专业热门度:", style: TextStyle(fontSize: 11, color: Colors.black),),
+															const SizedBox(width: 5,),
+															...List.generate(
+																field.star,
+																(_) => Icon(Icons.star, size: 16, color: Colors.orange,),
+															),
+														],
+													),
+													ExpandableText(field.content, expandText: '展开', collapseText: '收起', maxLines: 3, linkColor: Colors.blue,),
+												],
+											),
+										),
+									);
+								},
 							),
 						),
-					],
-				),
+					),
+				],
 			),
-			const SizedBox(height: 12),
-			Padding(
-				padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
-				child: ListView.separated(
-					padding: EdgeInsets.zero,
-					shrinkWrap: true,
-					physics: const NeverScrollableScrollPhysics(),
-					itemCount: displayList.length,
-					separatorBuilder: (context, index) => const SizedBox(height: 10),
-					itemBuilder: (context, index) {
-						var field = displayList[index];
-						if (field.id == 1) {
-							return Container();
-						}
-						var itemKey = _itemKeys.putIfAbsent(field.id, () => GlobalKey());
-						return GestureDetector(
-							key: itemKey,
-							onTap: () {
-								tapah.navigator(context, "/mainpage/fielddetail", arguments: {"field": field.id},);
-							},
-							child: Container(
-								width: double.infinity,
-								padding: EdgeInsets.all(10),
-								decoration: BoxDecoration(
-									border: Border.all(color: Color(0xFF2D7BFF), width: 1),
-									borderRadius: BorderRadius.circular(8),
-								),
-								child: Column(
-									mainAxisAlignment: MainAxisAlignment.start,
-									crossAxisAlignment: CrossAxisAlignment.start,
-									children: [
-										Text(field.value, style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold,),),
-										const SizedBox(height: 5,),
-										Text("学科门类: ${field.type}", style: TextStyle(fontSize: 11, color: Colors.black),),
-										Row(
-											mainAxisAlignment: MainAxisAlignment.start,
-											children: [
-												Text("专业热门度:", style: TextStyle(fontSize: 11, color: Colors.black),),
-												const SizedBox(width: 5,),
-												...List.generate(
-													field.star,
-													(_) => Icon(Icons.star, size: 16, color: Colors.orange,),
-												),
-											],
-										),
-										ExpandableText(field.content, expandText: '展开', collapseText: '收起', maxLines: 3, linkColor: Colors.blue,),
-										//widgets.ExpandableText(field.content, expandText: '展开', collapseText: '收起', maxLines: 3, linkColor: Colors.blue,),
-									],
-								),
-							),
-						);
-					},
-				),
-			),
-		]);
+		),
+		));
 	}
 
 	void _scheduleAutoScrollIfNeeded() {

@@ -73,16 +73,29 @@ WechatNavMetrics getWechatNavMetrics(BuildContext context) {
 }
 
 Widget wrapSwipePop(BuildContext context, Widget child) {
-	return GestureDetector(
-		behavior: HitTestBehavior.translucent,
-		onHorizontalDragEnd: (details) {
-			if (details.primaryVelocity != null && details.primaryVelocity! < -200) {
-				if (Navigator.canPop(context)) {
-					Navigator.pop(context);
-				}
-			}
-		},
-		child: child,
+	// Only the left edge listens for swipe-back. A full-page HorizontalDrag
+	// GestureDetector steals PC wheel synthetic vertical drags from ListViews.
+	return Stack(
+		fit: StackFit.expand,
+		children: [
+			child,
+			Positioned(
+				left: 0,
+				top: 0,
+				bottom: 0,
+				width: 24,
+				child: GestureDetector(
+					behavior: HitTestBehavior.translucent,
+					onHorizontalDragEnd: (details) {
+						if (details.primaryVelocity != null && details.primaryVelocity! < -200) {
+							if (Navigator.canPop(context)) {
+								Navigator.pop(context);
+							}
+						}
+					},
+				),
+			),
+		],
 	);
 }
 

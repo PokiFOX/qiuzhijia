@@ -173,14 +173,14 @@ class FilterState extends State<FilterWidget> with tapah.Callback {
 							tapah.navigator(context, '/enterprise/detail', arguments: {"enterprise": enterprise.id});
 						},
 						child: Container(
-							height: 100,
+							height: 125,
 							decoration: BoxDecoration(
 								color: Colors.white,
 								borderRadius: BorderRadius.circular(8),
 							),
 							padding: const EdgeInsets.all(10),
 							child: Row(
-								mainAxisAlignment: MainAxisAlignment.start,
+								crossAxisAlignment: CrossAxisAlignment.center,
 								children: [
 									Column(
 										mainAxisAlignment: MainAxisAlignment.center,
@@ -201,6 +201,21 @@ class FilterState extends State<FilterWidget> with tapah.Callback {
 													maxLines: 1,
 													overflow: TextOverflow.ellipsis,
 												),
+												if ((enterprise.englishname ?? "").isNotEmpty) ...[
+													const SizedBox(height: 2),
+													SizedBox(
+														height: 28,
+														child: Align(
+															alignment: Alignment.centerLeft,
+															child: Text(
+																enterprise.englishname!,
+																style: const TextStyle(fontSize: 11, color: Color(0xFF888888), height: 1.25),
+																maxLines: 2,
+																overflow: TextOverflow.ellipsis,
+															),
+														),
+													),
+												],
 												const SizedBox(height: 4),
 												if (enterprise.tags.isNotEmpty) widgets.MarqueeTagsWidget(tags: enterprise.tags.map((tag) => Container(
 													height: 15,

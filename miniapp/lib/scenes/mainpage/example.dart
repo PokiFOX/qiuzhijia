@@ -74,7 +74,8 @@ class ExampleState extends State<ExampleWidget> with tapah.Callback {
 
 	@override
 	Widget build(BuildContext context) {
-		return tapah.wrapSwipePop(context, Material(
+		return tapah.wrapSwipePop(context, SizedBox.expand(
+			child: Material(
 			child: Column(
 				children: [
 					tapah.buildWechatNavBar(
@@ -144,14 +145,30 @@ class ExampleState extends State<ExampleWidget> with tapah.Callback {
 					Expanded(child: buildExampleList()),
 				],
 			),
+			),
 		));
 	}
 
 	Widget _wrapLoginOverlay(Widget child) {
+		// Blur is IgnorePointer so PC wheel hits the ListView.
+		// Login button is offset from center (wheel emits near center).
 		return Stack(
 			children: [
 				child,
 				Positioned.fill(
+					child: IgnorePointer(
+						child: ClipRect(
+							child: BackdropFilter(
+								filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+								child: Container(
+									color: Colors.black.withOpacity(0.12),
+								),
+							),
+						),
+					),
+				),
+				Align(
+					alignment: const Alignment(0, 0.35),
 					child: MPFlutter_Wechat_Button(
 						openType: "getPhoneNumber",
 						onGetPhoneNumber: (result) async {
@@ -159,19 +176,17 @@ class ExampleState extends State<ExampleWidget> with tapah.Callback {
 							if (!mounted) return;
 							setState(() {});
 						},
-						child: ClipRect(
-							child: BackdropFilter(
-								filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
-								child: Container(
-									color: Colors.black.withOpacity(0.12),
-									alignment: Alignment.center,
-									child: const Text(
-										'请先登录再查看',
-										style: TextStyle(
-											color: Colors.white,
-											fontSize: 16,
-											fontWeight: FontWeight.w600,
-										),
+						child: Material(
+							color: Colors.black.withOpacity(0.55),
+							borderRadius: BorderRadius.circular(8),
+							child: const Padding(
+								padding: EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+								child: Text(
+									'请先登录再查看',
+									style: TextStyle(
+										color: Colors.white,
+										fontSize: 16,
+										fontWeight: FontWeight.w600,
 									),
 								),
 							),

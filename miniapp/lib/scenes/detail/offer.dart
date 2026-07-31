@@ -35,57 +35,57 @@ class OfferState extends State<OfferWidget> with tapah.Callback {
 		if (articles.isEmpty) {
 			return const Center(child: Text("暂无招聘咨询文章", style: TextStyle(fontSize: 16, color: Colors.grey)));
 		}
-		return ListView.separated(
-			shrinkWrap: true,
-			physics: const NeverScrollableScrollPhysics(),
+		return Padding(
 			padding: const EdgeInsets.all(10),
-			itemCount: articles.length,
-			separatorBuilder: (context, index) => const SizedBox(height: 10),
-			itemBuilder: (context, index) {
-				var article = articles[index];
-				return MPFlutter_Wechat_Button(
-					onTap: (_) {
-						tapah.openOfficialAccountArticle(article.article);
-					},
-					child: Container(
-						decoration: BoxDecoration(
-							color: Colors.white,
-							borderRadius: BorderRadius.circular(8),
-						),
-						padding: const EdgeInsets.all(10),
-						child: Row(
-							crossAxisAlignment: CrossAxisAlignment.start,
-							children: [
-								Expanded(
-									child: SizedBox(
-										height: 80,
-										child: Column(
-											crossAxisAlignment: CrossAxisAlignment.start,
-											children: [
-												Text(
-													article.title.isNotEmpty ? article.title : "未知标题",
-													style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
-													maxLines: 2,
-													overflow: TextOverflow.ellipsis,
-												),
-												const SizedBox(height: 4),
-												Expanded(
-													child: Text(
-														article.description,
-														style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-														maxLines: 2,
-														overflow: TextOverflow.ellipsis,
-													),
-												),
-											],
-										),
-									),
+			child: Column(
+				children: [
+					for (int index = 0; index < articles.length; index++) ...[
+						if (index > 0) const SizedBox(height: 10),
+						MPFlutter_Wechat_Button(
+							onTap: (_) {
+								tapah.openOfficialAccountArticle(articles[index].article);
+							},
+							child: Container(
+								decoration: BoxDecoration(
+									color: Colors.white,
+									borderRadius: BorderRadius.circular(8),
 								),
-							],
+								padding: const EdgeInsets.all(10),
+								child: Row(
+									crossAxisAlignment: CrossAxisAlignment.start,
+									children: [
+										Expanded(
+											child: SizedBox(
+												height: 80,
+												child: Column(
+													crossAxisAlignment: CrossAxisAlignment.start,
+													children: [
+														Text(
+															articles[index].title.isNotEmpty ? articles[index].title : "未知标题",
+															style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
+															maxLines: 2,
+															overflow: TextOverflow.ellipsis,
+														),
+														const SizedBox(height: 4),
+														Expanded(
+															child: Text(
+																articles[index].description,
+																style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+																maxLines: 2,
+																overflow: TextOverflow.ellipsis,
+															),
+														),
+													],
+												),
+											),
+										),
+									],
+								),
+							),
 						),
-					),
-				);
-			},
+					],
+				],
+			),
 		);
 	}
 }

@@ -156,6 +156,7 @@ class Enterprise:
 		self.article2 = []
 		self.field = []
 		self.mapping = mapping
+		print(f'enterprise: {self.id} {self.name} {self.englishname}')
 
 	def addfield(self, field):
 		self.field.append(field)

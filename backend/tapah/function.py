@@ -108,6 +108,7 @@ def init_config():
 		for enterprise in data.enterpriselist:
 			if enterprise.id == row[1]:
 				enterprise.addfield(row[2])
+		print(f'addfield: {row[1]} {row[2]}')
 	cursor.execute("SELECT * FROM qzj_enterprise_article")
 	article_rows = cursor.fetchall()
 	for article in article_rows:
@@ -119,6 +120,7 @@ def init_config():
 				elif article[2] == 2:
 					enterprise.article2.append(info)
 				break
+		print(f'addarticle: {article[1]} {article[2]} {article[3]} {article[4]}')
 	print(f'enterprise: {len(data.enterpriselist)}')
 
 	cursor.execute("SELECT * FROM qzj_case")
