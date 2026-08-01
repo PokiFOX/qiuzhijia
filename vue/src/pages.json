@@ -1,5 +1,120 @@
 {
-	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
+	"pages": [
+		{
+			"path": "pages/splash/splash",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/mainpage/mainpage",
+			"style": {
+				"navigationBarTitleText": "求职家",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/mainpage/filter/filter",
+			"style": {
+				"navigationBarTitleText": "企业列表"
+			}
+		},
+		{
+			"path": "pages/mainpage/field/field",
+			"style": {
+				"navigationBarTitleText": "专业列表"
+			}
+		},
+		{
+			"path": "pages/mainpage/fieldlist/fieldlist",
+			"style": {
+				"navigationBarTitleText": "学科分类"
+			}
+		},
+		{
+			"path": "pages/mainpage/fielddetail/fielddetail",
+			"style": {
+				"navigationBarTitleText": "专业详情"
+			}
+		},
+		{
+			"path": "pages/mainpage/example/example",
+			"style": {
+				"navigationBarTitleText": "过往案例"
+			}
+		},
+		{
+			"path": "pages/mainpage/casefilter/casefilter",
+			"style": {
+				"navigationBarTitleText": "案例筛选"
+			}
+		},
+		{
+			"path": "pages/mainpage/favorite/favorite",
+			"style": {
+				"navigationBarTitleText": "我的关注"
+			}
+		},
+		{
+			"path": "pages/lanmu/aizhushou/aizhushou",
+			"style": {
+				"navigationBarTitleText": "AI助手"
+			}
+		},
+		{
+			"path": "pages/enterprise/detail/detail",
+			"style": {
+				"navigationBarTitleText": "企业详情"
+			}
+		},
+		{
+			"path": "pages/kefu/kefu",
+			"style": {
+				"navigationBarTitleText": "添加顾问"
+			}
+		},
+		{
+			"path": "pages/lanmu/qiuzhiziliao/qiuzhiziliao",
+			"style": {
+				"navigationBarTitleText": "求职资料"
+			}
+		},
+		{
+			"path": "pages/lanmu/shixineitui/shixineitui",
+			"style": {
+				"navigationBarTitleText": "实习内推"
+			}
+		},
+		{
+			"path": "pages/lanmu/gangweineitui/gangweineitui",
+			"style": {
+				"navigationBarTitleText": "岗位内推"
+			}
+		},
+		{
+			"path": "pages/lanmu/zixunguwen/zixunguwen",
+			"style": {
+				"navigationBarTitleText": "咨询顾问"
+			}
+		},
+		{
+			"path": "pages/lanmu/bishitiku/bishitiku",
+			"style": {
+				"navigationBarTitleText": "笔试题库"
+			}
+		},
+		{
+			"path": "pages/lanmu/mianshijingyan/mianshijingyan",
+			"style": {
+				"navigationBarTitleText": "面试经验"
+			}
+		},
+		{
+			"path": "pages/lanmu/qiuzhifuwu/qiuzhifuwu",
+			"style": {
+				"navigationBarTitleText": "求职服务"
+			}
+		},
 		{
 			"path": "pages/index/index",
 			"style": {
