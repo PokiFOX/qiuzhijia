@@ -5,16 +5,36 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
-			"name": "miniapp",
-			"type": "dart",
+			"type": "node",
 			"request": "launch",
-			"program": "${workspaceFolder}/miniapp/lib/main.dart",
-			"cwd": "${workspaceFolder}/miniapp",
-			"args": [
-				"--web-browser-flag", "--disable-web-security",
-				"--web-renderer", "html",
-				"-d", "chrome", "--web-port=22000",
+			"name": "Launch H5",
+			"runtimeExecutable": "npm",
+			"runtimeArgs": ["run", "dev:h5",],
+			"cwd": "${workspaceFolder}/vue",
+			"console": "integratedTerminal",
+		},
+		{
+			"type": "chrome",
+			"request": "launch",
+			"name": "Launch Chrome",
+			"url": "http://localhost:5173",
+			"webRoot": "${workspaceFolder}/vue",
+			"sourceMapPathOverrides": {
+				"webpack:///src/*": "${webRoot}/*",
+				"vue-cli-plugin-uni/*": "${webRoot}/*",
+			}
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Launch mp-weixin",
+			"runtimeExecutable": "npm",
+			"runtimeArgs": [
+				"run", "dev:mp-weixin",
 			],
+			"console": "integratedTerminal",
+			"cwd": "${workspaceFolder}/vue",
+			"internalConsoleOptions": "neverOpen",
 		},
 		{
 			"name":  "config",

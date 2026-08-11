@@ -2,8 +2,36 @@ import { urlheader, backendHost, backendPort } from "./reserved";
 import { SceneID, EventType } from "./enum";
 import { EventManager } from "./class";
 
+let cachedPixelRatio: number | null = null;
+
+function getPixelRatio(): number {
+	if (cachedPixelRatio != null) return cachedPixelRatio;
+	try {
+		const info = uni.getSystemInfoSync();
+		cachedPixelRatio = info.pixelRatio || 2;
+	} catch {
+		cachedPixelRatio = 2;
+	}
+	return cachedPixelRatio;
+}
+
+/** foo.png → foo@2x.png / foo@3x.png；已带 @2x/@3x 则原样返回 */
+function withDensitySuffix(name: string, dpr: number): string {
+	if (/@[23]x(\.[^.]+)?$/i.test(name) || name.includes("@2x.") || name.includes("@3x.")) {
+		return name;
+	}
+	const i = name.lastIndexOf(".");
+	if (i <= 0) return name;
+	const base = name.slice(0, i);
+	const ext = name.slice(i);
+	if (dpr >= 3) return `${base}@3x${ext}`;
+	if (dpr >= 2) return `${base}@2x${ext}`;
+	return name;
+}
+
 export function parseimage(name: string): string {
-	return `${urlheader}/images/${name}`;
+	const densified = withDensitySuffix(name, getPixelRatio());
+	return `${urlheader}/images2/${densified}`;
 }
 
 export function parseurl(url: string): string {

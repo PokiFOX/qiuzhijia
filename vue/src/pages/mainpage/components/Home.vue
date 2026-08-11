@@ -1,41 +1,85 @@
 <template>
 	<view class="home-container">
-		<!-- 动态顶部留白 -->
-		<view :style="{ height: `${navBarHeight}px` }"></view>
+		<view class="home-top-panel">
+			<!-- Swiper Banner -->
+			<swiper
+				class="swiper-banner"
+				circular
+				autoplay
+				:interval="3000"
+				indicator-dots
+				indicator-active-color="#1269FF"
+				indicator-color="rgba(0,0,0,.3)"
+			>
+				<swiper-item v-for="(img, idx) in imageurls" :key="idx">
+					<image class="swiper-image" :src="parseimage(img)" mode="aspectFill" />
+				</swiper-item>
+			</swiper>
 
-		<!-- Swiper Banner -->
-		<swiper
-			class="swiper-banner"
-			circular
-			autoplay
-			:interval="3000"
-			indicator-dots
-			indicator-active-color="#007aff"
-			indicator-color="rgba(0,0,0,.3)"
-		>
-			<swiper-item v-for="(img, idx) in imageurls" :key="idx">
-				<image class="swiper-image" :src="parseimage(img)" mode="aspectFill" />
-			</swiper-item>
-		</swiper>
-
-		<view class="divider-space"></view>
-
-		<!-- LanMu Grid -->
-		<view class="grid-card">
-			<view class="grid-container">
-				<view
-					class="grid-item"
-					v-for="(item, idx) in lanmus"
-					:key="idx"
-					@tap="onLanMuTap(idx)"
+			<!-- LanMu Grid Card -->
+			<view class="grid-card">
+				<swiper
+					class="lanmu-swiper"
+					:current="lanmuPage"
+					@change="onLanmuPageChange"
 				>
-					<image class="grid-icon" :src="parseimage(item.image)" mode="aspectFit" />
-					<text class="grid-text">{{ item.title }}</text>
+					<swiper-item v-for="(pageItems, pageIdx) in lanmuPages" :key="pageIdx">
+						<view class="lanmu-page">
+							<view class="lanmu-row" v-for="(row, rowIdx) in pageRows(pageItems)" :key="rowIdx">
+								<view
+									class="grid-item"
+									v-for="(item, colIdx) in row"
+									:key="colIdx"
+									:style="{ marginRight: colIdx < 4 ? `${lanmuGap}rpx` : '0' }"
+									@tap="onLanMuTap(pageIdx * 10 + rowIdx * 5 + colIdx)"
+								>
+									<template v-if="item">
+										<image class="grid-icon" :src="parseimage(item.image)" mode="aspectFit" />
+										<text class="grid-text">{{ item.title }}</text>
+									</template>
+									<template v-else>
+										<view class="grid-icon-placeholder" />
+										<text class="grid-text"> </text>
+									</template>
+								</view>
+							</view>
+						</view>
+					</swiper-item>
+				</swiper>
+				<view class="lanmu-dots">
+					<view
+						v-for="(_, idx) in lanmuPages"
+						:key="idx"
+						class="lanmu-dot"
+						:class="{ active: lanmuPage === idx }"
+					/>
+				</view>
+			</view>
+
+			<!-- Promo three images -->
+			<view class="promo-row">
+				<image
+					class="promo-left"
+					:src="parseimage('实习推荐.png')"
+					mode="aspectFill"
+					@tap="onPromoTap('shixineitui')"
+				/>
+				<view class="promo-right">
+					<image
+						class="promo-right-top"
+						:src="parseimage('求职全套.png')"
+						mode="aspectFill"
+						@tap="onPromoTap('qiuzhifuwu')"
+					/>
+					<image
+						class="promo-right-bottom"
+						:src="parseimage('教授科研.png')"
+						mode="aspectFill"
+						@tap="onPromoTap('kefu')"
+					/>
 				</view>
 			</view>
 		</view>
-
-		<view class="divider-space"></view>
 
 		<!-- FenYe Header -->
 		<view class="section-header">
@@ -80,11 +124,33 @@ import {
 	openOfficialAccountArticle,
 	navigator,
 	activateMainPageTab,
-	getWechatNavMetrics,
+	KeFu,
 } from "../../../tapah/function";
-import { lanmus, imageurls } from "../../../tapah/option";
+import { lanmus, imageurls, LanMuInfo } from "../../../tapah/option";
 
-const navBarHeight = computed(() => getWechatNavMetrics().navBarHeight);
+const lanmuPage = ref(0);
+const PAGE_SIZE = 10;
+
+/** Column gap: content 724 - pad 64 - icons 420 → /4 = 60 */
+const lanmuGap = 60;
+
+const lanmuPages = computed(() => {
+	const pages: (LanMuInfo | null)[][] = [];
+	for (let i = 0; i < lanmus.length; i += PAGE_SIZE) {
+		const chunk: (LanMuInfo | null)[] = lanmus.slice(i, i + PAGE_SIZE);
+		while (chunk.length < PAGE_SIZE) chunk.push(null);
+		pages.push(chunk);
+	}
+	return pages.length ? pages : [Array(PAGE_SIZE).fill(null)];
+});
+
+const pageRows = (pageItems: (LanMuInfo | null)[]) => {
+	return [pageItems.slice(0, 5), pageItems.slice(5, 10)];
+};
+
+const onLanmuPageChange = (e: { detail: { current: number } }) => {
+	lanmuPage.value = e.detail.current;
+};
 
 const displayCount = ref(5);
 
@@ -101,18 +167,17 @@ const loadMore = () => {
 	displayCount.value = Math.min(article1.value.length, displayCount.value + 5);
 };
 
-// Expose the loadMore method so the parent page can call it
 defineExpose({
 	loadMore,
 });
 
 const onLanMuTap = (index: number) => {
+	if (index < 0 || index >= lanmus.length) return;
 	if (index === 0) {
 		activateMainPageTab(1);
 	} else if (index === 1) {
 		navigator("/mainpage/field");
 	} else if (index === 2) {
-		// Open mini-program
 		// @ts-ignore
 		if (typeof wx !== "undefined" && wx.navigateToMiniProgram) {
 			// @ts-ignore
@@ -147,6 +212,16 @@ const onLanMuTap = (index: number) => {
 	}
 };
 
+const onPromoTap = (kind: string) => {
+	if (kind === "shixineitui") {
+		navigator("/lanmu/shixineitui");
+	} else if (kind === "qiuzhifuwu") {
+		navigator("/lanmu/qiuzhifuwu");
+	} else {
+		KeFu();
+	}
+};
+
 onMounted(async () => {
 	try {
 		await RequestArticle1();
@@ -160,16 +235,30 @@ onMounted(async () => {
 .home-container {
 	display: flex;
 	flex-direction: column;
+	align-items: center;
 	width: 100%;
-	padding: 0 20rpx;
+	box-sizing: border-box;
+	background-color: #f8f8f8;
+	min-height: 100%;
+}
+
+.home-top-panel {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	width: 100%;
+	background-color: #ffffff;
+	border-radius: 0 0 32rpx 32rpx; /* 底部圆角 16×2 */
+	padding-bottom: 24rpx;
 	box-sizing: border-box;
 }
 
 .swiper-banner {
-	width: 100%;
-	height: 360rpx;
+	width: 724rpx;
+	height: 380rpx;
 	border-radius: 16rpx;
 	overflow: hidden;
+	margin-top: 16rpx;
 }
 
 .swiper-image {
@@ -177,46 +266,142 @@ onMounted(async () => {
 	height: 100%;
 }
 
-.divider-space {
-	height: 40rpx;
-}
-
 .grid-card {
+	width: 724rpx;
+	height: 408rpx;
+	margin-top: 24rpx;
 	background-color: #ffffff;
-	border-radius: 10rpx;
-	padding: 10rpx;
+	border-radius: 20rpx;
+	/* 蓝湖双阴影：offset(0,9) effect(28,8) 5% + offset(0,3) effect(6,-4) 12%，×2→rpx */
+	box-shadow:
+		0 18rpx 56rpx 16rpx rgba(0, 0, 0, 0.05),
+		0 6rpx 12rpx -8rpx rgba(0, 0, 0, 0.12);
+	box-sizing: border-box;
+	padding: 32rpx 32rpx 0 32rpx;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
 }
 
-.grid-container {
-	display: grid;
-	grid-template-columns: repeat(4, 1fr);
-	row-gap: 36rpx;
-	column-gap: 36rpx;
+.lanmu-swiper {
+	width: 100%;
+	height: 320rpx;
+}
+
+.lanmu-page {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+}
+
+.lanmu-row {
+	display: flex;
+	flex-direction: row;
+	width: 100%;
+}
+
+.lanmu-row + .lanmu-row {
+	margin-top: 40rpx;
 }
 
 .grid-item {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	justify-content: center;
+	width: 84rpx;
 }
 
 .grid-icon {
-	width: 106rpx;
-	height: 106rpx;
+	width: 84rpx;
+	height: 84rpx;
+}
+
+.grid-icon-placeholder {
+	width: 84rpx;
+	height: 84rpx;
 }
 
 .grid-text {
-	font-size: 24rpx;
-	color: #333333;
-	margin-top: 8rpx;
+	margin-top: 16rpx;
+	font-size: 22rpx;
+	line-height: 40rpx;
+	color: #3d3d3d;
+	font-weight: 400;
+	text-align: center;
+	width: 120rpx;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+.lanmu-dots {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+	margin-top: 24rpx;
+	margin-bottom: 24rpx;
+}
+
+.lanmu-dot {
+	width: 40rpx;
+	height: 8rpx;
+	border-radius: 4rpx;
+	background-color: #d9d9d9;
+	margin: 0 6rpx;
+}
+
+.lanmu-dot.active {
+	background-color: #1269ff;
+}
+
+.promo-row {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: flex-start;
+	width: 100%;
+	margin-top: 24rpx;
+	box-sizing: border-box;
+}
+
+/* 设计 178×157 → ×2 */
+.promo-left {
+	width: 356rpx;
+	height: 314rpx;
+	flex-shrink: 0;
+	border-radius: 16rpx;
+	overflow: hidden;
+	margin-right: 10rpx; /* 栏间距 5×2 */
+}
+
+.promo-right {
+	display: flex;
+	flex-direction: column;
+	flex-shrink: 0;
+	width: 352rpx; /* 176×2 */
+}
+
+/* 设计 176×75 → ×2；上下间距 157-75-75=7 → 14rpx */
+.promo-right-top,
+.promo-right-bottom {
+	width: 352rpx;
+	height: 150rpx;
+	flex-shrink: 0;
+	border-radius: 16rpx;
+	overflow: hidden;
+}
+
+.promo-right-top {
+	margin-bottom: 14rpx;
 }
 
 .section-header {
-	width: 100%;
+	width: 724rpx;
 	height: 50rpx;
 	display: flex;
 	align-items: center;
+	margin-top: 24rpx;
 }
 
 .section-title-container {
@@ -232,7 +417,9 @@ onMounted(async () => {
 .article-list {
 	display: flex;
 	flex-direction: column;
+	width: 724rpx;
 	margin-top: 10rpx;
+	box-sizing: border-box;
 }
 
 .article-item {

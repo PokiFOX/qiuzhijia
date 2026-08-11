@@ -1,8 +1,5 @@
 <template>
 	<view class="profile-container">
-		<!-- Dynamic Top Spacer -->
-		<view :style="{ height: `${navBarHeight}px` }"></view>
-
 		<view class="page-title-row">
 			<text class="page-title">个人中心</text>
 		</view>
@@ -94,12 +91,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from "vue";
+import { ref, watch, onMounted } from "vue";
 import { accountinfo } from "../../../tapah/data";
-import { parseimage, navigator, getWechatNavMetrics } from "../../../tapah/function";
+import { parseimage, navigator } from "../../../tapah/function";
 import { RequestWxCode, RequestUserInfo } from "../../../tapah/request";
 
-const navBarHeight = computed(() => getWechatNavMetrics().navBarHeight);
 const nicknameInput = ref("");
 
 watch(

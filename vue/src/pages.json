@@ -9,8 +9,7 @@
 		{
 			"path": "pages/mainpage/mainpage",
 			"style": {
-				"navigationBarTitleText": "求职家",
-				"navigationStyle": "custom"
+				"navigationBarTitleText": "浦浦求职家"
 			}
 		},
 		{

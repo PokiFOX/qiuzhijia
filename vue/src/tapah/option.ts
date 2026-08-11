@@ -2,6 +2,7 @@ export const imageurls: string[] = [
 	"轮播1.png",
 	"轮播2.png",
 	"轮播3.png",
+	"轮播4.png",
 ];
 
 export const topimageduration = 3;
@@ -18,16 +19,19 @@ export class LanMuInfo {
 export const lanmus: LanMuInfo[] = [
 	new LanMuInfo({ title: "招聘企业", image: "HOME栏目/招聘企业.png" }),
 	new LanMuInfo({ title: "招聘专业", image: "HOME栏目/招聘专业.png" }),
-	new LanMuInfo({ title: "求职课程", image: "HOME栏目/简历匹配.png" }),
-	new LanMuInfo({ title: "过往案例", image: "HOME栏目/过往案例.png" }),
+	new LanMuInfo({ title: "AI面试", image: "HOME栏目/AI面试.png" }),
 	new LanMuInfo({ title: "AI助手", image: "HOME栏目/AI助手.png" }),
+	new LanMuInfo({ title: "智能选岗", image: "HOME栏目/智能选岗.png" }),
 	new LanMuInfo({ title: "求职资料", image: "HOME栏目/求职资料.png" }),
-	new LanMuInfo({ title: "实习内推", image: "HOME栏目/实习内推.png" }),
 	new LanMuInfo({ title: "岗位内推", image: "HOME栏目/岗位内推.png" }),
 	new LanMuInfo({ title: "咨询顾问", image: "HOME栏目/咨询顾问.png" }),
 	new LanMuInfo({ title: "笔试题库", image: "HOME栏目/笔试题库.png" }),
 	new LanMuInfo({ title: "面试经验", image: "HOME栏目/面试经验.png" }),
+	new LanMuInfo({ title: "实习内推", image: "HOME栏目/实习内推.png" }),
 	new LanMuInfo({ title: "求职服务", image: "HOME栏目/求职服务.png" }),
+	new LanMuInfo({ title: "教授科研", image: "HOME栏目/教授科研.png" }),
+	new LanMuInfo({ title: "过往案例", image: "HOME栏目/过往案例.png" }),
+	new LanMuInfo({ title: "DBTI", image: "HOME栏目/DBTI.png" }),
 ];
 
 export class FenYeInfo {

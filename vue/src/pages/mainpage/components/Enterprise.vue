@@ -1,8 +1,5 @@
 <template>
 	<view class="enterprise-container">
-		<!-- Dynamic Top Spacer to avoid status bar overlap -->
-		<view :style="{ height: `${navBarHeight}px` }"></view>
-
 		<!-- Top Gradient Category Buttons -->
 		<view class="top-row">
 			<view class="cat-btn red-gradient" @tap="onCategoryTap(1, 0)">
@@ -145,7 +142,7 @@
 import { ref, computed, onMounted, onUnmounted } from "vue";
 import { zonelist, sectorlist, levellist, enterpriselist } from "../../../tapah/data";
 import { RequestEnterpriseList } from "../../../tapah/request";
-import { parseimage, navigator, getWechatNavMetrics } from "../../../tapah/function";
+import { parseimage, navigator } from "../../../tapah/function";
 
 // Cache variables outside component instance to persist across tab switches
 let cachedZone = 0;
@@ -166,8 +163,6 @@ const scrollTop = ref(0);
 const currentScrollTop = ref(0);
 const isLoading = ref(false);
 const isFinish = ref(false);
-
-const navBarHeight = computed(() => getWechatNavMetrics().navBarHeight);
 
 // Dropdown ranges
 const zoneRange = computed(() => [{ id: 0, value: "地区" }, ...zonelist.value]);

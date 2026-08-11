@@ -14,8 +14,8 @@
 				</view>
 			</view>
 			<view v-if="activated[3]" v-show="currentindex === 3" class="tab-view">
-				<scroll-view scroll-y style="height: 100%; width: 100%;">
-					<Service showNavBar />
+				<scroll-view scroll-y :show-scrollbar="false" style="height: 100%; width: 100%;">
+					<Service />
 				</scroll-view>
 			</view>
 			<view v-if="activated[4]" v-show="currentindex === 4" class="tab-view">
@@ -24,10 +24,8 @@
 		</view>
 
 		<!-- Custom Bottom Tab Bar -->
-		<view
-			class="bottom-tab-bar"
-			:style="{ backgroundImage: `url(${parseimage('底部按钮/底部按钮底板.png')})` }"
-		>
+		<view class="bottom-tab-bar">
+			<view class="tab-bar-bg" />
 			<view class="tab-item" @tap="switchTab(0)">
 				<image
 					class="tab-icon"
@@ -45,6 +43,7 @@
 				<text class="tab-text" :class="{ active: currentindex === 1 }">招聘企业</text>
 			</view>
 			<view class="tab-item offer-tab" @tap="onOfferTap">
+				<view class="offer-bump" />
 				<image
 					class="tab-icon offer-icon"
 					:src="parseimage(currentindex === 2 ? '底部按钮/offer-选中.png' : '底部按钮/offer-普通.png')"
@@ -138,18 +137,29 @@ onReachBottom(() => {
 	width: 100vw;
 	height: 100vh;
 	box-sizing: border-box;
+	background-color: #f8f8f8;
 }
 
 .tab-content-container {
 	flex: 1;
 	width: 100%;
-	padding-bottom: 180rpx; /* Leave space for bottom tab bar */
+	padding-bottom: calc(148rpx + env(safe-area-inset-bottom));
 	box-sizing: border-box;
+	overflow: hidden;
 }
 
 .tab-view {
 	width: 100%;
 	height: 100%;
+	overflow-y: auto;
+	scrollbar-width: none;
+	-ms-overflow-style: none;
+}
+
+.tab-view::-webkit-scrollbar {
+	display: none;
+	width: 0;
+	height: 0;
 }
 
 .placeholder-container {
@@ -171,14 +181,26 @@ onReachBottom(() => {
 	left: 0;
 	right: 0;
 	bottom: 0;
-	height: 160rpx;
+	height: calc(148rpx + env(safe-area-inset-bottom));
 	display: flex;
 	flex-direction: row;
-	background-size: 100% 100%;
-	background-repeat: no-repeat;
-	padding: 0 10rpx;
+	align-items: flex-end;
+	background-color: transparent;
+	padding: 0;
+	padding-bottom: env(safe-area-inset-bottom);
 	box-sizing: border-box;
 	z-index: 999;
+}
+
+.tab-bar-bg {
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	height: calc(110rpx + env(safe-area-inset-bottom));
+	background-color: #ffffff;
+	border-radius: 24rpx 24rpx 0 0;
+	z-index: 0;
 }
 
 .tab-item {
@@ -187,33 +209,55 @@ onReachBottom(() => {
 	flex-direction: column;
 	align-items: center;
 	justify-content: flex-end;
-	padding-bottom: 16rpx;
-	height: 100%;
+	padding-bottom: 10rpx;
+	height: 110rpx;
 	box-sizing: border-box;
+	position: relative;
+	z-index: 1;
 }
 
 .tab-icon {
-	width: 60rpx;
-	height: 60rpx;
+	width: 48rpx;
+	height: 48rpx;
 }
 
 .offer-tab {
 	justify-content: flex-end;
-	padding-bottom: 16rpx;
+	height: 148rpx;
+	padding-bottom: 10rpx;
+}
+
+/* Keep width === height; bump is centered inside the middle tab */
+.offer-bump {
+	position: absolute;
+	left: 50%;
+	bottom: 42rpx;
+	width: 112rpx;
+	height: 108rpx;
+	margin-left: -56rpx;
+	border-radius: 50%;
+	background-color: #ffffff;
+	z-index: 0;
 }
 
 .offer-icon {
-	width: 120rpx;
-	height: 120rpx;
+	position: relative;
+	z-index: 1;
+	width: 96rpx;
+	height: 96rpx;
+	margin-bottom: 0;
 }
 
 .tab-text {
+	position: relative;
+	z-index: 1;
 	font-size: 20rpx;
-	color: #000000;
-	margin-top: 10rpx;
+	line-height: 28rpx;
+	color: #3d3d3d;
+	margin-top: 4rpx;
 }
 
 .tab-text.active {
-	color: #007aff;
+	color: #1269ff;
 }
 </style>
