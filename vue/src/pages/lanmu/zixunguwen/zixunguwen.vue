@@ -7,7 +7,7 @@
 </template>
 
 <script setup lang="ts">
-import Service from "../../mainpage/components/Service.vue";
+import Service from "../../mainpage/components/service.vue";
 </script>
 
 <style scoped>

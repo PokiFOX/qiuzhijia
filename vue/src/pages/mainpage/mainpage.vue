@@ -2,11 +2,19 @@
 	<view class="mainpage-layout">
 		<!-- Tab contents -->
 		<view class="tab-content-container">
-			<view v-if="activated[0]" v-show="currentindex === 0" class="tab-view">
-				<Home ref="homeRef" />
-			</view>
+			<scroll-view
+				v-if="activated[0]"
+				v-show="currentindex === 0"
+				class="tab-view tab-scroll-view"
+				scroll-y
+				:show-scrollbar="false"
+				:lower-threshold="80"
+				@scrolltolower="onHomeReachBottom"
+			>
+				<home ref="homeRef" />
+			</scroll-view>
 			<view v-if="activated[1]" v-show="currentindex === 1" class="tab-view">
-				<Enterprise ref="enterpriseRef" />
+				<enterprise ref="enterpriseRef" />
 			</view>
 			<view v-if="activated[2]" v-show="currentindex === 2" class="tab-view">
 				<view class="placeholder-container">
@@ -15,11 +23,11 @@
 			</view>
 			<view v-if="activated[3]" v-show="currentindex === 3" class="tab-view">
 				<scroll-view scroll-y :show-scrollbar="false" style="height: 100%; width: 100%;">
-					<Service />
+					<service />
 				</scroll-view>
 			</view>
 			<view v-if="activated[4]" v-show="currentindex === 4" class="tab-view">
-				<Profile />
+				<profile />
 			</view>
 		</view>
 
@@ -74,18 +82,18 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from "vue";
 import { onReachBottom, onLoad } from "@dcloudio/uni-app";
-import Home from "./components/Home.vue";
-import Service from "./components/Service.vue";
-import Enterprise from "./components/Enterprise.vue";
-import Profile from "./components/Profile.vue";
+import home from "./components/home.vue";
+import service from "./components/service.vue";
+import enterprise from "./components/enterprise.vue";
+import profile from "./components/profile.vue";
 import { parseimage, navigator } from "../../tapah/function";
 import { EventManager } from "../../tapah/class";
 import { SceneID, EventType } from "../../tapah/enum";
 
 const currentindex = ref(0);
 const activated = ref([true, false, false, false, false]);
-const homeRef = ref<InstanceType<typeof Home> | null>(null);
-const enterpriseRef = ref<InstanceType<typeof Enterprise> | null>(null);
+const homeRef = ref<InstanceType<typeof home> | null>(null);
+const enterpriseRef = ref<InstanceType<typeof enterprise> | null>(null);
 
 const switchTab = (index: number) => {
 	activated.value[index] = true;
@@ -94,6 +102,11 @@ const switchTab = (index: number) => {
 
 const onOfferTap = () => {
 	navigator("/mainpage/example");
+};
+
+const onHomeReachBottom = () => {
+	if (currentindex.value !== 0) return;
+	homeRef.value?.loadMore();
 };
 
 // Handle programmatical tab activation
@@ -120,11 +133,9 @@ onLoad((options) => {
 	}
 });
 
-// Handle infinite scroll on reach bottom
+// Handle infinite scroll on reach bottom (enterprise tab; home uses scroll-view scrolltolower)
 onReachBottom(() => {
-	if (currentindex.value === 0) {
-		homeRef.value?.loadMore();
-	} else if (currentindex.value === 1) {
+	if (currentindex.value === 1) {
 		enterpriseRef.value?.loadMore();
 	}
 });
@@ -160,6 +171,11 @@ onReachBottom(() => {
 	display: none;
 	width: 0;
 	height: 0;
+}
+
+.tab-scroll-view {
+	height: 100%;
+	overflow: hidden;
 }
 
 .placeholder-container {

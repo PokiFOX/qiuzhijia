@@ -42,8 +42,8 @@ export class FenYeInfo {
 }
 
 export const fenyes: FenYeInfo[] = [
-	new FenYeInfo({ title: "推荐" }),
 	new FenYeInfo({ title: "求职解析" }),
+	new FenYeInfo({ title: "笔面试经验" }),
 	new FenYeInfo({ title: "求职家服务" }),
 ];
 

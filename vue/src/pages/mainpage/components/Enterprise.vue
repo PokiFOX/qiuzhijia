@@ -1,90 +1,96 @@
 <template>
 	<view class="enterprise-container">
-		<!-- Top Gradient Category Buttons -->
+		<!-- Top category images -->
 		<view class="top-row">
-			<view class="cat-btn red-gradient" @tap="onCategoryTap(1, 0)">
-				<text class="cat-btn-text">国有企业</text>
-			</view>
-			<view class="cat-btn orange-gradient" @tap="onCategoryTap(2, 0)">
-				<text class="cat-btn-text">中央企业</text>
-			</view>
-			<view class="cat-btn green-gradient" @tap="onCategoryTap(0, 1)">
-				<text class="cat-btn-text">金融机构</text>
-			</view>
+			<image
+				class="cat-img"
+				:src="parseimage('企业列表/央企国企.png')"
+				mode="widthFix"
+				@tap="onCategoryTap(1, 0)"
+			/>
+			<image
+				class="cat-img"
+				:src="parseimage('企业列表/金融机构.png')"
+				mode="widthFix"
+				@tap="onCategoryTap(0, 1)"
+			/>
+			<image
+				class="cat-img"
+				:src="parseimage('企业列表/成长企业.png')"
+				mode="widthFix"
+				@tap="onCategoryTap(2, 0)"
+			/>
 		</view>
-
-		<view class="divider-space-small"></view>
 
 		<!-- Filter and Search Row -->
 		<view class="filter-row">
-			<view class="dropdown-col">
-				<picker
-					mode="selector"
-					:range="zoneRange"
-					range-key="value"
-					:value="zoneIndex"
-					@change="onZoneChange"
-				>
-					<view class="picker-view">
-						<text class="picker-text">{{ zoneRange[zoneIndex]?.value || "地区" }}</text>
-						<text class="arrow-down">▼</text>
-					</view>
-				</picker>
-			</view>
+			<picker
+				mode="selector"
+				:range="zoneRange"
+				range-key="value"
+				:value="zoneIndex"
+				@change="onZoneChange"
+			>
+				<view class="filter-item">
+					<text class="filter-label">{{ zoneLabel }}</text>
+					<image class="filter-arrow" :src="parseimage('企业列表/下箭头.png')" mode="aspectFit" />
+				</view>
+			</picker>
 
-			<view class="dropdown-col">
-				<picker
-					mode="selector"
-					:range="levelRange"
-					range-key="value"
-					:value="levelIndex"
-					@change="onLevelChange"
-				>
-					<view class="picker-view">
-						<text class="picker-text">{{ levelRange[levelIndex]?.value || "档次" }}</text>
-						<text class="arrow-down">▼</text>
-					</view>
-				</picker>
-			</view>
+			<picker
+				mode="selector"
+				:range="levelRange"
+				range-key="value"
+				:value="levelIndex"
+				@change="onLevelChange"
+			>
+				<view class="filter-item">
+					<text class="filter-label">{{ levelLabel }}</text>
+					<image class="filter-arrow" :src="parseimage('企业列表/下箭头.png')" mode="aspectFit" />
+				</view>
+			</picker>
 
-			<view class="dropdown-col">
-				<picker
-					mode="selector"
-					:range="sectorRange"
-					range-key="value"
-					:value="sectorIndex"
-					@change="onSectorChange"
-				>
-					<view class="picker-view">
-						<text class="picker-text">{{ sectorRange[sectorIndex]?.value || "行业" }}</text>
-						<text class="arrow-down">▼</text>
-					</view>
-				</picker>
-			</view>
+			<picker
+				mode="selector"
+				:range="sectorRange"
+				range-key="value"
+				:value="sectorIndex"
+				@change="onSectorChange"
+			>
+				<view class="filter-item">
+					<text class="filter-label">{{ sectorLabel }}</text>
+					<image class="filter-arrow" :src="parseimage('企业列表/下箭头.png')" mode="aspectFit" />
+				</view>
+			</picker>
 
-			<view class="search-col">
+			<view class="search-box">
 				<input
 					class="search-input"
 					type="text"
 					v-model="search"
 					placeholder="搜索企业"
+					placeholder-class="search-placeholder"
 					confirm-type="search"
 					@confirm="onSearchSubmit"
 				/>
-				<view class="search-icon-btn" @tap="onSearchSubmit">
-					<icon type="search" size="16" color="#2D7BFF" />
-				</view>
+				<image
+					class="search-icon"
+					:src="parseimage('企业列表/搜索.png')"
+					mode="aspectFit"
+					@tap="onSearchSubmit"
+				/>
 			</view>
 		</view>
-
-		<view class="divider-space-small"></view>
 
 		<!-- Enterprise List -->
 		<scroll-view
 			class="list-scroll-view"
 			scroll-y
+			:show-scrollbar="false"
 			:scroll-top="scrollTop"
+			:lower-threshold="80"
 			@scroll="onScroll"
+			@scrolltolower="loadMore"
 		>
 			<view class="list-container">
 				<view
@@ -97,7 +103,7 @@
 						<image
 							v-if="enterprise.icon"
 							class="enterprise-logo"
-							:src="parseimage(`小图标/${enterprise.icon}.png`)"
+							:src="parseEnterpriseIcon(`小图标/${enterprise.icon}.png`)"
 							mode="aspectFit"
 						/>
 						<view v-else class="logo-placeholder"></view>
@@ -108,22 +114,36 @@
 						<text v-if="enterprise.englishname" class="enterprise-english-name">
 							{{ enterprise.englishname }}
 						</text>
-						<view v-if="enterprise.tags && enterprise.tags.length > 0" class="tags-row">
-							<view
-								class="tag-badge"
-								v-for="(tag, tIdx) in enterprise.tags"
-								:key="tIdx"
-							>
-								<text class="tag-text">{{ tag }}</text>
+						<scroll-view
+							v-if="enterprise.tags && enterprise.tags.length > 0"
+							class="tags-scroll"
+							scroll-x
+							:show-scrollbar="false"
+							enable-flex
+						>
+							<view class="tags-row">
+								<view
+									class="tag-badge"
+									v-for="(tag, tIdx) in enterprise.tags"
+									:key="tIdx"
+								>
+									<text class="tag-text">{{ tag }}</text>
+								</view>
 							</view>
+						</scroll-view>
+						<view class="location-row">
+							<image
+								class="location-icon"
+								:src="parseimage('企业列表/定位.png')"
+								mode="aspectFit"
+							/>
+							<text class="location-text">
+								{{ enterprise.zone?.value || "" }} {{ enterprise.city || "" }}
+							</text>
 						</view>
-						<text class="location-text">
-							{{ enterprise.zone?.value || "" }} {{ enterprise.city || "" }}
-						</text>
 					</view>
 				</view>
 
-				<!-- Loading and Empty States -->
 				<view v-if="enterpriselist.length === 0 && !isLoading" class="empty-state">
 					<text class="empty-text">暂无企业数据</text>
 				</view>
@@ -142,9 +162,8 @@
 import { ref, computed, onMounted, onUnmounted } from "vue";
 import { zonelist, sectorlist, levellist, enterpriselist } from "../../../tapah/data";
 import { RequestEnterpriseList } from "../../../tapah/request";
-import { parseimage, navigator } from "../../../tapah/function";
+import { parseimage, parseEnterpriseIcon, navigator } from "../../../tapah/function";
 
-// Cache variables outside component instance to persist across tab switches
 let cachedZone = 0;
 let cachedSector = 0;
 let cachedLevel = 0;
@@ -164,7 +183,6 @@ const currentScrollTop = ref(0);
 const isLoading = ref(false);
 const isFinish = ref(false);
 
-// Dropdown ranges
 const zoneRange = computed(() => [{ id: 0, value: "地区" }, ...zonelist.value]);
 const levelRange = computed(() => [{ id: 0, value: "档次" }, ...levellist.value]);
 const sectorRange = computed(() => [{ id: 0, value: "行业" }, ...sectorlist.value]);
@@ -182,6 +200,24 @@ const levelIndex = computed(() => {
 const sectorIndex = computed(() => {
 	const idx = sectorRange.value.findIndex((item) => item.id === sector.value);
 	return idx >= 0 ? idx : 0;
+});
+
+const zoneLabel = computed(() => {
+	if (zone.value === 0) return "地区";
+	const item = zoneRange.value[zoneIndex.value];
+	return item?.value || "地区";
+});
+
+const levelLabel = computed(() => {
+	if (level.value === 0) return "档次";
+	const item = levelRange.value[levelIndex.value];
+	return item?.value || "档次";
+});
+
+const sectorLabel = computed(() => {
+	if (sector.value === 0) return "行业";
+	const item = sectorRange.value[sectorIndex.value];
+	return item?.value || "行业";
 });
 
 const onZoneChange = (e: any) => {
@@ -238,7 +274,6 @@ const restoreState = () => {
 		page.value = cachedPage;
 		search.value = cachedSearch;
 		isFinish.value = cachedIsFinish;
-		// Use nextTick to ensure list scroll-view has rendered
 		setTimeout(() => {
 			scrollTop.value = cachedScrollTop;
 		}, 100);
@@ -249,6 +284,7 @@ const getEnterpriseList = async () => {
 	if (isLoading.value) return;
 	isLoading.value = true;
 	page.value = 1;
+	isFinish.value = false;
 	enterpriselist.value = [];
 	try {
 		const [count, pagesize] = await RequestEnterpriseList(
@@ -294,7 +330,6 @@ const loadMore = async () => {
 	}
 };
 
-// Expose loadMore for parent onReachBottom
 defineExpose({
 	loadMore,
 });
@@ -318,144 +353,125 @@ onUnmounted(() => {
 	flex-direction: column;
 	width: 100vw;
 	height: 100%;
-	background-color: #e2edff;
+	background-color: #f8f8f8;
 	box-sizing: border-box;
 }
 
-/* Top Gradient Buttons */
 .top-row {
 	display: flex;
 	flex-direction: row;
-	justify-content: space-around;
+	align-items: flex-start;
 	width: 100%;
-	padding: 20rpx 20rpx 0 20rpx;
+	padding: 32rpx 40rpx 0 40rpx;
 	box-sizing: border-box;
+	gap: 16rpx;
 }
 
-.cat-btn {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 220rpx;
-	height: 112rpx;
-	border-radius: 12rpx;
-	box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.05);
+.cat-img {
+	flex: 1;
+	width: 0;
+	height: auto;
 }
 
-.red-gradient {
-	background: linear-gradient(to left, #da2f35, #ffc1c3);
-}
-
-.orange-gradient {
-	background: linear-gradient(to left, #ffa600, #feefd1);
-}
-
-.green-gradient {
-	background: linear-gradient(to left, #4ec67b, #b9ffd3);
-}
-
-.cat-btn-text {
-	font-size: 32rpx;
-	font-weight: bold;
-	color: #ffffff;
-}
-
-.divider-space-small {
-	height: 20rpx;
-}
-
-/* Filter and Search Row */
 .filter-row {
 	display: flex;
 	flex-direction: row;
 	align-items: center;
 	background-color: #ffffff;
 	border-radius: 20rpx;
-	height: 100rpx;
-	margin: 0 20rpx;
-	padding: 0 10rpx;
+	height: 86rpx;
+	margin: 20rpx 40rpx 0 40rpx;
+	padding: 0 26rpx;
 	box-sizing: border-box;
-	box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.02);
 }
 
-.dropdown-col {
-	width: 130rpx;
-	height: 40rpx;
-	border-right: 1rpx solid #eeeeee;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-}
-
-.picker-view {
+.filter-item {
 	display: flex;
 	flex-direction: row;
 	align-items: center;
-	justify-content: center;
-	width: 100%;
+	flex-shrink: 0;
+	margin-right: 26rpx;
 }
 
-.picker-text {
-	font-size: 26rpx;
-	color: #333333;
-	margin-right: 4rpx;
-	max-width: 90rpx;
+.filter-label {
+	font-size: 32rpx;
+	line-height: 46rpx;
+	font-weight: 350;
+	color: #000000;
+	max-width: 88rpx;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }
 
-.arrow-down {
-	font-size: 16rpx;
-	color: #888888;
+.filter-arrow {
+	width: 20rpx;
+	height: 20rpx;
+	margin-left: 4rpx;
+	flex-shrink: 0;
 }
 
-.search-col {
+.search-box {
 	flex: 1;
+	min-width: 0;
 	display: flex;
 	flex-direction: row;
 	align-items: center;
-	padding-left: 16rpx;
+	height: 60rpx;
+	background-color: #f5f5f5;
+	border-radius: 12rpx;
+	padding: 0 20rpx;
+	box-sizing: border-box;
 }
 
 .search-input {
 	flex: 1;
-	font-size: 26rpx;
-	color: #333333;
+	min-width: 0;
 	height: 60rpx;
+	font-size: 24rpx;
+	line-height: 34rpx;
+	font-weight: 350;
+	color: #000000;
 }
 
-.search-icon-btn {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 60rpx;
-	height: 60rpx;
+.search-placeholder {
+	font-size: 24rpx;
+	line-height: 34rpx;
+	font-weight: 350;
+	color: #a4a4a4;
 }
 
-/* List Scroll View */
+.search-icon {
+	width: 32rpx;
+	height: 32rpx;
+	flex-shrink: 0;
+	margin-left: 8rpx;
+}
+
 .list-scroll-view {
 	flex: 1;
 	width: 100%;
 	overflow: hidden;
+	margin-top: 30rpx;
 }
 
 .list-container {
 	display: flex;
 	flex-direction: column;
-	padding: 0 20rpx 20rpx 20rpx;
+	padding: 0 40rpx 20rpx 40rpx;
 	box-sizing: border-box;
 }
 
-/* Enterprise Card */
 .enterprise-card {
 	display: flex;
 	flex-direction: row;
+	align-items: flex-start;
 	background-color: #ffffff;
-	border-radius: 16rpx;
+	border-radius: 20rpx;
+	min-height: 196rpx;
 	padding: 20rpx;
-	margin-bottom: 20rpx;
-	box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.02);
+	margin-bottom: 24rpx;
+	box-shadow: 0 6rpx 12rpx -8rpx rgba(0, 0, 0, 0.12);
 	box-sizing: border-box;
 }
 
@@ -463,81 +479,112 @@ onUnmounted(() => {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	width: 90rpx;
-	height: 90rpx;
-	margin-right: 20rpx;
+	width: 150rpx;
+	height: 150rpx;
 	flex-shrink: 0;
+	align-self: center;
 }
 
 .enterprise-logo {
-	width: 90rpx;
-	height: 90rpx;
+	width: 150rpx;
+	height: 150rpx;
 }
 
 .logo-placeholder {
-	width: 90rpx;
-	height: 90rpx;
+	width: 150rpx;
+	height: 150rpx;
 	background-color: #e0e0e0;
 	border-radius: 8rpx;
 }
 
 .info-col {
 	flex: 1;
+	min-width: 0;
 	display: flex;
 	flex-direction: column;
+	margin-left: 20rpx;
 	overflow: hidden;
 }
 
 .enterprise-name {
-	font-size: 36rpx;
-	font-weight: bold;
-	color: #333333;
-	line-height: 1.2;
-	margin-bottom: 6rpx;
+	font-size: 32rpx;
+	font-weight: 700;
+	color: #262626;
+	line-height: 46rpx;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }
 
 .enterprise-english-name {
-	font-size: 22rpx;
-	color: #888888;
-	line-height: 1.3;
-	margin-bottom: 8rpx;
-	overflow: hidden;
-	text-overflow: ellipsis;
+	font-size: 20rpx;
+	font-weight: 400;
+	color: #3d3d3d;
+	line-height: 28rpx;
+	margin-top: 4rpx;
+	word-break: break-word;
 	display: -webkit-box;
-	-webkit-line-clamp: 2;
 	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+	overflow: hidden;
+}
+
+.tags-scroll {
+	width: 100%;
+	margin-top: 10rpx;
+	overflow: hidden;
 }
 
 .tags-row {
 	display: flex;
 	flex-direction: row;
-	flex-wrap: wrap;
-	margin-bottom: 12rpx;
+	flex-wrap: nowrap;
+	align-items: center;
+	gap: 3rpx;
 }
 
 .tag-badge {
-	background-color: #feeddf;
-	border-radius: 8rpx;
-	padding: 4rpx 16rpx;
-	margin-right: 12rpx;
-	margin-bottom: 8rpx;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 32rpx;
+	padding: 0 6rpx;
+	background-color: #fef5e6;
+	border-radius: 6rpx;
+	flex-shrink: 0;
+	box-sizing: border-box;
 }
 
 .tag-text {
 	font-size: 20rpx;
-	color: #692e1f;
+	line-height: 28rpx;
+	font-weight: 400;
+	color: #80500a;
+	white-space: nowrap;
+}
+
+.location-row {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	margin-top: 10rpx;
+}
+
+.location-icon {
+	width: 24rpx;
+	height: 24rpx;
+	flex-shrink: 0;
+	margin-right: 6rpx;
 }
 
 .location-text {
 	font-size: 20rpx;
 	color: #666666;
-	margin-top: auto;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
-/* States */
 .empty-state,
 .loading-state,
 .no-more-state {

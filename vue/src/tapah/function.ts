@@ -34,6 +34,11 @@ export function parseimage(name: string): string {
 	return `${urlheader}/images2/${densified}`;
 }
 
+/** 企业小图标只有单倍图，不走 @2x/@3x */
+export function parseEnterpriseIcon(name: string): string {
+	return `${urlheader}/images2/${name}`;
+}
+
 export function parseurl(url: string): string {
 	return `https://${backendHost}:${backendPort}/${url}`;
 }

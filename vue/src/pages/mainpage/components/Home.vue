@@ -83,8 +83,14 @@
 
 		<!-- FenYe Header -->
 		<view class="section-header">
-			<view class="section-title-container">
-				<text class="section-title">求职解析</text>
+			<view
+				v-for="(tab, index) in fenyes"
+				:key="index"
+				class="fenye-tab"
+				@tap="onFenyeTap(index)"
+			>
+				<text class="fenye-tab-text" :class="{ active: fenyeIndex === index }">{{ tab.title }}</text>
+				<view class="fenye-tab-line" :class="{ active: fenyeIndex === index }" />
 			</view>
 		</view>
 
@@ -117,8 +123,8 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
-import { RequestArticle1 } from "../../../tapah/request";
-import { article1 } from "../../../tapah/data";
+import { RequestArticle1, RequestArticle2 } from "../../../tapah/request";
+import { article1, article2 } from "../../../tapah/data";
 import {
 	parseimage,
 	openOfficialAccountArticle,
@@ -126,9 +132,10 @@ import {
 	activateMainPageTab,
 	KeFu,
 } from "../../../tapah/function";
-import { lanmus, imageurls, LanMuInfo } from "../../../tapah/option";
+import { lanmus, imageurls, LanMuInfo, fenyes } from "../../../tapah/option";
 
 const lanmuPage = ref(0);
+const fenyeIndex = ref(0);
 const PAGE_SIZE = 10;
 
 /** Column gap: content 724 - pad 64 - icons 420 → /4 = 60 */
@@ -154,17 +161,29 @@ const onLanmuPageChange = (e: { detail: { current: number } }) => {
 
 const displayCount = ref(5);
 
+const currentArticleList = computed(() => {
+	if (fenyeIndex.value === 0) return article1.value;
+	if (fenyeIndex.value === 1) return article2.value;
+	return [];
+});
+
 const displayedArticles = computed(() => {
-	return article1.value.slice(0, displayCount.value);
+	return currentArticleList.value.slice(0, displayCount.value);
 });
 
 const hasMore = computed(() => {
-	return displayCount.value < article1.value.length;
+	return displayCount.value < currentArticleList.value.length;
 });
+
+const onFenyeTap = (index: number) => {
+	if (fenyeIndex.value === index) return;
+	fenyeIndex.value = index;
+	displayCount.value = 5;
+};
 
 const loadMore = () => {
 	if (!hasMore.value) return;
-	displayCount.value = Math.min(article1.value.length, displayCount.value + 5);
+	displayCount.value = Math.min(currentArticleList.value.length, displayCount.value + 5);
 };
 
 defineExpose({
@@ -224,7 +243,7 @@ const onPromoTap = (kind: string) => {
 
 onMounted(async () => {
 	try {
-		await RequestArticle1();
+		await Promise.all([RequestArticle1(), RequestArticle2()]);
 	} catch (err) {
 		console.error("Failed to load articles:", err);
 	}
@@ -398,20 +417,42 @@ onMounted(async () => {
 
 .section-header {
 	width: 724rpx;
-	height: 50rpx;
 	display: flex;
-	align-items: center;
+	flex-direction: row;
+	align-items: flex-end;
+	justify-content: space-around;
 	margin-top: 24rpx;
+	padding-bottom: 8rpx;
+	box-sizing: border-box;
 }
 
-.section-title-container {
-	padding-left: 10rpx;
+.fenye-tab {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding: 0 8rpx;
 }
 
-.section-title {
-	font-size: 26rpx;
-	color: #000000;
-	font-weight: bold;
+.fenye-tab-text {
+	font-size: 36rpx;
+	line-height: 54rpx;
+	color: #222222;
+}
+
+.fenye-tab-text.active {
+	color: #4a92ff;
+}
+
+.fenye-tab-line {
+	width: 48rpx;
+	height: 6rpx;
+	margin-top: 8rpx;
+	border-radius: 3rpx;
+	background-color: transparent;
+}
+
+.fenye-tab-line.active {
+	background-color: #4a92ff;
 }
 
 .article-list {
