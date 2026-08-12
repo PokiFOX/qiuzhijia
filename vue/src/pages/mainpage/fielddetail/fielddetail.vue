@@ -283,7 +283,7 @@ const toggleCaseExpand = (idx: number) => {
 };
 
 const onEnterpriseTap = (id: number) => {
-	navigator("/enterprise/detail", { enterprise: id });
+	navigator("/pages/enterprise/detail", { enterprise: id });
 };
 
 const goHome = () => {

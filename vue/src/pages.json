@@ -62,9 +62,10 @@
 			}
 		},
 		{
-			"path": "pages/enterprise/detail/detail",
+			"path": "pages/enterprise/detail",
 			"style": {
-				"navigationBarTitleText": "企业详情"
+				"navigationBarTitleText": "企业详情",
+				"disableScroll": true
 			}
 		},
 		{

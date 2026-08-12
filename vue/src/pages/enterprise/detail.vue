@@ -1,5 +1,16 @@
 <template>
-	<view class="detail-page" v-if="initialized && enterprise">
+	<view class="detail-root" v-if="initialized && enterprise">
+		<scroll-view
+			class="detail-scroll"
+			scroll-y
+			enhanced
+			:show-scrollbar="false"
+			:style="detailScrollStyle"
+			:scroll-top="pageScrollTop"
+			:scroll-with-animation="scrollWithAnimation"
+			@scroll="onDetailScroll"
+		>
+			<view class="detail-page">
 		<!-- Top Banner -->
 		<view class="banner-wrap" v-if="enterprise.images && enterprise.images.length > 0">
 			<swiper class="top-swiper" :style="bannerSwiperStyle" circular autoplay :interval="3000" duration="500" @change="onSwiperChange">
@@ -29,9 +40,11 @@
 				<view id="section-0" class="section-card">
 					<view class="name-row">
 						<view class="name-marquee-col">
-							<MarqueeText :text="enterprise.name || ''" height="128rpx" :scroll-threshold="12" :text-style="nameTextStyle"/>
+							<text class="enterprise-name-text">{{ enterprise.name || "" }}</text>
 						</view>
-						<image v-if="enterprise.icon" class="enterprise-icon" :src="parseEnterpriseIcon(`小图标/${enterprise.icon}.png`)" mode="aspectFit"/>
+						<view v-if="enterprise.icon" class="enterprise-icon-wrap">
+							<image class="enterprise-icon" :src="parseEnterpriseIcon(`小图标/${enterprise.icon}.png`)" mode="aspectFit"/>
+						</view>
 					</view>
 
 					<view class="location-row">
@@ -254,6 +267,8 @@
 				</view>
 			</view>
 		</view>
+			</view>
+		</scroll-view>
 
 		<!-- Bottom Navigation Bar -->
 		<view class="bottom-nav-bar">
@@ -298,15 +313,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, nextTick, watch, type CSSProperties } from "vue";
-import { onLoad, onPageScroll } from "@dcloudio/uni-app";
+import { ref, computed, nextTick, watch } from "vue";
+import { onLoad } from "@dcloudio/uni-app";
 
-import { enterpriselist, accountinfo, caselist, fieldlist } from "../../../tapah/data";
-import { entfenyes } from "../../../tapah/option";
-import { RequestEnterpriseDetail, RequestCaseList, RequestWxCode, RequestUserInfo } from "../../../tapah/request";
-import { parseimage, parseEnterpriseIcon, navigator, stagStr, openOfficialAccountArticle, openExternalUrl, } from "../../../tapah/function";
-import type { Enterprise, Case, Article } from "../../../tapah/class";
-import MarqueeText from "../../../components/MarqueeText.vue";
+import { enterpriselist, accountinfo, caselist, fieldlist } from "../../tapah/data";
+import { entfenyes } from "../../tapah/option";
+import { RequestEnterpriseDetail, RequestCaseList, RequestWxCode, RequestUserInfo } from "../../tapah/request";
+import { parseimage, parseEnterpriseIcon, navigator, stagStr, openOfficialAccountArticle, openExternalUrl, } from "../../tapah/function";
+import type { Enterprise, Case, Article } from "../../tapah/class";
 
 const SECTION_COUNT = 4;
 const TAB_SCROLL_OFFSET = 96;
@@ -324,12 +338,21 @@ const isCasesLoading = ref(true);
 const sectionTops = ref<number[]>([]);
 const isScrollingToSection = ref(false);
 const showCopyModal = ref(false);
+const pageScrollTop = ref(0);
+const scrollTopCache = ref(0);
+const scrollWithAnimation = ref(false);
+const pageHeightPx = ref(667);
 
-const nameTextStyle: CSSProperties = {
-	fontSize: "44rpx",
-	fontWeight: 500,
-	color: "#000000",
-	lineHeight: "64rpx",
+const detailScrollStyle = computed(() => ({
+	height: `${pageHeightPx.value}px`,
+}));
+
+const refreshPageHeight = () => {
+	try {
+		pageHeightPx.value = uni.getSystemInfoSync().windowHeight;
+	} catch {
+		pageHeightPx.value = 667;
+	}
 };
 
 const isFavorited = computed(() => {
@@ -484,19 +507,18 @@ const loadCases = async () => {
 
 const calculateSectionTops = () => {
 	const query = uni.createSelectorQuery();
+	query.select(".detail-scroll").boundingClientRect();
 	for (let i = 0; i < SECTION_COUNT; i++) {
 		query.select(`#section-${i}`).boundingClientRect();
 	}
-	query.selectViewport().scrollOffset(() => {});
 	query.exec((res) => {
 		if (!res || res.length < SECTION_COUNT + 1) return;
-		const viewport = res[SECTION_COUNT];
-		if (!viewport) return;
-		const scrollTop = viewport.scrollTop;
+		const scrollViewRect = res[0];
+		if (!scrollViewRect) return;
 		const tops: number[] = [];
 		for (let i = 0; i < SECTION_COUNT; i++) {
-			const rect = res[i];
-			tops.push(rect ? scrollTop + rect.top : 0);
+			const rect = res[i + 1];
+			tops.push(rect ? scrollTopCache.value + rect.top - scrollViewRect.top : 0);
 		}
 		sectionTops.value = tops;
 	});
@@ -507,18 +529,18 @@ const scrollToSection = (index: number) => {
 	fenyeindex.value = index;
 	const query = uni.createSelectorQuery();
 	query.select(`#section-${index}`).boundingClientRect();
-	query.selectViewport().scrollOffset(() => {});
+	query.select(".detail-scroll").boundingClientRect();
 	query.exec((res) => {
 		if (res && res[0] && res[1]) {
-			const targetScrollTop = res[1].scrollTop + res[0].top - TAB_SCROLL_OFFSET;
-			uni.pageScrollTo({
-				scrollTop: targetScrollTop,
-				duration: 300,
-				complete: () => {
-					setTimeout(() => {
-						isScrollingToSection.value = false;
-					}, 100);
-				},
+			const targetScrollTop = scrollTopCache.value + res[0].top - res[1].top - TAB_SCROLL_OFFSET;
+			scrollWithAnimation.value = true;
+			pageScrollTop.value = scrollTopCache.value;
+			nextTick(() => {
+				pageScrollTop.value = Math.max(0, targetScrollTop);
+				setTimeout(() => {
+					isScrollingToSection.value = false;
+					scrollWithAnimation.value = false;
+				}, 350);
 			});
 		} else {
 			isScrollingToSection.value = false;
@@ -526,9 +548,10 @@ const scrollToSection = (index: number) => {
 	});
 };
 
-onPageScroll((e) => {
+const onDetailScroll = (e: { detail: { scrollTop: number } }) => {
+	scrollTopCache.value = e.detail.scrollTop;
 	if (isScrollingToSection.value || sectionTops.value.length === 0) return;
-	const scrollTop = e.scrollTop;
+	const scrollTop = e.detail.scrollTop;
 	let activeIndex = 0;
 	for (let i = 0; i < sectionTops.value.length; i++) {
 		if (scrollTop >= sectionTops.value[i] - TAB_SCROLL_OFFSET) {
@@ -536,7 +559,7 @@ onPageScroll((e) => {
 		}
 	}
 	fenyeindex.value = activeIndex;
-});
+};
 
 watch(
 	() => enterprise.value?.id,
@@ -546,6 +569,7 @@ watch(
 );
 
 onLoad(async (options) => {
+	refreshPageHeight();
 	let enterpriseId = 0;
 	if (options && options.enterprise) {
 		enterpriseId = parseInt(options.enterprise, 10) || 0;
@@ -578,11 +602,21 @@ onLoad(async (options) => {
 </script>
 
 <style scoped>
+.detail-root {
+	width: 100%;
+	height: 100vh;
+	overflow: hidden;
+	background-color: #f8f8f8;
+}
+
+.detail-scroll {
+	width: 100%;
+}
+
 .detail-page {
 	display: flex;
 	flex-direction: column;
-	width: 100vw;
-	min-height: 100vh;
+	width: 100%;
 	background-color: #f8f8f8;
 	padding-bottom: 120rpx;
 	box-sizing: border-box;
@@ -704,6 +738,33 @@ onLoad(async (options) => {
 	flex: 1;
 	min-width: 0;
 	margin-right: 20rpx;
+}
+
+.enterprise-name-text {
+	font-size: 44rpx;
+	font-weight: 500;
+	color: #000000;
+	line-height: 64rpx;
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+	overflow: hidden;
+	word-break: break-all;
+}
+
+.enterprise-icon-wrap {
+	width: 128rpx;
+	height: 128rpx;
+	flex-shrink: 0;
+	background-color: #ffffff;
+	border-radius: 10rpx;
+	box-shadow:
+		0 -2rpx 6rpx 0 rgba(0, 0, 0, 0.05),
+		0 8rpx 8rpx 0 rgba(0, 0, 0, 0.1);
+	overflow: hidden;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 .enterprise-icon {

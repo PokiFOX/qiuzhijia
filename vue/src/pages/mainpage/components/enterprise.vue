@@ -1,14 +1,15 @@
 <template>
 	<view class="enterprise-container">
-		<!-- Top category images -->
-		<view class="top-row">
-			<image class="cat-img" :src="parseimage('企业列表/央企国企.png')" mode="widthFix" @tap="onCategoryTap(1, 0)"/>
-			<image class="cat-img" :src="parseimage('企业列表/金融机构.png')" mode="widthFix" @tap="onCategoryTap(0, 1)"/>
-			<image class="cat-img" :src="parseimage('企业列表/成长企业.png')" mode="widthFix" @tap="onCategoryTap(2, 0)"/>
-		</view>
+		<view class="enterprise-header">
+			<!-- Top category images -->
+			<view class="top-row">
+				<image class="cat-img" :src="parseimage('企业列表/央企国企.png')" mode="widthFix" @load="updateListHeight" @tap="onCategoryTap(1, 0)"/>
+				<image class="cat-img" :src="parseimage('企业列表/金融机构.png')" mode="widthFix" @load="updateListHeight" @tap="onCategoryTap(0, 1)"/>
+				<image class="cat-img" :src="parseimage('企业列表/成长企业.png')" mode="widthFix" @load="updateListHeight" @tap="onCategoryTap(2, 0)"/>
+			</view>
 
-		<!-- Filter and Search Row -->
-		<view class="filter-row">
+			<!-- Filter and Search Row -->
+			<view class="filter-row">
 			<picker mode="selector" :range="zoneRange" range-key="value" :value="zoneIndex" @change="onZoneChange">
 				<view class="filter-item">
 					<text class="filter-label">{{ zoneLabel }}</text>
@@ -31,10 +32,21 @@
 				<input class="search-input" type="text" v-model="search" placeholder="搜索企业" placeholder-class="search-placeholder" confirm-type="search" @confirm="onSearchSubmit"/>
 				<image class="search-icon" :src="parseimage('企业列表/搜索.png')" mode="aspectFit" @tap="onSearchSubmit"/>
 			</view>
+			</view>
 		</view>
 
 		<!-- Enterprise List -->
-		<scroll-view class="list-scroll-view" scroll-y :show-scrollbar="false" :scroll-top="scrollTop" :lower-threshold="80" @scroll="onScroll" @scrolltolower="loadMore">
+		<scroll-view
+			class="list-scroll-view"
+			scroll-y
+			enhanced
+			:show-scrollbar="false"
+			:style="listScrollStyle"
+			:scroll-top="scrollTop"
+			:lower-threshold="80"
+			@scroll="onScroll"
+			@scrolltolower="loadMore"
+		>
 			<view class="list-container">
 				<view class="enterprise-card" v-for="(enterprise, idx) in enterpriselist" :key="idx" @tap="onEnterpriseTap(enterprise.id)">
 					<view class="logo-col">
@@ -74,7 +86,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from "vue";
+import { ref, computed, onMounted, onUnmounted, getCurrentInstance, nextTick, type CSSProperties } from "vue";
 import { zonelist, sectorlist, levellist, enterpriselist } from "../../../tapah/data";
 import { parseimage, parseEnterpriseIcon, navigator } from "../../../tapah/function";
 import { RequestEnterpriseList } from "../../../tapah/request";
@@ -91,6 +103,34 @@ const scrollTop = ref(0);
 const currentScrollTop = ref(0);
 const isLoading = ref(false);
 const isFinish = ref(false);
+const listHeightPx = ref(0);
+
+const instance = getCurrentInstance();
+
+const listScrollStyle = computed((): CSSProperties => {
+	if (listHeightPx.value <= 0) return {};
+	return { height: `${listHeightPx.value}px` };
+});
+
+const updateListHeight = () => {
+	nextTick(() => {
+		if (!instance) return;
+		uni.createSelectorQuery()
+			.in(instance)
+			.select(".enterprise-header")
+			.boundingClientRect()
+			.select(".enterprise-container")
+			.boundingClientRect()
+			.exec((res) => {
+				const header = res[0] as UniApp.NodeInfo | null;
+				const container = res[1] as UniApp.NodeInfo | null;
+				if (header?.height != null && container?.height != null) {
+					const gap = uni.upx2px(30);
+					listHeightPx.value = Math.max(0, container.height - header.height - gap);
+				}
+			});
+	});
+};
 
 const zoneRange = computed(() => [{ id: 0, value: "地区" }, ...zonelist.value]);
 const levelRange = computed(() => [{ id: 0, value: "档次" }, ...levellist.value]);
@@ -157,7 +197,7 @@ const onCategoryTap = (enttype: number, financial: number) => {
 
 const onEnterpriseTap = (id: number) => {
 	cacheCurrentState();
-	navigator("/enterprise/detail", { enterprise: id });
+	navigator("/pages/enterprise/detail", { enterprise: id });
 };
 
 const onScroll = (e: any) => {
@@ -203,6 +243,7 @@ const getEnterpriseList = async () => {
 	} finally {
 		isLoading.value = false;
 		cacheCurrentState();
+		updateListHeight();
 	}
 };
 
@@ -226,6 +267,7 @@ defineExpose({
 });
 
 onMounted(() => {
+	setTimeout(updateListHeight, 50);
 	if (hasCache) {
 		restoreState();
 	} else {
@@ -244,9 +286,15 @@ onUnmounted(() => {
 	flex-direction: column;
 	width: 100%;
 	height: 100%;
+	min-height: 0;
 	padding: 0 32rpx;
 	background-color: #f8f8f8;
 	box-sizing: border-box;
+	overflow: hidden;
+}
+
+.enterprise-header {
+	flex-shrink: 0;
 }
 
 .top-row {
@@ -341,9 +389,8 @@ onUnmounted(() => {
 }
 
 .list-scroll-view {
-	flex: 1;
+	flex-shrink: 0;
 	width: 100%;
-	overflow: hidden;
 	margin-top: 30rpx;
 }
 

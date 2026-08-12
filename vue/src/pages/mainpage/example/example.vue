@@ -213,12 +213,12 @@ const onEnterpriseTapByName = async (name?: string) => {
 	if (!name) return;
 	const found = enterpriselist.value.find((e) => e.name === name);
 	if (found) {
-		navigator("/enterprise/detail", { enterprise: found.id });
+		navigator("/pages/enterprise/detail", { enterprise: found.id });
 	} else {
 		try {
 			const list = await RequestEnterprise(0, 0, 0, 0, 0, null, name, 1);
 			if (list.length > 0) {
-				navigator("/enterprise/detail", { enterprise: list[0].id });
+				navigator("/pages/enterprise/detail", { enterprise: list[0].id });
 			}
 		} catch (err) {
 			console.error("Failed to find enterprise by name:", err);
