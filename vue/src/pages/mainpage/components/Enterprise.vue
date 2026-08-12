@@ -2,148 +2,63 @@
 	<view class="enterprise-container">
 		<!-- Top category images -->
 		<view class="top-row">
-			<image
-				class="cat-img"
-				:src="parseimage('企业列表/央企国企.png')"
-				mode="widthFix"
-				@tap="onCategoryTap(1, 0)"
-			/>
-			<image
-				class="cat-img"
-				:src="parseimage('企业列表/金融机构.png')"
-				mode="widthFix"
-				@tap="onCategoryTap(0, 1)"
-			/>
-			<image
-				class="cat-img"
-				:src="parseimage('企业列表/成长企业.png')"
-				mode="widthFix"
-				@tap="onCategoryTap(2, 0)"
-			/>
+			<image class="cat-img" :src="parseimage('企业列表/央企国企.png')" mode="widthFix" @tap="onCategoryTap(1, 0)"/>
+			<image class="cat-img" :src="parseimage('企业列表/金融机构.png')" mode="widthFix" @tap="onCategoryTap(0, 1)"/>
+			<image class="cat-img" :src="parseimage('企业列表/成长企业.png')" mode="widthFix" @tap="onCategoryTap(2, 0)"/>
 		</view>
 
 		<!-- Filter and Search Row -->
 		<view class="filter-row">
-			<picker
-				mode="selector"
-				:range="zoneRange"
-				range-key="value"
-				:value="zoneIndex"
-				@change="onZoneChange"
-			>
+			<picker mode="selector" :range="zoneRange" range-key="value" :value="zoneIndex" @change="onZoneChange">
 				<view class="filter-item">
 					<text class="filter-label">{{ zoneLabel }}</text>
-					<image class="filter-arrow" :src="parseimage('企业列表/下箭头.png')" mode="aspectFit" />
+					<image class="filter-arrow" :src="parseimage('企业列表/下箭头.png')" mode="aspectFit"/>
 				</view>
 			</picker>
-
-			<picker
-				mode="selector"
-				:range="levelRange"
-				range-key="value"
-				:value="levelIndex"
-				@change="onLevelChange"
-			>
+			<picker mode="selector" :range="levelRange" range-key="value" :value="levelIndex" @change="onLevelChange">
 				<view class="filter-item">
 					<text class="filter-label">{{ levelLabel }}</text>
-					<image class="filter-arrow" :src="parseimage('企业列表/下箭头.png')" mode="aspectFit" />
+					<image class="filter-arrow" :src="parseimage('企业列表/下箭头.png')" mode="aspectFit"/>
 				</view>
 			</picker>
-
-			<picker
-				mode="selector"
-				:range="sectorRange"
-				range-key="value"
-				:value="sectorIndex"
-				@change="onSectorChange"
-			>
+			<picker mode="selector" :range="sectorRange" range-key="value" :value="sectorIndex" @change="onSectorChange">
 				<view class="filter-item">
 					<text class="filter-label">{{ sectorLabel }}</text>
-					<image class="filter-arrow" :src="parseimage('企业列表/下箭头.png')" mode="aspectFit" />
+					<image class="filter-arrow" :src="parseimage('企业列表/下箭头.png')" mode="aspectFit"/>
 				</view>
 			</picker>
-
 			<view class="search-box">
-				<input
-					class="search-input"
-					type="text"
-					v-model="search"
-					placeholder="搜索企业"
-					placeholder-class="search-placeholder"
-					confirm-type="search"
-					@confirm="onSearchSubmit"
-				/>
-				<image
-					class="search-icon"
-					:src="parseimage('企业列表/搜索.png')"
-					mode="aspectFit"
-					@tap="onSearchSubmit"
-				/>
+				<input class="search-input" type="text" v-model="search" placeholder="搜索企业" placeholder-class="search-placeholder" confirm-type="search" @confirm="onSearchSubmit"/>
+				<image class="search-icon" :src="parseimage('企业列表/搜索.png')" mode="aspectFit" @tap="onSearchSubmit"/>
 			</view>
 		</view>
 
 		<!-- Enterprise List -->
-		<scroll-view
-			class="list-scroll-view"
-			scroll-y
-			:show-scrollbar="false"
-			:scroll-top="scrollTop"
-			:lower-threshold="80"
-			@scroll="onScroll"
-			@scrolltolower="loadMore"
-		>
+		<scroll-view class="list-scroll-view" scroll-y :show-scrollbar="false" :scroll-top="scrollTop" :lower-threshold="80" @scroll="onScroll" @scrolltolower="loadMore">
 			<view class="list-container">
-				<view
-					class="enterprise-card"
-					v-for="(enterprise, idx) in enterpriselist"
-					:key="idx"
-					@tap="onEnterpriseTap(enterprise.id)"
-				>
+				<view class="enterprise-card" v-for="(enterprise, idx) in enterpriselist" :key="idx" @tap="onEnterpriseTap(enterprise.id)">
 					<view class="logo-col">
-						<image
-							v-if="enterprise.icon"
-							class="enterprise-logo"
-							:src="parseEnterpriseIcon(`小图标/${enterprise.icon}.png`)"
-							mode="aspectFit"
-						/>
+						<image v-if="enterprise.icon" class="enterprise-logo" :src="parseEnterpriseIcon(`小图标/${enterprise.icon}.png`)" mode="aspectFit"/>
 						<view v-else class="logo-placeholder"></view>
 					</view>
-
 					<view class="info-col">
 						<text class="enterprise-name">{{ enterprise.name || "" }}</text>
 						<text v-if="enterprise.englishname" class="enterprise-english-name">
 							{{ enterprise.englishname }}
 						</text>
-						<scroll-view
-							v-if="enterprise.tags && enterprise.tags.length > 0"
-							class="tags-scroll"
-							scroll-x
-							:show-scrollbar="false"
-							enable-flex
-						>
-							<view class="tags-row">
-								<view
-									class="tag-badge"
-									v-for="(tag, tIdx) in enterprise.tags"
-									:key="tIdx"
-								>
-									<text class="tag-text">{{ tag }}</text>
-								</view>
+						<view v-if="enterprise.tags && enterprise.tags.length > 0" class="tags-row">
+							<view class="tag-badge" v-for="(tag, tIdx) in enterprise.tags" :key="tIdx">
+								<text class="tag-text">{{ tag }}</text>
 							</view>
-						</scroll-view>
+						</view>
 						<view class="location-row">
-							<image
-								class="location-icon"
-								:src="parseimage('企业列表/定位.png')"
-								mode="aspectFit"
-							/>
+							<image class="location-icon" :src="parseimage('企业列表/定位.png')" mode="aspectFit"/>
 							<text class="location-text">
 								{{ enterprise.zone?.value || "" }} {{ enterprise.city || "" }}
 							</text>
 						</view>
 					</view>
 				</view>
-
 				<view v-if="enterpriselist.length === 0 && !isLoading" class="empty-state">
 					<text class="empty-text">暂无企业数据</text>
 				</view>
@@ -161,22 +76,16 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from "vue";
 import { zonelist, sectorlist, levellist, enterpriselist } from "../../../tapah/data";
-import { RequestEnterpriseList } from "../../../tapah/request";
 import { parseimage, parseEnterpriseIcon, navigator } from "../../../tapah/function";
+import { RequestEnterpriseList } from "../../../tapah/request";
 
-let cachedZone = 0;
-let cachedSector = 0;
-let cachedLevel = 0;
-let cachedPage = 1;
+let cachedZone = 0, cachedSector = 0, cachedLevel = 0, cachedPage = 1;
 let cachedSearch = "";
 let cachedScrollTop = 0;
 let cachedIsFinish = false;
 let hasCache = false;
 
-const zone = ref(0);
-const sector = ref(0);
-const level = ref(0);
-const page = ref(1);
+const zone = ref(0), sector = ref(0), level = ref(0), page = ref(1);
 const search = ref("");
 const scrollTop = ref(0);
 const currentScrollTop = ref(0);
@@ -243,7 +152,7 @@ const onSearchSubmit = () => {
 };
 
 const onCategoryTap = (enttype: number, financial: number) => {
-	navigator("/mainpage/filter", { enttype, financial });
+	navigator("/pages/mainpage/components/filter", { enttype, financial });
 };
 
 const onEnterpriseTap = (id: number) => {
@@ -287,16 +196,7 @@ const getEnterpriseList = async () => {
 	isFinish.value = false;
 	enterpriselist.value = [];
 	try {
-		const [count, pagesize] = await RequestEnterpriseList(
-			zone.value,
-			sector.value,
-			level.value,
-			0,
-			0,
-			null,
-			search.value,
-			page.value
-		);
+		const [count, pagesize] = await RequestEnterpriseList(zone.value, sector.value, level.value, 0, 0, null, search.value, page.value);
 		isFinish.value = count < pagesize;
 	} catch (err) {
 		console.error("Failed to load enterprises:", err);
@@ -311,16 +211,7 @@ const loadMore = async () => {
 	isLoading.value = true;
 	page.value++;
 	try {
-		const [count, pagesize] = await RequestEnterpriseList(
-			zone.value,
-			sector.value,
-			level.value,
-			0,
-			0,
-			null,
-			search.value,
-			page.value
-		);
+		const [count, pagesize] = await RequestEnterpriseList(zone.value, sector.value, level.value, 0, 0, null, search.value, page.value);
 		isFinish.value = count < pagesize;
 	} catch (err) {
 		console.error("Failed to load more enterprises:", err);
@@ -511,9 +402,7 @@ onUnmounted(() => {
 	font-weight: 700;
 	color: #262626;
 	line-height: 46rpx;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
+	word-break: break-word;
 }
 
 .enterprise-english-name {
@@ -523,35 +412,25 @@ onUnmounted(() => {
 	line-height: 28rpx;
 	margin-top: 4rpx;
 	word-break: break-word;
-	display: -webkit-box;
-	-webkit-box-orient: vertical;
-	-webkit-line-clamp: 2;
-	overflow: hidden;
-}
-
-.tags-scroll {
-	width: 100%;
-	margin-top: 10rpx;
-	overflow: hidden;
 }
 
 .tags-row {
 	display: flex;
 	flex-direction: row;
-	flex-wrap: nowrap;
+	flex-wrap: wrap;
 	align-items: center;
 	gap: 3rpx;
+	width: 100%;
+	margin-top: 10rpx;
 }
 
 .tag-badge {
-	display: flex;
+	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	height: 32rpx;
-	padding: 0 6rpx;
+	padding: 1rpx 3rpx;
 	background-color: #fef5e6;
 	border-radius: 6rpx;
-	flex-shrink: 0;
 	box-sizing: border-box;
 }
 
@@ -560,7 +439,6 @@ onUnmounted(() => {
 	line-height: 28rpx;
 	font-weight: 400;
 	color: #80500a;
-	white-space: nowrap;
 }
 
 .location-row {

@@ -2,15 +2,7 @@
 	<view class="home-container">
 		<view class="home-top-panel">
 			<!-- Swiper Banner -->
-			<swiper
-				class="swiper-banner"
-				circular
-				autoplay
-				:interval="3000"
-				indicator-dots
-				indicator-active-color="#1269FF"
-				indicator-color="rgba(0,0,0,.3)"
-			>
+			<swiper class="swiper-banner" circular autoplay :interval="3000" indicator-dots indicator-active-color="#1269FF" indicator-color="rgba(0,0,0,.3)">
 				<swiper-item v-for="(img, idx) in imageurls" :key="idx">
 					<image class="swiper-image" :src="parseimage(img)" mode="aspectFill" />
 				</swiper-item>
@@ -18,21 +10,11 @@
 
 			<!-- LanMu Grid Card -->
 			<view class="grid-card">
-				<swiper
-					class="lanmu-swiper"
-					:current="lanmuPage"
-					@change="onLanmuPageChange"
-				>
+				<swiper class="lanmu-swiper" :current="lanmuPage" @change="onLanmuPageChange">
 					<swiper-item v-for="(pageItems, pageIdx) in lanmuPages" :key="pageIdx">
 						<view class="lanmu-page">
 							<view class="lanmu-row" v-for="(row, rowIdx) in pageRows(pageItems)" :key="rowIdx">
-								<view
-									class="grid-item"
-									v-for="(item, colIdx) in row"
-									:key="colIdx"
-									:style="{ marginRight: colIdx < 4 ? `${lanmuGap}rpx` : '0' }"
-									@tap="onLanMuTap(pageIdx * 10 + rowIdx * 5 + colIdx)"
-								>
+								<view class="grid-item" v-for="(item, colIdx) in row" :key="colIdx" :style="{ marginRight: colIdx < 4 ? `${lanmuGap}rpx` : '0' }" @tap="onLanMuTap(pageIdx * 10 + rowIdx * 5 + colIdx)">
 									<template v-if="item">
 										<image class="grid-icon" :src="parseimage(item.image)" mode="aspectFit" />
 										<text class="grid-text">{{ item.title }}</text>
@@ -47,48 +29,23 @@
 					</swiper-item>
 				</swiper>
 				<view class="lanmu-dots">
-					<view
-						v-for="(_, idx) in lanmuPages"
-						:key="idx"
-						class="lanmu-dot"
-						:class="{ active: lanmuPage === idx }"
-					/>
+					<view v-for="(_, idx) in lanmuPages" :key="idx" class="lanmu-dot" :class="{ active: lanmuPage === idx }"/>
 				</view>
 			</view>
 
 			<!-- Promo three images -->
 			<view class="promo-row">
-				<image
-					class="promo-left"
-					:src="parseimage('实习推荐.png')"
-					mode="aspectFill"
-					@tap="onPromoTap('shixineitui')"
-				/>
+				<image class="promo-left" :src="parseimage('实习推荐.png')" mode="aspectFill" @tap="onPromoTap('shixineitui')"/>
 				<view class="promo-right">
-					<image
-						class="promo-right-top"
-						:src="parseimage('求职全套.png')"
-						mode="aspectFill"
-						@tap="onPromoTap('qiuzhifuwu')"
-					/>
-					<image
-						class="promo-right-bottom"
-						:src="parseimage('教授科研.png')"
-						mode="aspectFill"
-						@tap="onPromoTap('kefu')"
-					/>
+					<image class="promo-right-top" :src="parseimage('求职全套.png')" mode="aspectFill" @tap="onPromoTap('qiuzhifuwu')"/>
+					<image class="promo-right-bottom" :src="parseimage('教授科研.png')" mode="aspectFill" @tap="onPromoTap('kefu')"/>
 				</view>
 			</view>
 		</view>
 
 		<!-- FenYe Header -->
 		<view class="section-header">
-			<view
-				v-for="(tab, index) in fenyes"
-				:key="index"
-				class="fenye-tab"
-				@tap="onFenyeTap(index)"
-			>
+			<view v-for="(tab, index) in fenyes" :key="index" class="fenye-tab" @tap="onFenyeTap(index)">
 				<text class="fenye-tab-text" :class="{ active: fenyeIndex === index }">{{ tab.title }}</text>
 				<view class="fenye-tab-line" :class="{ active: fenyeIndex === index }" />
 			</view>
@@ -96,12 +53,7 @@
 
 		<!-- Article List -->
 		<view class="article-list">
-			<view
-				class="article-item"
-				v-for="(article, idx) in displayedArticles"
-				:key="idx"
-				@tap="openOfficialAccountArticle(article.article)"
-			>
+			<view class="article-item" v-for="(article, idx) in displayedArticles" :key="idx" @tap="openOfficialAccountArticle(article.article)">
 				<view class="article-content">
 					<text class="article-title">{{ article.title || "未知标题" }}</text>
 					<text class="article-desc">{{ article.description }}</text>
@@ -123,16 +75,11 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
-import { RequestArticle1, RequestArticle2 } from "../../../tapah/request";
+
 import { article1, article2 } from "../../../tapah/data";
-import {
-	parseimage,
-	openOfficialAccountArticle,
-	navigator,
-	activateMainPageTab,
-	KeFu,
-} from "../../../tapah/function";
+import { parseimage, openOfficialAccountArticle, navigator, activateMainPageTab, KeFu, } from "../../../tapah/function";
 import { lanmus, imageurls, LanMuInfo, fenyes } from "../../../tapah/option";
+import { RequestArticle1, RequestArticle2 } from "../../../tapah/request";
 
 const lanmuPage = ref(0);
 const fenyeIndex = ref(0);
@@ -200,15 +147,9 @@ const onLanMuTap = (index: number) => {
 		// @ts-ignore
 		if (typeof wx !== "undefined" && wx.navigateToMiniProgram) {
 			// @ts-ignore
-			wx.navigateToMiniProgram({
-				appId: "wx320a7a97e2f254e2",
-				path: "/pages/entry/share?o=store&type=39&id=2",
-			});
+			wx.navigateToMiniProgram({appId: "wx320a7a97e2f254e2", path: "/pages/entry/share?o=store&type=39&id=2",});
 		} else {
-			uni.showToast({
-				title: "请在微信小程序中打开",
-				icon: "none",
-			});
+			uni.showToast({title: "请在微信小程序中打开", icon: "none",});
 		}
 	} else if (index === 3) {
 		navigator("/mainpage/example");

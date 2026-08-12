@@ -1,16 +1,18 @@
 <template>
 	<view class="mainpage-layout">
+		<view class="page-nav" :style="navBarStyle">
+			<view class="nav-side nav-side-left">
+				<view v-if="currentindex === 1" class="nav-back" :style="navSideStyle" @tap="switchTab(0)">
+					<text class="nav-back-icon">‹</text>
+				</view>
+			</view>
+			<text class="nav-title" :style="navTitleStyle">{{ navTitle }}</text>
+			<view class="nav-side nav-side-right"></view>
+		</view>
+
 		<!-- Tab contents -->
 		<view class="tab-content-container">
-			<scroll-view
-				v-if="activated[0]"
-				v-show="currentindex === 0"
-				class="tab-view tab-scroll-view"
-				scroll-y
-				:show-scrollbar="false"
-				:lower-threshold="80"
-				@scrolltolower="onHomeReachBottom"
-			>
+			<scroll-view v-if="activated[0]" v-show="currentindex === 0" class="tab-view tab-scroll-view" scroll-y :show-scrollbar="false" :lower-threshold="80" @scrolltolower="onHomeReachBottom">
 				<home ref="homeRef" />
 			</scroll-view>
 			<view v-if="activated[1]" v-show="currentindex === 1" class="tab-view">
@@ -35,44 +37,24 @@
 		<view class="bottom-tab-bar">
 			<view class="tab-bar-bg" />
 			<view class="tab-item" @tap="switchTab(0)">
-				<image
-					class="tab-icon"
-					:src="parseimage(currentindex === 0 ? '底部按钮/首页-选中.png' : '底部按钮/首页-普通.png')"
-					mode="aspectFit"
-				/>
+				<image class="tab-icon" :src="parseimage(currentindex === 0 ? '底部按钮/首页-选中.png' : '底部按钮/首页-普通.png')" mode="aspectFit"/>
 				<text class="tab-text" :class="{ active: currentindex === 0 }">首页</text>
 			</view>
 			<view class="tab-item" @tap="switchTab(1)">
-				<image
-					class="tab-icon"
-					:src="parseimage(currentindex === 1 ? '底部按钮/招聘企业-选中.png' : '底部按钮/招聘企业-普通.png')"
-					mode="aspectFit"
-				/>
+				<image class="tab-icon" :src="parseimage(currentindex === 1 ? '底部按钮/招聘企业-选中.png' : '底部按钮/招聘企业-普通.png')" mode="aspectFit"/>
 				<text class="tab-text" :class="{ active: currentindex === 1 }">招聘企业</text>
 			</view>
 			<view class="tab-item offer-tab" @tap="onOfferTap">
 				<view class="offer-bump" />
-				<image
-					class="tab-icon offer-icon"
-					:src="parseimage(currentindex === 2 ? '底部按钮/offer-选中.png' : '底部按钮/offer-普通.png')"
-					mode="aspectFit"
-				/>
+				<image class="tab-icon offer-icon" :src="parseimage(currentindex === 2 ? '底部按钮/offer-选中.png' : '底部按钮/offer-普通.png')" mode="aspectFit"/>
 				<text class="tab-text" :class="{ active: currentindex === 2 }">OFFER</text>
 			</view>
 			<view class="tab-item" @tap="switchTab(3)">
-				<image
-					class="tab-icon"
-					:src="parseimage(currentindex === 3 ? '底部按钮/服务-选中.png' : '底部按钮/服务-普通.png')"
-					mode="aspectFit"
-				/>
+				<image class="tab-icon" :src="parseimage(currentindex === 3 ? '底部按钮/服务-选中.png' : '底部按钮/服务-普通.png')" mode="aspectFit"/>
 				<text class="tab-text" :class="{ active: currentindex === 3 }">服务</text>
 			</view>
 			<view class="tab-item" @tap="switchTab(4)">
-				<image
-					class="tab-icon"
-					:src="parseimage(currentindex === 4 ? '底部按钮/个人中心-选中.png' : '底部按钮/个人中心-普通.png')"
-					mode="aspectFit"
-				/>
+				<image class="tab-icon" :src="parseimage(currentindex === 4 ? '底部按钮/个人中心-选中.png' : '底部按钮/个人中心-普通.png')" mode="aspectFit"/>
 				<text class="tab-text" :class="{ active: currentindex === 4 }">个人中心</text>
 			</view>
 		</view>
@@ -80,20 +62,64 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, computed, onMounted, onUnmounted } from "vue";
 import { onReachBottom, onLoad } from "@dcloudio/uni-app";
+
+import { EventManager } from "../../tapah/class";
+import { SceneID, EventType } from "../../tapah/enum";
+import { parseimage, navigator, getWechatNavMetrics } from "../../tapah/function";
+
 import home from "./components/home.vue";
 import service from "./components/service.vue";
 import enterprise from "./components/enterprise.vue";
 import profile from "./components/profile.vue";
-import { parseimage, navigator } from "../../tapah/function";
-import { EventManager } from "../../tapah/class";
-import { SceneID, EventType } from "../../tapah/enum";
 
 const currentindex = ref(0);
 const activated = ref([true, false, false, false, false]);
 const homeRef = ref<InstanceType<typeof home> | null>(null);
 const enterpriseRef = ref<InstanceType<typeof enterprise> | null>(null);
+
+const metrics = computed(() => getWechatNavMetrics());
+
+const navTitle = computed(() => {
+	switch (currentindex.value) {
+		case 1:
+			return "招聘企业";
+		case 2:
+			return "OFFER";
+		case 3:
+			return "服务";
+		case 4:
+			return "个人中心";
+		default:
+			return "浦浦求职家";
+	}
+});
+
+const navBarStyle = computed(() => ({
+	height: `${metrics.value.navBarHeight}px`,
+	paddingTop: `${metrics.value.statusBarHeight}px`,
+	paddingLeft: `${metrics.value.paddingHorizontal}px`,
+	paddingRight: `${metrics.value.paddingHorizontal}px`,
+	boxSizing: "border-box" as const,
+}));
+
+const navSideStyle = computed(() => {
+	const capsuleTopOffset = metrics.value.capsuleTop - metrics.value.statusBarHeight;
+	return {
+		height: `${metrics.value.capsuleHeight}px`,
+		marginTop: `${capsuleTopOffset}px`,
+	};
+});
+
+const navTitleStyle = computed(() => {
+	const capsuleTopOffset = metrics.value.capsuleTop - metrics.value.statusBarHeight;
+	return {
+		height: `${metrics.value.capsuleHeight}px`,
+		lineHeight: `${metrics.value.capsuleHeight}px`,
+		marginTop: `${capsuleTopOffset}px`,
+	};
+});
 
 const switchTab = (index: number) => {
 	activated.value[index] = true;
@@ -149,6 +175,57 @@ onReachBottom(() => {
 	height: 100vh;
 	box-sizing: border-box;
 	background-color: #f8f8f8;
+}
+
+.page-nav {
+	display: flex;
+	flex-direction: row;
+	align-items: flex-start;
+	justify-content: space-between;
+	background-color: #ffffff;
+	width: 100%;
+	flex-shrink: 0;
+	box-sizing: border-box;
+}
+
+.nav-side {
+	display: flex;
+	align-items: center;
+	min-width: 64rpx;
+}
+
+.nav-side-left {
+	justify-content: flex-start;
+}
+
+.nav-side-right {
+	justify-content: flex-end;
+}
+
+.nav-back {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 64rpx;
+	padding-right: 8rpx;
+}
+
+.nav-back-icon {
+	font-size: 48rpx;
+	line-height: 1;
+	color: #000000;
+	font-weight: 400;
+}
+
+.nav-title {
+	flex: 1;
+	text-align: center;
+	font-size: 32rpx;
+	font-weight: 700;
+	color: #000000;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 .tab-content-container {

@@ -12,12 +12,7 @@
 
 <script setup lang="ts">
 import { onMounted } from "vue";
-import {
-	RequestZoneList,
-	RequestSectorList,
-	RequestLevelList,
-	RequestFieldList,
-} from "../../tapah/request";
+import { RequestZoneList,RequestSectorList, RequestLevelList, RequestFieldList } from "../../tapah/request";
 
 onMounted(async () => {
 	const startTime = Date.now();

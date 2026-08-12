@@ -9,11 +9,12 @@
 		{
 			"path": "pages/mainpage/mainpage",
 			"style": {
-				"navigationBarTitleText": "浦浦求职家"
+				"navigationBarTitleText": "浦浦求职家",
+				"navigationStyle": "custom"
 			}
 		},
 		{
-			"path": "pages/mainpage/filter/filter",
+			"path": "pages/mainpage/components/filter",
 			"style": {
 				"navigationBarTitleText": "企业列表"
 			}
