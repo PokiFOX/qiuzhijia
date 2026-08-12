@@ -119,11 +119,14 @@ class Question:
 		self.question = question
 
 class Article:
-	def __init__(self, article, update, title = "", description = ""):
+	def __init__(self, article, update, title = "", description = "", accountName = "", accountIcon = "", publishTime = 0):
 		self.article = article
 		self.update = update
 		self.title = title
 		self.description = description
+		self.accountName = accountName
+		self.accountIcon = accountIcon
+		self.publishTime = publishTime
 
 	def to_dict(self):
 		return {
@@ -131,6 +134,9 @@ class Article:
 			"update": self.update,
 			"title": self.title,
 			"description": self.description,
+			"accountName": self.accountName,
+			"accountIcon": self.accountIcon,
+			"publishTime": self.publishTime,
 		}
 
 class Enterprise:

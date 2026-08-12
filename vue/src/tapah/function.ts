@@ -34,7 +34,7 @@ export function parseimage(name: string): string {
 	return `${urlheader}/images2/${densified}`;
 }
 
-/** 企业小图标只有单倍图，不走 @2x/@3x */
+/** 企业小图标/顶部大图只有单倍图，不走 @2x/@3x */
 export function parseEnterpriseIcon(name: string): string {
 	return `${urlheader}/images2/${name}`;
 }
@@ -99,7 +99,16 @@ export function openOfficialAccountArticle(url: string) {
 export function openArticleWebView(url: string) {
 	const trimmed = url.trim();
 	if (!trimmed) return;
-	navigator("/webview", { url: trimmed });
+	navigator("/pages/webview/webview", { url: trimmed });
+}
+
+export function openExternalUrl(url: string) {
+	let trimmed = url.trim();
+	if (!trimmed) return;
+	if (!/^https?:\/\//i.test(trimmed)) {
+		trimmed = `https://${trimmed}`;
+	}
+	navigator("/pages/webview/webview", { url: trimmed });
 }
 
 export function isOfficialAccountArticleUrl(url: string): boolean {

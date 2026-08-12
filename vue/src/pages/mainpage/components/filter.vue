@@ -173,8 +173,9 @@ onReachBottom(() => {
 .filter-page {
 	display: flex;
 	flex-direction: column;
-	width: 100vw;
+	width: 100%;
 	min-height: 100vh;
+	padding: 0 32rpx;
 	background-color: #f8f8f8;
 	box-sizing: border-box;
 }
@@ -186,7 +187,7 @@ onReachBottom(() => {
 	background-color: #ffffff;
 	border-radius: 20rpx;
 	height: 100rpx;
-	margin: 20rpx;
+	margin-top: 20rpx;
 	padding: 0 10rpx;
 	box-sizing: border-box;
 	box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.02);
@@ -250,7 +251,7 @@ onReachBottom(() => {
 .list-container {
 	display: flex;
 	flex-direction: column;
-	padding: 0 40rpx 20rpx 40rpx;
+	padding-bottom: 20rpx;
 	box-sizing: border-box;
 }
 

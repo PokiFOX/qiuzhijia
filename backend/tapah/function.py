@@ -18,10 +18,15 @@ def keep_mysql_alive():
 			pass
 
 def fetch_article_meta(url):
-	title = ""
-	description = ""
+	meta = {
+		"title": "",
+		"description": "",
+		"accountName": "",
+		"accountIcon": "",
+		"publishTime": 0,
+	}
 	if not url or not str(url).strip():
-		return title, description
+		return meta
 	try:
 		resp = requests.get(
 			url,
@@ -31,25 +36,56 @@ def fetch_article_meta(url):
 		)
 		html = resp.text
 		m = re.search(r'<meta\s+property=["\']og:title["\']\s+content=["\'](.*?)["\']', html)
-		if m: title = m.group(1)
-		if not title:
+		if m: meta["title"] = m.group(1)
+		if not meta["title"]:
 			m = re.search(r'<title>(.*?)</title>', html)
-			if m: title = m.group(1)
+			if m: meta["title"] = m.group(1)
 		m = re.search(r'<meta\s+property=["\']og:description["\']\s+content=["\'](.*?)["\']', html)
-		if m: description = m.group(1)
-		if not description:
+		if m: meta["description"] = m.group(1)
+		if not meta["description"]:
 			m = re.search(r'<meta\s+name=["\']description["\']\s+content=["\'](.*?)["\']', html)
-			if m: description = m.group(1)
+			if m: meta["description"] = m.group(1)
+		m = re.search(r'<meta\s+property=["\']og:article:author["\']\s+content=["\'](.*?)["\']', html)
+		if m: meta["accountName"] = m.group(1)
+		if not meta["accountName"]:
+			m = re.search(r'var\s+nickname\s*=\s*htmlDecode\s*\(\s*"([^"]*)"', html)
+			if m: meta["accountName"] = m.group(1)
+		if not meta["accountName"]:
+			m = re.search(r'id="js_name"[^>]*>([^<]+)<', html)
+			if m: meta["accountName"] = m.group(1).strip()
+		m = re.search(r'<meta\s+property=["\']og:image["\']\s+content=["\'](.*?)["\']', html)
+		if m: meta["accountIcon"] = m.group(1)
+		if not meta["accountIcon"]:
+			m = re.search(r'var\s+msg_cdn_url\s*=\s*"([^"]+)"', html)
+			if m: meta["accountIcon"] = m.group(1)
+		for pattern in (
+			r'var\s+ct\s*=\s*"(\d{10})"',
+			r'var\s+create_time\s*=\s*"?(\d{10})"?',
+			r'publish_time\s*=\s*"?(\d{10})"?',
+		):
+			m = re.search(pattern, html)
+			if m:
+				meta["publishTime"] = int(m.group(1))
+				break
 	except Exception:
 		pass
-	return title, description
+	return meta
 
 def create_article(url, update = None):
 	url = (url or "").strip()
+	meta = fetch_article_meta(url)
+	publish_time = int(meta.get("publishTime") or 0)
 	if update is None:
 		update = int(time.time())
-	title, description = fetch_article_meta(url)
-	return Article(url, int(update), title, description)
+	return Article(
+		url,
+		int(update),
+		meta.get("title") or "",
+		meta.get("description") or "",
+		meta.get("accountName") or "",
+		meta.get("accountIcon") or "",
+		publish_time,
+	)
 
 def articles_to_json(articles):
 	return [article.to_dict() for article in articles]

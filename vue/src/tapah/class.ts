@@ -170,22 +170,34 @@ export class Article {
 	update: number;
 	title: string;
 	description: string;
+	accountName: string;
+	accountIcon: string;
+	publishTime: number;
 
 	constructor({
 		article,
 		update,
 		title = "",
 		description = "",
+		accountName = "",
+		accountIcon = "",
+		publishTime = 0,
 	}: {
 		article: string;
 		update: number;
 		title?: string;
 		description?: string;
+		accountName?: string;
+		accountIcon?: string;
+		publishTime?: number;
 	}) {
 		this.article = article;
 		this.update = update;
 		this.title = title;
 		this.description = description;
+		this.accountName = accountName;
+		this.accountIcon = accountIcon;
+		this.publishTime = publishTime;
 	}
 
 	static fromJson(json: any): Article {
@@ -203,6 +215,11 @@ export class Article {
 			update: typeof map.update === "number" ? map.update : parseInt(String(map.update ?? ""), 10) || 0,
 			title: String(map.title ?? ""),
 			description: String(map.description ?? ""),
+			accountName: String(map.accountName ?? ""),
+			accountIcon: String(map.accountIcon ?? ""),
+			publishTime: typeof map.publishTime === "number"
+				? map.publishTime
+				: parseInt(String(map.publishTime ?? ""), 10) || 0,
 		});
 	}
 }

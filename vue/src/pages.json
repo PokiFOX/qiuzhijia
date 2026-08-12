@@ -68,6 +68,12 @@
 			}
 		},
 		{
+			"path": "pages/webview/webview",
+			"style": {
+				"navigationBarTitleText": "网页"
+			}
+		},
+		{
 			"path": "pages/kefu/kefu",
 			"style": {
 				"navigationBarTitleText": "添加顾问"

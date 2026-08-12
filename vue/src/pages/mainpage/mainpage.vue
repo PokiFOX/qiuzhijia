@@ -279,7 +279,7 @@ onReachBottom(() => {
 	flex-direction: row;
 	align-items: flex-end;
 	background-color: transparent;
-	padding: 0;
+	padding: 0 32rpx;
 	padding-bottom: env(safe-area-inset-bottom);
 	box-sizing: border-box;
 	z-index: 999;

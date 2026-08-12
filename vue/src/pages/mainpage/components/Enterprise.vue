@@ -242,8 +242,9 @@ onUnmounted(() => {
 .enterprise-container {
 	display: flex;
 	flex-direction: column;
-	width: 100vw;
+	width: 100%;
 	height: 100%;
+	padding: 0 32rpx;
 	background-color: #f8f8f8;
 	box-sizing: border-box;
 }
@@ -253,7 +254,7 @@ onUnmounted(() => {
 	flex-direction: row;
 	align-items: flex-start;
 	width: 100%;
-	padding: 32rpx 40rpx 0 40rpx;
+	padding-top: 32rpx;
 	box-sizing: border-box;
 	gap: 16rpx;
 }
@@ -271,7 +272,7 @@ onUnmounted(() => {
 	background-color: #ffffff;
 	border-radius: 20rpx;
 	height: 86rpx;
-	margin: 20rpx 40rpx 0 40rpx;
+	margin-top: 20rpx;
 	padding: 0 26rpx;
 	box-sizing: border-box;
 }
@@ -349,7 +350,7 @@ onUnmounted(() => {
 .list-container {
 	display: flex;
 	flex-direction: column;
-	padding: 0 40rpx 20rpx 40rpx;
+	padding-bottom: 20rpx;
 	box-sizing: border-box;
 }
 

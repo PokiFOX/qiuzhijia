@@ -69,7 +69,7 @@ onMounted(async () => {
 	display: flex;
 	flex-direction: row;
 	align-items: center;
-	margin-top: 20rpx;
+	margin-top: 72rpx;
 }
 
 .dot {

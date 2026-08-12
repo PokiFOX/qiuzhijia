@@ -2,11 +2,21 @@
 	<view class="home-container">
 		<view class="home-top-panel">
 			<!-- Swiper Banner -->
-			<swiper class="swiper-banner" circular autoplay :interval="3000" indicator-dots indicator-active-color="#1269FF" indicator-color="rgba(0,0,0,.3)">
-				<swiper-item v-for="(img, idx) in imageurls" :key="idx">
-					<image class="swiper-image" :src="parseimage(img)" mode="aspectFill" />
-				</swiper-item>
-			</swiper>
+			<view class="banner-wrap">
+				<swiper
+					class="swiper-banner"
+					circular
+					autoplay
+					:interval="3000"
+					indicator-dots
+					indicator-active-color="#1269FF"
+					indicator-color="rgba(0,0,0,.3)"
+				>
+					<swiper-item v-for="(img, idx) in imageurls" :key="idx">
+						<image class="swiper-image" :src="parseimage(img)" mode="aspectFill" />
+					</swiper-item>
+				</swiper>
+			</view>
 
 			<!-- LanMu Grid Card -->
 			<view class="grid-card">
@@ -14,7 +24,7 @@
 					<swiper-item v-for="(pageItems, pageIdx) in lanmuPages" :key="pageIdx">
 						<view class="lanmu-page">
 							<view class="lanmu-row" v-for="(row, rowIdx) in pageRows(pageItems)" :key="rowIdx">
-								<view class="grid-item" v-for="(item, colIdx) in row" :key="colIdx" :style="{ marginRight: colIdx < 4 ? `${lanmuGap}rpx` : '0' }" @tap="onLanMuTap(pageIdx * 10 + rowIdx * 5 + colIdx)">
+								<view class="grid-item" v-for="(item, colIdx) in row" :key="colIdx" @tap="onLanMuTap(pageIdx * 10 + rowIdx * 5 + colIdx)">
 									<template v-if="item">
 										<image class="grid-icon" :src="parseimage(item.image)" mode="aspectFit" />
 										<text class="grid-text">{{ item.title }}</text>
@@ -35,10 +45,28 @@
 
 			<!-- Promo three images -->
 			<view class="promo-row">
-				<image class="promo-left" :src="parseimage('实习推荐.png')" mode="aspectFill" @tap="onPromoTap('shixineitui')"/>
-				<view class="promo-right">
-					<image class="promo-right-top" :src="parseimage('求职全套.png')" mode="aspectFill" @tap="onPromoTap('qiuzhifuwu')"/>
-					<image class="promo-right-bottom" :src="parseimage('教授科研.png')" mode="aspectFill" @tap="onPromoTap('kefu')"/>
+				<image
+					class="promo-left"
+					:style="promoLeftStyle"
+					:src="parseimage('实习推荐.png')"
+					mode="aspectFill"
+					@tap="onPromoTap('shixineitui')"
+				/>
+				<view class="promo-right" :style="promoRightStyle">
+					<image
+						class="promo-right-item"
+						:style="promoRightItemStyle"
+						:src="parseimage('求职全套.png')"
+						mode="aspectFill"
+						@tap="onPromoTap('qiuzhifuwu')"
+					/>
+					<image
+						class="promo-right-item"
+						:style="promoRightItemStyle"
+						:src="parseimage('教授科研.png')"
+						mode="aspectFill"
+						@tap="onPromoTap('kefu')"
+					/>
 				</view>
 			</view>
 		</view>
@@ -74,19 +102,71 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, type CSSProperties } from "vue";
 
 import { article1, article2 } from "../../../tapah/data";
 import { parseimage, openOfficialAccountArticle, navigator, activateMainPageTab, KeFu, } from "../../../tapah/function";
 import { lanmus, imageurls, LanMuInfo, fenyes } from "../../../tapah/option";
 import { RequestArticle1, RequestArticle2 } from "../../../tapah/request";
 
+const PAGE_MARGIN_RPX = 32;
+const PROMO_COL_GAP_RPX = 10;
+const PROMO_ROW_GAP_RPX = 14;
+
+const getWindowWidth = () => {
+	try {
+		return uni.getSystemInfoSync().windowWidth;
+	} catch {
+		return 375;
+	}
+};
+
+const windowWidthPx = ref(getWindowWidth());
+
+const rpxToPx = (rpx: number) => (rpx / 750) * windowWidthPx.value;
+
+const contentWidthPx = computed(() => windowWidthPx.value - rpxToPx(PAGE_MARGIN_RPX * 2));
+
+const promoLeftStyle = computed((): CSSProperties => {
+	const total = contentWidthPx.value;
+	if (total <= 0) return {};
+	const gap = rpxToPx(PROMO_COL_GAP_RPX);
+	const width = (total - gap) * (178 / 354);
+	const height = width * (157 / 178);
+	return {
+		width: `${width}px`,
+		height: `${height}px`,
+		marginRight: `${gap}px`,
+	};
+});
+
+const promoRightStyle = computed((): CSSProperties => {
+	const total = contentWidthPx.value;
+	if (total <= 0) return {};
+	const gap = rpxToPx(PROMO_COL_GAP_RPX);
+	const width = (total - gap) * (176 / 354);
+	return { width: `${width}px` };
+});
+
+const promoRightItemStyle = computed((): CSSProperties => {
+	const total = contentWidthPx.value;
+	if (total <= 0) return {};
+	const gap = rpxToPx(PROMO_COL_GAP_RPX);
+	const width = (total - gap) * (176 / 354);
+	const height = width * (75 / 176);
+	return {
+		width: `${width}px`,
+		height: `${height}px`,
+	};
+});
+
+const refreshLayout = () => {
+	windowWidthPx.value = getWindowWidth();
+};
+
 const lanmuPage = ref(0);
 const fenyeIndex = ref(0);
 const PAGE_SIZE = 10;
-
-/** Column gap: content 724 - pad 64 - icons 420 → /4 = 60 */
-const lanmuGap = 60;
 
 const lanmuPages = computed(() => {
 	const pages: (LanMuInfo | null)[][] = [];
@@ -183,6 +263,7 @@ const onPromoTap = (kind: string) => {
 };
 
 onMounted(async () => {
+	refreshLayout();
 	try {
 		await Promise.all([RequestArticle1(), RequestArticle2()]);
 	} catch (err) {
@@ -195,8 +276,8 @@ onMounted(async () => {
 .home-container {
 	display: flex;
 	flex-direction: column;
-	align-items: center;
 	width: 100%;
+	padding: 0 32rpx;
 	box-sizing: border-box;
 	background-color: #f8f8f8;
 	min-height: 100%;
@@ -205,34 +286,47 @@ onMounted(async () => {
 .home-top-panel {
 	display: flex;
 	flex-direction: column;
-	align-items: center;
 	width: 100%;
 	background-color: #ffffff;
-	border-radius: 0 0 32rpx 32rpx; /* 底部圆角 16×2 */
+	border-radius: 0 0 32rpx 32rpx;
 	padding-bottom: 24rpx;
 	box-sizing: border-box;
 }
 
-.swiper-banner {
-	width: 724rpx;
-	height: 380rpx;
+.banner-wrap {
+	width: 100%;
+	position: relative;
+	height: 0;
+	padding-bottom: 52.49%;
+	margin-top: 16rpx;
 	border-radius: 16rpx;
 	overflow: hidden;
-	margin-top: 16rpx;
+}
+
+.swiper-banner {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+}
+
+.swiper-banner swiper-item {
+	height: 100%;
 }
 
 .swiper-image {
 	width: 100%;
 	height: 100%;
+	display: block;
 }
 
 .grid-card {
-	width: 724rpx;
+	width: 100%;
 	height: 408rpx;
 	margin-top: 24rpx;
 	background-color: #ffffff;
 	border-radius: 20rpx;
-	/* 蓝湖双阴影：offset(0,9) effect(28,8) 5% + offset(0,3) effect(6,-4) 12%，×2→rpx */
 	box-shadow:
 		0 18rpx 56rpx 16rpx rgba(0, 0, 0, 0.05),
 		0 6rpx 12rpx -8rpx rgba(0, 0, 0, 0.12);
@@ -257,6 +351,7 @@ onMounted(async () => {
 .lanmu-row {
 	display: flex;
 	flex-direction: row;
+	justify-content: space-between;
 	width: 100%;
 }
 
@@ -269,6 +364,7 @@ onMounted(async () => {
 	flex-direction: column;
 	align-items: center;
 	width: 84rpx;
+	flex-shrink: 0;
 }
 
 .grid-icon {
@@ -318,46 +414,36 @@ onMounted(async () => {
 .promo-row {
 	display: flex;
 	flex-direction: row;
-	justify-content: center;
 	align-items: flex-start;
 	width: 100%;
 	margin-top: 24rpx;
 	box-sizing: border-box;
 }
 
-/* 设计 178×157 → ×2 */
 .promo-left {
-	width: 356rpx;
-	height: 314rpx;
 	flex-shrink: 0;
 	border-radius: 16rpx;
-	overflow: hidden;
-	margin-right: 10rpx; /* 栏间距 5×2 */
+	display: block;
 }
 
 .promo-right {
 	display: flex;
 	flex-direction: column;
 	flex-shrink: 0;
-	width: 352rpx; /* 176×2 */
 }
 
-/* 设计 176×75 → ×2；上下间距 157-75-75=7 → 14rpx */
-.promo-right-top,
-.promo-right-bottom {
-	width: 352rpx;
-	height: 150rpx;
+.promo-right-item {
 	flex-shrink: 0;
 	border-radius: 16rpx;
-	overflow: hidden;
+	display: block;
 }
 
-.promo-right-top {
-	margin-bottom: 14rpx;
+.promo-right-item + .promo-right-item {
+	margin-top: 14rpx;
 }
 
 .section-header {
-	width: 724rpx;
+	width: 100%;
 	display: flex;
 	flex-direction: row;
 	align-items: flex-end;
@@ -399,7 +485,7 @@ onMounted(async () => {
 .article-list {
 	display: flex;
 	flex-direction: column;
-	width: 724rpx;
+	width: 100%;
 	margin-top: 10rpx;
 	box-sizing: border-box;
 }

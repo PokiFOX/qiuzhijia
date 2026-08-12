@@ -1,317 +1,255 @@
 <template>
 	<view class="detail-page" v-if="initialized && enterprise">
-		<!-- Swiper Banner -->
-		<view class="swiper-container" v-if="enterprise.images && enterprise.images.length > 0">
-			<swiper
-				class="top-swiper"
-				circular
-				autoplay
-				:interval="3000"
-				duration="500"
-				@change="onSwiperChange"
-			>
+		<!-- Top Banner -->
+		<view class="banner-wrap" v-if="enterprise.images && enterprise.images.length > 0">
+			<swiper class="top-swiper" :style="bannerSwiperStyle" circular autoplay :interval="3000" duration="500" @change="onSwiperChange">
 				<swiper-item v-for="(img, index) in enterprise.images" :key="index">
-					<image
-						class="swiper-image"
-						:src="parseimage(`大图标/${img}.png`)"
-						mode="aspectFill"
-					/>
+					<image class="banner-image" :src="parseEnterpriseIcon(`大图标/${img}.png`)" mode="widthFix" @load="onBannerImageLoad"/>
 				</swiper-item>
 			</swiper>
-			<!-- Swiper Indicator -->
 			<view class="swiper-indicator">
-				<text class="indicator-text">
-					{{ swiperIndex + 1 }}/{{ enterprise.images.length }}
-				</text>
+				<text class="indicator-text">{{ swiperIndex + 1 }}/{{ enterprise.images.length }}</text>
 			</view>
 		</view>
 
-		<!-- Sticky Tab Bar -->
-		<view class="sticky-tab-bar">
-			<scroll-view class="tab-scroll" scroll-x show-scrollbar="false">
+		<!-- Main Panel -->
+		<view class="main-panel">
+			<!-- Scroll-spy Tabs -->
+			<view class="sticky-tab-bar">
 				<view class="tab-items-row">
-					<view
-						class="tab-item"
-						v-for="(tab, index) in entfenyes"
-						:key="index"
-						@tap="scrollToSection(index)"
-					>
-						<text :class="['tab-text', { 'tab-text-active': fenyeindex === index }]">
-							{{ tab }}
-						</text>
+					<view class="tab-item" v-for="(tab, index) in entfenyes" :key="index" @tap="scrollToSection(index)">
+						<text :class="['tab-text', { 'tab-text-active': fenyeindex === index }]">{{ tab }}</text>
 						<view :class="['tab-line', { 'tab-line-active': fenyeindex === index }]"></view>
 					</view>
 				</view>
-			</scroll-view>
-		</view>
+			</view>
 
-		<!-- Content Sections -->
-		<view class="sections-container">
-			<!-- Section 0: 公司简介 -->
-			<view id="section-0" class="section-card">
-				<view class="brief-header">
-					<view class="brief-title-col">
-						<text class="brief-name">{{ enterprise.name || "" }}</text>
-						<view class="brief-tags-row" v-if="enterprise.tags && enterprise.tags.length > 0">
-							<view class="brief-tag-badge" v-for="(tag, idx) in enterprise.tags" :key="idx">
-								<text class="brief-tag-text">{{ tag }}</text>
-							</view>
+			<view class="sections-inner">
+				<!-- Section 0: 公司简介 -->
+				<view id="section-0" class="section-card">
+					<view class="name-row">
+						<view class="name-marquee-col">
+							<MarqueeText :text="enterprise.name || ''" height="128rpx" :scroll-threshold="12" :text-style="nameTextStyle"/>
 						</view>
-						<view class="brief-badges-row">
-							<view class="badge-item" v-if="enterprise.zone">
-								<text class="badge-text">{{ enterprise.zone.value }}</text>
-							</view>
-							<view class="badge-item" v-if="enterprise.city">
-								<text class="badge-text">{{ enterprise.city }}</text>
-							</view>
-						</view>
+						<image v-if="enterprise.icon" class="enterprise-icon" :src="parseEnterpriseIcon(`小图标/${enterprise.icon}.png`)" mode="aspectFit"/>
 					</view>
-					<image
-						v-if="enterprise.icon"
-						class="brief-logo"
-						:src="parseimage(`小图标/${enterprise.icon}.png`)"
-						mode="aspectFit"
-					/>
-				</view>
 
-				<view class="brief-content">
-					<view :class="['brief-desc', { 'brief-desc-collapsed': !isBriefExpanded }]">
-						<text>{{ enterprise.brief || "" }}</text>
-					</view>
-					<view class="expand-btn-row" v-if="enterprise.brief && enterprise.brief.length > 100">
-						<text class="expand-btn-text" @tap="isBriefExpanded = !isBriefExpanded">
-							{{ isBriefExpanded ? "收起" : "展开" }}
+					<view class="location-row">
+						<image class="location-icon" :src="parseimage('企业列表/定位.png')" mode="aspectFit" />
+						<text class="location-text">
+							{{ enterprise.zone?.value || "" }} {{ enterprise.city || "" }}
 						</text>
 					</view>
-				</view>
 
-				<view class="info-table">
-					<view class="table-row">
-						<text class="table-label">全称:</text>
-						<text class="table-value">{{ enterprise.name || "" }}</text>
-						<text class="table-action"></text>
-					</view>
-					<view class="table-row" v-if="enterprise.englishname">
-						<text class="table-label">英文名:</text>
-						<text class="table-value">{{ enterprise.englishname }}</text>
-						<text class="table-action"></text>
-					</view>
-					<view class="table-row" v-if="enterprise.shortname">
-						<text class="table-label">简称:</text>
-						<text class="table-value">{{ enterprise.shortname }}</text>
-						<text class="table-action"></text>
-					</view>
-					<view class="table-row" v-if="enterprise.upper">
-						<text class="table-label">上级单位:</text>
-						<text class="table-value">{{ enterprise.upper }}</text>
-						<text class="table-action"></text>
-					</view>
-					<view class="table-row" v-if="enterprise.sector">
-						<text class="table-label">行业类别:</text>
-						<text class="table-value">{{ enterprise.sector.value }}</text>
-						<text class="table-action"></text>
-					</view>
-					<view class="table-row" v-if="enterprise.level">
-						<text class="table-label">公司层级:</text>
-						<text class="table-value">{{ enterprise.level.value }}</text>
-						<text class="table-action"></text>
-					</view>
-					<view class="table-row" v-if="enterprise.website1">
-						<text class="table-label">公司官网:</text>
-						<text class="table-value text-blue">{{ enterprise.website1 }}</text>
-						<text class="table-action text-blue" @tap="copyWebsite(enterprise.website1)">点击复制</text>
-					</view>
-					<view class="table-row" v-if="enterprise.website2">
-						<text class="table-label">招聘官网:</text>
-						<text class="table-value text-blue">{{ enterprise.website2 }}</text>
-						<text class="table-action text-blue" @tap="copyWebsite(enterprise.website2)">点击复制</text>
-					</view>
-				</view>
-			</view>
-
-			<view class="section-divider"></view>
-
-			<!-- Section 1: 招聘专业 -->
-			<view id="section-1" class="section-card">
-				<view class="section-title-row">
-					<text class="section-title">招聘专业</text>
-				</view>
-				<view class="fields-list" v-if="enterprise.fields && enterprise.fields.length > 0">
-					<view
-						class="field-card"
-						v-for="(field, idx) in enterprise.fields"
-						:key="idx"
-						@tap="onFieldTap(field.id)"
-					>
-						<text class="field-title">{{ field.value }}</text>
-						<text class="field-subtitle">学科门类: {{ field.type }}</text>
-						<view class="field-stars-row">
-							<text class="field-stars-label">专业热门度:</text>
-							<text class="star-icon" v-for="n in field.star" :key="n">★</text>
+					<scroll-view v-if="enterprise.tags && enterprise.tags.length > 0" class="tags-scroll" scroll-x :show-scrollbar="false" enable-flex>
+						<view class="tags-row">
+							<view class="tag-badge" v-for="(tag, idx) in enterprise.tags" :key="idx">
+								<text class="tag-text">{{ tag }}</text>
+							</view>
 						</view>
-						<view :class="['field-desc', { 'field-desc-collapsed': !expandedFields[field.id] }]">
-							<text>{{ field.content }}</text>
-						</view>
-						<view class="expand-btn-row" @tap.stop="toggleFieldExpand(field.id)">
-							<text class="expand-btn-text">
-								{{ expandedFields[field.id] ? "收起" : "展开" }}
+					</scroll-view>
+
+					<view class="brief-box" v-if="enterprise.brief">
+						<view :class="['brief-content', { 'brief-content-collapsed': !isBriefExpanded && needBriefToggle }]">
+							<text class="brief-desc">
+								{{ enterprise.brief }}<text v-if="needBriefToggle && isBriefExpanded" class="brief-toggle-inline" @tap.stop="toggleBrief"> 收起 ▲</text>
 							</text>
+							<view v-if="needBriefToggle && !isBriefExpanded" class="brief-toggle-overlay" @tap.stop="toggleBrief">
+								<text class="brief-toggle-text">展开</text>
+								<text class="brief-toggle-arrow">▼</text>
+							</view>
+						</view>
+					</view>
+
+					<view class="info-table">
+						<view class="table-row">
+							<text class="table-label">全　　称</text>
+							<text class="table-value">{{ enterprise.name || "" }}</text>
+						</view>
+						<view class="table-row" v-if="enterprise.englishname">
+							<text class="table-label">英　　文</text>
+							<text class="table-value">{{ enterprise.englishname }}</text>
+						</view>
+						<view class="table-row" v-if="enterprise.shortname">
+							<text class="table-label">简　　称</text>
+							<text class="table-value">{{ enterprise.shortname }}</text>
+						</view>
+						<view class="table-row" v-if="enterprise.upper">
+							<text class="table-label">上级单位</text>
+							<text class="table-value">{{ enterprise.upper }}</text>
+						</view>
+						<view class="table-row" v-if="enterprise.sector">
+							<text class="table-label">行业类别</text>
+							<text class="table-value">{{ enterprise.sector.value }}</text>
+						</view>
+						<view class="table-row" v-if="enterprise.level">
+							<text class="table-label">公司层级</text>
+							<text class="table-value">{{ enterprise.level.value }}</text>
+						</view>
+						<view class="table-row" v-if="enterprise.website1">
+							<text class="table-label">公司官网</text>
+							<text class="table-value table-link" @tap="openWebsite(enterprise.website1)">
+								{{ enterprise.website1 }}
+							</text>
+							<text class="table-copy" @tap.stop="copyWebsite(enterprise.website1)">复制链接</text>
+						</view>
+						<view class="table-row" v-if="enterprise.website2">
+							<text class="table-label">招聘官网</text>
+							<text class="table-value table-link" @tap="openWebsite(enterprise.website2)">
+								{{ enterprise.website2 }}
+							</text>
+							<text class="table-copy" @tap.stop="copyWebsite(enterprise.website2)">复制链接</text>
 						</view>
 					</view>
 				</view>
-				<view v-else class="section-empty">
-					<text class="empty-text">暂无招聘专业信息</text>
-				</view>
-			</view>
 
-			<view class="section-divider"></view>
+				<view class="section-gap"></view>
 
-			<!-- Section 2: 深度解读 -->
-			<view id="section-2" class="section-card">
-				<view class="section-title-row">
-					<text class="section-title">深度解读</text>
+				<!-- Section 1: 招聘专业 -->
+				<view id="section-1" class="section-card">
+					<text class="block-title">招聘专业</text>
+					<view class="fields-list" v-if="enterprise.fields && enterprise.fields.length > 0">
+						<view class="field-card" v-for="(field, idx) in enterprise.fields" :key="idx" @tap="onFieldTap(field.id)">
+							<text class="field-name">{{ field.value }}</text>
+							<view class="field-meta-row">
+								<view class="field-meta-bar">
+									<text class="field-type">{{ field.type }}</text>
+									<view class="field-meta-divider"></view>
+									<text class="field-stars-label">专业热门度:</text>
+									<text class="star-icon" v-for="n in field.star" :key="n">★</text>
+								</view>
+								<view class="field-detail-link" @tap.stop="onFieldTap(field.id)">
+									<text class="field-detail-text">详情</text>
+									<text class="field-detail-arrow">›</text>
+								</view>
+							</view>
+						</view>
+					</view>
+					<view v-else class="section-empty">
+						<text class="empty-text">暂无招聘专业信息</text>
+					</view>
 				</view>
-				<view class="articles-list" v-if="enterprise.article1 && enterprise.article1.length > 0">
-					<view
-						class="article-card"
-						v-for="(art, idx) in enterprise.article1"
-						:key="idx"
-						@tap="onArticleTap(art.article)"
-					>
-						<view class="article-info">
+
+				<view class="section-gap"></view>
+
+				<!-- Section 2: 深度解读 -->
+				<view id="section-2" class="section-card">
+					<text class="block-title">深度解读</text>
+					<view class="articles-list" v-if="enterprise.article1 && enterprise.article1.length > 0">
+						<view class="article-card" v-for="(art, idx) in enterprise.article1" :key="idx" @tap="onArticleTap(art.article)">
 							<text class="article-title">{{ art.title || "未知标题" }}</text>
-							<text class="article-desc">{{ art.description }}</text>
+							<text v-if="art.description" class="article-desc">{{ art.description }}</text>
+							<view class="article-footer">
+								<view v-if="art.accountName" class="article-account">
+									<image v-if="art.accountIcon" class="account-icon" :src="art.accountIcon" mode="aspectFill"/>
+									<text class="account-name">{{ art.accountName }}</text>
+								</view>
+								<text class="article-time">发布时间: {{ formatArticleDate(art) }}</text>
+							</view>
 						</view>
 					</view>
-				</view>
-				<view v-else class="section-empty">
-					<text class="empty-text">暂无深度解读文章</text>
-				</view>
-			</view>
-
-			<view class="section-divider"></view>
-
-			<!-- Section 3: 成功案例 -->
-			<view id="section-3" class="section-card">
-				<view class="section-title-row">
-					<text class="section-title">成功案例</text>
+					<view v-else class="section-empty">
+						<text class="empty-text">暂无深度解读文章</text>
+					</view>
 				</view>
 
-				<view class="cases-wrapper">
-					<view :class="['cases-list', { 'blur-content': !accountinfo }]">
-						<view v-if="isCasesLoading" class="cases-loading">
-							<text class="loading-text">加载中...</text>
-						</view>
-						<view v-else-if="cases.length === 0" class="section-empty">
-							<text class="empty-text">暂无成功案例</text>
-						</view>
-						<view
-							v-else
-							class="case-card"
-							v-for="(c, idx) in cases"
-							:key="idx"
-						>
-							<view class="case-header">
-								<text class="student-name">{{ c.student || "" }}</text>
-								<view class="student-target-col">
-									<text class="target-entname">{{ c.entname || "" }}</text>
-									<text class="target-position">{{ c.name }}</text>
-								</view>
+				<view class="section-gap"></view>
+
+				<!-- Section 3: 成功案例 (logic unchanged) -->
+				<view id="section-3" class="section-card">
+					<text class="block-title">成功案例</text>
+					<view class="cases-wrapper">
+						<view :class="['cases-list', { 'blur-content': !accountinfo }]">
+							<view v-if="isCasesLoading" class="cases-loading">
+								<text class="loading-text">加载中...</text>
 							</view>
-
-							<view class="case-tags-row">
-								<view class="case-tags-left">
-									<view
-										v-for="(tag, tIdx) in c.tags.filter(t => t.trim() !== '')"
-										:key="tIdx"
-										:class="['case-tag-badge', `tag-color-${tIdx % 3}`]"
-									>
-										<text class="case-tag-text">{{ tag }}</text>
-									</view>
-								</view>
-								<text class="case-expand-toggle" @tap="toggleCaseExpand(idx)">
-									{{ expandedCases[idx] ? "收起" : "展开" }}
-								</text>
+							<view v-else-if="cases.length === 0" class="section-empty">
+								<text class="empty-text">暂无成功案例</text>
 							</view>
-
-							<!-- Expanded Case Details -->
-							<view class="case-expanded-details" v-if="expandedCases[idx]">
-								<view class="case-divider"></view>
-								
-								<view class="detail-section-title">
-									<view class="title-indicator"></view>
-									<text class="title-text">基础信息</text>
+							<view v-else class="case-card" v-for="(c, idx) in cases" :key="idx">
+								<view class="case-header">
+									<text class="student-name">{{ c.student || "" }}</text>
+									<view class="student-target-col">
+										<text class="target-entname">{{ c.entname || "" }}</text>
+										<text class="target-position">{{ c.name }}</text>
+									</view>
 								</view>
-
-								<view class="detail-table">
-									<view class="detail-row">
-										<text class="detail-label">· 学生姓名</text>
-										<text class="detail-value">{{ c.student || "--" }}</text>
-									</view>
-									<view class="detail-row">
-										<text class="detail-label">· 本科院校</text>
-										<text class="detail-value">{{ c.school1 || "--" }}</text>
-									</view>
-									<view class="detail-row">
-										<text class="detail-label">· 本科层次</text>
-										<text class="detail-value">{{ stagStr(c.stag1) }}</text>
-									</view>
-									<view class="detail-row">
-										<text class="detail-label">· 本科专业</text>
-										<text
-											:class="['detail-value', { 'text-blue': c.field1 }]"
-											@tap="onFieldTapByName(c.field1)"
-										>
-											{{ c.field1 || "--" }}
-										</text>
-									</view>
-									<view class="detail-row">
-										<text class="detail-label">· 硕士院校</text>
-										<text class="detail-value">{{ c.school2 || "--" }}</text>
-									</view>
-									<view class="detail-row">
-										<text class="detail-label">· 硕士层次</text>
-										<text class="detail-value">{{ stagStr(c.stag2) }}</text>
-									</view>
-									<view class="detail-row">
-										<text class="detail-label">· 硕士专业</text>
-										<text
-											:class="['detail-value', { 'text-blue': c.field2 }]"
-											@tap="onFieldTapByName(c.field2)"
-										>
-											{{ c.field2 || "--" }}
-										</text>
-									</view>
-									<view class="detail-row">
-										<text class="detail-label">· 主要实习</text>
-										<view class="detail-value list-value">
-											<text v-for="(s, sIdx) in (c.detail ? c.detail.split(',') : [])" :key="sIdx" class="internship-item">
-												{{ s.trim() }}
-											</text>
-											<text v-if="!c.detail">--</text>
+								<view class="case-tags-row">
+									<view class="case-tags-left">
+										<view v-for="(tag, tIdx) in c.tags.filter((t) => t.trim() !== '')" :key="tIdx" :class="['case-tag-badge', `tag-color-${tIdx % 3}`]">
+											<text class="case-tag-text">{{ tag }}</text>
 										</view>
 									</view>
+									<text class="case-expand-toggle" @tap="toggleCaseExpand(idx)">
+										{{ expandedCases[idx] ? "收起" : "展开" }}
+									</text>
 								</view>
-
-								<view class="detail-section-title margin-top-sm">
-									<view class="title-indicator"></view>
-									<text class="title-text">求职结果</text>
-								</view>
-
-								<view class="result-info">
-									<text class="result-text">· 去向单位 &nbsp;&nbsp;&nbsp;&nbsp;{{ c.entname || "--" }}</text>
-									<text class="result-text">· 所在部门 &nbsp;&nbsp;&nbsp;&nbsp;{{ c.dep || "--" }}</text>
-									<text class="result-text">· 录取岗位 &nbsp;&nbsp;&nbsp;&nbsp;{{ c.name }}</text>
+								<view class="case-expanded-details" v-if="expandedCases[idx]">
+									<view class="case-divider"></view>
+									<view class="detail-section-title">
+										<view class="title-indicator"></view>
+										<text class="title-text">基础信息</text>
+									</view>
+									<view class="detail-table">
+										<view class="detail-row">
+											<text class="detail-label">· 学生姓名</text>
+											<text class="detail-value">{{ c.student || "--" }}</text>
+										</view>
+										<view class="detail-row">
+											<text class="detail-label">· 本科院校</text>
+											<text class="detail-value">{{ c.school1 || "--" }}</text>
+										</view>
+										<view class="detail-row">
+											<text class="detail-label">· 本科层次</text>
+											<text class="detail-value">{{ stagStr(c.stag1) }}</text>
+										</view>
+										<view class="detail-row">
+											<text class="detail-label">· 本科专业</text>
+											<text :class="['detail-value', { 'text-link': c.field1 }]" @tap="onFieldTapByName(c.field1)">
+												{{ c.field1 || "--" }}
+											</text>
+										</view>
+										<view class="detail-row">
+											<text class="detail-label">· 硕士院校</text>
+											<text class="detail-value">{{ c.school2 || "--" }}</text>
+										</view>
+										<view class="detail-row">
+											<text class="detail-label">· 硕士层次</text>
+											<text class="detail-value">{{ stagStr(c.stag2) }}</text>
+										</view>
+										<view class="detail-row">
+											<text class="detail-label">· 硕士专业</text>
+											<text :class="['detail-value', { 'text-link': c.field2 }]" @tap="onFieldTapByName(c.field2)">
+												{{ c.field2 || "--" }}
+											</text>
+										</view>
+										<view class="detail-row">
+											<text class="detail-label">· 主要实习</text>
+											<view class="detail-value list-value">
+												<text v-for="(s, sIdx) in (c.detail ? c.detail.split(',') : [])" :key="sIdx" class="internship-item">
+													{{ s.trim() }}
+												</text>
+												<text v-if="!c.detail">--</text>
+											</view>
+										</view>
+									</view>
+									<view class="detail-section-title margin-top-sm">
+										<view class="title-indicator"></view>
+										<text class="title-text">求职结果</text>
+									</view>
+									<view class="result-info">
+										<text class="result-text">· 去向单位 &nbsp;&nbsp;&nbsp;&nbsp;{{ c.entname || "--" }}</text>
+										<text class="result-text">· 所在部门 &nbsp;&nbsp;&nbsp;&nbsp;{{ c.dep || "--" }}</text>
+										<text class="result-text">· 录取岗位 &nbsp;&nbsp;&nbsp;&nbsp;{{ c.name }}</text>
+									</view>
 								</view>
 							</view>
 						</view>
-					</view>
-
-					<!-- Login Blur Overlay -->
-					<view v-if="!accountinfo" class="login-overlay">
-						<button open-type="getPhoneNumber" @getphonenumber="onGetPhoneNumber" class="login-btn">
-							请先登录后查看
-						</button>
+						<view v-if="!accountinfo" class="login-overlay">
+							<button open-type="getPhoneNumber" @getphonenumber="onGetPhoneNumber" class="login-btn">
+								请先登录后查看
+							</button>
+						</view>
 					</view>
 				</view>
 			</view>
@@ -323,31 +261,19 @@
 				<image class="nav-icon" :src="parseimage('企业详情/首页.png')" mode="aspectFit" />
 				<text class="nav-text">首页</text>
 			</view>
-
 			<view class="nav-item-fav">
-				<button
-					v-if="!accountinfo"
-					open-type="getPhoneNumber"
-					@getphonenumber="onGetPhoneNumber"
-					class="fav-btn-unlogged"
-				>
+				<button v-if="!accountinfo" open-type="getPhoneNumber" @getphonenumber="onGetPhoneNumber" class="fav-btn-unlogged">
 					<image class="nav-icon" :src="parseimage('企业详情/关注.png')" mode="aspectFit" />
 					<text class="nav-text">关注</text>
 				</button>
 				<view v-else class="fav-btn-logged" @tap="toggleFavorite">
-					<image
-						class="nav-icon"
-						:src="parseimage(isFavorited ? '企业详情/已收藏.png' : '企业详情/关注.png')"
-						mode="aspectFit"
-					/>
+					<image class="nav-icon" :src="parseimage(isFavorited ? '企业详情/已收藏.png' : '企业详情/关注.png')" mode="aspectFit"/>
 					<text class="nav-text">{{ isFavorited ? "已收藏" : "关注" }}</text>
 				</view>
 			</view>
-
 			<view class="nav-btn-consult" @tap="goConsult">
 				<text class="consult-btn-text">在线咨询</text>
 			</view>
-
 			<view class="nav-btn-phone" @tap="callPhone">
 				<text class="phone-btn-text">电话咨询</text>
 			</view>
@@ -372,49 +298,85 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, nextTick } from "vue";
+import { ref, computed, nextTick, watch, type CSSProperties } from "vue";
 import { onLoad, onPageScroll } from "@dcloudio/uni-app";
+
 import { enterpriselist, accountinfo, caselist, fieldlist } from "../../../tapah/data";
 import { entfenyes } from "../../../tapah/option";
 import { RequestEnterpriseDetail, RequestCaseList, RequestWxCode, RequestUserInfo } from "../../../tapah/request";
-import { parseimage, navigator, stagStr, openOfficialAccountArticle } from "../../../tapah/function";
-import type { Enterprise, Case } from "../../../tapah/class";
+import { parseimage, parseEnterpriseIcon, navigator, stagStr, openOfficialAccountArticle, openExternalUrl, } from "../../../tapah/function";
+import type { Enterprise, Case, Article } from "../../../tapah/class";
+import MarqueeText from "../../../components/MarqueeText.vue";
+
+const SECTION_COUNT = 4;
+const TAB_SCROLL_OFFSET = 96;
 
 const initialized = ref(false);
 const enterprise = ref<Enterprise | null>(null);
 const swiperIndex = ref(0);
 const fenyeindex = ref(0);
 const isBriefExpanded = ref(false);
-const expandedFields = ref<Record<number, boolean>>({});
 const expandedCases = ref<Record<number, boolean>>({});
 
-// Cases
 const cases = ref<Case[]>([]);
 const isCasesLoading = ref(true);
 
-// Copy Modal
-const showCopyModal = ref(false);
-const copiedUrl = ref("");
-
-// Scroll Spy
 const sectionTops = ref<number[]>([]);
 const isScrollingToSection = ref(false);
+const showCopyModal = ref(false);
+
+const nameTextStyle: CSSProperties = {
+	fontSize: "44rpx",
+	fontWeight: 500,
+	color: "#000000",
+	lineHeight: "64rpx",
+};
 
 const isFavorited = computed(() => {
 	if (!accountinfo.value || !enterprise.value) return false;
 	return accountinfo.value.enterprise.has(enterprise.value.id);
 });
 
+const needBriefToggle = computed(() => (enterprise.value?.brief?.length || 0) > 40);
+
+watch(
+	() => enterprise.value?.images,
+	() => {
+		bannerHeightPx.value = 0;
+	},
+);
+
+const bannerHeightPx = ref(0);
+
+const bannerSwiperStyle = computed(() => ({
+	height: bannerHeightPx.value > 0 ? `${bannerHeightPx.value}px` : "1px",
+}));
+
+const onBannerImageLoad = (e: any) => {
+	const { width, height } = e.detail || {};
+	if (!width || !height) return;
+	try {
+		const sys = uni.getSystemInfoSync();
+		const h = (sys.windowWidth * height) / width;
+		if (h > bannerHeightPx.value) bannerHeightPx.value = h;
+	} catch {
+		const h = (750 * height) / width;
+		if (h > bannerHeightPx.value) bannerHeightPx.value = h;
+	}
+};
+
 const onSwiperChange = (e: any) => {
 	swiperIndex.value = e.detail.current;
 };
 
-const toggleFieldExpand = (id: number) => {
-	expandedFields.value[id] = !expandedFields.value[id];
+const toggleBrief = () => {
+	isBriefExpanded.value = !isBriefExpanded.value;
+	nextTick(() => setTimeout(calculateSectionTops, 100));
 };
 
 const toggleCaseExpand = (idx: number) => {
 	expandedCases.value[idx] = !expandedCases.value[idx];
+	nextTick(() => setTimeout(calculateSectionTops, 100));
 };
 
 const onFieldTap = (id: number) => {
@@ -433,11 +395,16 @@ const onArticleTap = (url: string) => {
 	openOfficialAccountArticle(url);
 };
 
-const copyWebsite = (url: string) => {
+const openWebsite = (url?: string) => {
+	if (!url) return;
+	openExternalUrl(url);
+};
+
+const copyWebsite = (url?: string) => {
+	if (!url) return;
 	uni.setClipboardData({
 		data: url,
 		success: () => {
-			copiedUrl.value = url;
 			showCopyModal.value = true;
 		},
 	});
@@ -446,6 +413,16 @@ const copyWebsite = (url: string) => {
 const onConsultTap = () => {
 	showCopyModal.value = false;
 	navigator("/kefu");
+};
+
+const formatArticleDate = (art: Article) => {
+	const ts = art.publishTime || art.update;
+	if (!ts) return "--";
+	const d = new Date(ts * 1000);
+	const y = d.getFullYear();
+	const m = String(d.getMonth() + 1).padStart(2, "0");
+	const day = String(d.getDate()).padStart(2, "0");
+	return `${y}-${m}-${day}`;
 };
 
 const goHome = () => {
@@ -457,9 +434,7 @@ const goConsult = () => {
 };
 
 const callPhone = () => {
-	uni.makePhoneCall({
-		phoneNumber: "051281660895",
-	});
+	uni.makePhoneCall({ phoneNumber: "051281660895" });
 };
 
 const toggleFavorite = async () => {
@@ -482,10 +457,7 @@ const onGetPhoneNumber = async (e: any) => {
 	if (code) {
 		try {
 			await RequestWxCode(code);
-			// Refresh cases if logged in
-			if (enterprise.value) {
-				loadCases();
-			}
+			if (enterprise.value) loadCases();
 		} catch (err) {
 			console.error("Failed to login with WeChat code:", err);
 			uni.showToast({ title: "登录失败", icon: "none" });
@@ -506,31 +478,25 @@ const loadCases = async () => {
 		console.error("Failed to load cases:", err);
 	} finally {
 		isCasesLoading.value = false;
-		nextTick(() => {
-			setTimeout(calculateSectionTops, 500);
-		});
+		nextTick(() => setTimeout(calculateSectionTops, 300));
 	}
 };
 
 const calculateSectionTops = () => {
 	const query = uni.createSelectorQuery();
-	for (let i = 0; i < 4; i++) {
+	for (let i = 0; i < SECTION_COUNT; i++) {
 		query.select(`#section-${i}`).boundingClientRect();
 	}
 	query.selectViewport().scrollOffset(() => {});
 	query.exec((res) => {
-		if (!res || res.length < 5) return;
-		const viewport = res[4];
+		if (!res || res.length < SECTION_COUNT + 1) return;
+		const viewport = res[SECTION_COUNT];
 		if (!viewport) return;
 		const scrollTop = viewport.scrollTop;
 		const tops: number[] = [];
-		for (let i = 0; i < 4; i++) {
+		for (let i = 0; i < SECTION_COUNT; i++) {
 			const rect = res[i];
-			if (rect) {
-				tops.push(scrollTop + rect.top);
-			} else {
-				tops.push(0);
-			}
+			tops.push(rect ? scrollTop + rect.top : 0);
 		}
 		sectionTops.value = tops;
 	});
@@ -544,10 +510,7 @@ const scrollToSection = (index: number) => {
 	query.selectViewport().scrollOffset(() => {});
 	query.exec((res) => {
 		if (res && res[0] && res[1]) {
-			const sectionTop = res[0].top;
-			const scrollTop = res[1].scrollTop;
-			// Tab bar is sticky, height is 35px (approx 70rpx)
-			const targetScrollTop = scrollTop + sectionTop - 40;
+			const targetScrollTop = res[1].scrollTop + res[0].top - TAB_SCROLL_OFFSET;
 			uni.pageScrollTo({
 				scrollTop: targetScrollTop,
 				duration: 300,
@@ -568,12 +531,19 @@ onPageScroll((e) => {
 	const scrollTop = e.scrollTop;
 	let activeIndex = 0;
 	for (let i = 0; i < sectionTops.value.length; i++) {
-		if (scrollTop >= sectionTops.value[i] - 50) {
+		if (scrollTop >= sectionTops.value[i] - TAB_SCROLL_OFFSET) {
 			activeIndex = i;
 		}
 	}
 	fenyeindex.value = activeIndex;
 });
+
+watch(
+	() => enterprise.value?.id,
+	() => {
+		nextTick(() => setTimeout(calculateSectionTops, 300));
+	}
+);
 
 onLoad(async (options) => {
 	let enterpriseId = 0;
@@ -582,7 +552,6 @@ onLoad(async (options) => {
 	}
 
 	if (enterpriseId > 0) {
-		// Try to find in enterpriselist first
 		const found = enterpriselist.value.find((e) => e.id === enterpriseId);
 		if (found) {
 			enterprise.value = found;
@@ -590,8 +559,7 @@ onLoad(async (options) => {
 			loadCases();
 		} else {
 			try {
-				const detail = await RequestEnterpriseDetail(enterpriseId);
-				enterprise.value = detail;
+				enterprise.value = await RequestEnterpriseDetail(enterpriseId);
 				initialized.value = true;
 				loadCases();
 			} catch (err) {
@@ -601,11 +569,11 @@ onLoad(async (options) => {
 		}
 	}
 
-	if (enterprise.value && enterprise.value.name) {
-		uni.setNavigationBarTitle({
-			title: enterprise.value.name,
-		});
+	if (enterprise.value?.name) {
+		uni.setNavigationBarTitle({ title: enterprise.value.name });
 	}
+
+	nextTick(() => setTimeout(calculateSectionTops, 400));
 });
 </script>
 
@@ -616,365 +584,480 @@ onLoad(async (options) => {
 	width: 100vw;
 	min-height: 100vh;
 	background-color: #f8f8f8;
-	padding-bottom: 120rpx; /* Space for bottom nav bar */
+	padding-bottom: 120rpx;
 	box-sizing: border-box;
 }
 
-/* Swiper Banner */
-.swiper-container {
+.banner-wrap {
 	position: relative;
 	width: 100%;
-	height: 400rpx;
 }
 
 .top-swiper {
 	width: 100%;
+}
+
+.top-swiper swiper-item {
 	height: 100%;
 }
 
-.swiper-image {
+.banner-image {
+	display: block;
 	width: 100%;
-	height: 100%;
 }
 
 .swiper-indicator {
 	position: absolute;
-	right: 30rpx;
+	right: 64rpx;
 	bottom: 20rpx;
 	background-color: rgba(0, 0, 0, 0.5);
-	padding: 4rpx 16rpx;
-	border-radius: 20rpx;
+	padding: 8rpx 32rpx;
+	border-radius: 40rpx;
 }
 
 .indicator-text {
 	color: #ffffff;
-	font-size: 20rpx;
+	font-size: 40rpx;
 }
 
-/* Sticky Tab Bar */
+.main-panel {
+	margin-top: 0;
+	background-color: #ffffff;
+	border-radius: 20rpx 20rpx 0 0;
+	overflow: hidden;
+	position: relative;
+	z-index: 1;
+}
+
 .sticky-tab-bar {
 	position: sticky;
 	top: 0;
 	z-index: 100;
 	background-color: #ffffff;
-	border-bottom: 1rpx solid #eeeeee;
-	height: 70rpx;
-}
-
-.tab-scroll {
-	width: 100%;
-	height: 100%;
 }
 
 .tab-items-row {
 	display: flex;
 	flex-direction: row;
-	align-items: center;
-	padding: 0 10rpx;
-	height: 100%;
+	align-items: flex-start;
+	padding: 22rpx 64rpx 20rpx 64rpx;
+	box-sizing: border-box;
 }
 
 .tab-item {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	justify-content: center;
-	padding: 0 20rpx;
-	height: 100%;
-	flex-shrink: 0;
+	flex: 1;
 }
 
 .tab-text {
-	font-size: 28rpx;
-	color: #333333;
-	line-height: 1;
+	font-size: 30rpx;
+	line-height: 44rpx;
+	font-weight: 350;
+	color: #000000;
 }
 
 .tab-text-active {
-	font-weight: bold;
-	color: #2d7bff;
+	color: #5e80f7;
 }
 
 .tab-line {
-	height: 4rpx;
-	width: 40rpx;
+	width: 100%;
+	height: 6rpx;
+	margin-top: 12rpx;
 	background-color: transparent;
-	margin-top: 6rpx;
-	border-radius: 2rpx;
+	border-radius: 4rpx;
 }
 
 .tab-line-active {
-	background-color: #2d7bff;
+	background-color: #5e80f7;
 }
 
-/* Sections Container */
-.sections-container {
-	display: flex;
-	flex-direction: column;
+.sections-inner {
+	background-color: #f8f8f8;
+	padding-bottom: 40rpx;
 }
 
 .section-card {
 	background-color: #ffffff;
-	padding: 30rpx 20rpx;
+	border-radius: 20rpx;
+	padding-bottom: 40rpx;
 	box-sizing: border-box;
 }
 
-.section-divider {
-	height: 20rpx;
-	background-color: #f5f5f5;
+.section-gap {
+	height: 30rpx;
+	background-color: #f8f8f8;
 }
 
-/* Section 0: 公司简介 */
-.brief-header {
+.name-row {
 	display: flex;
 	flex-direction: row;
-	justify-content: space-between;
-	align-items: flex-start;
-	margin-bottom: 20rpx;
+	align-items: center;
+	height: 128rpx;
+	padding: 0 64rpx;
+	box-sizing: border-box;
 }
 
-.brief-title-col {
+.name-marquee-col {
 	flex: 1;
-	display: flex;
-	flex-direction: column;
+	min-width: 0;
 	margin-right: 20rpx;
 }
 
-.brief-name {
-	font-size: 36rpx;
-	font-weight: bold;
-	color: #333333;
-	margin-bottom: 16rpx;
-}
-
-.brief-tags-row {
-	display: flex;
-	flex-direction: row;
-	flex-wrap: wrap;
-	margin-bottom: 16rpx;
-}
-
-.brief-tag-badge {
-	background-color: #feeddf;
-	border-radius: 8rpx;
-	padding: 4rpx 16rpx;
-	margin-right: 12rpx;
-	margin-bottom: 8rpx;
-}
-
-.brief-tag-text {
-	font-size: 20rpx;
-	color: #692e1f;
-}
-
-.brief-badges-row {
-	display: flex;
-	flex-direction: row;
-}
-
-.badge-item {
-	background-color: #eeeeee;
-	border-radius: 8rpx;
-	padding: 2rpx 16rpx;
-	margin-right: 20rpx;
-}
-
-.badge-text {
-	font-size: 18rpx;
-	color: #333333;
-}
-
-.brief-logo {
-	width: 120rpx;
-	height: 120rpx;
+.enterprise-icon {
+	width: 128rpx;
+	height: 128rpx;
 	flex-shrink: 0;
 }
 
+.location-row {
+	display: inline-flex;
+	flex-direction: row;
+	align-items: center;
+	margin-top: 10rpx;
+	margin-left: 64rpx;
+	padding: 6rpx 10rpx 6rpx 6rpx;
+	background-color: #edf2f8;
+	box-sizing: border-box;
+}
+
+.location-icon {
+	width: 24rpx;
+	height: 24rpx;
+	flex-shrink: 0;
+	margin-right: 6rpx;
+}
+
+.location-text {
+	font-size: 20rpx;
+	color: #666666;
+}
+
+.tags-scroll {
+	width: 100%;
+	margin-top: 10rpx;
+	padding: 0 64rpx;
+	box-sizing: border-box;
+}
+
+.tags-row {
+	display: inline-flex;
+	flex-direction: row;
+	flex-wrap: nowrap;
+	align-items: center;
+	gap: 3rpx;
+}
+
+.tag-badge {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 1rpx 3rpx;
+	background-color: #fef5e6;
+	border-radius: 6rpx;
+	flex-shrink: 0;
+}
+
+.tag-text {
+	font-size: 20rpx;
+	line-height: 28rpx;
+	font-weight: 400;
+	color: #80500a;
+	white-space: nowrap;
+}
+
+.brief-box {
+	margin-top: 20rpx;
+	padding: 0 64rpx;
+}
+
 .brief-content {
-	margin-bottom: 30rpx;
+	position: relative;
 }
 
 .brief-desc {
-	font-size: 30rpx;
-	color: #333333;
-	line-height: 1.5;
+	font-size: 28rpx;
+	line-height: 48rpx;
+	font-weight: 350;
+	color: #000000;
+	letter-spacing: 0.05em;
+	word-break: break-word;
 }
 
-.brief-desc-collapsed {
-	display: -webkit-box;
-	-webkit-line-clamp: 4;
-	-webkit-box-orient: vertical;
+.brief-content-collapsed {
+	max-height: 192rpx;
 	overflow: hidden;
 }
 
-.expand-btn-row {
+.brief-toggle-inline,
+.brief-toggle-text {
+	font-size: 28rpx;
+	line-height: 48rpx;
+	color: #5e80f7;
+	font-weight: 350;
+}
+
+.brief-toggle-overlay {
+	position: absolute;
+	right: 0;
+	bottom: 0;
+	height: 48rpx;
 	display: flex;
-	justify-content: flex-end;
-	margin-top: 10rpx;
+	flex-direction: row;
+	align-items: center;
+	padding-left: 72rpx;
+	background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, #ffffff 40%);
 }
 
-.expand-btn-text {
-	color: #2d7bff;
-	font-size: 26rpx;
+.brief-toggle-arrow {
+	font-size: 28rpx;
+	line-height: 48rpx;
+	color: #5e80f7;
+	margin-left: 4rpx;
 }
 
-/* Info Table */
 .info-table {
 	display: flex;
 	flex-direction: column;
-	border-top: 1rpx solid #eeeeee;
-	padding-top: 20rpx;
+	margin-top: 20rpx;
+	padding: 0 64rpx;
 }
 
 .table-row {
 	display: flex;
 	flex-direction: row;
 	padding: 12rpx 0;
-	font-size: 28rpx;
 	align-items: flex-start;
 }
 
 .table-label {
-	width: 150rpx;
-	font-weight: bold;
-	color: #333333;
-	text-align: right;
-	margin-right: 20rpx;
+	width: 140rpx;
+	flex-shrink: 0;
+	font-size: 30rpx;
+	line-height: 44rpx;
+	font-weight: 350;
+	color: #6a727d;
 }
 
 .table-value {
 	flex: 1;
-	color: #333333;
+	min-width: 0;
+	font-size: 30rpx;
+	line-height: 44rpx;
+	font-weight: 350;
+	color: #000000;
 	word-break: break-all;
 }
 
-.table-action {
-	width: 140rpx;
-	font-weight: bold;
-	text-align: right;
+.table-link {
+	color: #5e80f7;
+	text-decoration: underline;
 }
 
-.text-blue {
-	color: #2d7bff !important;
+.table-copy {
+	flex-shrink: 0;
+	margin-left: 16rpx;
+	font-size: 30rpx;
+	line-height: 44rpx;
+	font-weight: 350;
+	color: #5e80f7;
 }
 
-/* Section 1: 招聘专业 */
-.section-title-row {
-	margin-bottom: 30rpx;
-}
-
-.section-title {
-	font-size: 32rpx;
-	font-weight: bold;
-	color: #333333;
-	border-left: 6rpx solid #2d7bff;
-	padding-left: 16rpx;
+.block-title {
+	display: block;
+	font-size: 40rpx;
+	line-height: 58rpx;
+	font-weight: 700;
+	color: #000000;
+	padding: 40rpx 64rpx 16rpx 64rpx;
 }
 
 .fields-list {
 	display: flex;
 	flex-direction: column;
+	padding: 0 64rpx;
+	gap: 4rpx;
 }
 
 .field-card {
-	border: 1rpx solid #2d7bff;
-	border-radius: 16rpx;
-	padding: 20rpx;
-	margin-bottom: 20rpx;
+	min-height: 134rpx;
+	border: 1rpx solid #e7e7e7;
+	border-radius: 10rpx;
+	padding: 16rpx 0;
 	box-sizing: border-box;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
 }
 
-.field-title {
-	font-size: 30rpx;
-	font-weight: bold;
-	color: #333333;
-	margin-bottom: 10rpx;
+.field-name {
+	font-size: 34rpx;
+	line-height: 50rpx;
+	font-weight: 350;
+	color: #000000;
+	padding-left: 30rpx;
 }
 
-.field-subtitle {
-	font-size: 22rpx;
-	color: #333333;
-	margin-bottom: 10rpx;
-}
-
-.field-stars-row {
+.field-meta-row {
 	display: flex;
 	flex-direction: row;
 	align-items: center;
-	margin-bottom: 10rpx;
+	margin-top: 10rpx;
+	margin-left: 30rpx;
+	margin-right: 30rpx;
+}
+
+.field-meta-bar {
+	display: inline-flex;
+	flex-direction: row;
+	align-items: center;
+	padding: 4rpx 20rpx;
+	background-color: #f6f6fa;
+	border-radius: 8rpx;
+	box-sizing: border-box;
+	flex-shrink: 0;
+}
+
+.field-type {
+	font-size: 24rpx;
+	line-height: 34rpx;
+	font-weight: 400;
+	color: #394156;
+	flex-shrink: 0;
+}
+
+.field-meta-divider {
+	width: 1rpx;
+	height: 24rpx;
+	background-color: #d9d9d9;
+	margin: 0 20rpx;
+	flex-shrink: 0;
 }
 
 .field-stars-label {
-	font-size: 22rpx;
-	color: #333333;
-	margin-right: 10rpx;
+	font-size: 24rpx;
+	line-height: 28rpx;
+	font-weight: 400;
+	color: #000000;
+	flex-shrink: 0;
 }
 
 .star-icon {
 	color: #ff9800;
-	font-size: 32rpx;
+	font-size: 24rpx;
+	line-height: 28rpx;
 	margin-right: 4rpx;
 }
 
-.field-desc {
+.field-detail-link {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	margin-left: auto;
+	flex-shrink: 0;
+}
+
+.field-detail-text {
 	font-size: 26rpx;
-	color: #666666;
-	line-height: 1.4;
+	line-height: 38rpx;
+	font-weight: 350;
+	color: #5e80f7;
 }
 
-.field-desc-collapsed {
-	display: -webkit-box;
-	-webkit-line-clamp: 3;
-	-webkit-box-orient: vertical;
-	overflow: hidden;
+.field-detail-arrow {
+	font-size: 26rpx;
+	line-height: 38rpx;
+	color: #5e80f7;
+	margin-left: 4rpx;
 }
 
-/* Section 2: 深度解读 */
 .articles-list {
 	display: flex;
 	flex-direction: column;
+	padding: 0 64rpx;
+	gap: 24rpx;
 }
 
 .article-card {
 	background-color: #ffffff;
-	border-radius: 16rpx;
-	padding: 20rpx;
-	margin-bottom: 20rpx;
-	box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.02);
+	border-radius: 20rpx;
+	padding: 32rpx;
 	border: 1rpx solid #eeeeee;
-}
-
-.article-info {
-	display: flex;
-	flex-direction: column;
+	box-sizing: border-box;
 }
 
 .article-title {
-	font-size: 30rpx;
-	font-weight: bold;
+	font-size: 28rpx;
+	font-weight: 700;
 	color: #333333;
+	line-height: 1.4;
 	margin-bottom: 8rpx;
-	overflow: hidden;
-	text-overflow: ellipsis;
 	display: -webkit-box;
-	-webkit-line-clamp: 2;
 	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+	overflow: hidden;
 }
 
 .article-desc {
 	font-size: 24rpx;
 	color: #666666;
-	overflow: hidden;
-	text-overflow: ellipsis;
+	line-height: 1.4;
 	display: -webkit-box;
-	-webkit-line-clamp: 2;
 	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+	overflow: hidden;
 }
 
-/* Section 3: 成功案例 */
+.article-footer {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: space-between;
+	margin-top: 24rpx;
+}
+
+.article-account {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	flex: 1;
+	min-width: 0;
+}
+
+.account-icon {
+	width: 40rpx;
+	height: 40rpx;
+	border-radius: 50%;
+	flex-shrink: 0;
+	margin-right: 12rpx;
+}
+
+.account-name {
+	font-size: 20rpx;
+	line-height: 30rpx;
+	font-weight: 400;
+	color: #000000;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.article-time {
+	font-size: 20rpx;
+	line-height: 30rpx;
+	font-weight: 350;
+	color: #818181;
+	flex-shrink: 0;
+	margin-left: auto;
+}
+
 .cases-wrapper {
 	position: relative;
 	width: 100%;
+	padding: 0 64rpx;
+	box-sizing: border-box;
 }
 
 .cases-list {
@@ -996,11 +1079,11 @@ onLoad(async (options) => {
 
 .case-card {
 	background-color: #ffffff;
-	border-radius: 16rpx;
+	border-radius: 10rpx;
 	padding: 20rpx;
 	margin-bottom: 20rpx;
 	border: 1rpx solid #eeeeee;
-	box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.02);
+	box-sizing: border-box;
 }
 
 .case-header {
@@ -1013,7 +1096,7 @@ onLoad(async (options) => {
 .student-name {
 	font-size: 30rpx;
 	font-weight: bold;
-	color: #2d7bff;
+	color: #5e80f7;
 	width: 140rpx;
 	flex-shrink: 0;
 }
@@ -1059,26 +1142,12 @@ onLoad(async (options) => {
 	margin-bottom: 6rpx;
 }
 
-.tag-color-0 {
-	background-color: #e8f0fe;
-}
-.tag-color-0 .case-tag-text {
-	color: #2d7bff;
-}
-
-.tag-color-1 {
-	background-color: #feeddf;
-}
-.tag-color-1 .case-tag-text {
-	color: #692e1f;
-}
-
-.tag-color-2 {
-	background-color: #f3eeff;
-}
-.tag-color-2 .case-tag-text {
-	color: #6b21a8;
-}
+.tag-color-0 { background-color: #e8f0fe; }
+.tag-color-0 .case-tag-text { color: #5e80f7; }
+.tag-color-1 { background-color: #feeddf; }
+.tag-color-1 .case-tag-text { color: #692e1f; }
+.tag-color-2 { background-color: #f3eeff; }
+.tag-color-2 .case-tag-text { color: #6b21a8; }
 
 .case-tag-text {
 	font-size: 22rpx;
@@ -1086,12 +1155,11 @@ onLoad(async (options) => {
 
 .case-expand-toggle {
 	font-size: 24rpx;
-	color: #2d7bff;
+	color: #5e80f7;
 	margin-left: 20rpx;
 	flex-shrink: 0;
 }
 
-/* Expanded Case Details */
 .case-expanded-details {
 	display: flex;
 	flex-direction: column;
@@ -1113,7 +1181,7 @@ onLoad(async (options) => {
 .title-indicator {
 	width: 6rpx;
 	height: 24rpx;
-	background-color: #2d7bff;
+	background-color: #5e80f7;
 	margin-right: 16rpx;
 }
 
@@ -1146,6 +1214,10 @@ onLoad(async (options) => {
 	color: #555555;
 }
 
+.text-link {
+	color: #5e80f7;
+}
+
 .list-value {
 	display: flex;
 	flex-direction: column;
@@ -1170,7 +1242,6 @@ onLoad(async (options) => {
 	padding: 4rpx 0;
 }
 
-/* Login Overlay */
 .login-overlay {
 	position: absolute;
 	top: 0;
@@ -1195,7 +1266,6 @@ onLoad(async (options) => {
 	border: none;
 }
 
-/* Section Empty */
 .section-empty {
 	display: flex;
 	align-items: center;
@@ -1203,12 +1273,12 @@ onLoad(async (options) => {
 	padding: 40rpx 0;
 }
 
-.empty-text {
+.empty-text,
+.loading-text {
 	font-size: 28rpx;
 	color: #888888;
 }
 
-/* Bottom Navigation Bar */
 .bottom-nav-bar {
 	position: fixed;
 	bottom: 0;
@@ -1309,7 +1379,6 @@ onLoad(async (options) => {
 	font-weight: bold;
 }
 
-/* Copy Success Modal */
 .modal-mask {
 	position: fixed;
 	top: 0;
