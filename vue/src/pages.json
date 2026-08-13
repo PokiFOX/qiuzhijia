@@ -10,7 +10,8 @@
 			"path": "pages/mainpage/mainpage",
 			"style": {
 				"navigationBarTitleText": "浦浦求职家",
-				"navigationStyle": "custom"
+				"navigationStyle": "custom",
+				"disableScroll": true
 			}
 		},
 		{
@@ -36,7 +37,8 @@
 		{
 			"path": "pages/mainpage/fielddetail/fielddetail",
 			"style": {
-				"navigationBarTitleText": "专业详情"
+				"navigationBarTitleText": "招聘专业",
+				"navigationStyle": "custom"
 			}
 		},
 		{

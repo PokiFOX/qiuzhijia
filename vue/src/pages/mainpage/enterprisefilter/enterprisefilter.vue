@@ -12,31 +12,14 @@
 
 		<view class="page-body">
 			<view class="filter-row">
-				<view
-					v-for="dim in dimensions"
-					:key="dim.key"
-					class="filter-item"
-					@tap="activeDimension = dim.key"
-				>
+				<view v-for="dim in dimensions" :key="dim.key" class="filter-item" @tap="activeDimension = dim.key">
 					<text :class="['filter-label', { 'filter-label-active': activeDimension === dim.key }]">
 						{{ dim.label }}
 					</text>
-					<image
-						class="filter-arrow"
-						:class="{ 'filter-arrow-up': activeDimension === dim.key }"
-						:src="parseimage('企业列表/下箭头.png')"
-						mode="aspectFit"
-					/>
+					<image class="filter-arrow" :class="{ 'filter-arrow-up': activeDimension === dim.key }" :src="parseimage('企业列表/下箭头.png')" mode="aspectFit"/>
 				</view>
 				<view class="search-box">
-					<input
-						class="search-input"
-						type="text"
-						v-model="search"
-						placeholder="搜索企业"
-						placeholder-class="search-placeholder"
-						confirm-type="search"
-					/>
+					<input class="search-input" type="text" v-model="search" placeholder="搜索企业" placeholder-class="search-placeholder" confirm-type="search"/>
 					<image class="search-icon" :src="parseimage('企业列表/搜索.png')" mode="aspectFit" />
 				</view>
 			</view>
@@ -45,12 +28,7 @@
 
 			<scroll-view class="option-scroll" scroll-y enhanced :show-scrollbar="false">
 				<view class="option-list">
-					<view
-						v-for="item in currentOptions"
-						:key="item.id"
-						class="option-row"
-						@tap="onOptionTap(item.id)"
-					>
+					<view v-for="item in currentOptions" :key="item.id" class="option-row" @tap="onOptionTap(item.id)">
 						<text :class="['option-text', { 'option-text-selected': isOptionSelected(item.id) }]">
 							{{ item.value }}
 						</text>

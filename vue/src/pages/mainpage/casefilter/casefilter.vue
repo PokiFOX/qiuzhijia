@@ -3,12 +3,7 @@
 		<view class="main-content">
 			<!-- Left Panel: Categories -->
 			<scroll-view class="left-panel" scroll-y>
-				<view
-					v-for="(cat, index) in categories"
-					:key="index"
-					:class="['category-item', { 'category-item-active': index === selectedCategory }]"
-					@tap="scrollToSection(index)"
-				>
+				<view v-for="(cat, index) in categories" :key="index" :class="['category-item', { 'category-item-active': index === selectedCategory }]" @tap="scrollToSection(index)">
 					<text :class="['category-text', { 'category-text-active': index === selectedCategory }]">
 						{{ cat }}
 					</text>
@@ -16,27 +11,11 @@
 			</scroll-view>
 
 			<!-- Right Panel: Options under Category -->
-			<scroll-view
-				class="right-panel"
-				scroll-y
-				:scroll-into-view="scrollTargetId"
-				scroll-with-animation
-				@scroll="onRightScroll"
-			>
-				<view
-					v-for="(cat, index) in categories"
-					:key="index"
-					:id="'section-' + index"
-					class="section-container"
-				>
+			<scroll-view class="right-panel" scroll-y :scroll-into-view="scrollTargetId" scroll-with-animation @scroll="onRightScroll">
+				<view v-for="(cat, index) in categories" :key="index" :id="'section-' + index" class="section-container">
 					<text class="section-title">{{ cat }}</text>
 					<view class="tags-wrap">
-						<view
-							v-for="(opt, oIdx) in options[index]"
-							:key="oIdx"
-							:class="['tag-item', { 'tag-item-selected': selections[index] === oIdx }]"
-							@tap="onOptionTap(index, oIdx)"
-						>
+						<view v-for="(opt, oIdx) in options[index]" :key="oIdx" :class="['tag-item', { 'tag-item-selected': selections[index] === oIdx }]" @tap="onOptionTap(index, oIdx)">
 							<text :class="['tag-text', { 'tag-text-selected': selections[index] === oIdx }]">
 								{{ opt }}
 							</text>

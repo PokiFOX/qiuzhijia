@@ -7,12 +7,7 @@
 		<view class="profile-content">
 			<!-- User Info Card -->
 			<view class="card-row">
-				<button
-					v-if="!accountinfo"
-					open-type="getPhoneNumber"
-					@getphonenumber="onGetPhoneNumber"
-					class="login-btn-wrapper"
-				>
+				<button v-if="!accountinfo" open-type="getPhoneNumber" @getphonenumber="onGetPhoneNumber" class="login-btn-wrapper">
 					<view class="user-info-card">
 						<view class="avatar-col">
 							<image class="avatar-image" :src="parseimage('客服/头像.png')" mode="aspectFill" />
@@ -26,26 +21,11 @@
 				</button>
 
 				<view v-else class="user-info-card">
-					<button
-						open-type="chooseAvatar"
-						@chooseavatar="onChooseAvatar"
-						class="avatar-btn-wrapper"
-					>
-						<image
-							class="avatar-image"
-							:src="accountinfo.avatar || parseimage('客服/头像.png')"
-							mode="aspectFill"
-						/>
+					<button open-type="chooseAvatar" @chooseavatar="onChooseAvatar" class="avatar-btn-wrapper">
+						<image class="avatar-image" :src="accountinfo.avatar || parseimage('客服/头像.png')" mode="aspectFill"/>
 					</button>
 					<view class="info-col">
-						<input
-							class="nickname-input"
-							type="text"
-							v-model="nicknameInput"
-							@blur="onNicknameBlur"
-							confirm-type="done"
-							placeholder="请输入昵称"
-						/>
+						<input class="nickname-input" type="text" v-model="nicknameInput" @blur="onNicknameBlur" confirm-type="done" placeholder="请输入昵称"/>
 						<text class="id-text">ID: {{ accountinfo.id }}</text>
 					</view>
 					<text class="arrow-right">▶</text>

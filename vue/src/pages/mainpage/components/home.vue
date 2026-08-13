@@ -3,15 +3,7 @@
 		<view class="home-top-panel">
 			<!-- Swiper Banner -->
 			<view class="banner-wrap">
-				<swiper
-					class="swiper-banner"
-					circular
-					autoplay
-					:interval="3000"
-					indicator-dots
-					indicator-active-color="#1269FF"
-					indicator-color="rgba(0,0,0,.3)"
-				>
+				<swiper class="swiper-banner" circular autoplay :interval="3000" indicator-dots indicator-active-color="#1269FF" indicator-color="rgba(0,0,0,.3)">
 					<swiper-item v-for="(img, idx) in imageurls" :key="idx">
 						<image class="swiper-image" :src="parseimage(img)" mode="aspectFill" />
 					</swiper-item>
@@ -45,28 +37,10 @@
 
 			<!-- Promo three images -->
 			<view class="promo-row">
-				<image
-					class="promo-left"
-					:style="promoLeftStyle"
-					:src="parseimage('实习推荐.png')"
-					mode="aspectFill"
-					@tap="onPromoTap('shixineitui')"
-				/>
+				<image class="promo-left" :style="promoLeftStyle" :src="parseimage('实习推荐.png')" mode="aspectFill" @tap="onPromoTap('shixineitui')"/>
 				<view class="promo-right" :style="promoRightStyle">
-					<image
-						class="promo-right-item"
-						:style="promoRightItemStyle"
-						:src="parseimage('求职全套.png')"
-						mode="aspectFill"
-						@tap="onPromoTap('qiuzhifuwu')"
-					/>
-					<image
-						class="promo-right-item"
-						:style="promoRightItemStyle"
-						:src="parseimage('教授科研.png')"
-						mode="aspectFill"
-						@tap="onPromoTap('kefu')"
-					/>
+					<image class="promo-right-item" :style="promoRightItemStyle" :src="parseimage('求职全套.png')" mode="aspectFill" @tap="onPromoTap('qiuzhifuwu')"/>
+					<image class="promo-right-item" :style="promoRightItemStyle" :src="parseimage('教授科研.png')" mode="aspectFill" @tap="onPromoTap('kefu')"/>
 				</view>
 			</view>
 		</view>
@@ -217,38 +191,66 @@ defineExpose({
 	loadMore,
 });
 
+const openAiInterviewMiniProgram = () => {
+	// @ts-ignore
+	if (typeof wx !== "undefined" && wx.navigateToMiniProgram) {
+		// @ts-ignore
+		wx.navigateToMiniProgram({
+			appId: "wx320a7a97e2f254e2",
+			path: "/pages/entry/share?o=store&type=39&id=2",
+		});
+	} else {
+		uni.showToast({ title: "请在微信小程序中打开", icon: "none" });
+	}
+};
+
 const onLanMuTap = (index: number) => {
 	if (index < 0 || index >= lanmus.length) return;
-	if (index === 0) {
-		activateMainPageTab(1);
-	} else if (index === 1) {
-		navigator("/mainpage/field");
-	} else if (index === 2) {
-		// @ts-ignore
-		if (typeof wx !== "undefined" && wx.navigateToMiniProgram) {
-			// @ts-ignore
-			wx.navigateToMiniProgram({appId: "wx320a7a97e2f254e2", path: "/pages/entry/share?o=store&type=39&id=2",});
-		} else {
-			uni.showToast({title: "请在微信小程序中打开", icon: "none",});
-		}
-	} else if (index === 3) {
-		navigator("/mainpage/example");
-	} else if (index === 4) {
-		navigator("/lanmu/aizhushou");
-	} else if (index === 5) {
-		navigator("/lanmu/qiuzhiziliao");
-	} else if (index === 6) {
-		navigator("/lanmu/shixineitui");
-	} else if (index === 7) {
-		navigator("/lanmu/gangweineitui");
-	} else if (index === 8) {
-		navigator("/lanmu/zixunguwen");
-	} else if (index === 9) {
-		navigator("/lanmu/bishitiku");
-	} else if (index === 10) {
-		navigator("/lanmu/mianshijingyan");
-	} else if (index === 11) {
-		navigator("/lanmu/qiuzhifuwu");
+	const title = lanmus[index].title;
+
+	switch (title) {
+		case "招聘企业":
+			activateMainPageTab(1);
+			break;
+		case "招聘专业":
+			navigator("/mainpage/field");
+			break;
+		case "AI面试":
+			openAiInterviewMiniProgram();
+			break;
+		case "AI助手":
+			navigator("/lanmu/aizhushou");
+			break;
+		case "智能选岗":
+			break;
+		case "求职资料":
+			navigator("/lanmu/qiuzhiziliao");
+			break;
+		case "岗位内推":
+			navigator("/lanmu/gangweineitui");
+			break;
+		case "咨询顾问":
+			navigator("/lanmu/zixunguwen");
+			break;
+		case "笔试题库":
+			navigator("/lanmu/bishitiku");
+			break;
+		case "面试经验":
+			navigator("/lanmu/mianshijingyan");
+			break;
+		case "实习内推":
+			navigator("/lanmu/shixineitui");
+			break;
+		case "求职服务":
+			navigator("/lanmu/qiuzhifuwu");
+			break;
+		case "教授科研":
+			break;
+		case "过往案例":
+			navigator("/mainpage/example");
+			break;
+		case "DBTI":
+			break;
 	}
 };
 

@@ -27,13 +27,23 @@ def fetch_article_meta(url):
 	}
 	if not url or not str(url).strip():
 		return meta
+	resp = None
+	status_code = 0
+	html = ""
 	try:
 		resp = requests.get(
 			url,
-			headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"},
-			timeout = 10.0,
+			headers = {
+				"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+				"Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+				"Accept-Language": "zh-CN,zh;q=0.9",
+				"Referer": "https://mp.weixin.qq.com/",
+				"Connection": "close",
+			},
+			timeout = (5.0, 10.0),
 			allow_redirects = True,
 		)
+		status_code = resp.status_code
 		html = resp.text
 		m = re.search(r'<meta\s+property=["\']og:title["\']\s+content=["\'](.*?)["\']', html)
 		if m: meta["title"] = m.group(1)
@@ -67,8 +77,23 @@ def fetch_article_meta(url):
 			if m:
 				meta["publishTime"] = int(m.group(1))
 				break
-	except Exception:
-		pass
+	except Exception as e:
+		print(f"fetch_article_meta error: {url} -> {e}", flush = True)
+		return meta
+	finally:
+		if resp is not None:
+			try:
+				resp.raw.close()
+			except Exception:
+				pass
+			try:
+				resp.close()
+			except Exception:
+				pass
+	if meta["title"]:
+		print(f"fetch_article_meta: {url} -> {meta['title']}", flush = True)
+	else:
+		print(f"fetch_article_meta: {url} -> (empty) status={status_code} len={len(html)}", flush = True)
 	return meta
 
 def create_article(url, update = None, fetch_meta = True):
@@ -139,27 +164,18 @@ def init_config():
 	for row in result:
 		enterprise = Enterprise(row[0], row[1], row[2], row[3], row[11], row[4], row[5], row[6], row[7], row[9], row[10], row[8], row[12], row[13], row[14], row[15], row[16], row[17] if len(row) > 17 else "")
 		data.enterpriselist.append(enterprise)
+	print(f'enterprise: {len(data.enterpriselist)}', flush = True)
 
 	cursor.execute("SELECT * FROM qzj_enterprise_field")
 	result = cursor.fetchall()
+	enterprise_by_id = {enterprise.id: enterprise for enterprise in data.enterpriselist}
 	for row in result:
-		for enterprise in data.enterpriselist:
-			if enterprise.id == row[1]:
-				enterprise.addfield(row[2])
-		print(f'addfield: {row[1]} {row[2]}')
+		enterprise = enterprise_by_id.get(row[1])
+		if enterprise is not None:
+			enterprise.addfield(row[2])
+
 	cursor.execute("SELECT * FROM qzj_enterprise_article")
 	article_rows = cursor.fetchall()
-	for article in article_rows:
-		for enterprise in data.enterpriselist:
-			if enterprise.id == article[1]:
-				info = create_article(article[3], article[4], fetch_meta = False)
-				if article[2] == 1:
-					enterprise.article1.append(info)
-				elif article[2] == 2:
-					enterprise.article2.append(info)
-				break
-		print(f'addarticle: {article[1]} {article[2]} {article[3]} {article[4]}')
-	print(f'enterprise: {len(data.enterpriselist)}')
 
 	cursor.execute("SELECT * FROM qzj_case")
 	result = cursor.fetchall()
@@ -181,6 +197,22 @@ def init_config():
 
 	cursor.close()
 	data.mysql_pool.release(conn)
+
+	total_articles = len(article_rows)
+	print(f"loading {total_articles} article metas...", flush = True)
+	for index, article in enumerate(article_rows, start = 1):
+		enterprise = enterprise_by_id.get(article[1])
+		if enterprise is None:
+			print(f"addarticle [{index}/{total_articles}]: enterprise {article[1]} not found, skip", flush = True)
+			continue
+		print(f"addarticle [{index}/{total_articles}]: enterprise={article[1]} index={article[2]}", flush = True)
+		info = create_article(article[3], article[4])
+		if article[2] == 1:
+			enterprise.article1.append(info)
+		elif article[2] == 2:
+			enterprise.article2.append(info)
+		print(f"addarticle [{index}/{total_articles}] done", flush = True)
+	print(f'enterprise: {len(data.enterpriselist)}', flush = True)
 
 def md5_hex(text: str) -> str:
 	return hashlib.md5(text.encode("utf-8")).hexdigest()

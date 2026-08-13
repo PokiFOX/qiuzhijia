@@ -1,4 +1,5 @@
 import json
+from typing import List, Optional, Tuple
 
 from tapah import function
 
@@ -33,7 +34,7 @@ def get_api_key(agent: str) -> str:
 	from tapah import data
 	return data.chatai_agents.get(agent, data.chatai_agents["resume"])
 
-def load_aichat_history(openid: str, agent: str, before: int | None = None, limit: int = 10) -> tuple[list, str, bool]:
+def load_aichat_history(openid: str, agent: str, before: Optional[int] = None, limit: int = 10) -> Tuple[List, str, bool]:
 	from tapah import data
 	limit = max(1, min(limit, 50))
 	conn = data.mysql_pool.apply()

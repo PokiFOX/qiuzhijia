@@ -12,7 +12,7 @@
 
 		<!-- Tab contents -->
 		<view class="tab-content-container">
-			<scroll-view v-if="activated[0]" v-show="currentindex === 0" class="tab-view tab-scroll-view" scroll-y :show-scrollbar="false" :lower-threshold="80" @scrolltolower="onHomeReachBottom">
+			<scroll-view v-if="activated[0]" v-show="currentindex === 0" class="tab-view tab-scroll-view" scroll-y enhanced :show-scrollbar="false" :lower-threshold="80" @scrolltolower="onHomeReachBottom">
 				<home ref="homeRef" />
 			</scroll-view>
 			<view v-if="activated[1]" v-show="currentindex === 1" class="tab-view">
@@ -24,7 +24,7 @@
 				</view>
 			</view>
 			<view v-if="activated[3]" v-show="currentindex === 3" class="tab-view">
-				<scroll-view scroll-y :show-scrollbar="false" style="height: 100%; width: 100%;">
+				<scroll-view scroll-y enhanced :show-scrollbar="false" class="tab-scroll-view" style="height: 100%; width: 100%;">
 					<service />
 				</scroll-view>
 			</view>
@@ -239,20 +239,20 @@ onReachBottom(() => {
 .tab-view {
 	width: 100%;
 	height: 100%;
-	overflow-y: auto;
-	scrollbar-width: none;
-	-ms-overflow-style: none;
-}
-
-.tab-view::-webkit-scrollbar {
-	display: none;
-	width: 0;
-	height: 0;
+	overflow: hidden;
 }
 
 .tab-scroll-view {
 	height: 100%;
 	overflow: hidden;
+	scrollbar-width: none;
+	-ms-overflow-style: none;
+}
+
+.tab-scroll-view::-webkit-scrollbar {
+	display: none;
+	width: 0;
+	height: 0;
 }
 
 .placeholder-container {
