@@ -20,12 +20,7 @@
 					</view>
 
 					<view class="qr-section">
-						<image
-							class="qr-code"
-							:src="parseimage('客服/二维码.png')"
-							mode="aspectFit"
-							@tap="previewQr"
-						/>
+						<image class="qr-code" :src="parseimage('客服/二维码.png')" mode="aspectFit" @tap="previewQr"/>
 						<text class="qr-tip-1">长按识别二维码，添加顾问老师</text>
 						<text class="qr-tip-2">获取岗位信息、投递建议与专属资料</text>
 					</view>

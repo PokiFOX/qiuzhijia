@@ -72,6 +72,7 @@
 
 <script setup lang="ts">
 import { ref, watch, onMounted } from "vue";
+
 import { accountinfo } from "../../../tapah/data";
 import { parseimage, navigator } from "../../../tapah/function";
 import { RequestWxCode, RequestUserInfo } from "../../../tapah/request";

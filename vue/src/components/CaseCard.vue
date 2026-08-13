@@ -2,12 +2,7 @@
 	<view class="case-card">
 		<view class="case-top-row">
 			<view class="ent-logo-col">
-				<image
-					v-if="caseItem.enticon"
-					class="ent-logo"
-					:src="parseEnterpriseIcon(`小图标/${caseItem.enticon}.png`)"
-					mode="aspectFit"
-				/>
+				<image v-if="caseItem.enticon" class="ent-logo" :src="parseEnterpriseIcon(`小图标/${caseItem.enticon}.png`)" mode="aspectFit"/>
 				<view v-else class="ent-logo-placeholder"></view>
 			</view>
 
@@ -57,6 +52,7 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
+
 import type { Case } from "../tapah/class";
 import { parseimage, parseEnterpriseIcon, stagStr } from "../tapah/function";
 

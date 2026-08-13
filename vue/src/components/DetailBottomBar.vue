@@ -11,11 +11,7 @@
 					<text class="nav-item-label">{{ favoriteLabel }}</text>
 				</button>
 				<view v-else class="fav-btn-logged" @tap="emit('toggle-favorite')">
-					<image
-						class="nav-icon"
-						:src="parseimage(isFavorited ? '底部按钮/收藏-选中.png' : '底部按钮/收藏-普通.png')"
-						mode="aspectFit"
-					/>
+					<image class="nav-icon" :src="parseimage(isFavorited ? '底部按钮/收藏-选中.png' : '底部按钮/收藏-普通.png')" mode="aspectFit"/>
 					<text class="nav-item-label" :class="{ 'nav-item-label-active': isFavorited }">
 						{{ isFavorited ? favoritedLabel : favoriteLabel }}
 					</text>
@@ -48,6 +44,7 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
+
 import { accountinfo } from "../tapah/data";
 import { parseimage, navigator } from "../tapah/function";
 import { RequestWxCode } from "../tapah/request";

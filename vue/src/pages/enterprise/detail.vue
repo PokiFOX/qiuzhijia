@@ -1,14 +1,6 @@
 <template>
 	<view class="detail-root" v-if="initialized && enterprise">
-		<scroll-view
-			class="detail-scroll"
-			scroll-y
-			enhanced
-			:show-scrollbar="false"
-			:scroll-top="pageScrollTop"
-			:scroll-with-animation="scrollWithAnimation"
-			@scroll="onDetailScroll"
-		>
+		<scroll-view class="detail-scroll" scroll-y enhanced :show-scrollbar="false" :scroll-top="pageScrollTop" :scroll-with-animation="scrollWithAnimation" @scroll="onDetailScroll">
 			<view class="detail-page">
 				<view class="banner-wrap" v-if="enterprise.images && enterprise.images.length > 0">
 					<swiper class="top-swiper" :style="bannerSwiperStyle" circular autoplay :interval="3000" duration="500" @change="onSwiperChange">
@@ -174,17 +166,8 @@
 								<text class="empty-text">暂无成功案例</text>
 							</view>
 							<template v-else>
-								<CaseCard
-									v-for="(c, idx) in displayedCases"
-									:key="idx"
-									:case-item="c"
-								/>
-								<view
-									v-if="canLoadMoreCase"
-									class="load-more-bar"
-									:class="{ 'load-more-bar-disabled': isLoadingMoreCases }"
-									@tap="loadMoreCase"
-								>
+								<CaseCard v-for="(c, idx) in displayedCases" :key="idx" :case-item="c"/>
+								<view v-if="canLoadMoreCase" class="load-more-bar" :class="{ 'load-more-bar-disabled': isLoadingMoreCases }" @tap="loadMoreCase">
 									<text class="load-more-text">{{ isLoadingMoreCases ? "加载中..." : "查看更多成功案例 ›" }}</text>
 								</view>
 							</template>
@@ -201,11 +184,7 @@
 			</view>
 		</scroll-view>
 
-		<DetailBottomBar
-			:is-favorited="isFavorited"
-			@toggle-favorite="toggleFavorite"
-			@logged-in="onCasesLoggedIn"
-		/>
+		<DetailBottomBar :is-favorited="isFavorited" @toggle-favorite="toggleFavorite" @logged-in="onCasesLoggedIn"/>
 
 		<!-- Copy Success Modal -->
 		<view v-if="showCopyModal" class="modal-mask" @tap="showCopyModal = false">

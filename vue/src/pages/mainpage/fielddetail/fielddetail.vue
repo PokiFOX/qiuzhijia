@@ -11,26 +11,13 @@
 		</view>
 
 		<view class="tab-bar">
-			<view
-				v-for="(tab, index) in tabs"
-				:key="index"
-				class="tab-item"
-				@tap="scrollToSection(index)"
-			>
+			<view v-for="(tab, index) in tabs" :key="index" class="tab-item" @tap="scrollToSection(index)">
 				<text :class="['tab-text', { 'tab-text-active': activeTab === index }]">{{ tab }}</text>
 				<view :class="['tab-line', { 'tab-line-active': activeTab === index }]"></view>
 			</view>
 		</view>
 
-		<scroll-view
-			class="page-scroll"
-			scroll-y
-			enhanced
-			:show-scrollbar="false"
-			:scroll-into-view="scrollTargetId"
-			scroll-with-animation
-			@scroll="onScroll"
-		>
+		<scroll-view class="page-scroll" scroll-y enhanced :show-scrollbar="false" :scroll-into-view="scrollTargetId" scroll-with-animation @scroll="onScroll">
 			<view class="page-content">
 				<view id="section-0" class="section-card section-card-field">
 					<FieldCard :field="field" full-content />
@@ -49,13 +36,7 @@
 						<text class="state-text">暂无招聘企业数据</text>
 					</view>
 					<view v-else class="enterprise-list">
-						<EnterpriseCard
-							v-for="(ent, idx) in displayedEnterprises"
-							:key="idx"
-							:enterprise="ent"
-							compact
-							@tap="onEnterpriseTap(ent.id)"
-						/>
+						<EnterpriseCard v-for="(ent, idx) in displayedEnterprises" :key="idx" :enterprise="ent" compact @tap="onEnterpriseTap(ent.id)"/>
 						<view v-if="canLoadMoreEnterprise" class="load-more-bar" @tap="loadMoreEnterprise">
 							<text class="load-more-text">查看更多招聘企业 ›</text>
 						</view>
@@ -77,11 +58,7 @@
 								<text class="state-text">暂无成功案例数据</text>
 							</view>
 							<template v-else>
-								<CaseCard
-									v-for="(c, idx) in displayedCases"
-									:key="idx"
-									:case-item="c"
-								/>
+								<CaseCard v-for="(c, idx) in displayedCases" :key="idx" :case-item="c"/>
 								<view v-if="canLoadMoreCase" class="load-more-bar" @tap="loadMoreCase">
 									<text class="load-more-text">查看更多成功案例 ›</text>
 								</view>
@@ -98,13 +75,7 @@
 			</view>
 		</scroll-view>
 
-		<DetailBottomBar
-			:is-favorited="isFavorited"
-			favorite-label="关注"
-			favorited-label="已关注"
-			@toggle-favorite="toggleFavorite"
-			@logged-in="loadData"
-		/>
+		<DetailBottomBar :is-favorited="isFavorited" favorite-label="关注" favorited-label="已关注" @toggle-favorite="toggleFavorite" @logged-in="loadData"/>
 	</view>
 </template>
 

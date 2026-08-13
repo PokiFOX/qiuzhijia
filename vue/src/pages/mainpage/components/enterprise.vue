@@ -32,12 +32,7 @@
 		<!-- Enterprise List -->
 		<scroll-view class="list-scroll-view" scroll-y enhanced :show-scrollbar="false" :style="listScrollStyle" :scroll-top="scrollTop" :lower-threshold="80" @scroll="onScroll" @scrolltolower="loadMore">
 			<view class="list-container">
-				<EnterpriseCard
-					v-for="(enterprise, idx) in enterpriselist"
-					:key="idx"
-					:enterprise="enterprise"
-					@tap="onEnterpriseTap(enterprise.id)"
-				/>
+				<EnterpriseCard v-for="(enterprise, idx) in enterpriselist" :key="idx" :enterprise="enterprise" @tap="onEnterpriseTap(enterprise.id)"/>
 				<view v-if="enterpriselist.length === 0 && !isLoading" class="empty-state">
 					<text class="empty-text">暂无企业数据</text>
 				</view>
@@ -54,6 +49,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, getCurrentInstance, nextTick, type CSSProperties } from "vue";
+
 import { zonelist, sectorlist, levellist, enterpriselist, syncEnterpriseFilterState, enterpriseFilterState } from "../../../tapah/data";
 import { parseimage, navigator } from "../../../tapah/function";
 import { RequestEnterpriseList, serializeFilterParam } from "../../../tapah/request";

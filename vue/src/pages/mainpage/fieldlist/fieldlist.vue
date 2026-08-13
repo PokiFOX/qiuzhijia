@@ -14,21 +14,10 @@
 			<view class="filter-row">
 				<view class="filter-item">
 					<text class="filter-label filter-label-active">专业列表</text>
-					<image
-						class="filter-arrow filter-arrow-up"
-						:src="parseimage('企业列表/下箭头.png')"
-						mode="aspectFit"
-					/>
+					<image class="filter-arrow filter-arrow-up" :src="parseimage('企业列表/下箭头.png')" mode="aspectFit"/>
 				</view>
 				<view class="search-box">
-					<input
-						class="search-input"
-						type="text"
-						v-model="search"
-						placeholder="搜索你的专业"
-						placeholder-class="search-placeholder"
-						confirm-type="search"
-					/>
+					<input class="search-input" type="text" v-model="search" placeholder="搜索你的专业" placeholder-class="search-placeholder" confirm-type="search"/>
 					<image class="search-icon" :src="parseimage('企业列表/搜索.png')" mode="aspectFit" />
 				</view>
 			</view>
@@ -37,12 +26,7 @@
 
 			<scroll-view class="option-scroll" scroll-y enhanced :show-scrollbar="false">
 				<view class="option-list">
-					<view
-						v-for="item in displayedOptions"
-						:key="item.id"
-						class="option-row"
-						@tap="onOptionTap(item.id)"
-					>
+					<view v-for="item in displayedOptions" :key="item.id" class="option-row" @tap="onOptionTap(item.id)">
 						<text :class="['option-text', { 'option-text-selected': isOptionSelected(item.id) }]">
 							{{ item.value }}
 						</text>
@@ -54,12 +38,7 @@
 			<view class="bottom-divider"></view>
 			<view class="bottom-actions">
 				<button class="action-btn btn-reset" @tap="onReset">重置</button>
-				<button
-					class="action-btn btn-confirm"
-					:class="{ 'btn-confirm-disabled': !canConfirm }"
-					:disabled="!canConfirm"
-					@tap="onConfirm"
-				>
+				<button class="action-btn btn-confirm" :class="{ 'btn-confirm-disabled': !canConfirm }" :disabled="!canConfirm" @tap="onConfirm">
 					确定
 				</button>
 			</view>

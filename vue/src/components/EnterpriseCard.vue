@@ -1,12 +1,7 @@
 <template>
 	<view :class="['enterprise-card', { 'enterprise-card-compact': compact }]" @tap="emit('tap')">
 		<view class="logo-col">
-			<image
-				v-if="enterprise.icon"
-				class="enterprise-logo"
-				:src="parseEnterpriseIcon(`小图标/${enterprise.icon}.png`)"
-				mode="aspectFit"
-			/>
+			<image v-if="enterprise.icon" class="enterprise-logo" :src="parseEnterpriseIcon(`小图标/${enterprise.icon}.png`)" mode="aspectFit"/>
 			<view v-else class="logo-placeholder"></view>
 		</view>
 		<view class="info-col">

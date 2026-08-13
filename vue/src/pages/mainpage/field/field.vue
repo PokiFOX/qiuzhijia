@@ -18,14 +18,7 @@
 						<image class="filter-arrow" :src="parseimage('企业列表/下箭头.png')" mode="aspectFit" />
 					</view>
 					<view class="search-box">
-						<input
-							class="search-input"
-							type="text"
-							v-model="searchText"
-							placeholder="搜索你的专业"
-							placeholder-class="search-placeholder"
-							confirm-type="search"
-						/>
+						<input class="search-input" type="text" v-model="searchText" placeholder="搜索你的专业" placeholder-class="search-placeholder" confirm-type="search"/>
 						<image class="search-icon" :src="parseimage('企业列表/搜索.png')" mode="aspectFit" />
 					</view>
 				</view>
@@ -33,12 +26,7 @@
 
 			<scroll-view class="list-scroll" scroll-y enhanced :show-scrollbar="false">
 				<view class="list-container">
-					<FieldCard
-						v-for="(field, idx) in displayList"
-						:key="idx"
-						:field="field"
-						@tap="onFieldTap(field.id)"
-					/>
+					<FieldCard v-for="(field, idx) in displayList" :key="idx" :field="field" @tap="onFieldTap(field.id)"/>
 
 					<view v-if="displayList.length === 0" class="empty-state">
 						<text class="empty-text">暂无对口专业数据</text>
@@ -52,6 +40,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from "vue";
 import { onLoad } from "@dcloudio/uni-app";
+
 import { fieldlist } from "../../../tapah/data";
 import { navigator, parseimage, getWechatNavMetrics } from "../../../tapah/function";
 import type { Field } from "../../../tapah/class";
