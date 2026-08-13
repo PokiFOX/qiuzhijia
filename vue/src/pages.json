@@ -22,13 +22,15 @@
 		{
 			"path": "pages/mainpage/field/field",
 			"style": {
-				"navigationBarTitleText": "专业列表"
+				"navigationBarTitleText": "招聘专业",
+				"navigationStyle": "custom"
 			}
 		},
 		{
 			"path": "pages/mainpage/fieldlist/fieldlist",
 			"style": {
-				"navigationBarTitleText": "学科分类"
+				"navigationBarTitleText": "招聘专业",
+				"navigationStyle": "custom"
 			}
 		},
 		{

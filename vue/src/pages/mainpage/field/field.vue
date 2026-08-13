@@ -1,58 +1,74 @@
 <template>
 	<view class="field-page">
-		<!-- Search and Filter Row -->
-		<view class="search-filter-row">
-			<view class="filter-btn" @tap="goFieldList">
-				<text class="filter-btn-text">专业列表</text>
-				<text class="arrow-down">▼</text>
+		<view class="page-nav" :style="navBarStyle">
+			<view class="nav-side nav-side-left">
+				<view class="nav-back" :style="navSideStyle" @tap="onBack">
+					<text class="nav-back-icon">‹</text>
+				</view>
 			</view>
-
-			<view class="search-input-col">
-				<icon type="search" size="16" color="#2d7bff" class="search-icon" />
-				<input
-					class="search-input"
-					type="text"
-					v-model="searchText"
-					placeholder="搜索你的专业"
-					confirm-type="search"
-					@input="onSearchInput"
-				/>
-			</view>
+			<text class="nav-title" :style="navTitleStyle">招聘专业</text>
+			<view class="nav-side nav-side-right"></view>
 		</view>
 
-		<view class="divider-space"></view>
-
-		<!-- Fields List -->
-		<view class="list-container">
-			<view
-				class="field-card"
-				v-for="(field, idx) in displayList"
-				:key="idx"
-				@tap="onFieldTap(field.id)"
-			>
-				<text class="field-title">{{ field.value }}</text>
-				<text class="field-subtitle">学科门类: {{ field.type }}</text>
-
-				<view class="stars-row">
-					<text class="stars-label">专业热门度:</text>
-					<text class="star-icon" v-for="n in field.star" :key="n">★</text>
-				</view>
-
-				<!-- Expandable Text -->
-				<view :class="['field-desc', { 'field-desc-collapsed': !expandedFields[field.id] }]">
-					<text>{{ field.content }}</text>
-				</view>
-				<view class="expand-btn-row" @tap.stop="toggleExpand(field.id)">
-					<text class="expand-btn-text">
-						{{ expandedFields[field.id] ? "收起" : "展开" }}
-					</text>
+		<view class="page-body">
+			<view class="toolbar-wrap">
+				<view class="toolbar-row">
+					<view class="filter-btn" @tap="goFieldList">
+						<text class="filter-btn-text">专业列表</text>
+						<image class="filter-arrow" :src="parseimage('企业列表/下箭头.png')" mode="aspectFit" />
+					</view>
+					<view class="search-box">
+						<input
+							class="search-input"
+							type="text"
+							v-model="searchText"
+							placeholder="搜索你的专业"
+							placeholder-class="search-placeholder"
+							confirm-type="search"
+						/>
+						<image class="search-icon" :src="parseimage('企业列表/搜索.png')" mode="aspectFit" />
+					</view>
 				</view>
 			</view>
 
-			<!-- Empty State -->
-			<view v-if="displayList.length === 0" class="empty-state">
-				<text class="empty-text">暂无对口专业数据</text>
-			</view>
+			<scroll-view class="list-scroll" scroll-y enhanced :show-scrollbar="false">
+				<view class="list-container">
+					<view
+						class="field-card"
+						v-for="(field, idx) in displayList"
+						:key="idx"
+						@tap="onFieldTap(field.id)"
+					>
+						<view class="card-row-top">
+							<view class="title-bar"></view>
+							<view class="title-group">
+								<text class="field-title">{{ field.value }}</text>
+								<view class="type-badge">
+									<text class="type-badge-text">{{ field.type }}</text>
+								</view>
+							</view>
+							<view class="hot-group">
+								<image class="hot-icon" :src="parseimage('底部按钮/专业热门度.png')" mode="aspectFit" />
+								<view class="hot-badge">
+									<text class="hot-value">{{ field.star }}</text>
+								</view>
+							</view>
+						</view>
+						<view class="desc-block">
+							<view class="desc-content">
+								<text class="field-desc">{{ field.content }}</text>
+								<view v-if="needDetailLink(field.content)" class="detail-overlay">
+									<text class="detail-suffix">... 详情 ›</text>
+								</view>
+							</view>
+						</view>
+					</view>
+
+					<view v-if="displayList.length === 0" class="empty-state">
+						<text class="empty-text">暂无对口专业数据</text>
+					</view>
+				</view>
+			</scroll-view>
 		</view>
 	</view>
 </template>
@@ -61,16 +77,42 @@
 import { ref, computed, onMounted, onUnmounted } from "vue";
 import { onLoad } from "@dcloudio/uni-app";
 import { fieldlist } from "../../../tapah/data";
-import { navigator } from "../../../tapah/function";
+import { navigator, parseimage, getWechatNavMetrics } from "../../../tapah/function";
 import type { Field } from "../../../tapah/class";
 
 const searchText = ref("");
 const selectedFieldIds = ref<number[]>([]);
-const expandedFields = ref<Record<number, boolean>>({});
+
+const metrics = computed(() => getWechatNavMetrics());
+
+const navBarStyle = computed(() => ({
+	height: `${metrics.value.navBarHeight}px`,
+	paddingTop: `${metrics.value.statusBarHeight}px`,
+	paddingLeft: `${metrics.value.paddingHorizontal}px`,
+	paddingRight: `${metrics.value.paddingHorizontal}px`,
+	boxSizing: "border-box" as const,
+}));
+
+const navSideStyle = computed(() => {
+	const capsuleTopOffset = metrics.value.capsuleTop - metrics.value.statusBarHeight;
+	return {
+		height: `${metrics.value.capsuleHeight}px`,
+		marginTop: `${capsuleTopOffset}px`,
+	};
+});
+
+const navTitleStyle = computed(() => {
+	const capsuleTopOffset = metrics.value.capsuleTop - metrics.value.statusBarHeight;
+	return {
+		height: `${metrics.value.capsuleHeight}px`,
+		lineHeight: `${metrics.value.capsuleHeight}px`,
+		marginTop: `${capsuleTopOffset}px`,
+	};
+});
 
 const displayList = computed(() => {
 	return fieldlist.value.filter((e) => {
-		if (e.id === 1) return false; // Skip placeholder/empty field
+		if (e.id === 1) return false;
 		if (selectedFieldIds.value.length > 0) {
 			if (!selectedFieldIds.value.includes(e.id)) return false;
 		}
@@ -84,13 +126,11 @@ const displayList = computed(() => {
 	});
 });
 
-const onSearchInput = () => {
-	// Computed property displayList handles filtering reactively
+const onBack = () => {
+	uni.navigateBack();
 };
 
-const toggleExpand = (id: number) => {
-	expandedFields.value[id] = !expandedFields.value[id];
-};
+const needDetailLink = (content?: string) => (content?.length || 0) > 48;
 
 const onFieldTap = (id: number) => {
 	navigator("/mainpage/fielddetail", { field: id });
@@ -101,7 +141,6 @@ const goFieldList = () => {
 	navigator("/mainpage/fieldlist", { fields: fieldsStr });
 };
 
-// Handle return value from FieldList page
 const onFieldListSelected = (fields: Field[]) => {
 	selectedFieldIds.value = fields.map((f) => f.id);
 };
@@ -118,7 +157,6 @@ onLoad((options) => {
 	if (options && options.field) {
 		const targetId = parseInt(options.field, 10);
 		if (!isNaN(targetId)) {
-			// Auto scroll or highlight can be handled if needed, here we filter by it
 			selectedFieldIds.value = [targetId];
 		}
 	}
@@ -130,17 +168,89 @@ onLoad((options) => {
 	display: flex;
 	flex-direction: column;
 	width: 100vw;
-	min-height: 100vh;
+	height: 100vh;
 	background-color: #ffffff;
 	box-sizing: border-box;
 }
 
-/* Search and Filter Row */
-.search-filter-row {
+.page-nav {
+	display: flex;
+	flex-direction: row;
+	align-items: flex-start;
+	justify-content: space-between;
+	background-color: #ffffff;
+	width: 100%;
+	flex-shrink: 0;
+	box-sizing: border-box;
+}
+
+.nav-side {
+	display: flex;
+	align-items: center;
+	min-width: 64rpx;
+}
+
+.nav-side-left {
+	justify-content: flex-start;
+}
+
+.nav-side-right {
+	justify-content: flex-end;
+}
+
+.nav-back {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 64rpx;
+	padding-right: 8rpx;
+}
+
+.nav-back-icon {
+	font-size: 48rpx;
+	line-height: 1;
+	color: #000000;
+	font-weight: 400;
+}
+
+.nav-title {
+	flex: 1;
+	text-align: center;
+	font-size: 32rpx;
+	font-weight: 700;
+	color: #000000;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.page-body {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	min-height: 0;
+	background-color: #f8f8f8;
+	box-sizing: border-box;
+}
+
+.toolbar-wrap {
+	width: 100%;
+	height: 88rpx;
+	background-color: #ffffff;
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	box-sizing: border-box;
+}
+
+.toolbar-row {
 	display: flex;
 	flex-direction: row;
 	align-items: center;
-	padding: 20rpx 40rpx 10rpx 40rpx;
+	width: 100%;
+	height: 88rpx;
+	padding: 0 52rpx;
 	box-sizing: border-box;
 }
 
@@ -148,124 +258,224 @@ onLoad((options) => {
 	display: flex;
 	flex-direction: row;
 	align-items: center;
-	margin-right: 20rpx;
 	flex-shrink: 0;
+	margin-right: 30rpx;
 }
 
 .filter-btn-text {
 	font-size: 36rpx;
-	font-weight: bold;
-	color: #333333;
-	margin-right: 4rpx;
+	line-height: 52rpx;
+	font-weight: 500;
+	color: #000000;
 }
 
-.arrow-down {
-	font-size: 20rpx;
-	color: #666666;
+.filter-arrow {
+	width: 20rpx;
+	height: 20rpx;
+	margin-left: 4rpx;
+	flex-shrink: 0;
 }
 
-.search-input-col {
+.search-box {
 	flex: 1;
+	min-width: 0;
 	display: flex;
 	flex-direction: row;
 	align-items: center;
-	background-color: #f2f4f8;
-	border-radius: 48rpx;
-	padding: 0 24rpx;
-	height: 80rpx;
+	height: 60rpx;
+	background-color: #f5f5f5;
+	border-radius: 12rpx;
+	padding: 0 20rpx;
 	box-sizing: border-box;
-}
-
-.search-icon {
-	margin-right: 12rpx;
 }
 
 .search-input {
 	flex: 1;
+	min-width: 0;
+	height: 60rpx;
 	font-size: 28rpx;
-	color: #333333;
-	height: 100%;
+	line-height: 40rpx;
+	font-weight: 350;
+	color: #000000;
 }
 
-.divider-space {
-	height: 20rpx;
+.search-placeholder {
+	font-size: 28rpx;
+	line-height: 40rpx;
+	font-weight: 350;
+	color: #a4a4a4;
 }
 
-/* Fields List */
+.search-icon {
+	width: 32rpx;
+	height: 32rpx;
+	flex-shrink: 0;
+	margin-left: 8rpx;
+}
+
+.list-scroll {
+	flex: 1;
+	min-height: 0;
+	width: 100%;
+	margin-top: 12rpx;
+}
+
 .list-container {
 	display: flex;
 	flex-direction: column;
-	padding: 0 40rpx 40rpx 40rpx;
+	padding: 0 20rpx 40rpx;
 	box-sizing: border-box;
 }
 
 .field-card {
 	display: flex;
 	flex-direction: column;
-	border: 2rpx solid #2d7bff;
+	height: 246rpx;
+	background-color: #ffffff;
 	border-radius: 16rpx;
-	padding: 20rpx;
-	margin-bottom: 20rpx;
+	padding: 30rpx;
+	margin-bottom: 16rpx;
 	box-sizing: border-box;
+	overflow: hidden;
 }
 
-.field-title {
-	font-size: 30rpx;
-	font-weight: bold;
-	color: #333333;
-	margin-bottom: 10rpx;
+.field-card:last-child {
+	margin-bottom: 0;
 }
 
-.field-subtitle {
-	font-size: 22rpx;
-	color: #333333;
-	margin-bottom: 10rpx;
-}
-
-.stars-row {
+.card-row-top {
 	display: flex;
 	flex-direction: row;
 	align-items: center;
-	margin-bottom: 10rpx;
+	height: 50rpx;
+	flex-shrink: 0;
 }
 
-.stars-label {
-	font-size: 22rpx;
-	color: #333333;
-	margin-right: 10rpx;
+.title-bar {
+	width: 6rpx;
+	height: 50rpx;
+	background-color: #4476ff;
+	border-radius: 3rpx;
+	flex-shrink: 0;
 }
 
-.star-icon {
-	color: #ff9800;
-	font-size: 32rpx;
-	margin-right: 4rpx;
+.title-group {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	margin-left: 12rpx;
+	overflow: hidden;
+}
+
+.field-title {
+	flex-shrink: 1;
+	min-width: 0;
+	font-size: 34rpx;
+	line-height: 50rpx;
+	font-weight: 400;
+	color: #000000;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.type-badge {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 26rpx;
+	padding: 0 8rpx;
+	margin-left: 12rpx;
+	background-color: #deecff;
+	border-radius: 8rpx;
+	flex-shrink: 0;
+	box-sizing: border-box;
+}
+
+.type-badge-text {
+	font-size: 20rpx;
+	line-height: 32rpx;
+	font-weight: 400;
+	color: #2c3d73;
+}
+
+.hot-group {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	flex-shrink: 0;
+	margin-left: 12rpx;
+}
+
+.hot-icon {
+	width: 132rpx;
+	height: 34rpx;
+	flex-shrink: 0;
+}
+
+.hot-badge {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 34rpx;
+	padding: 0 8rpx;
+	margin-left: 4rpx;
+	background-color: #fef5e6;
+	border-radius: 8rpx;
+	flex-shrink: 0;
+	box-sizing: border-box;
+}
+
+.hot-value {
+	font-size: 26rpx;
+	line-height: 38rpx;
+	font-weight: 500;
+	color: #80500a;
+}
+
+.desc-block {
+	flex-shrink: 0;
+	margin-top: 16rpx;
+}
+
+.desc-content {
+	position: relative;
+	height: 120rpx;
+	overflow: hidden;
 }
 
 .field-desc {
 	font-size: 26rpx;
-	color: #666666;
-	line-height: 1.4;
+	line-height: 40rpx;
+	font-weight: 300;
+	color: #000000;
+	word-break: break-word;
 }
 
-.field-desc-collapsed {
-	display: -webkit-box;
-	-webkit-line-clamp: 3;
-	-webkit-box-orient: vertical;
-	overflow: hidden;
-}
-
-.expand-btn-row {
+.detail-overlay {
+	position: absolute;
+	right: 0;
+	bottom: 0;
+	height: 30rpx;
 	display: flex;
+	flex-direction: row;
+	align-items: center;
 	justify-content: flex-end;
-	margin-top: 10rpx;
+	padding-left: 28rpx;
+	box-sizing: border-box;
+	background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, #ffffff 55%);
 }
 
-.expand-btn-text {
-	color: #2d7bff;
+.detail-suffix {
 	font-size: 26rpx;
+	line-height: 40rpx;
+	font-weight: 350;
+	color: #5e80f7;
+	white-space: nowrap;
 }
 
-/* Empty State */
 .empty-state {
 	display: flex;
 	align-items: center;

@@ -1,169 +1,194 @@
 <template>
-	<view class="fieldlist-page">
-		<view class="main-content">
-			<!-- Left Panel: Discipline Categories -->
-			<scroll-view class="left-panel" scroll-y>
-				<view
-					v-for="(type, index) in typeKeys"
-					:key="index"
-					:class="['category-item', { 'category-item-active': index === activeTypeIndex }]"
-					@tap="onCategoryTap(index)"
-				>
-					<text :class="['category-text', { 'category-text-active': index === activeTypeIndex }]">
-						{{ type }}
-					</text>
+	<view class="filter-page">
+		<view class="page-nav" :style="navBarStyle">
+			<view class="nav-side nav-side-left">
+				<view class="nav-back" :style="navSideStyle" @tap="onBack">
+					<text class="nav-back-icon">‹</text>
 				</view>
-			</scroll-view>
+			</view>
+			<text class="nav-title" :style="navTitleStyle">招聘专业</text>
+			<view class="nav-side nav-side-right"></view>
+		</view>
 
-			<!-- Right Panel: Fields under Category -->
-			<scroll-view
-				class="right-panel"
-				scroll-y
-				:scroll-into-view="scrollTargetId"
-				scroll-with-animation
-				@scroll="onRightScroll"
-			>
-				<view
-					v-for="(type, index) in typeKeys"
-					:key="index"
-					:id="'section-' + index"
-					class="section-container"
-				>
-					<text class="section-title">{{ type }}</text>
-					<view class="tags-wrap">
-						<view
-							v-for="field in fieldmap[type]"
-							:key="field.id"
-							:class="['tag-item', { 'tag-item-selected': selectedIds.has(field.id) }]"
-							@tap="toggleSelect(field.id)"
-						>
-							<text :class="['tag-text', { 'tag-text-selected': selectedIds.has(field.id) }]">
-								{{ field.value }}
-							</text>
-						</view>
+		<view class="page-body">
+			<view class="filter-row">
+				<view class="filter-item">
+					<text class="filter-label filter-label-active">专业列表</text>
+					<image
+						class="filter-arrow filter-arrow-up"
+						:src="parseimage('企业列表/下箭头.png')"
+						mode="aspectFit"
+					/>
+				</view>
+				<view class="search-box">
+					<input
+						class="search-input"
+						type="text"
+						v-model="search"
+						placeholder="搜索你的专业"
+						placeholder-class="search-placeholder"
+						confirm-type="search"
+					/>
+					<image class="search-icon" :src="parseimage('企业列表/搜索.png')" mode="aspectFit" />
+				</view>
+			</view>
+
+			<view class="filter-divider"></view>
+
+			<scroll-view class="option-scroll" scroll-y enhanced :show-scrollbar="false">
+				<view class="option-list">
+					<view
+						v-for="item in displayedOptions"
+						:key="item.id"
+						class="option-row"
+						@tap="onOptionTap(item.id)"
+					>
+						<text :class="['option-text', { 'option-text-selected': isOptionSelected(item.id) }]">
+							{{ item.value }}
+						</text>
+						<view :class="['option-radio', { 'option-radio-selected': isOptionSelected(item.id) }]"></view>
 					</view>
 				</view>
 			</scroll-view>
-		</view>
 
-		<!-- Bottom Action Bar -->
-		<view class="bottom-bar">
-			<button class="action-btn btn-reset" @tap="onReset">重置</button>
-			<button class="action-btn btn-confirm" @tap="onConfirm">确定</button>
+			<view class="bottom-divider"></view>
+			<view class="bottom-actions">
+				<button class="action-btn btn-reset" @tap="onReset">重置</button>
+				<button
+					class="action-btn btn-confirm"
+					:class="{ 'btn-confirm-disabled': !canConfirm }"
+					:disabled="!canConfirm"
+					@tap="onConfirm"
+				>
+					确定
+				</button>
+			</view>
 		</view>
 	</view>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, nextTick } from "vue";
+import { ref, computed } from "vue";
 import { onLoad } from "@dcloudio/uni-app";
+
 import { fieldlist } from "../../../tapah/data";
-import type { Field } from "../../../tapah/class";
+import { parseimage, getWechatNavMetrics } from "../../../tapah/function";
 
-const fieldmap = ref<Record<string, Field[]>>({});
-const typeKeys = ref<string[]>([]);
-const selectedIds = ref<Set<number>>(new Set());
-const activeTypeIndex = ref(0);
-const scrollTargetId = ref("");
-const isProgrammaticScroll = ref(false);
-const sectionTops = ref<number[]>([]);
+interface FilterOption {
+	id: number;
+	value: string;
+	type?: string;
+}
 
-const initFieldMap = () => {
-	const map: Record<string, Field[]> = {};
-	fieldlist.value.forEach((field) => {
-		if (field.id === 1) return; // Skip placeholder
-		if (!map[field.type]) {
-			map[field.type] = [];
-		}
-		map[field.type].push(field);
-	});
-	fieldmap.value = map;
-	typeKeys.value = Object.keys(map);
+const search = ref("");
+const fieldIds = ref<number[]>([]);
+const fieldUnlimited = ref(true);
+
+const metrics = computed(() => getWechatNavMetrics());
+
+const navBarStyle = computed(() => ({
+	height: `${metrics.value.navBarHeight}px`,
+	paddingTop: `${metrics.value.statusBarHeight}px`,
+	paddingLeft: `${metrics.value.paddingHorizontal}px`,
+	paddingRight: `${metrics.value.paddingHorizontal}px`,
+	boxSizing: "border-box" as const,
+}));
+
+const navSideStyle = computed(() => {
+	const capsuleTopOffset = metrics.value.capsuleTop - metrics.value.statusBarHeight;
+	return {
+		height: `${metrics.value.capsuleHeight}px`,
+		marginTop: `${capsuleTopOffset}px`,
+	};
+});
+
+const navTitleStyle = computed(() => {
+	const capsuleTopOffset = metrics.value.capsuleTop - metrics.value.statusBarHeight;
+	return {
+		height: `${metrics.value.capsuleHeight}px`,
+		lineHeight: `${metrics.value.capsuleHeight}px`,
+		marginTop: `${capsuleTopOffset}px`,
+	};
+});
+
+const baseOptions = computed<FilterOption[]>(() => {
+	const fields = fieldlist.value
+		.filter((f) => f.id !== 1)
+		.map((f) => ({ id: f.id, value: f.value, type: f.type }));
+	return [{ id: 0, value: "不限" }, ...fields];
+});
+
+const displayedOptions = computed(() => {
+	const query = search.value.trim().toLowerCase();
+	if (!query) return baseOptions.value;
+	return baseOptions.value.filter(
+		(item) =>
+			item.id === 0 ||
+			item.value.toLowerCase().includes(query) ||
+			(item.type && item.type.toLowerCase().includes(query)),
+	);
+});
+
+const canConfirm = computed(() => fieldUnlimited.value || fieldIds.value.length > 0);
+
+const isOptionSelected = (id: number) => {
+	if (id === 0) return fieldUnlimited.value;
+	return !fieldUnlimited.value && fieldIds.value.includes(id);
 };
 
-const onCategoryTap = (index: number) => {
-	isProgrammaticScroll.value = true;
-	activeTypeIndex.value = index;
-	scrollTargetId.value = "section-" + index;
-	// Reset programmatic scroll lock after animation completes
-	setTimeout(() => {
-		isProgrammaticScroll.value = false;
-	}, 350);
-};
-
-const toggleSelect = (id: number) => {
-	if (selectedIds.value.has(id)) {
-		selectedIds.value.delete(id);
-	} else {
-		selectedIds.value.add(id);
+const onOptionTap = (id: number) => {
+	if (id === 0) {
+		fieldUnlimited.value = true;
+		fieldIds.value = [];
+		return;
 	}
+
+	fieldUnlimited.value = false;
+	const next = [...fieldIds.value];
+	const idx = next.indexOf(id);
+	if (idx >= 0) {
+		next.splice(idx, 1);
+	} else {
+		next.push(id);
+	}
+	fieldIds.value = next;
+};
+
+const parseIds = (raw?: string) => {
+	if (!raw) return [];
+	return raw
+		.split(",")
+		.map((s) => parseInt(s.trim(), 10))
+		.filter((n) => !isNaN(n) && n > 0);
 };
 
 const onReset = () => {
-	selectedIds.value.clear();
+	fieldIds.value = [];
+	fieldUnlimited.value = true;
+	search.value = "";
 };
 
 const onConfirm = () => {
-	const selectedFields = fieldlist.value.filter((f) => selectedIds.value.has(f.id));
+	if (!canConfirm.value) return;
+	const selectedFields = fieldUnlimited.value
+		? []
+		: fieldlist.value.filter((f) => fieldIds.value.includes(f.id));
 	uni.$emit("fieldListSelected", selectedFields);
 	uni.navigateBack();
 };
 
-const calculateSectionTops = () => {
-	const query = uni.createSelectorQuery();
-	typeKeys.value.forEach((_, index) => {
-		query.select(`#section-${index}`).boundingClientRect();
-	});
-	query.select(".right-panel").boundingClientRect();
-	query.exec((res) => {
-		if (!res || res.length === 0) return;
-		const rightPanelRect = res[res.length - 1];
-		if (!rightPanelRect) return;
-		const tops: number[] = [];
-		for (let i = 0; i < typeKeys.value.length; i++) {
-			const rect = res[i];
-			if (rect) {
-				// Section top relative to scroll view content
-				tops.push(rect.top - rightPanelRect.top);
-			} else {
-				tops.push(0);
-			}
-		}
-		sectionTops.value = tops;
-	});
-};
-
-const onRightScroll = (e: any) => {
-	if (isProgrammaticScroll.value || sectionTops.value.length === 0) return;
-	const scrollTop = e.detail.scrollTop;
-	let activeIndex = 0;
-	for (let i = 0; i < sectionTops.value.length; i++) {
-		if (scrollTop >= sectionTops.value[i] - 10) {
-			activeIndex = i;
-		}
-	}
-	activeTypeIndex.value = activeIndex;
+const onBack = () => {
+	uni.navigateBack();
 };
 
 onLoad((options) => {
-	initFieldMap();
-	if (options && options.fields) {
-		const ids = options.fields.split(",");
-		ids.forEach((id: string) => {
-			const numId = parseInt(id, 10);
-			if (!isNaN(numId)) {
-				selectedIds.value.add(numId);
-			}
-		});
-	}
-	nextTick(() => {
-		setTimeout(calculateSectionTops, 500);
-	});
+	fieldIds.value = parseIds(options?.fields);
+	fieldUnlimited.value = fieldIds.value.length === 0;
 });
 </script>
 
 <style scoped>
-.fieldlist-page {
+.filter-page {
 	display: flex;
 	flex-direction: column;
 	width: 100vw;
@@ -172,122 +197,231 @@ onLoad((options) => {
 	box-sizing: border-box;
 }
 
-.main-content {
-	flex: 1;
+.page-nav {
 	display: flex;
 	flex-direction: row;
-	overflow: hidden;
+	align-items: flex-start;
+	justify-content: space-between;
+	background-color: #ffffff;
 	width: 100%;
+	flex-shrink: 0;
+	box-sizing: border-box;
 }
 
-/* Left Panel */
-.left-panel {
-	width: 180rpx;
-	height: 100%;
-	background-color: #f5f5f5;
+.nav-side {
+	display: flex;
+	align-items: center;
+	min-width: 64rpx;
+}
+
+.nav-side-left {
+	justify-content: flex-start;
+}
+
+.nav-side-right {
+	justify-content: flex-end;
+}
+
+.nav-back {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 64rpx;
+	padding-right: 8rpx;
+}
+
+.nav-back-icon {
+	font-size: 48rpx;
+	line-height: 1;
+	color: #000000;
+	font-weight: 400;
+}
+
+.nav-title {
+	flex: 1;
+	text-align: center;
+	font-size: 32rpx;
+	font-weight: 700;
+	color: #000000;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.page-body {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	min-height: 0;
+	padding: 0 32rpx;
+	box-sizing: border-box;
+}
+
+.filter-row {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	background-color: #ffffff;
+	border-radius: 20rpx;
+	height: 86rpx;
+	margin-top: 20rpx;
+	padding: 0 26rpx;
+	box-sizing: border-box;
 	flex-shrink: 0;
 }
 
-.category-item {
-	width: 100%;
-	padding: 30rpx 20rpx;
-	box-sizing: border-box;
+.filter-item {
 	display: flex;
+	flex-direction: row;
 	align-items: center;
-	justify-content: center;
-	background-color: #f5f5f5;
-	border-left: 6rpx solid transparent;
+	flex-shrink: 0;
+	margin-right: 26rpx;
 }
 
-.category-item-active {
-	background-color: #ffffff;
-	border-left-color: #2d7bff;
+.filter-label {
+	font-size: 32rpx;
+	line-height: 46rpx;
+	font-weight: 350;
+	color: #000000;
+	max-width: 128rpx;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
-.category-text {
-	font-size: 28rpx;
-	color: #555555;
-	text-align: center;
-	word-break: break-all;
+.filter-label-active {
+	color: #1269ff;
 }
 
-.category-text-active {
-	font-weight: bold;
-	color: #2d7bff;
+.filter-arrow {
+	width: 20rpx;
+	height: 20rpx;
+	margin-left: 4rpx;
+	flex-shrink: 0;
+	transition: transform 0.2s ease;
 }
 
-/* Right Panel */
-.right-panel {
+.filter-arrow-up {
+	transform: rotate(180deg);
+}
+
+.search-box {
 	flex: 1;
-	height: 100%;
-	background-color: #ffffff;
-	padding: 24rpx;
+	min-width: 0;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	height: 60rpx;
+	background-color: #f5f5f5;
+	border-radius: 12rpx;
+	padding: 0 20rpx;
 	box-sizing: border-box;
 }
 
-.section-container {
-	margin-bottom: 40rpx;
+.search-input {
+	flex: 1;
+	min-width: 0;
+	height: 60rpx;
+	font-size: 24rpx;
+	line-height: 34rpx;
+	font-weight: 350;
+	color: #000000;
+}
+
+.search-placeholder {
+	font-size: 24rpx;
+	line-height: 34rpx;
+	font-weight: 350;
+	color: #a4a4a4;
+}
+
+.search-icon {
+	width: 32rpx;
+	height: 32rpx;
+	flex-shrink: 0;
+	margin-left: 8rpx;
+}
+
+.filter-divider {
+	margin-top: 22rpx;
+	border-top: 2rpx solid #f2f2f2;
+	flex-shrink: 0;
+}
+
+.option-scroll {
+	flex: 1;
+	min-height: 0;
+	width: 100%;
+}
+
+.option-list {
 	display: flex;
 	flex-direction: column;
+	padding: 0 26rpx;
+	box-sizing: border-box;
 }
 
-.section-title {
-	font-size: 30rpx;
-	font-weight: bold;
-	color: #333333;
-	margin-bottom: 20rpx;
-}
-
-.tags-wrap {
+.option-row {
 	display: flex;
 	flex-direction: row;
-	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	padding: 10rpx 0;
+	box-sizing: border-box;
 }
 
-.tag-item {
-	background-color: #f2f4f8;
-	border-radius: 32rpx;
-	padding: 12rpx 24rpx;
-	margin-right: 16rpx;
-	margin-bottom: 16rpx;
+.option-text {
+	font-size: 32rpx;
+	line-height: 46rpx;
+	font-weight: 350;
+	color: #3d3d3d;
+}
+
+.option-text-selected {
+	color: #1269ff;
+}
+
+.option-radio {
+	width: 30rpx;
+	height: 30rpx;
+	border-radius: 50%;
+	background-color: #ffffff;
+	border: 2rpx solid #b3b3b3;
+	box-sizing: border-box;
+	flex-shrink: 0;
+}
+
+.option-radio-selected {
+	background-color: #1269ff;
+	border-color: #1269ff;
+}
+
+.bottom-divider {
+	border-top: 2rpx solid #f2f2f2;
+	flex-shrink: 0;
+}
+
+.bottom-actions {
 	display: flex;
+	flex-direction: row;
 	align-items: center;
 	justify-content: center;
-}
-
-.tag-item-selected {
-	background-color: #2d7bff;
-}
-
-.tag-text {
-	font-size: 26rpx;
-	color: #333333;
-}
-
-.tag-text-selected {
-	color: #ffffff;
-}
-
-/* Bottom Action Bar */
-.bottom-bar {
-	height: 120rpx;
-	border-top: 1rpx solid #e8e8e8;
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-	padding: 0 30rpx;
-	box-sizing: border-box;
-	background-color: #ffffff;
+	gap: 20rpx;
+	padding: 20rpx 0 40rpx;
+	flex-shrink: 0;
 }
 
 .action-btn {
-	height: 80rpx;
-	border-radius: 40rpx;
-	font-size: 32rpx;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	line-height: 1;
+	padding: 0;
+	margin: 0;
+	box-sizing: border-box;
+	font-size: 32rpx;
+	line-height: 46rpx;
+	font-weight: 400;
+	border-radius: 6rpx;
 }
 
 .action-btn::after {
@@ -295,16 +429,24 @@ onLoad((options) => {
 }
 
 .btn-reset {
-	flex: 1;
-	background-color: #ffffff;
-	color: #333333;
-	border: 1rpx solid #dddddd;
-	margin-right: 20rpx;
+	width: 200rpx;
+	height: 70rpx;
+	background-color: #f8f8f8;
+	color: #000000;
+	border: 2rpx solid #b3b3b3;
 }
 
 .btn-confirm {
-	flex: 2;
-	background-color: #2d7bff;
+	width: 428rpx;
+	height: 70rpx;
+	background-color: #1269ff;
 	color: #ffffff;
+	border: none;
+	font-weight: 500;
+}
+
+.btn-confirm-disabled {
+	background-color: #a4c8ff;
+	color: rgba(255, 255, 255, 0.8);
 }
 </style>
