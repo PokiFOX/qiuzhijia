@@ -272,40 +272,60 @@
 
 		<!-- Bottom Navigation Bar -->
 		<view class="bottom-nav-bar">
-			<view class="nav-item-home" @tap="goHome">
-				<image class="nav-icon" :src="parseimage('企业详情/首页.png')" mode="aspectFit" />
-				<text class="nav-text">首页</text>
-			</view>
-			<view class="nav-item-fav">
-				<button v-if="!accountinfo" open-type="getPhoneNumber" @getphonenumber="onGetPhoneNumber" class="fav-btn-unlogged">
-					<image class="nav-icon" :src="parseimage('企业详情/关注.png')" mode="aspectFit" />
-					<text class="nav-text">关注</text>
-				</button>
-				<view v-else class="fav-btn-logged" @tap="toggleFavorite">
-					<image class="nav-icon" :src="parseimage(isFavorited ? '企业详情/已收藏.png' : '企业详情/关注.png')" mode="aspectFit"/>
-					<text class="nav-text">{{ isFavorited ? "已收藏" : "关注" }}</text>
+			<view class="bottom-nav-inner">
+				<view class="nav-item-home" @tap="goHome">
+					<image class="nav-icon" :src="parseimage('底部按钮/首页-普通.png')" mode="aspectFit" />
+					<text class="nav-item-label">首页</text>
 				</view>
-			</view>
-			<view class="nav-btn-consult" @tap="goConsult">
-				<text class="consult-btn-text">在线咨询</text>
-			</view>
-			<view class="nav-btn-phone" @tap="callPhone">
-				<text class="phone-btn-text">电话咨询</text>
+				<view class="nav-item-fav">
+					<button v-if="!accountinfo" open-type="getPhoneNumber" @getphonenumber="onGetPhoneNumber" class="fav-btn-unlogged">
+						<image class="nav-icon" :src="parseimage('底部按钮/收藏-普通.png')" mode="aspectFit" />
+						<text class="nav-item-label">收藏</text>
+					</button>
+					<view v-else class="fav-btn-logged" @tap="toggleFavorite">
+						<image
+							class="nav-icon"
+							:src="parseimage(isFavorited ? '底部按钮/收藏-选中.png' : '底部按钮/收藏-普通.png')"
+							mode="aspectFit"
+						/>
+						<text class="nav-item-label" :class="{ 'nav-item-label-active': isFavorited }">{{ isFavorited ? "已收藏" : "收藏" }}</text>
+					</view>
+				</view>
+				<view class="nav-actions-spacer" />
+				<view class="nav-btn-consult" @tap="goConsult">
+					<text class="nav-btn-consult-text">在线咨询</text>
+				</view>
+				<view class="nav-btn-phone" @tap="callPhone">
+					<text class="nav-btn-phone-text">电话咨询</text>
+				</view>
 			</view>
 		</view>
 
 		<!-- Copy Success Modal -->
 		<view v-if="showCopyModal" class="modal-mask" @tap="showCopyModal = false">
 			<view class="modal-container" @tap.stop>
-				<view class="modal-icon-circle">
-					<text class="modal-icon-check">✓</text>
-				</view>
+				<image class="modal-check-icon" :src="parseimage('底部按钮/打钩.png')" mode="aspectFit" />
 				<text class="modal-title">链接已复制</text>
 				<text class="modal-desc">立即咨询顾问老师，获取岗位信息，投递建议和专属资料吧！</text>
-				<image class="modal-image" :src="parseimage('copy.png')" mode="aspectFit" />
+				<view class="modal-divider" />
 				<view class="modal-buttons">
 					<button class="modal-btn btn-later" @tap="showCopyModal = false">稍后查看</button>
 					<button class="modal-btn btn-consult" @tap="onConsultTap">立即咨询</button>
+				</view>
+			</view>
+		</view>
+
+		<!-- Phone Call Confirm Modal -->
+		<view v-if="showPhoneModal" class="modal-mask" @tap="closePhoneModal">
+			<view class="phone-modal-container" @tap.stop>
+				<text class="phone-modal-title">电话咨询</text>
+				<view class="phone-modal-row">
+					<image class="phone-modal-icon" :src="parseimage('底部按钮/电话.png')" mode="aspectFit" />
+					<text class="phone-modal-number">{{ PHONE_NUMBER }}</text>
+				</view>
+				<view class="phone-modal-buttons">
+					<button class="phone-modal-btn phone-btn-cancel" @tap="closePhoneModal">取消</button>
+					<button class="phone-modal-btn phone-btn-dial" @tap="confirmPhoneCall">拨打</button>
 				</view>
 			</view>
 		</view>
@@ -338,6 +358,8 @@ const isCasesLoading = ref(true);
 const sectionTops = ref<number[]>([]);
 const isScrollingToSection = ref(false);
 const showCopyModal = ref(false);
+const showPhoneModal = ref(false);
+const PHONE_NUMBER = "051281660895";
 const pageScrollTop = ref(0);
 const scrollTopCache = ref(0);
 const scrollWithAnimation = ref(false);
@@ -457,7 +479,16 @@ const goConsult = () => {
 };
 
 const callPhone = () => {
-	uni.makePhoneCall({ phoneNumber: "051281660895" });
+	showPhoneModal.value = true;
+};
+
+const closePhoneModal = () => {
+	showPhoneModal.value = false;
+};
+
+const confirmPhoneCall = () => {
+	showPhoneModal.value = false;
+	uni.makePhoneCall({ phoneNumber: PHONE_NUMBER });
 };
 
 const toggleFavorite = async () => {
@@ -618,7 +649,7 @@ onLoad(async (options) => {
 	flex-direction: column;
 	width: 100%;
 	background-color: #f8f8f8;
-	padding-bottom: 120rpx;
+	padding-bottom: 132rpx;
 	box-sizing: border-box;
 }
 
@@ -1342,18 +1373,24 @@ onLoad(async (options) => {
 
 .bottom-nav-bar {
 	position: fixed;
-	bottom: 0;
 	left: 0;
 	right: 0;
-	height: 120rpx;
+	bottom: 0;
 	background-color: #ffffff;
-	border-top: 1rpx solid #eeeeee;
+	border-radius: 30rpx 30rpx 0 0;
+	box-shadow: 0 8rpx 32rpx 0 rgba(0, 0, 0, 0.16);
+	box-sizing: border-box;
+	z-index: 200;
+}
+
+.bottom-nav-inner {
+	height: 132rpx;
 	display: flex;
 	flex-direction: row;
 	align-items: center;
-	padding: 0 20rpx;
+	padding-left: 64rpx;
+	padding-right: 32rpx;
 	box-sizing: border-box;
-	z-index: 200;
 }
 
 .nav-item-home,
@@ -1362,24 +1399,33 @@ onLoad(async (options) => {
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	width: 100rpx;
-	height: 100%;
+	flex-shrink: 0;
 }
 
 .nav-item-home {
-	margin-right: 10rpx;
+	margin-right: 64rpx;
 }
 
 .nav-icon {
-	width: 56rpx;
-	height: 56rpx;
-	margin-bottom: 4rpx;
+	width: 52rpx;
+	height: 52rpx;
 }
 
-.nav-text {
-	font-size: 20rpx;
-	color: #333333;
-	line-height: 1;
+.nav-item-label {
+	margin-top: 4rpx;
+	font-size: 24rpx;
+	line-height: 34rpx;
+	font-weight: 400;
+	color: #3d3d3d;
+}
+
+.nav-item-label-active {
+	color: #4f79fe;
+}
+
+.nav-actions-spacer {
+	flex: 1;
+	min-width: 16rpx;
 }
 
 .fav-btn-unlogged {
@@ -1387,13 +1433,11 @@ onLoad(async (options) => {
 	border: none;
 	padding: 0;
 	margin: 0;
-	line-height: 1.2;
+	line-height: 1;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	width: 100%;
-	height: 100%;
 }
 
 .fav-btn-unlogged::after {
@@ -1405,39 +1449,40 @@ onLoad(async (options) => {
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	width: 100%;
-	height: 100%;
 }
 
 .nav-btn-consult,
 .nav-btn-phone {
-	flex: 1;
-	height: 70rpx;
-	border-radius: 35rpx;
+	width: 200rpx;
+	height: 86rpx;
+	border-radius: 10rpx;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	margin: 0 10rpx;
+	flex-shrink: 0;
 }
 
 .nav-btn-consult {
-	background-color: #82b2f5;
+	background-color: #5e80f7;
+	margin-right: 36rpx;
 }
 
-.consult-btn-text {
+.nav-btn-consult-text {
 	color: #ffffff;
-	font-size: 28rpx;
-	font-weight: bold;
+	font-size: 34rpx;
+	line-height: 50rpx;
+	font-weight: 500;
 }
 
 .nav-btn-phone {
-	background-color: #ffc300;
+	background-color: #f3ad2b;
 }
 
-.phone-btn-text {
+.nav-btn-phone-text {
 	color: #ffffff;
-	font-size: 28rpx;
-	font-weight: bold;
+	font-size: 34rpx;
+	line-height: 50rpx;
+	font-weight: 500;
 }
 
 .modal-mask {
@@ -1455,71 +1500,73 @@ onLoad(async (options) => {
 
 .modal-container {
 	width: 560rpx;
-	background-color: #f3f3f3;
-	border-radius: 64rpx;
-	padding: 40rpx 30rpx;
+	height: 770rpx;
+	background-color: #ffffff;
+	border-radius: 20rpx;
+	box-shadow:
+		0 4rpx 8rpx 0 rgba(0, 0, 0, 0.02),
+		0 2rpx 4rpx 0 rgba(0, 0, 0, 0.03);
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	box-sizing: border-box;
 }
 
-.modal-icon-circle {
-	width: 136rpx;
-	height: 136rpx;
-	border-radius: 68rpx;
-	background-color: #d5e5d8;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	margin-bottom: 28rpx;
-}
-
-.modal-icon-check {
-	font-size: 80rpx;
-	color: #34be7b;
-	line-height: 1;
+.modal-check-icon {
+	width: 156rpx;
+	height: 156rpx;
+	margin-top: 98rpx;
+	flex-shrink: 0;
 }
 
 .modal-title {
+	margin-top: 56rpx;
 	font-size: 44rpx;
-	font-weight: bold;
-	color: #3d3d3d;
-	margin-bottom: 12rpx;
+	line-height: 64rpx;
+	font-weight: 700;
+	color: #000000;
 }
 
 .modal-desc {
+	margin-top: 40rpx;
+	width: 438rpx;
 	font-size: 28rpx;
+	line-height: 40rpx;
+	font-weight: 300;
 	color: #3d3d3d;
 	text-align: center;
-	padding: 0 32rpx;
-	line-height: 1.4;
-	margin-bottom: 20rpx;
 }
 
-.modal-image {
-	height: 144rpx;
-	width: 100%;
-	margin-bottom: 40rpx;
+.modal-divider {
+	margin-top: 54rpx;
+	width: 486rpx;
+	height: 2rpx;
+	background-color: #e6e6e6;
+	flex-shrink: 0;
 }
 
 .modal-buttons {
+	margin-top: 60rpx;
 	display: flex;
 	flex-direction: row;
-	width: 100%;
+	align-items: center;
+	justify-content: center;
+	gap: 50rpx;
 }
 
 .modal-btn {
-	flex: 1;
+	width: 220rpx;
 	height: 80rpx;
-	border-radius: 36rpx;
-	font-size: 32rpx;
+	border-radius: 10rpx;
+	font-size: 24rpx;
+	line-height: 34rpx;
+	font-weight: 500;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	border: none;
-	line-height: 1;
-	box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.12);
+	padding: 0;
+	margin: 0;
+	box-sizing: border-box;
 }
 
 .modal-btn::after {
@@ -1527,14 +1574,97 @@ onLoad(async (options) => {
 }
 
 .btn-later {
-	background-color: #f0f0f0;
+	background-color: #ffffff;
 	color: #333333;
-	margin-right: 16rpx;
+	border: 2rpx solid #b2b5bc;
 }
 
 .btn-consult {
-	background-color: #2f74f7;
+	background-color: #2d7bff;
 	color: #ffffff;
-	margin-left: 16rpx;
+	border: none;
+}
+
+.phone-modal-container {
+	width: 560rpx;
+	height: 314rpx;
+	background-color: #ffffff;
+	box-shadow:
+		0 4rpx 8rpx 0 rgba(0, 0, 0, 0.02),
+		0 2rpx 4rpx 0 rgba(0, 0, 0, 0.03);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	box-sizing: border-box;
+	padding-top: 32rpx;
+}
+
+.phone-modal-title {
+	font-size: 44rpx;
+	line-height: 64rpx;
+	font-weight: 500;
+	color: #000000;
+}
+
+.phone-modal-row {
+	margin-top: 26rpx;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+	gap: 16rpx;
+}
+
+.phone-modal-icon {
+	width: 52rpx;
+	height: 52rpx;
+	flex-shrink: 0;
+}
+
+.phone-modal-number {
+	font-size: 32rpx;
+	line-height: 46rpx;
+	font-weight: 500;
+	color: #000000;
+}
+
+.phone-modal-buttons {
+	margin-top: 38rpx;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+	gap: 48rpx;
+}
+
+.phone-modal-btn {
+	width: 224rpx;
+	height: 64rpx;
+	border-radius: 10rpx;
+	font-size: 32rpx;
+	line-height: 46rpx;
+	font-weight: 500;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0;
+	margin: 0;
+	box-sizing: border-box;
+}
+
+.phone-modal-btn::after {
+	border: none;
+}
+
+.phone-btn-cancel {
+	background-color: #ffffff;
+	color: #333333;
+	border: 2rpx solid #b3b3b3;
+}
+
+.phone-btn-dial {
+	background-color: #2d7bff;
+	color: #ffffff;
+	border: none;
 }
 </style>

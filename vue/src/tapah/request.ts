@@ -191,10 +191,18 @@ export async function RequestFieldList(): Promise<void> {
 	fieldlist.value = list;
 }
 
+export type FilterParam = number | number[];
+
+export function serializeFilterParam(ids: number[]): FilterParam {
+	if (ids.length === 0) return 0;
+	if (ids.length === 1) return ids[0];
+	return ids;
+}
+
 export async function RequestEnterpriseList(
-	zone: number,
-	sector: number,
-	level: number,
+	zone: FilterParam,
+	sector: FilterParam,
+	level: FilterParam,
 	enttype: number,
 	field: number,
 	financial: boolean | null,
@@ -223,9 +231,9 @@ export async function RequestEnterpriseList(
 }
 
 export async function RequestEnterprise(
-	zone: number,
-	sector: number,
-	level: number,
+	zone: FilterParam,
+	sector: FilterParam,
+	level: FilterParam,
 	enttype: number,
 	field: number,
 	financial: boolean | null,

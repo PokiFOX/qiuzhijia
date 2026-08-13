@@ -231,7 +231,7 @@ onReachBottom(() => {
 .tab-content-container {
 	flex: 1;
 	width: 100%;
-	padding-bottom: calc(148rpx + env(safe-area-inset-bottom));
+	padding-bottom: 148rpx;
 	box-sizing: border-box;
 	overflow: hidden;
 }
@@ -274,13 +274,10 @@ onReachBottom(() => {
 	left: 0;
 	right: 0;
 	bottom: 0;
-	height: calc(148rpx + env(safe-area-inset-bottom));
 	display: flex;
 	flex-direction: row;
 	align-items: flex-end;
-	background-color: transparent;
 	padding: 0 32rpx;
-	padding-bottom: env(safe-area-inset-bottom);
 	box-sizing: border-box;
 	z-index: 999;
 }
@@ -289,8 +286,8 @@ onReachBottom(() => {
 	position: absolute;
 	left: 0;
 	right: 0;
+	top: 0;
 	bottom: 0;
-	height: calc(110rpx + env(safe-area-inset-bottom));
 	background-color: #ffffff;
 	border-radius: 24rpx 24rpx 0 0;
 	z-index: 0;
@@ -303,7 +300,7 @@ onReachBottom(() => {
 	align-items: center;
 	justify-content: flex-end;
 	padding-bottom: 10rpx;
-	height: 110rpx;
+	height: 148rpx;
 	box-sizing: border-box;
 	position: relative;
 	z-index: 1;

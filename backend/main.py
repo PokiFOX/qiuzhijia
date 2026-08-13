@@ -30,6 +30,14 @@ app.add_middleware(
 	allow_headers = ["*"],
 )
 
+def normalize_filter_ids(value):
+	if value is None:
+		return []
+	if isinstance(value, list):
+		return [int(x) for x in value if int(x) != 0]
+	v = int(value)
+	return [] if v == 0 else [v]
+
 def field_matches_token(fld, token):
 	t = token.strip()
 	if not t:
@@ -93,40 +101,43 @@ async def query_fieldlist(req: Request):
 @app.post("/query_enterprise")
 async def query_enterprise(req: Request):
 	json = await req.json()
-	zone_id = json.get("zone")
-	level_id = json.get("level")
-	sector_id = json.get("sector")
+	zone_ids = normalize_filter_ids(json.get("zone"))
+	level_ids = normalize_filter_ids(json.get("level"))
+	sector_ids = normalize_filter_ids(json.get("sector"))
 	enttype = json.get("enttype")
 	field_id = json.get("field")
 	financial = json.get("financial")
 	enterprise_name = json.get("name", "").strip()
 	page = json.get("page", 1)
 
-	if Linq(data.zonelist).find(lambda z: z.id == zone_id) is None and zone_id != 0:
-		return JSONResponse(content = {
-			"code": 1,
-			"status": "zone_not_found",
-		})
+	for zone_id in zone_ids:
+		if Linq(data.zonelist).find(lambda z: z.id == zone_id) is None:
+			return JSONResponse(content = {
+				"code": 1,
+				"status": "zone_not_found",
+			})
 
-	if Linq(data.levellist).find(lambda l: l.id == level_id) is None and level_id != 0:
-		return JSONResponse(content = {
-			"code": 1,
-			"status": "level_not_found",
-		})
+	for level_id in level_ids:
+		if Linq(data.levellist).find(lambda l: l.id == level_id) is None:
+			return JSONResponse(content = {
+				"code": 1,
+				"status": "level_not_found",
+			})
 
-	if Linq(data.sectorlist).find(lambda s: s.id == sector_id) is None and sector_id != 0:
-		return JSONResponse(content = {
-			"code": 1,
-			"status": "sector_not_found",
-		})
+	for sector_id in sector_ids:
+		if Linq(data.sectorlist).find(lambda s: s.id == sector_id) is None:
+			return JSONResponse(content = {
+				"code": 1,
+				"status": "sector_not_found",
+			})
 
 	enterpriselist = []
 	count = 0
 	for i in range(len(data.enterpriselist)):
 		enterprise = data.enterpriselist[i]
-		if zone_id != 0 and enterprise.zone != zone_id: continue
-		if sector_id != 0 and enterprise.sector != sector_id: continue
-		if level_id != 0 and enterprise.level != level_id: continue
+		if zone_ids and enterprise.zone not in zone_ids: continue
+		if sector_ids and enterprise.sector not in sector_ids: continue
+		if level_ids and enterprise.level not in level_ids: continue
 		if enttype == 1 and enterprise.enttype != '国企': continue
 		if enttype == 2 and enterprise.enttype != '央企': continue
 		if financial == True and enterprise.financial != '是': continue

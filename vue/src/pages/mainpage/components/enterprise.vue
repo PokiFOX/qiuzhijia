@@ -10,24 +10,18 @@
 
 			<!-- Filter and Search Row -->
 			<view class="filter-row">
-			<picker mode="selector" :range="zoneRange" range-key="value" :value="zoneIndex" @change="onZoneChange">
-				<view class="filter-item">
-					<text class="filter-label">{{ zoneLabel }}</text>
+				<view class="filter-item" @tap="openEnterpriseFilter('zone')">
+					<text :class="['filter-label', { 'filter-label-active': zoneIds.length > 0 }]">{{ zoneLabel }}</text>
 					<image class="filter-arrow" :src="parseimage('企业列表/下箭头.png')" mode="aspectFit"/>
 				</view>
-			</picker>
-			<picker mode="selector" :range="levelRange" range-key="value" :value="levelIndex" @change="onLevelChange">
-				<view class="filter-item">
-					<text class="filter-label">{{ levelLabel }}</text>
+				<view class="filter-item" @tap="openEnterpriseFilter('level')">
+					<text :class="['filter-label', { 'filter-label-active': levelIds.length > 0 }]">{{ levelLabel }}</text>
 					<image class="filter-arrow" :src="parseimage('企业列表/下箭头.png')" mode="aspectFit"/>
 				</view>
-			</picker>
-			<picker mode="selector" :range="sectorRange" range-key="value" :value="sectorIndex" @change="onSectorChange">
-				<view class="filter-item">
-					<text class="filter-label">{{ sectorLabel }}</text>
+				<view class="filter-item" @tap="openEnterpriseFilter('sector')">
+					<text :class="['filter-label', { 'filter-label-active': sectorIds.length > 0 }]">{{ sectorLabel }}</text>
 					<image class="filter-arrow" :src="parseimage('企业列表/下箭头.png')" mode="aspectFit"/>
 				</view>
-			</picker>
 			<view class="search-box">
 				<input class="search-input" type="text" v-model="search" placeholder="搜索企业" placeholder-class="search-placeholder" confirm-type="search" @confirm="onSearchSubmit"/>
 				<image class="search-icon" :src="parseimage('企业列表/搜索.png')" mode="aspectFit" @tap="onSearchSubmit"/>
@@ -87,17 +81,25 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, getCurrentInstance, nextTick, type CSSProperties } from "vue";
-import { zonelist, sectorlist, levellist, enterpriselist } from "../../../tapah/data";
+import { zonelist, sectorlist, levellist, enterpriselist, syncEnterpriseFilterState, enterpriseFilterState } from "../../../tapah/data";
 import { parseimage, parseEnterpriseIcon, navigator } from "../../../tapah/function";
-import { RequestEnterpriseList } from "../../../tapah/request";
+import { RequestEnterpriseList, serializeFilterParam } from "../../../tapah/request";
 
-let cachedZone = 0, cachedSector = 0, cachedLevel = 0, cachedPage = 1;
+type DimensionKey = "zone" | "level" | "sector";
+
+let cachedZoneIds: number[] = [];
+let cachedLevelIds: number[] = [];
+let cachedSectorIds: number[] = [];
+let cachedPage = 1;
 let cachedSearch = "";
 let cachedScrollTop = 0;
 let cachedIsFinish = false;
 let hasCache = false;
 
-const zone = ref(0), sector = ref(0), level = ref(0), page = ref(1);
+const zoneIds = ref<number[]>([]);
+const levelIds = ref<number[]>([]);
+const sectorIds = ref<number[]>([]);
+const page = ref(1);
 const search = ref("");
 const scrollTop = ref(0);
 const currentScrollTop = ref(0);
@@ -132,58 +134,30 @@ const updateListHeight = () => {
 	});
 };
 
-const zoneRange = computed(() => [{ id: 0, value: "地区" }, ...zonelist.value]);
-const levelRange = computed(() => [{ id: 0, value: "档次" }, ...levellist.value]);
-const sectorRange = computed(() => [{ id: 0, value: "行业" }, ...sectorlist.value]);
-
-const zoneIndex = computed(() => {
-	const idx = zoneRange.value.findIndex((item) => item.id === zone.value);
-	return idx >= 0 ? idx : 0;
-});
-
-const levelIndex = computed(() => {
-	const idx = levelRange.value.findIndex((item) => item.id === level.value);
-	return idx >= 0 ? idx : 0;
-});
-
-const sectorIndex = computed(() => {
-	const idx = sectorRange.value.findIndex((item) => item.id === sector.value);
-	return idx >= 0 ? idx : 0;
-});
-
-const zoneLabel = computed(() => {
-	if (zone.value === 0) return "地区";
-	const item = zoneRange.value[zoneIndex.value];
-	return item?.value || "地区";
-});
-
-const levelLabel = computed(() => {
-	if (level.value === 0) return "档次";
-	const item = levelRange.value[levelIndex.value];
-	return item?.value || "档次";
-});
-
-const sectorLabel = computed(() => {
-	if (sector.value === 0) return "行业";
-	const item = sectorRange.value[sectorIndex.value];
-	return item?.value || "行业";
-});
-
-const onZoneChange = (e: any) => {
-	const idx = parseInt(e.detail.value, 10);
-	zone.value = zoneRange.value[idx]?.id || 0;
-	getEnterpriseList();
+const getFilterLabel = (placeholder: string, ids: number[], list: { id: number; value: string }[]) => {
+	if (ids.length === 0) return placeholder;
+	if (ids.length === 1) {
+		const item = list.find((e) => e.id === ids[0]);
+		return item?.value || placeholder;
+	}
+	return `已选${ids.length}项`;
 };
 
-const onLevelChange = (e: any) => {
-	const idx = parseInt(e.detail.value, 10);
-	level.value = levelRange.value[idx]?.id || 0;
-	getEnterpriseList();
+const zoneLabel = computed(() => getFilterLabel("地区", zoneIds.value, zonelist.value));
+const levelLabel = computed(() => getFilterLabel("档次", levelIds.value, levellist.value));
+const sectorLabel = computed(() => getFilterLabel("行业", sectorIds.value, sectorlist.value));
+
+const openEnterpriseFilter = (tab: DimensionKey) => {
+	syncEnterpriseFilterState(zoneIds.value, levelIds.value, sectorIds.value, search.value);
+	navigator("/mainpage/enterprisefilter", { tab });
 };
 
-const onSectorChange = (e: any) => {
-	const idx = parseInt(e.detail.value, 10);
-	sector.value = sectorRange.value[idx]?.id || 0;
+const onEnterpriseFilterConfirmed = () => {
+	const state = enterpriseFilterState.value;
+	zoneIds.value = [...state.zones];
+	levelIds.value = [...state.levels];
+	sectorIds.value = [...state.sectors];
+	search.value = state.search;
 	getEnterpriseList();
 };
 
@@ -205,9 +179,9 @@ const onScroll = (e: any) => {
 };
 
 const cacheCurrentState = () => {
-	cachedZone = zone.value;
-	cachedSector = sector.value;
-	cachedLevel = level.value;
+	cachedZoneIds = [...zoneIds.value];
+	cachedLevelIds = [...levelIds.value];
+	cachedSectorIds = [...sectorIds.value];
 	cachedPage = page.value;
 	cachedSearch = search.value;
 	cachedScrollTop = currentScrollTop.value;
@@ -217,9 +191,9 @@ const cacheCurrentState = () => {
 
 const restoreState = () => {
 	if (hasCache) {
-		zone.value = cachedZone;
-		sector.value = cachedSector;
-		level.value = cachedLevel;
+		zoneIds.value = [...cachedZoneIds];
+		levelIds.value = [...cachedLevelIds];
+		sectorIds.value = [...cachedSectorIds];
 		page.value = cachedPage;
 		search.value = cachedSearch;
 		isFinish.value = cachedIsFinish;
@@ -236,7 +210,16 @@ const getEnterpriseList = async () => {
 	isFinish.value = false;
 	enterpriselist.value = [];
 	try {
-		const [count, pagesize] = await RequestEnterpriseList(zone.value, sector.value, level.value, 0, 0, null, search.value, page.value);
+		const [count, pagesize] = await RequestEnterpriseList(
+			serializeFilterParam(zoneIds.value),
+			serializeFilterParam(sectorIds.value),
+			serializeFilterParam(levelIds.value),
+			0,
+			0,
+			null,
+			search.value,
+			page.value
+		);
 		isFinish.value = count < pagesize;
 	} catch (err) {
 		console.error("Failed to load enterprises:", err);
@@ -252,7 +235,16 @@ const loadMore = async () => {
 	isLoading.value = true;
 	page.value++;
 	try {
-		const [count, pagesize] = await RequestEnterpriseList(zone.value, sector.value, level.value, 0, 0, null, search.value, page.value);
+		const [count, pagesize] = await RequestEnterpriseList(
+			serializeFilterParam(zoneIds.value),
+			serializeFilterParam(sectorIds.value),
+			serializeFilterParam(levelIds.value),
+			0,
+			0,
+			null,
+			search.value,
+			page.value
+		);
 		isFinish.value = count < pagesize;
 	} catch (err) {
 		console.error("Failed to load more enterprises:", err);
@@ -268,6 +260,7 @@ defineExpose({
 
 onMounted(() => {
 	setTimeout(updateListHeight, 50);
+	uni.$on("enterpriseFilterConfirmed", onEnterpriseFilterConfirmed);
 	if (hasCache) {
 		restoreState();
 	} else {
@@ -276,6 +269,7 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
+	uni.$off("enterpriseFilterConfirmed", onEnterpriseFilterConfirmed);
 	cacheCurrentState();
 });
 </script>
@@ -342,6 +336,10 @@ onUnmounted(() => {
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
+}
+
+.filter-label-active {
+	color: #1269ff;
 }
 
 .filter-arrow {

@@ -50,6 +50,13 @@
 			}
 		},
 		{
+			"path": "pages/mainpage/enterprisefilter/enterprisefilter",
+			"style": {
+				"navigationBarTitleText": "招聘企业",
+				"navigationStyle": "custom"
+			}
+		},
+		{
 			"path": "pages/mainpage/favorite/favorite",
 			"style": {
 				"navigationBarTitleText": "我的关注"

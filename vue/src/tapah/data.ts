@@ -18,3 +18,41 @@ export const chataiToken = ref<string | null>(null);
 export const chataiTokenExpiresAt = ref<number | null>(null);
 export const chataiConversationId = ref<string | null>(null);
 export const chataiAgent = ref<string>("resume");
+
+export interface EnterpriseFilterState {
+	zones: number[];
+	levels: number[];
+	sectors: number[];
+	search: string;
+	zoneUnlimited: boolean;
+	levelUnlimited: boolean;
+	sectorUnlimited: boolean;
+}
+
+export const enterpriseFilterState = ref<EnterpriseFilterState>({
+	zones: [],
+	levels: [],
+	sectors: [],
+	search: "",
+	zoneUnlimited: true,
+	levelUnlimited: true,
+	sectorUnlimited: true,
+});
+
+export function syncEnterpriseFilterState(
+	zones: number[],
+	levels: number[],
+	sectors: number[],
+	search: string,
+	unlimited?: Pick<EnterpriseFilterState, "zoneUnlimited" | "levelUnlimited" | "sectorUnlimited">,
+) {
+	enterpriseFilterState.value = {
+		zones: [...zones],
+		levels: [...levels],
+		sectors: [...sectors],
+		search,
+		zoneUnlimited: unlimited?.zoneUnlimited ?? zones.length === 0,
+		levelUnlimited: unlimited?.levelUnlimited ?? levels.length === 0,
+		sectorUnlimited: unlimited?.sectorUnlimited ?? sectors.length === 0,
+	};
+}

@@ -71,12 +71,14 @@ def fetch_article_meta(url):
 		pass
 	return meta
 
-def create_article(url, update = None):
+def create_article(url, update = None, fetch_meta = True):
 	url = (url or "").strip()
-	meta = fetch_article_meta(url)
-	publish_time = int(meta.get("publishTime") or 0)
 	if update is None:
 		update = int(time.time())
+	if not fetch_meta:
+		return Article(url, int(update))
+	meta = fetch_article_meta(url)
+	publish_time = int(meta.get("publishTime") or 0)
 	return Article(
 		url,
 		int(update),
@@ -150,7 +152,7 @@ def init_config():
 	for article in article_rows:
 		for enterprise in data.enterpriselist:
 			if enterprise.id == article[1]:
-				info = create_article(article[3], article[4])
+				info = create_article(article[3], article[4], fetch_meta = False)
 				if article[2] == 1:
 					enterprise.article1.append(info)
 				elif article[2] == 2:
