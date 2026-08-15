@@ -70,7 +70,8 @@ const zone = ref(0);
 const page = ref(1);
 const search = ref("");
 const enttype = ref(0);
-const financial = ref(false);
+const financial = ref<boolean | null>(null);
+const growth = ref<boolean | null>(null);
 const isLoading = ref(false);
 const isFinish = ref(false);
 
@@ -108,6 +109,7 @@ const getEnterpriseList = async () => {
 			enttype.value,
 			0,
 			financial.value,
+			growth.value,
 			search.value,
 			page.value
 		);
@@ -131,6 +133,7 @@ const loadMore = async () => {
 			enttype.value,
 			0,
 			financial.value,
+			growth.value,
 			search.value,
 			page.value
 		);
@@ -147,15 +150,19 @@ onLoad((options) => {
 		if (options.enttype) {
 			enttype.value = parseInt(options.enttype, 10) || 0;
 		}
-		if (options.financial) {
+		if (options.financial !== undefined) {
 			financial.value = options.financial === "1" || options.financial === "true";
+		}
+		if (options.growth !== undefined) {
+			growth.value = options.growth === "1" || options.growth === "true";
 		}
 	}
 
 	let rowname = "企业列表";
 	if (enttype.value === 1) rowname = "国有企业";
 	if (enttype.value === 2) rowname = "中央企业";
-	if (enttype.value === 0 && financial.value) rowname = "金融企业";
+	if (growth.value) rowname = "成长企业";
+	else if (financial.value) rowname = "金融企业";
 
 	uni.setNavigationBarTitle({
 		title: rowname,

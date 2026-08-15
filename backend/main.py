@@ -107,6 +107,7 @@ async def query_enterprise(req: Request):
 	enttype = json.get("enttype")
 	field_id = json.get("field")
 	financial = json.get("financial")
+	growth = json.get("growth")
 	enterprise_name = json.get("name", "").strip()
 	page = json.get("page", 1)
 
@@ -142,6 +143,8 @@ async def query_enterprise(req: Request):
 		if enttype == 2 and enterprise.enttype != '央企': continue
 		if financial == True and enterprise.financial != '是': continue
 		if financial == False and enterprise.financial != '否': continue
+		if growth == True and enterprise.growth != '是': continue
+		if growth == False and enterprise.growth != '否': continue
 		if field_id != 0 and field_id not in enterprise.field: continue
 		if enterprise_name and enterprise_name not in enterprise.name and enterprise_name not in enterprise.shortname: continue
 		count += 1
@@ -166,6 +169,7 @@ async def query_enterprise(req: Request):
 			"images": enterprise.images,
 			"enttype": enterprise.enttype,
 			"financial": enterprise.financial,
+			"growth": enterprise.growth,
 			"article1": function.articles_to_json(enterprise.article1),
 			"article2": function.articles_to_json(enterprise.article2),
 			"mapping": enterprise.mapping,
@@ -211,6 +215,7 @@ async def query_enterprisedetail(req: Request):
 					"images": enterprise.images,
 					"enttype": enterprise.enttype,
 					"financial": enterprise.financial,
+					"growth": enterprise.growth,
 					"article1": function.articles_to_json(enterprise.article1),
 					"article2": function.articles_to_json(enterprise.article2),
 					"mapping": enterprise.mapping,
@@ -336,6 +341,7 @@ async def insert_enterprise(req: Request):
 	images = json.get("images")
 	enttype = json.get("enttype")
 	financial = json.get("financial")
+	growth = json.get("growth") or '否'
 	article1 = json.get("article1")
 	article2 = json.get("article2")
 
@@ -367,11 +373,11 @@ async def insert_enterprise(req: Request):
 	cursor = conn.cursor()
 
 	cursor.execute(
-		"INSERT INTO qzj_enterprise (zone, city, name, shortname, brief, upper, level, sector, tag, website1, website2, icon, images, enttype, financial, mapping, englishname) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-		(zone_item.id, city, name, shortname, brief, upper, level_item.id, sector_item.id, tag, website1, website2, icon, images, enttype, financial, field, englishname)
+		"INSERT INTO qzj_enterprise (zone, city, name, shortname, brief, upper, level, sector, tag, website1, website2, icon, images, enttype, financial, growth, mapping, englishname) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+		(zone_item.id, city, name, shortname, brief, upper, level_item.id, sector_item.id, tag, website1, website2, icon, images, enttype, financial, growth, field, englishname)
 	)
 	enterprise_id = cursor.lastrowid
-	enterprise = Enterprise(enterprise_id, zone_item.id, city, name, shortname, brief, upper, sector_item.id, level_item.id, website1, website2, tag.split(','), icon, images, enttype, financial, field, englishname)
+	enterprise = Enterprise(enterprise_id, zone_item.id, city, name, shortname, brief, upper, sector_item.id, level_item.id, website1, website2, tag.split(','), icon, images, enttype, financial, growth, field, englishname)
 	for fid in fieldlist:
 		cursor.execute(
 			"INSERT IGNORE INTO qzj_enterprise_field (enterprise_id, field) VALUES (%s, %s)",
@@ -868,6 +874,7 @@ async def edit_enterprise(req: Request):
 	images = json.get("images")
 	enttype = json.get("enttype")
 	financial = json.get("financial")
+	growth = json.get("growth") or '否'
 	article1 = json.get("article1")
 	article2 = json.get("article2")
 
@@ -898,8 +905,8 @@ async def edit_enterprise(req: Request):
 	cursor = conn.cursor()
 
 	cursor.execute(
-		"UPDATE qzj_enterprise SET zone=%s, city=%s, name=%s, shortname=%s, brief=%s, upper=%s, level=%s, sector=%s, tag=%s, website1=%s, website2=%s, icon=%s, images=%s, enttype=%s, financial=%s, mapping=%s, englishname=%s WHERE id=%s",
-		(zone_id.id, city, name, shortname, brief, upper, level_id.id, sector_id.id, tag, website1, website2, icon, images, enttype, financial, field, englishname, id)
+		"UPDATE qzj_enterprise SET zone=%s, city=%s, name=%s, shortname=%s, brief=%s, upper=%s, level=%s, sector=%s, tag=%s, website1=%s, website2=%s, icon=%s, images=%s, enttype=%s, financial=%s, growth=%s, mapping=%s, englishname=%s WHERE id=%s",
+		(zone_id.id, city, name, shortname, brief, upper, level_id.id, sector_id.id, tag, website1, website2, icon, images, enttype, financial, growth, field, englishname, id)
 	)
 	enterprise.zone = zone_id.id
 	enterprise.city = city
@@ -918,6 +925,7 @@ async def edit_enterprise(req: Request):
 	enterprise.images = images
 	enterprise.enttype = enttype
 	enterprise.financial = financial
+	enterprise.growth = growth
 	cursor.execute("DELETE FROM qzj_enterprise_field WHERE enterprise_id=%s", (id,))
 	for fid in fieldlist:
 		cursor.execute(
@@ -1219,6 +1227,7 @@ async def favorite(req: Request):
 					"images": enterprise.images,
 					"enttype": enterprise.enttype,
 					"financial": enterprise.financial,
+					"growth": enterprise.growth,
 					"article1": function.articles_to_json(enterprise.article1),
 					"article2": function.articles_to_json(enterprise.article2),
 				})

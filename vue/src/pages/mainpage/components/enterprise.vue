@@ -5,7 +5,7 @@
 			<view class="top-row">
 				<image class="cat-img" :src="parseimage('企业列表/央企国企.png')" mode="widthFix" @load="updateListHeight" @tap="onCategoryTap(1, 0)"/>
 				<image class="cat-img" :src="parseimage('企业列表/金融机构.png')" mode="widthFix" @load="updateListHeight" @tap="onCategoryTap(0, 1)"/>
-				<image class="cat-img" :src="parseimage('企业列表/成长企业.png')" mode="widthFix" @load="updateListHeight" @tap="onCategoryTap(2, 0)"/>
+				<image class="cat-img" :src="parseimage('企业列表/成长企业.png')" mode="widthFix" @load="updateListHeight" @tap="onCategoryTap(0, null, 1)"/>
 			</view>
 
 			<!-- Filter and Search Row -->
@@ -135,8 +135,11 @@ const onSearchSubmit = () => {
 	getEnterpriseList();
 };
 
-const onCategoryTap = (enttype: number, financial: number) => {
-	navigator("/pages/mainpage/components/filter", { enttype, financial });
+const onCategoryTap = (enttype: number, financial: number | null, growth: number | null = null) => {
+	const params: Record<string, string | number> = { enttype };
+	if (financial !== null) params.financial = financial;
+	if (growth !== null) params.growth = growth;
+	navigator("/pages/mainpage/components/filter", params);
 };
 
 const onEnterpriseTap = (id: number) => {
@@ -187,6 +190,7 @@ const getEnterpriseList = async () => {
 			0,
 			0,
 			null,
+			null,
 			search.value,
 			page.value
 		);
@@ -211,6 +215,7 @@ const loadMore = async () => {
 			serializeFilterParam(levelIds.value),
 			0,
 			0,
+			null,
 			null,
 			search.value,
 			page.value

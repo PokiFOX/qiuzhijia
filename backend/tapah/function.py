@@ -162,7 +162,15 @@ def init_config():
 	cursor.execute("SELECT * FROM qzj_enterprise")
 	result = cursor.fetchall()
 	for row in result:
-		enterprise = Enterprise(row[0], row[1], row[2], row[3], row[11], row[4], row[5], row[6], row[7], row[9], row[10], row[8], row[12], row[13], row[14], row[15], row[16], row[17] if len(row) > 17 else "")
+		if len(row) > 17:
+			growth_val = row[16]
+			mapping_val = row[17]
+			englishname_val = row[18] if len(row) > 18 else ""
+		else:
+			growth_val = '否'
+			mapping_val = row[16] if len(row) > 16 else ""
+			englishname_val = row[17] if len(row) > 17 else ""
+		enterprise = Enterprise(row[0], row[1], row[2], row[3], row[11], row[4], row[5], row[6], row[7], row[9], row[10], row[8], row[12], row[13], row[14], row[15], growth_val, mapping_val, englishname_val)
 		data.enterpriselist.append(enterprise)
 	print(f'enterprise: {len(data.enterpriselist)}', flush = True)
 

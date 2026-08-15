@@ -140,7 +140,7 @@ class Article:
 		}
 
 class Enterprise:
-	def __init__(self, id, zone, city, name, shortname, brief, upper, sector, level, website1, website2, tag, icon, images, enttype, financial, mapping, englishname=""):
+	def __init__(self, id, zone, city, name, shortname, brief, upper, sector, level, website1, website2, tag, icon, images, enttype, financial, growth, mapping, englishname=""):
 		self.id = id
 		self.zone = zone
 		self.city = city
@@ -158,6 +158,7 @@ class Enterprise:
 		self.images = images
 		self.enttype = enttype
 		self.financial = financial
+		self.growth = growth or '否'
 		self.article1 = []
 		self.article2 = []
 		self.field = []

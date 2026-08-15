@@ -243,6 +243,7 @@ export class Enterprise {
 	images: string[] = [];
 	enttype: number = 0;
 	financial: boolean = false;
+	growth: boolean = false;
 	article1: Article[] = [];
 	article2: Article[] = [];
 

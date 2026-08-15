@@ -19,8 +19,9 @@ column_icon = 'R'			# 小图编号
 column_images = 'S'			# 大图编号
 column_enttype = 'T'		# 央企国企
 column_financial = 'U'		# 金融机构
-column_article1 = 'V'		# 深度解读
-column_article2 = 'W'		# 招聘咨询
+column_growth = 'V'			# 成长企业
+column_article1 = 'W'		# 深度解读
+column_article2 = 'X'		# 招聘咨询
 
 url_setzone = "set_zone"
 url_setsector = "set_sector"

@@ -112,6 +112,7 @@ function parseEnterpriseItem(item: any): Enterprise {
 	if (item.enttype !== "国企") enterprise.enttype = 1;
 	if (item.enttype === "央企") enterprise.enttype = 2;
 	enterprise.financial = item.financial === "是";
+	enterprise.growth = item.growth === "是";
 
 	if (Array.isArray(item.article1)) {
 		enterprise.article1 = item.article1.map((article: any) => Article.fromJson(article));
@@ -206,13 +207,14 @@ export async function RequestEnterpriseList(
 	enttype: number,
 	field: number,
 	financial: boolean | null,
+	growth: boolean | null,
 	name: string,
 	page: number
 ): Promise<[number, number]> {
 	const response = await request<{ enterpriselist: any[]; pagesize: any }>({
 		url: parseurl(url_query_enterprise),
 		method: "POST",
-		data: { zone, sector, level, enttype, field, financial, name, page },
+		data: { zone, sector, level, enttype, field, financial, growth, name, page },
 	});
 	if (response.code !== 0) {
 		throw new Error(`Error code: ${response.code} status: ${response.status}`);
@@ -237,13 +239,14 @@ export async function RequestEnterprise(
 	enttype: number,
 	field: number,
 	financial: boolean | null,
+	growth: boolean | null,
 	name: string,
 	page: number
 ): Promise<Enterprise[]> {
 	const response = await request<{ enterpriselist: any[] }>({
 		url: parseurl(url_query_enterprise),
 		method: "POST",
-		data: { zone, sector, level, enttype, field, financial, name, page },
+		data: { zone, sector, level, enttype, field, financial, growth, name, page },
 	});
 	if (response.code !== 0) {
 		throw new Error(`Error code: ${response.code} status: ${response.status}`);

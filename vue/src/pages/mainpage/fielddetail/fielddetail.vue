@@ -200,7 +200,7 @@ const loadData = async () => {
 	displayCaseCount.value = PAGE_SIZE;
 	try {
 		const [entList, caseList] = await Promise.all([
-			RequestEnterprise(0, 0, 0, 0, field.value.id, null, "", 1),
+			RequestEnterprise(0, 0, 0, 0, field.value.id, null, null, "", 1),
 			RequestCase(0, 0, 0, field.value.id, 0, 0, 0, 1),
 		]);
 		allEnterprises.value = entList;
@@ -225,7 +225,7 @@ const loadMoreEnterprise = async () => {
 	if (!field.value || !hasMoreEnterprisePages.value) return;
 	const nextPage = enterprisePage.value + 1;
 	try {
-		const more = await RequestEnterprise(0, 0, 0, 0, field.value.id, null, "", nextPage);
+		const more = await RequestEnterprise(0, 0, 0, 0, field.value.id, null, null, "", nextPage);
 		if (more.length > 0) {
 			allEnterprises.value.push(...more);
 			enterprisePage.value = nextPage;

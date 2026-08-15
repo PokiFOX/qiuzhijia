@@ -95,6 +95,7 @@ def parse_enterprise(page):
 			"images": function.getcell_str(page, row, const.column_images),			# 图标2
 			"enttype": function.getcell_str(page, row, const.column_enttype),		# 央企国企
 			"financial": function.getcell_str(page, row, const.column_financial),	# 金融机构
+			"growth": function.getcell_str(page, row, const.column_growth),		# 成长企业
 			"article1": function.getcell_str(page, row, const.column_article1),		# 深度解读
 			"article2": function.getcell_str(page, row, const.column_article2),		# 招聘咨询
 		}
