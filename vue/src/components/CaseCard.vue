@@ -1,5 +1,5 @@
 <template>
-	<view class="case-card">
+	<view class="case-card" @tap="emit('tap')">
 		<view class="case-top-row">
 			<view class="ent-logo-col">
 				<image v-if="caseItem.enticon" class="ent-logo" :src="parseEnterpriseIcon(`小图标/${caseItem.enticon}.png`)" mode="aspectFit"/>
@@ -58,6 +58,10 @@ import { parseimage, parseEnterpriseIcon, stagStr } from "../tapah/function";
 
 const props = defineProps<{
 	caseItem: Case;
+}>();
+
+const emit = defineEmits<{
+	tap: [];
 }>();
 
 const titleText = computed(() => {

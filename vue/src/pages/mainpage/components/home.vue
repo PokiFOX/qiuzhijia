@@ -14,7 +14,13 @@
 			<view class="grid-card">
 				<swiper class="lanmu-swiper" :current="lanmuPage" @change="onLanmuPageChange">
 					<swiper-item v-for="(pageItems, pageIdx) in lanmuPages" :key="pageIdx">
-						<view class="lanmu-page">
+						<view
+							class="lanmu-page"
+							:class="{
+								'lanmu-page-has-prev': pageIdx > 0,
+								'lanmu-page-has-next': pageIdx < lanmuPages.length - 1,
+							}"
+						>
 							<view class="lanmu-row" v-for="(row, rowIdx) in pageRows(pageItems)" :key="rowIdx">
 								<view class="grid-item" v-for="(item, colIdx) in row" :key="colIdx" @tap="onLanMuTap(pageIdx * 10 + rowIdx * 5 + colIdx)">
 									<template v-if="item">
@@ -342,12 +348,23 @@ onMounted(async () => {
 .lanmu-swiper {
 	width: 100%;
 	height: 320rpx;
+	overflow: hidden;
 }
 
 .lanmu-page {
 	display: flex;
 	flex-direction: column;
 	width: 100%;
+	box-sizing: border-box;
+}
+
+/* 翻页时在相邻两页之间留出间距（仅 seam 侧内边距，不改页内 space-between 布局） */
+.lanmu-page-has-prev {
+	padding-left: 24rpx;
+}
+
+.lanmu-page-has-next {
+	padding-right: 24rpx;
 }
 
 .lanmu-row {

@@ -32,11 +32,14 @@
 					<text class="empty-text">暂无成功案例</text>
 				</view>
 				<template v-else>
-					<CaseCard
-						v-for="(c, idx) in filteredCases"
-						:key="idx"
-						:case-item="c"
-					/>
+					<view
+						v-for="c in filteredCases"
+						:key="c.id"
+						:id="'case-' + c.id"
+						class="case-anchor"
+					>
+						<CaseCard :case-item="c" />
+					</view>
 				</template>
 
 				<!-- Load More State -->
@@ -51,7 +54,7 @@
 			<!-- Login Blur Overlay -->
 			<view v-if="!accountinfo" class="login-overlay">
 				<button open-type="getPhoneNumber" @getphonenumber="onGetPhoneNumber" class="login-btn">
-					请先登录再查看
+					<text class="login-btn-label">请先登录再查看</text>
 				</button>
 			</view>
 		</view>
@@ -59,12 +62,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from "vue";
+import { ref, computed, onMounted, onUnmounted, nextTick } from "vue";
 import { onLoad, onReachBottom } from "@dcloudio/uni-app";
 import { caselist, accountinfo } from "../../../tapah/data";
 import { RequestCaseList, RequestWxCode, RequestUserInfo } from "../../../tapah/request";
 import { navigator } from "../../../tapah/function";
 import CaseCard from "../../../components/CaseCard.vue";
+
+const MAX_SCROLL_PAGES = 20;
 
 const searchQuery = ref("");
 const level = ref(0);
@@ -73,6 +78,7 @@ const stag1 = ref(0);
 const stag2 = ref(0);
 const year = ref(0);
 const page = ref(1);
+const pendingCaseId = ref(0);
 
 const isInitialLoading = ref(true);
 const isLoading = ref(false);
@@ -113,7 +119,8 @@ const onGetPhoneNumber = async (e: any) => {
 	if (code) {
 		try {
 			await RequestWxCode(code);
-			loadCases();
+			await loadCases();
+			await maybeScrollToPendingCase();
 		} catch (err) {
 			console.error("Failed to login:", err);
 			uni.showToast({ title: "登录失败", icon: "none" });
@@ -121,6 +128,32 @@ const onGetPhoneNumber = async (e: any) => {
 	} else {
 		uni.showToast({ title: "获取手机号失败", icon: "none" });
 	}
+};
+
+const hasCaseInList = (caseId: number) => caselist.value.some((c) => c.id === caseId);
+
+const scrollToCase = async (caseId: number) => {
+	if (!caseId) return;
+	let attempts = 0;
+	while (!hasCaseInList(caseId) && !isFinish.value && attempts < MAX_SCROLL_PAGES) {
+		await loadMore();
+		attempts++;
+	}
+	if (!hasCaseInList(caseId)) {
+		uni.showToast({ title: "未找到该案例", icon: "none" });
+		return;
+	}
+	await nextTick();
+	setTimeout(() => {
+		uni.pageScrollTo({ selector: `#case-${caseId}`, duration: 300 });
+	}, 100);
+};
+
+const maybeScrollToPendingCase = async () => {
+	if (!pendingCaseId.value) return;
+	const caseId = pendingCaseId.value;
+	pendingCaseId.value = 0;
+	await scrollToCase(caseId);
 };
 
 const loadCases = async () => {
@@ -181,13 +214,24 @@ const onCaseFilterSelected = (selections: number[]) => {
 	loadCases();
 };
 
-onMounted(() => {
+onLoad((options) => {
+	if (options?.case) {
+		const id = parseInt(String(options.case), 10);
+		if (!isNaN(id) && id > 0) {
+			pendingCaseId.value = id;
+			searchQuery.value = "";
+		}
+	}
+});
+
+onMounted(async () => {
 	uni.$on("caseFilterSelected", onCaseFilterSelected);
 	uni.setNavigationBarTitle({
 		title: "过往案例",
 	});
 	if (accountinfo.value) {
-		loadCases();
+		await loadCases();
+		await maybeScrollToPendingCase();
 	} else {
 		isInitialLoading.value = false;
 	}
@@ -289,6 +333,10 @@ onReachBottom(() => {
 	box-sizing: border-box;
 }
 
+.case-anchor {
+	width: 100%;
+}
+
 .blur-content {
 	filter: blur(12px);
 	pointer-events: none;
@@ -301,14 +349,28 @@ onReachBottom(() => {
 	left: 0;
 	right: 0;
 	bottom: 0;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	background-color: rgba(0, 0, 0, 0.05);
 	z-index: 10;
 }
 
 .login-btn {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background-color: rgba(0, 0, 0, 0.05);
+	border: none;
+	padding: 0;
+	margin: 0;
+	line-height: normal;
+	border-radius: 0;
+}
+
+.login-btn::after {
+	border: none;
+}
+
+.login-btn-label {
 	background-color: rgba(0, 0, 0, 0.65);
 	color: #ffffff;
 	font-size: 32rpx;
@@ -316,7 +378,6 @@ onReachBottom(() => {
 	border-radius: 16rpx;
 	padding: 24rpx 48rpx;
 	line-height: 1;
-	border: none;
 }
 
 /* States */

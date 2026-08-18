@@ -10,9 +10,7 @@
 			</view>
 			<view class="hot-group">
 				<image class="hot-icon" :src="parseimage('底部按钮/专业热门度.png')" mode="aspectFit" />
-				<view class="hot-badge">
-					<text class="hot-value">{{ field.star }}</text>
-				</view>
+				<FieldStars class="hot-stars" :star="field.star" />
 			</view>
 		</view>
 		<view class="desc-block">
@@ -29,6 +27,7 @@
 <script setup lang="ts">
 import { parseimage } from "../tapah/function";
 import type { Field } from "../tapah/class";
+import FieldStars from "./FieldStars.vue";
 
 defineProps<{
 	field: Field;
@@ -135,24 +134,8 @@ const needDetailLink = (content?: string) => (content?.length || 0) > 48;
 	flex-shrink: 0;
 }
 
-.hot-badge {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	height: 34rpx;
-	padding: 0 8rpx;
+.hot-stars {
 	margin-left: 4rpx;
-	background-color: #fef5e6;
-	border-radius: 8rpx;
-	flex-shrink: 0;
-	box-sizing: border-box;
-}
-
-.hot-value {
-	font-size: 26rpx;
-	line-height: 38rpx;
-	font-weight: 500;
-	color: #80500a;
 }
 
 .desc-block {

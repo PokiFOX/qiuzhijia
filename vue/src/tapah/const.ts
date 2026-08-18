@@ -5,6 +5,7 @@ export const url_query_fieldlist = "query_fieldlist";
 export const url_query_enterprise = "query_enterprise";
 export const url_query_enterprise_detail = "query_enterprisedetail";
 export const url_query_case = "query_case";
+export const url_query_case_display = "query_case_display";
 export const url_query_article1 = "query_article1";
 export const url_query_article2 = "query_article2";
 export const url_query_wxcode = "wxcode";

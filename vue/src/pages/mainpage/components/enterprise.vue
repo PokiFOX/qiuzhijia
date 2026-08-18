@@ -128,6 +128,8 @@ const onEnterpriseFilterConfirmed = () => {
 	levelIds.value = [...state.levels];
 	sectorIds.value = [...state.sectors];
 	search.value = state.search;
+	scrollTop.value = 0;
+	currentScrollTop.value = 0;
 	getEnterpriseList();
 };
 

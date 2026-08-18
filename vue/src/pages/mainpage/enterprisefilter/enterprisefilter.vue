@@ -18,10 +18,6 @@
 					</text>
 					<image class="filter-arrow" :class="{ 'filter-arrow-up': activeDimension === dim.key }" :src="parseimage('企业列表/下箭头.png')" mode="aspectFit"/>
 				</view>
-				<view class="search-box">
-					<input class="search-input" type="text" v-model="search" placeholder="搜索企业" placeholder-class="search-placeholder" confirm-type="search"/>
-					<image class="search-icon" :src="parseimage('企业列表/搜索.png')" mode="aspectFit" />
-				</view>
 			</view>
 
 			<view class="filter-divider"></view>
@@ -50,7 +46,7 @@
 import { ref, computed } from "vue";
 import { onLoad } from "@dcloudio/uni-app";
 
-import { zonelist, sectorlist, levellist } from "../../../tapah/data";
+import { zonelist, sectorlist, levellist, enterpriseFilterState, syncEnterpriseFilterState } from "../../../tapah/data";
 import { parseimage, getWechatNavMetrics } from "../../../tapah/function";
 
 type DimensionKey = "zone" | "level" | "sector";
@@ -62,7 +58,6 @@ const dimensions: { key: DimensionKey; label: string }[] = [
 ];
 
 const activeDimension = ref<DimensionKey>("zone");
-const search = ref("");
 const zoneIds = ref<number[]>([]);
 const levelIds = ref<number[]>([]);
 const sectorIds = ref<number[]>([]);
@@ -162,13 +157,18 @@ const onOptionTap = (id: number) => {
 	selection.value = next;
 };
 
-const parseIds = (raw?: string) => {
-	if (!raw) return [];
-	return raw
-		.split(",")
-		.map((s) => parseInt(s.trim(), 10))
-		.filter((n) => !isNaN(n) && n > 0);
-};
+onLoad((options) => {
+	if (options?.tab === "level" || options?.tab === "sector" || options?.tab === "zone") {
+		activeDimension.value = options.tab;
+	}
+	const state = enterpriseFilterState.value;
+	zoneIds.value = [...state.zones];
+	levelIds.value = [...state.levels];
+	sectorIds.value = [...state.sectors];
+	zoneUnlimited.value = state.zoneUnlimited;
+	levelUnlimited.value = state.levelUnlimited;
+	sectorUnlimited.value = state.sectorUnlimited;
+});
 
 const onReset = () => {
 	zoneIds.value = [];
@@ -177,38 +177,22 @@ const onReset = () => {
 	zoneUnlimited.value = true;
 	levelUnlimited.value = true;
 	sectorUnlimited.value = true;
-	search.value = "";
 };
 
 const onConfirm = () => {
 	if (!canConfirm.value) return;
-	uni.$emit("enterpriseFilterConfirmed", {
-		zones: [...zoneIds.value],
-		levels: [...levelIds.value],
-		sectors: [...sectorIds.value],
-		search: search.value,
+	syncEnterpriseFilterState(zoneIds.value, levelIds.value, sectorIds.value, enterpriseFilterState.value.search, {
+		zoneUnlimited: zoneUnlimited.value,
+		levelUnlimited: levelUnlimited.value,
+		sectorUnlimited: sectorUnlimited.value,
 	});
+	uni.$emit("enterpriseFilterConfirmed");
 	uni.navigateBack();
 };
 
 const onBack = () => {
 	uni.navigateBack();
 };
-
-onLoad((options) => {
-	if (options?.tab === "level" || options?.tab === "sector" || options?.tab === "zone") {
-		activeDimension.value = options.tab;
-	}
-	zoneIds.value = parseIds(options?.zones);
-	levelIds.value = parseIds(options?.levels);
-	sectorIds.value = parseIds(options?.sectors);
-	zoneUnlimited.value = zoneIds.value.length === 0;
-	levelUnlimited.value = levelIds.value.length === 0;
-	sectorUnlimited.value = sectorIds.value.length === 0;
-	if (options?.search) {
-		search.value = decodeURIComponent(options.search);
-	}
-});
 </script>
 
 <style scoped>
@@ -285,6 +269,7 @@ onLoad((options) => {
 	display: flex;
 	flex-direction: row;
 	align-items: center;
+	justify-content: space-between;
 	background-color: #ffffff;
 	border-radius: 20rpx;
 	height: 86rpx;
@@ -298,8 +283,9 @@ onLoad((options) => {
 	display: flex;
 	flex-direction: row;
 	align-items: center;
-	flex-shrink: 0;
-	margin-right: 26rpx;
+	justify-content: center;
+	flex: 1;
+	min-width: 0;
 }
 
 .filter-label {
@@ -307,7 +293,6 @@ onLoad((options) => {
 	line-height: 46rpx;
 	font-weight: 350;
 	color: #000000;
-	max-width: 88rpx;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
@@ -327,43 +312,6 @@ onLoad((options) => {
 
 .filter-arrow-up {
 	transform: rotate(180deg);
-}
-
-.search-box {
-	flex: 1;
-	min-width: 0;
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-	height: 60rpx;
-	background-color: #f5f5f5;
-	border-radius: 12rpx;
-	padding: 0 20rpx;
-	box-sizing: border-box;
-}
-
-.search-input {
-	flex: 1;
-	min-width: 0;
-	height: 60rpx;
-	font-size: 24rpx;
-	line-height: 34rpx;
-	font-weight: 350;
-	color: #000000;
-}
-
-.search-placeholder {
-	font-size: 24rpx;
-	line-height: 34rpx;
-	font-weight: 350;
-	color: #a4a4a4;
-}
-
-.search-icon {
-	width: 32rpx;
-	height: 32rpx;
-	flex-shrink: 0;
-	margin-left: 8rpx;
 }
 
 .filter-divider {

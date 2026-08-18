@@ -115,7 +115,7 @@
 									<text class="field-type">{{ field.type }}</text>
 									<view class="field-meta-divider"></view>
 									<text class="field-stars-label">专业热门度:</text>
-									<text class="star-icon" v-for="n in field.star" :key="n">★</text>
+									<FieldStars :star="field.star" />
 								</view>
 								<view class="field-detail-link" @tap.stop="onFieldTap(field.id)">
 									<text class="field-detail-text">详情</text>
@@ -159,14 +159,15 @@
 					<text class="block-title">成功案例</text>
 					<view class="cases-wrapper">
 						<view :class="['cases-list', { 'blur-content': !accountinfo }]">
-							<view v-if="isCasesLoading && allCases.length === 0" class="cases-loading">
+							<view v-if="isCasesLoading && !primaryCase && similarCases.length === 0" class="cases-loading">
 								<text class="loading-text">加载中...</text>
 							</view>
-							<view v-else-if="allCases.length === 0" class="section-empty">
+							<view v-else-if="!primaryCase && similarCases.length === 0" class="section-empty">
 								<text class="empty-text">暂无成功案例</text>
 							</view>
 							<template v-else>
-								<CaseCard v-for="(c, idx) in displayedCases" :key="idx" :case-item="c"/>
+								<CaseCard v-if="primaryCase" :case-item="primaryCase" @tap="onCaseTap(primaryCase)" />
+								<SimilarCaseSection :cases="displayedSimilarCases" />
 								<view v-if="canLoadMoreCase" class="load-more-bar" :class="{ 'load-more-bar-disabled': isLoadingMoreCases }" @tap="loadMoreCase">
 									<text class="load-more-text">{{ isLoadingMoreCases ? "加载中..." : "查看更多成功案例 ›" }}</text>
 								</view>
@@ -174,7 +175,7 @@
 						</view>
 						<view v-if="!accountinfo" class="login-overlay">
 							<button open-type="getPhoneNumber" @getphonenumber="onGetPhoneNumber" class="login-btn">
-								请先登录后查看
+								<text class="login-btn-label">请先登录后查看</text>
 							</button>
 						</view>
 					</view>
@@ -208,11 +209,13 @@ import { onLoad } from "@dcloudio/uni-app";
 
 import { enterpriselist, accountinfo } from "../../tapah/data";
 import { entfenyes } from "../../tapah/option";
-import { RequestEnterpriseDetail, RequestCase, RequestWxCode, RequestUserInfo } from "../../tapah/request";
-import { parseimage, parseEnterpriseIcon, navigator, openOfficialAccountArticle, openExternalUrl, } from "../../tapah/function";
+import { RequestEnterpriseDetail, RequestCaseDisplay, RequestWxCode, RequestUserInfo } from "../../tapah/request";
+import { parseimage, parseEnterpriseIcon, navigator, navigatorToCase, openOfficialAccountArticle, openExternalUrl, } from "../../tapah/function";
 import type { Enterprise, Case, Article } from "../../tapah/class";
 import DetailBottomBar from "../../components/DetailBottomBar.vue";
 import CaseCard from "../../components/CaseCard.vue";
+import SimilarCaseSection from "../../components/SimilarCaseSection.vue";
+import FieldStars from "../../components/FieldStars.vue";
 
 const SECTION_COUNT = 4;
 const TAB_BAR_HEIGHT_RPX = 88;
@@ -224,16 +227,20 @@ const swiperIndex = ref(0);
 const fenyeindex = ref(0);
 const isBriefExpanded = ref(false);
 
-const allCases = ref<Case[]>([]);
-const displayCaseCount = ref(PAGE_SIZE);
+const primaryCase = ref<Case | null>(null);
+const similarCases = ref<Case[]>([]);
+const similarTotal = ref(0);
+const displaySimilarCount = ref(PAGE_SIZE);
 const casePage = ref(1);
-const hasMoreCasePages = ref(true);
+const fallbackCasePage = ref(1);
+const usingFallback = ref(false);
+const hasMoreSimilarPages = ref(false);
 const isCasesLoading = ref(true);
 const isLoadingMoreCases = ref(false);
 
-const displayedCases = computed(() => allCases.value.slice(0, displayCaseCount.value));
+const displayedSimilarCases = computed(() => similarCases.value.slice(0, displaySimilarCount.value));
 const canLoadMoreCase = computed(
-	() => displayCaseCount.value < allCases.value.length || hasMoreCasePages.value,
+	() => displaySimilarCount.value < similarCases.value.length || hasMoreSimilarPages.value,
 );
 
 const sectionTops = ref<number[]>([]);
@@ -370,22 +377,73 @@ const onCasesLoggedIn = () => {
 	loadCases({ silent: true });
 };
 
+const onCaseTap = (c: Case) => {
+	navigatorToCase(c.id);
+};
+
+const resetCaseState = () => {
+	primaryCase.value = null;
+	similarCases.value = [];
+	similarTotal.value = 0;
+	casePage.value = 1;
+	fallbackCasePage.value = 1;
+	usingFallback.value = false;
+	hasMoreSimilarPages.value = false;
+};
+
+const appendSimilarCases = (items: Case[]) => {
+	const existing = new Set(similarCases.value.map((c) => c.id));
+	for (const c of items) {
+		if (!existing.has(c.id)) {
+			similarCases.value.push(c);
+			existing.add(c.id);
+		}
+	}
+};
+
+const loadFallbackPage = async (page: number) => {
+	const primary = primaryCase.value;
+	const fieldId = primary?.field?.id;
+	if (!primary || !fieldId) return;
+	const result = await RequestCaseDisplay(0, 0, 0, fieldId, 0, 0, 0, page, {
+		excludeId: primary.id,
+		referenceId: primary.id,
+	});
+	if (page === 1) {
+		similarCases.value = result.similar;
+		similarTotal.value = result.similarTotal;
+	} else {
+		appendSimilarCases(result.similar);
+	}
+	hasMoreSimilarPages.value = similarCases.value.length < similarTotal.value;
+	fallbackCasePage.value = page;
+};
+
+const ensureFallbackCases = async () => {
+	if (!primaryCase.value || similarCases.value.length > 0 || !primaryCase.value.field?.id) return;
+	usingFallback.value = true;
+	await loadFallbackPage(1);
+};
+
 const loadCases = async (options?: { silent?: boolean }) => {
 	if (!enterprise.value) return;
 	const silent = options?.silent ?? false;
 	if (!silent) {
 		isCasesLoading.value = true;
 	}
-	casePage.value = 1;
-	displayCaseCount.value = PAGE_SIZE;
+	displaySimilarCount.value = PAGE_SIZE;
+	resetCaseState();
 	try {
-		const list = await RequestCase(enterprise.value.id, 0, 0, 0, 0, 0, 0, 1);
-		allCases.value = list;
-		hasMoreCasePages.value = list.length >= 20;
+		const result = await RequestCaseDisplay(enterprise.value.id, 0, 0, 0, 0, 0, 0, 1);
+		primaryCase.value = result.primary;
+		similarCases.value = result.similar;
+		similarTotal.value = result.similarTotal;
+		hasMoreSimilarPages.value = similarCases.value.length < similarTotal.value;
+		await ensureFallbackCases();
 	} catch (err) {
 		console.error("Failed to load cases:", err);
 		if (!silent) {
-			allCases.value = [];
+			resetCaseState();
 		}
 	} finally {
 		isCasesLoading.value = false;
@@ -395,24 +453,26 @@ const loadCases = async (options?: { silent?: boolean }) => {
 
 const loadMoreCase = async () => {
 	if (isLoadingMoreCases.value) return;
-	if (displayCaseCount.value < allCases.value.length) {
-		displayCaseCount.value = Math.min(allCases.value.length, displayCaseCount.value + PAGE_SIZE);
+	if (displaySimilarCount.value < similarCases.value.length) {
+		displaySimilarCount.value = Math.min(similarCases.value.length, displaySimilarCount.value + PAGE_SIZE);
 		nextTick(() => setTimeout(calculateSectionTops, 100));
 		return;
 	}
-	if (!enterprise.value || !hasMoreCasePages.value) return;
+	if (!enterprise.value || !hasMoreSimilarPages.value) return;
 	isLoadingMoreCases.value = true;
-	const nextPage = casePage.value + 1;
 	try {
-		const more = await RequestCase(enterprise.value.id, 0, 0, 0, 0, 0, 0, nextPage);
-		if (more.length > 0) {
-			allCases.value.push(...more);
-			casePage.value = nextPage;
-			displayCaseCount.value = Math.min(allCases.value.length, displayCaseCount.value + PAGE_SIZE);
-			hasMoreCasePages.value = more.length >= 20;
+		if (usingFallback.value) {
+			const nextPage = fallbackCasePage.value + 1;
+			await loadFallbackPage(nextPage);
 		} else {
-			hasMoreCasePages.value = false;
+			const nextPage = casePage.value + 1;
+			const result = await RequestCaseDisplay(enterprise.value.id, 0, 0, 0, 0, 0, 0, nextPage);
+			appendSimilarCases(result.similar);
+			casePage.value = nextPage;
+			similarTotal.value = result.similarTotal;
+			hasMoreSimilarPages.value = similarCases.value.length < similarTotal.value;
 		}
+		displaySimilarCount.value = Math.min(similarCases.value.length, displaySimilarCount.value + PAGE_SIZE);
 	} catch (err) {
 		console.error("Failed to load more cases:", err);
 	} finally {
@@ -929,13 +989,6 @@ onLoad(async (options) => {
 	flex-shrink: 0;
 }
 
-.star-icon {
-	color: #ff9800;
-	font-size: 24rpx;
-	line-height: 28rpx;
-	margin-right: 4rpx;
-}
-
 .field-detail-link {
 	display: flex;
 	flex-direction: row;
@@ -1089,14 +1142,28 @@ onLoad(async (options) => {
 	left: 0;
 	right: 0;
 	bottom: 0;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	background-color: rgba(0, 0, 0, 0.05);
 	z-index: 10;
 }
 
 .login-btn {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background-color: rgba(0, 0, 0, 0.05);
+	border: none;
+	padding: 0;
+	margin: 0;
+	line-height: normal;
+	border-radius: 0;
+}
+
+.login-btn::after {
+	border: none;
+}
+
+.login-btn-label {
 	background-color: rgba(0, 0, 0, 0.65);
 	color: #ffffff;
 	font-size: 32rpx;
@@ -1104,7 +1171,6 @@ onLoad(async (options) => {
 	border-radius: 16rpx;
 	padding: 24rpx 48rpx;
 	line-height: 1;
-	border: none;
 }
 
 .section-empty {

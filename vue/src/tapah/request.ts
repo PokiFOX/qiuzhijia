@@ -6,6 +6,7 @@ import {
 	url_query_enterprise,
 	url_query_enterprise_detail,
 	url_query_case,
+	url_query_case_display,
 	url_query_article1,
 	url_query_article2,
 	url_query_wxcode,
@@ -340,6 +341,74 @@ export async function RequestCaseList(
 	return [json.length, pagesize];
 }
 
+function parseCaseItem(item: any): Case {
+	const c = new Case({ id: item.id, name: item.name });
+	c.entid = item.entid;
+	c.enticon = item.enticon;
+	c.entname = item.entname;
+	c.field = fieldlist.value.find((e) => e.id === item.field);
+	c.tags = Array.isArray(item.tags) ? item.tags.map(String) : [];
+	c.student = item.student;
+	c.school1 = item.school1;
+	c.stag1 = item.stag1;
+	c.field1 = item.field1;
+	c.school2 = item.school2;
+	c.stag2 = item.stag2;
+	c.field2 = item.field2;
+	c.year = item.year;
+	c.detail = item.detail;
+	c.dep = item.dep;
+	return c;
+}
+
+export interface CaseDisplayResult {
+	primary: Case | null;
+	similar: Case[];
+	similarTotal: number;
+	pageSize: number;
+}
+
+export async function RequestCaseDisplay(
+	enterprise: number,
+	level: number,
+	sector: number,
+	field: number,
+	stag1: number,
+	stag2: number,
+	year: number,
+	page: number,
+	options?: { excludeId?: number; referenceId?: number },
+): Promise<CaseDisplayResult> {
+	const response = await request<{ primary: any; similarlist: any[]; similar_total: number; pagesize: number }>({
+		url: parseurl(url_query_case_display),
+		method: "POST",
+		data: {
+			enterprise,
+			level,
+			sector,
+			field,
+			stag1,
+			stag2,
+			year,
+			page,
+			exclude_id: options?.excludeId ?? 0,
+			reference_id: options?.referenceId ?? 0,
+		},
+	});
+	if (response.code !== 0) {
+		throw new Error(`Error code: ${response.code} status: ${response.status}`);
+	}
+	const data = response.data;
+	const primary = data.primary ? parseCaseItem(data.primary) : null;
+	const similar = (data.similarlist ?? []).map(parseCaseItem);
+	return {
+		primary,
+		similar,
+		similarTotal: data.similar_total ?? 0,
+		pageSize: typeof data.pagesize === "number" ? data.pagesize : parseInt(String(data.pagesize), 10) || 20,
+	};
+}
+
 export async function RequestCase(
 	enterprise: number,
 	level: number,
@@ -359,25 +428,7 @@ export async function RequestCase(
 		throw new Error(`Error code: ${response.code} status: ${response.status}`);
 	}
 	const json = response.data.caselist;
-	return json.map((item) => {
-		const c = new Case({ id: item.id, name: item.name });
-		c.entid = item.entid;
-		c.enticon = item.enticon;
-		c.entname = item.entname;
-		c.field = fieldlist.value.find((e) => e.id === item.field);
-		c.tags = Array.isArray(item.tags) ? item.tags.map(String) : [];
-		c.student = item.student;
-		c.school1 = item.school1;
-		c.stag1 = item.stag1;
-		c.field1 = item.field1;
-		c.school2 = item.school2;
-		c.stag2 = item.stag2;
-		c.field2 = item.field2;
-		c.year = item.year;
-		c.detail = item.detail;
-		c.dep = item.dep;
-		return c;
-	});
+	return json.map(parseCaseItem);
 }
 
 export async function RequestWxCode(code: string): Promise<void> {

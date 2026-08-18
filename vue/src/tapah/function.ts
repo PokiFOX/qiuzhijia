@@ -39,6 +39,15 @@ export function parseEnterpriseIcon(name: string): string {
 	return `${urlheader}/images2/${name}`;
 }
 
+/** 专业热门度：后端 0–10，展示时除以 2，固定 5 颗星位（全星 + 半星 + 空星） */
+export function fieldStarParts(star: number): { full: number; half: boolean; empty: number } {
+	const n = Math.max(0, Math.min(10, Math.floor(star || 0)));
+	const full = Math.floor(n / 2);
+	const half = n % 2 === 1;
+	const empty = 5 - full - (half ? 1 : 0);
+	return { full, half, empty };
+}
+
 export function parseurl(url: string): string {
 	return `https://${backendHost}:${backendPort}/${url}`;
 }
@@ -60,6 +69,11 @@ export function navigator(url: string, args?: Record<string, any>) {
 	uni.navigateTo({
 		url: full,
 	});
+}
+
+export function navigatorToCase(caseId: number) {
+	if (!caseId) return;
+	navigator("/mainpage/example", { case: caseId });
 }
 
 export function KeFu() {

@@ -321,6 +321,36 @@ async def query_case(req: Request):
 		},
 	})
 
+@app.post("/query_case_display")
+async def query_case_display(req: Request):
+	from tapah import case_display as case_display_mod
+	json = await req.json()
+	enterprise_id = json.get("enterprise", 0) or 0
+	level = json.get("level", 0) or 0
+	sector = json.get("sector", 0) or 0
+	field = json.get("field", 0) or 0
+	stag1 = json.get("stag1", 0) or 0
+	stag2 = json.get("stag2", 0) or 0
+	year = json.get("year", 0) or 0
+	page = json.get("page", 1) or 1
+	exclude_id = json.get("exclude_id", 0) or 0
+	reference_id = json.get("reference_id", 0) or 0
+
+	result = case_display_mod.query_case_display(
+		enterprise_id, level, sector, field, stag1, stag2, year,
+		page, exclude_id, reference_id,
+	)
+	if result is None:
+		return JSONResponse(content = {
+			"code": 1,
+			"status": "enterprise_not_found",
+		})
+	return JSONResponse(content = {
+		"code": 0,
+		"status": "success",
+		"data": result,
+	})
+
 @app.post("/insert_enterprise")
 async def insert_enterprise(req: Request):
 	json = await req.json()

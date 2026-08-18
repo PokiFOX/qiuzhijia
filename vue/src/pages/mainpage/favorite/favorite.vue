@@ -76,7 +76,7 @@
 
 					<view class="stars-row">
 						<text class="stars-label">专业热门度:</text>
-						<text class="star-icon" v-for="n in field.star" :key="n">★</text>
+						<FieldStars :star="field.star" />
 					</view>
 
 					<view :class="['field-desc', { 'field-desc-collapsed': !expandedFields[field.id] }]">
@@ -98,6 +98,7 @@ import { ref, onMounted } from "vue";
 import { myenterpriselist, myfieldlist } from "../../../tapah/data";
 import { RequestFavorite } from "../../../tapah/request";
 import { parseimage, navigator } from "../../../tapah/function";
+import FieldStars from "../../../components/FieldStars.vue";
 
 const tabs = ["招聘企业", "招聘专业"];
 const activeTab = ref(0);
@@ -328,12 +329,6 @@ onMounted(() => {
 	font-size: 22rpx;
 	color: #333333;
 	margin-right: 10rpx;
-}
-
-.star-icon {
-	color: #ff9800;
-	font-size: 32rpx;
-	margin-right: 4rpx;
 }
 
 .field-desc {

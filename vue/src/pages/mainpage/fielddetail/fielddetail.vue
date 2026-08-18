@@ -54,11 +54,12 @@
 							<view v-if="isLoading" class="state-row">
 								<text class="state-text">加载中...</text>
 							</view>
-							<view v-else-if="allCases.length === 0" class="state-row">
+							<view v-else-if="!primaryCase && similarCases.length === 0" class="state-row">
 								<text class="state-text">暂无成功案例数据</text>
 							</view>
 							<template v-else>
-								<CaseCard v-for="(c, idx) in displayedCases" :key="idx" :case-item="c"/>
+								<CaseCard v-if="primaryCase" :case-item="primaryCase" @tap="onCaseTap(primaryCase)" />
+								<SimilarCaseSection :cases="displayedSimilarCases" />
 								<view v-if="canLoadMoreCase" class="load-more-bar" @tap="loadMoreCase">
 									<text class="load-more-text">查看更多成功案例 ›</text>
 								</view>
@@ -67,7 +68,7 @@
 
 						<view v-if="!accountinfo" class="login-overlay">
 							<button open-type="getPhoneNumber" @getphonenumber="onCaseLogin" class="login-btn">
-								请先登录后查看
+								<text class="login-btn-label">请先登录后查看</text>
 							</button>
 						</view>
 					</view>
@@ -84,13 +85,14 @@ import { ref, computed, nextTick } from "vue";
 import { onLoad } from "@dcloudio/uni-app";
 
 import { fieldlist, accountinfo } from "../../../tapah/data";
-import { RequestEnterprise, RequestCase, RequestUserInfo, RequestWxCode } from "../../../tapah/request";
-import { navigator, getWechatNavMetrics } from "../../../tapah/function";
+import { RequestEnterprise, RequestCaseDisplay, RequestUserInfo, RequestWxCode } from "../../../tapah/request";
+import { navigator, navigatorToCase, getWechatNavMetrics } from "../../../tapah/function";
 import type { Field, Enterprise, Case } from "../../../tapah/class";
 import FieldCard from "../../../components/FieldCard.vue";
 import EnterpriseCard from "../../../components/EnterpriseCard.vue";
 import DetailBottomBar from "../../../components/DetailBottomBar.vue";
 import CaseCard from "../../../components/CaseCard.vue";
+import SimilarCaseSection from "../../../components/SimilarCaseSection.vue";
 
 const PAGE_SIZE = 4;
 
@@ -99,14 +101,18 @@ const activeTab = ref(0);
 const scrollTargetId = ref("");
 const field = ref<Field | null>(null);
 const allEnterprises = ref<Enterprise[]>([]);
-const allCases = ref<Case[]>([]);
+const primaryCase = ref<Case | null>(null);
+const similarCases = ref<Case[]>([]);
+const similarTotal = ref(0);
 const displayEnterpriseCount = ref(PAGE_SIZE);
-const displayCaseCount = ref(PAGE_SIZE);
+const displaySimilarCount = ref(PAGE_SIZE);
 const enterprisePage = ref(1);
 const casePage = ref(1);
 const hasMoreEnterprisePages = ref(true);
-const hasMoreCasePages = ref(true);
+const hasMoreSimilarPages = ref(false);
 const isLoading = ref(true);
+
+const displayedSimilarCases = computed(() => similarCases.value.slice(0, displaySimilarCount.value));
 
 const sectionTops = ref<number[]>([]);
 const isScrollingToSection = ref(false);
@@ -139,13 +145,12 @@ const navTitleStyle = computed(() => {
 });
 
 const displayedEnterprises = computed(() => allEnterprises.value.slice(0, displayEnterpriseCount.value));
-const displayedCases = computed(() => allCases.value.slice(0, displayCaseCount.value));
 
 const canLoadMoreEnterprise = computed(
 	() => displayEnterpriseCount.value < allEnterprises.value.length || hasMoreEnterprisePages.value,
 );
 const canLoadMoreCase = computed(
-	() => displayCaseCount.value < allCases.value.length || hasMoreCasePages.value,
+	() => displaySimilarCount.value < similarCases.value.length || hasMoreSimilarPages.value,
 );
 
 const isFavorited = computed(() => {
@@ -191,22 +196,32 @@ const onCaseLogin = async (e: any) => {
 	}
 };
 
+const onCaseTap = (c: Case) => {
+	navigatorToCase(c.id);
+};
+
 const loadData = async () => {
 	if (!field.value) return;
 	isLoading.value = true;
 	enterprisePage.value = 1;
 	casePage.value = 1;
 	displayEnterpriseCount.value = PAGE_SIZE;
-	displayCaseCount.value = PAGE_SIZE;
+	displaySimilarCount.value = PAGE_SIZE;
+	primaryCase.value = null;
+	similarCases.value = [];
+	similarTotal.value = 0;
+	hasMoreSimilarPages.value = false;
 	try {
-		const [entList, caseList] = await Promise.all([
+		const [entList, caseResult] = await Promise.all([
 			RequestEnterprise(0, 0, 0, 0, field.value.id, null, null, "", 1),
-			RequestCase(0, 0, 0, field.value.id, 0, 0, 0, 1),
+			RequestCaseDisplay(0, 0, 0, field.value.id, 0, 0, 0, 1),
 		]);
 		allEnterprises.value = entList;
-		allCases.value = caseList;
+		primaryCase.value = caseResult.primary;
+		similarCases.value = caseResult.similar;
+		similarTotal.value = caseResult.similarTotal;
 		hasMoreEnterprisePages.value = entList.length >= 20;
-		hasMoreCasePages.value = caseList.length >= 20;
+		hasMoreSimilarPages.value = similarCases.value.length < similarTotal.value;
 	} catch (err) {
 		console.error("Failed to load field detail data:", err);
 	} finally {
@@ -240,25 +255,30 @@ const loadMoreEnterprise = async () => {
 };
 
 const loadMoreCase = async () => {
-	if (displayCaseCount.value < allCases.value.length) {
-		displayCaseCount.value = Math.min(allCases.value.length, displayCaseCount.value + PAGE_SIZE);
+	if (displaySimilarCount.value < similarCases.value.length) {
+		displaySimilarCount.value = Math.min(similarCases.value.length, displaySimilarCount.value + PAGE_SIZE);
+		nextTick(() => setTimeout(calculateSectionTops, 100));
 		return;
 	}
-	if (!field.value || !hasMoreCasePages.value) return;
+	if (!field.value || !hasMoreSimilarPages.value) return;
 	const nextPage = casePage.value + 1;
 	try {
-		const more = await RequestCase(0, 0, 0, field.value.id, 0, 0, 0, nextPage);
-		if (more.length > 0) {
-			allCases.value.push(...more);
-			casePage.value = nextPage;
-			displayCaseCount.value = Math.min(allCases.value.length, displayCaseCount.value + PAGE_SIZE);
-			hasMoreCasePages.value = more.length >= 20;
-		} else {
-			hasMoreCasePages.value = false;
+		const result = await RequestCaseDisplay(0, 0, 0, field.value.id, 0, 0, 0, nextPage);
+		const existing = new Set(similarCases.value.map((c) => c.id));
+		for (const c of result.similar) {
+			if (!existing.has(c.id)) {
+				similarCases.value.push(c);
+				existing.add(c.id);
+			}
 		}
+		casePage.value = nextPage;
+		similarTotal.value = result.similarTotal;
+		hasMoreSimilarPages.value = similarCases.value.length < similarTotal.value;
+		displaySimilarCount.value = Math.min(similarCases.value.length, displaySimilarCount.value + PAGE_SIZE);
 	} catch (err) {
 		console.error("Failed to load more cases:", err);
 	}
+	nextTick(() => setTimeout(calculateSectionTops, 100));
 };
 
 const calculateSectionTops = () => {
@@ -540,14 +560,28 @@ onLoad((options) => {
 	left: 0;
 	right: 0;
 	bottom: 0;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	background-color: rgba(0, 0, 0, 0.05);
 	z-index: 10;
 }
 
 .login-btn {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background-color: rgba(0, 0, 0, 0.05);
+	border: none;
+	padding: 0;
+	margin: 0;
+	line-height: normal;
+	border-radius: 0;
+}
+
+.login-btn::after {
+	border: none;
+}
+
+.login-btn-label {
 	background-color: rgba(0, 0, 0, 0.65);
 	color: #ffffff;
 	font-size: 32rpx;
@@ -555,10 +589,5 @@ onLoad((options) => {
 	border-radius: 16rpx;
 	padding: 24rpx 48rpx;
 	line-height: 1;
-	border: none;
-}
-
-.login-btn::after {
-	border: none;
 }
 </style>
