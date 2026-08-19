@@ -36,7 +36,9 @@
 						<text class="state-text">暂无招聘企业数据</text>
 					</view>
 					<view v-else class="enterprise-list">
-						<EnterpriseCard v-for="(ent, idx) in displayedEnterprises" :key="idx" :enterprise="ent" compact @tap="onEnterpriseTap(ent.id)"/>
+						<view v-for="(ent, idx) in displayedEnterprises" :key="idx" class="enterprise-card-wrap">
+							<EnterpriseCard :enterprise="ent" compact @tap="onEnterpriseTap(ent.id)" />
+						</view>
 						<view v-if="canLoadMoreEnterprise" class="load-more-bar" @tap="loadMoreEnterprise">
 							<text class="load-more-text">查看更多招聘企业 ›</text>
 						</view>
@@ -506,7 +508,13 @@ onLoad((options) => {
 }
 
 .enterprise-list {
+	display: flex;
+	flex-direction: column;
 	margin-top: 32rpx;
+}
+
+.enterprise-card-wrap + .enterprise-card-wrap {
+	margin-top: 16rpx;
 }
 
 .state-row {

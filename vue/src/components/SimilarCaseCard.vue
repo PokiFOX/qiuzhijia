@@ -1,5 +1,5 @@
 <template>
-	<view class="similar-case-card">
+	<view class="similar-case-card" @tap="onDetailTap">
 		<view class="card-top-row">
 			<image
 				v-if="caseItem.enticon"
@@ -97,7 +97,9 @@ const metaBadges = computed(() => {
 	return badges;
 });
 
-const internshipText = computed(() => formatInternship(props.caseItem.detail));
+const internshipText = computed(() =>
+	formatInternship(props.caseItem.detail, props.caseItem.experiences),
+);
 
 const onDetailTap = () => {
 	navigatorToCase(props.caseItem.id);

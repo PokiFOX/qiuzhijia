@@ -13,6 +13,7 @@ from tapah import const
 from tapah import data
 from tapah import function
 from tapah import chatai
+from tapah.case_experience import normalize_detail_for_storage
 from tapah.struct import Linq, Zone, Level, Sector, Field, Enterprise, Case, User, Question
 
 @asynccontextmanager
@@ -279,6 +280,7 @@ async def query_case(req: Request):
 		})
 
 	count = 0
+	from tapah import case_display as case_display_mod
 	for case in data.caselist:
 		ent = Linq(data.enterpriselist).find(lambda e: e.id == case.enterprise)
 		if ent is None: continue
@@ -293,25 +295,7 @@ async def query_case(req: Request):
 		count += 1
 		if page > 0 and count <= (page - 1) * const.page_size: continue
 		if page > 0 and count > page * const.page_size: break
-		caselist.append({
-			"id": case.id,
-			"name": case.name,
-			"enterprise": case.enterprise,
-			"enticon": ent.icon,
-			"entname": ent.name,
-			"field": case.field,
-			"tags": case.tags,
-			"student": case.student,
-			"school1": case.school1,
-			"stag1": case.stag1,
-			"field1": case.field1,
-			"school2": case.school2,
-			"stag2": case.stag2,
-			"field2": case.field2,
-			"year": case.year,
-			"detail": case.detail,
-			"dep": case.dep,
-		})
+		caselist.append(case_display_mod.serialize_case(case, ent))
 	return JSONResponse(content = {
 		"code": 0,
 		"status": "success",
@@ -351,6 +335,23 @@ async def query_case_display(req: Request):
 		"data": result,
 	})
 
+@app.post("/query_casedetail")
+async def query_casedetail(req: Request):
+	from tapah import case_display as case_display_mod
+	json = await req.json()
+	case_id = json.get("id", 0) or 0
+	result = case_display_mod.query_case_detail(case_id)
+	if result is None:
+		return JSONResponse(content = {
+			"code": 1,
+			"status": "case_not_found",
+		})
+	return JSONResponse(content = {
+		"code": 0,
+		"status": "success",
+		"data": result,
+	})
+
 @app.post("/insert_enterprise")
 async def insert_enterprise(req: Request):
 	json = await req.json()
@@ -377,7 +378,11 @@ async def insert_enterprise(req: Request):
 
 	enterprise = Linq(data.enterpriselist).find(lambda e: e.name == name)
 	if enterprise is not None:
-		return JSONResponse(content = {"status": "enterprise exists"})
+		return JSONResponse(content = {
+			"code": 0,
+			"status": "enterprise exists",
+			"id": enterprise.id,
+		})
 
 	zone_item = Linq(data.zonelist).find(lambda z: z.name == zone, None)
 	if zone_item is None:
@@ -434,6 +439,7 @@ async def insert_enterprise(req: Request):
 	return JSONResponse(content = {
 		"code": 0,
 		"status": "success",
+		"id": enterprise_id,
 	})
 
 @app.post("/insert_case")
@@ -473,7 +479,7 @@ async def insert_case(req: Request):
 	if tag == '其他海外院校': stag2 = 8
 	field2 = json.get("field2")
 	year = json.get("year")
-	detail = json.get("detail")
+	detail_raw = json.get("detail")
 	dep = json.get("dep")
 
 	einfo = Linq(data.enterpriselist).find(lambda e: e.name == enterprise)
@@ -483,6 +489,11 @@ async def insert_case(req: Request):
 	finfo = Linq(data.fieldlist).find(lambda f: f.name == field)
 	if finfo is None:
 		return JSONResponse(content = {"status": "field_not_found"})
+
+	try:
+		detail = normalize_detail_for_storage(detail_raw, data.enterpriselist)
+	except ValueError as err:
+		return JSONResponse(content = {"code": 1, "status": str(err)})
 
 	conn = data.mysql_pool.apply()
 	cursor = conn.cursor()
@@ -1060,11 +1071,16 @@ async def edit_case(req: Request):
 	if tag == '其他海外院校': stag2 = 8
 	field2 = json.get("field2")
 	year = json.get("year")
-	detail = json.get("detail")
+	detail_raw = json.get("detail")
 	dep = json.get("dep")
 
 	case = Linq(data.caselist).find(lambda c: c.id == id, None)
 	if case is None: return JSONResponse(content = {"status": "not exists"})
+
+	try:
+		detail = normalize_detail_for_storage(detail_raw, data.enterpriselist)
+	except ValueError as err:
+		return JSONResponse(content = {"code": 1, "status": str(err)})
 
 	conn = data.mysql_pool.apply()
 	cursor = conn.cursor()

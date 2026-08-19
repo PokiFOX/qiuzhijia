@@ -43,17 +43,8 @@ const emit = defineEmits<{
 	border-radius: 20rpx;
 	min-height: 196rpx;
 	padding: 20rpx;
-	margin-bottom: 24rpx;
 	box-shadow: 0 6rpx 12rpx -8rpx rgba(0, 0, 0, 0.12);
 	box-sizing: border-box;
-}
-
-.enterprise-card-compact {
-	margin-bottom: 16rpx;
-}
-
-.enterprise-card:last-child {
-	margin-bottom: 0;
 }
 
 .logo-col {

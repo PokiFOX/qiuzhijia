@@ -919,10 +919,14 @@ onLoad(async (options) => {
 	padding: 40rpx 64rpx 16rpx 64rpx;
 }
 
+#section-1 .block-title {
+	padding: 40rpx 48rpx 16rpx 48rpx;
+}
+
 .fields-list {
 	display: flex;
 	flex-direction: column;
-	padding: 0 64rpx;
+	padding: 0 48rpx;
 	gap: 4rpx;
 }
 

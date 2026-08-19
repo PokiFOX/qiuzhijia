@@ -7,6 +7,7 @@ import {
 	url_query_enterprise_detail,
 	url_query_case,
 	url_query_case_display,
+	url_query_casedetail,
 	url_query_article1,
 	url_query_article2,
 	url_query_wxcode,
@@ -341,9 +342,29 @@ export async function RequestCaseList(
 	return [json.length, pagesize];
 }
 
+function parseCaseExperiences(items: any[] | undefined) {
+	if (!Array.isArray(items)) return undefined;
+	return items.map((item) => {
+		const department = String(item.department ?? "").trim();
+		const position = String(item.position ?? "").trim();
+		const enterpriseName = String(item.enterpriseName ?? "").trim();
+		const deptRole =
+			String(item.deptRole ?? "").trim() ||
+			[department, position].filter(Boolean).join("·");
+		return {
+			enterpriseId: item.enterpriseId != null ? Number(item.enterpriseId) : undefined,
+			enterpriseName,
+			department,
+			position,
+			deptRole,
+			company: enterpriseName,
+		};
+	});
+}
+
 function parseCaseItem(item: any): Case {
 	const c = new Case({ id: item.id, name: item.name });
-	c.entid = item.entid;
+	c.entid = item.enterprise ?? item.entid;
 	c.enticon = item.enticon;
 	c.entname = item.entname;
 	c.field = fieldlist.value.find((e) => e.id === item.field);
@@ -357,8 +378,34 @@ function parseCaseItem(item: any): Case {
 	c.field2 = item.field2;
 	c.year = item.year;
 	c.detail = item.detail;
+	c.experiences = parseCaseExperiences(item.experiences);
 	c.dep = item.dep;
 	return c;
+}
+
+export interface CaseDetailResult {
+	caseItem: Case;
+	similar: Case[];
+	similarTotal: number;
+	pageSize: number;
+}
+
+export async function RequestCaseDetail(id: number): Promise<CaseDetailResult> {
+	const response = await request<{ case: any; similarlist: any[]; similar_total: number; pagesize: number }>({
+		url: parseurl(url_query_casedetail),
+		method: "POST",
+		data: { id },
+	});
+	if (response.code !== 0) {
+		throw new Error(`Error code: ${response.code} status: ${response.status}`);
+	}
+	const data = response.data;
+	return {
+		caseItem: parseCaseItem(data.case),
+		similar: (data.similarlist ?? []).map(parseCaseItem),
+		similarTotal: data.similar_total ?? 0,
+		pageSize: typeof data.pagesize === "number" ? data.pagesize : parseInt(String(data.pagesize), 10) || 20,
+	};
 }
 
 export interface CaseDisplayResult {

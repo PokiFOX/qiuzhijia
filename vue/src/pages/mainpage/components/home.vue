@@ -297,7 +297,7 @@ onMounted(async () => {
 	width: 100%;
 	background-color: #ffffff;
 	border-radius: 0 0 32rpx 32rpx;
-	padding-bottom: 24rpx;
+	padding-bottom: 0;
 	box-sizing: border-box;
 }
 
@@ -433,7 +433,7 @@ onMounted(async () => {
 .promo-row {
 	display: flex;
 	flex-direction: row;
-	align-items: flex-start;
+	align-items: flex-end;
 	width: 100%;
 	margin-top: 24rpx;
 	box-sizing: border-box;
@@ -448,6 +448,7 @@ onMounted(async () => {
 .promo-right {
 	display: flex;
 	flex-direction: column;
+	justify-content: flex-end;
 	flex-shrink: 0;
 }
 

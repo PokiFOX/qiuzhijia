@@ -73,7 +73,13 @@ export function navigator(url: string, args?: Record<string, any>) {
 
 export function navigatorToCase(caseId: number) {
 	if (!caseId) return;
-	navigator("/mainpage/example", { case: caseId });
+	uni.navigateTo({
+		url: `/pages/mainpage/casedetail/casedetail?id=${caseId}`,
+		fail(err) {
+			console.error("navigateTo casedetail failed:", err);
+			uni.showToast({ title: "打开案例失败", icon: "none" });
+		},
+	});
 }
 
 export function KeFu() {

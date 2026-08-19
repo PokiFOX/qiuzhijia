@@ -7,6 +7,7 @@ from tapah import const
 from tapah import data
 from tapah import function
 from tapah import reserved
+from tapah.case_experience import fetch_enterprise_name_id_map, parse_detail_to_json
 
 # data.mysql_conn = mysql.connector.connect(
 # 	host		= reserved.mysql_host,
@@ -77,6 +78,7 @@ def upload_config():
 		print(f"设置失败 : {err}")
 
 def parse_enterprise(page):
+	ent_map: dict[str, int] = {}
 	for row in range(2, page.max_row + 1):
 		enterprise = {
 			"zone": function.getcell_str(page, row, const.column_zone),				# 地区
@@ -143,13 +145,31 @@ def parse_enterprise(page):
 			r = requests.post(function.url(const.url_insert_enterprise), json = enterprise, headers = const.request_headers, timeout = 15)
 			r.raise_for_status()
 			rj = json.loads(r.text)
-			if 'code' not in rj or rj['code'] != 0:
+			status = rj.get('status', '')
+			if status == 'enterprise exists':
+				print(f"已存在: {enterprise['name']} (enterprise exists)")
+				ent_id = rj.get('id')
+				if ent_id is not None and enterprise['name']:
+					ent_map[enterprise['name']] = int(ent_id)
+				continue
+			if rj.get('code') != 0:
 				print(f"已失败: {enterprise['name']} response code {r.status_code} content: {r.text}")
+				continue
+			ent_id = rj.get('id')
+			if ent_id is not None and enterprise['name']:
+				ent_map[enterprise['name']] = int(ent_id)
 		except requests.RequestException as err:
 			print(f"上传失败 {enterprise['name']}: {err}")
+	return ent_map
 
-def parse_case(page):
+def parse_case(page, ent_map):
 	for row in range(2, page.max_row + 1):
+		detail_raw = function.getcell_str(page, row, 13)
+		try:
+			detail = parse_detail_to_json(detail_raw, ent_map)
+		except ValueError as err:
+			print(f"主要经历解析失败 row={row}: {err}")
+			continue
 		case = {
 			"id": row - 1,
 			"name": function.getcell_str(page, row, 1),				# 岗位名称
@@ -164,7 +184,7 @@ def parse_case(page):
 			"school2_tag": function.getcell_str(page, row, 10),		# 研究生院校标签
 			"field2": function.getcell_str(page, row, 11),			# 研究生专业
 			"year": function.getcell_int(page, row, 12),			# 毕业年份
-			"detail": function.getcell_str(page, row, 13),			# 主要经历
+			"detail": detail,			# 主要经历
 			"dep": function.getcell_str(page, row, 14),				# 部门
 		}
 		try:
@@ -180,8 +200,12 @@ wb = openpyxl.load_workbook('企业列表.xlsx')
 parse_global(wb['全局设置'])
 parse_field(wb['学科列表'])
 upload_config()
-parse_enterprise(wb['第一批企业'])
-parse_case(wb['成功案例'])
+ent_map = parse_enterprise(wb['第一批企业'])
+try:
+	ent_map.update(fetch_enterprise_name_id_map())
+except requests.RequestException as err:
+	print(f"拉取企业列表失败，使用上传结果: {err}")
+parse_case(wb['成功案例'], ent_map)
 
 wb.close()
 

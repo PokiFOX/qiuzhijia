@@ -32,7 +32,9 @@
 		<!-- Enterprise List -->
 		<scroll-view class="list-scroll-view" scroll-y enhanced :show-scrollbar="false" :style="listScrollStyle" :scroll-top="scrollTop" :lower-threshold="80" @scroll="onScroll" @scrolltolower="loadMore">
 			<view class="list-container">
-				<EnterpriseCard v-for="(enterprise, idx) in enterpriselist" :key="idx" :enterprise="enterprise" @tap="onEnterpriseTap(enterprise.id)"/>
+				<view v-for="(enterprise, idx) in enterpriselist" :key="idx" class="enterprise-card-wrap">
+					<EnterpriseCard :enterprise="enterprise" @tap="onEnterpriseTap(enterprise.id)" />
+				</view>
 				<view v-if="enterpriselist.length === 0 && !isLoading" class="empty-state">
 					<text class="empty-text">暂无企业数据</text>
 				</view>
@@ -367,6 +369,7 @@ onUnmounted(() => {
 	flex-shrink: 0;
 	width: 100%;
 	margin-top: 30rpx;
+	background-color: transparent;
 }
 
 .list-container {
@@ -374,6 +377,10 @@ onUnmounted(() => {
 	flex-direction: column;
 	padding-bottom: 20rpx;
 	box-sizing: border-box;
+}
+
+.enterprise-card-wrap + .enterprise-card-wrap {
+	margin-top: 16rpx;
 }
 
 .empty-state,

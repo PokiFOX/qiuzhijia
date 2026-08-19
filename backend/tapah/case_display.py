@@ -1,5 +1,6 @@
 from tapah import const
 from tapah import data
+from tapah.case_experience import enrich_experiences, parse_stored_detail
 from tapah.struct import Linq
 
 
@@ -100,6 +101,7 @@ def filter_cases(
 
 
 def serialize_case(case, ent):
+	experiences = enrich_experiences(parse_stored_detail(case.detail))
 	return {
 		"id": case.id,
 		"name": case.name,
@@ -116,6 +118,7 @@ def serialize_case(case, ent):
 		"stag2": case.stag2,
 		"field2": case.field2,
 		"year": case.year,
+		"experiences": experiences,
 		"detail": case.detail,
 		"dep": case.dep,
 	}
@@ -191,6 +194,37 @@ def query_case_display(
 
 	return {
 		"primary": primary_dict,
+		"similarlist": similarlist,
+		"similar_total": similar_total,
+		"pagesize": const.page_size,
+	}
+
+
+def query_case_detail(case_id):
+	case, ent = _find_case_by_id(case_id)
+	if case is None or ent is None:
+		return None
+
+	case_dict = serialize_case(case, ent)
+
+	display = query_case_display(
+		case.enterprise, 0, 0, 0, 0, 0, 0,
+		1, case.id, case.id,
+	)
+	similarlist = display["similarlist"] if display else []
+	similar_total = display["similar_total"] if display else 0
+
+	if similar_total == 0 and case.field:
+		fallback = query_case_display(
+			0, 0, 0, case.field, 0, 0, 0,
+			1, case.id, case.id,
+		)
+		if fallback:
+			similarlist = fallback["similarlist"]
+			similar_total = fallback["similar_total"]
+
+	return {
+		"case": case_dict,
 		"similarlist": similarlist,
 		"similar_total": similar_total,
 		"pagesize": const.page_size,

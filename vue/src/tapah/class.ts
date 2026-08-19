@@ -1,3 +1,4 @@
+import type { InternshipExperience } from "./caseExperience";
 import { SceneID, EventType } from "./enum";
 
 export class EventInfo {
@@ -270,6 +271,7 @@ export class Case {
 	stag2?: number;
 	year?: number;
 	detail?: string;
+	experiences?: InternshipExperience[];
 
 	constructor({ id, name }: { id: number; name: string }) {
 		this.id = id;

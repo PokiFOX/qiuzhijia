@@ -48,6 +48,13 @@
 			}
 		},
 		{
+			"path": "pages/mainpage/casedetail/casedetail",
+			"style": {
+				"navigationBarTitleText": "成功案例",
+				"navigationStyle": "custom"
+			}
+		},
+		{
 			"path": "pages/mainpage/casefilter/casefilter",
 			"style": {
 				"navigationBarTitleText": "案例筛选"
