@@ -42,6 +42,20 @@
 			}
 		},
 		{
+			"path": "pages/mainpage/fieldenterpriselist/fieldenterpriselist",
+			"style": {
+				"navigationBarTitleText": "企业列表",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/mainpage/fieldcaselist/fieldcaselist",
+			"style": {
+				"navigationBarTitleText": "成功案例",
+				"navigationStyle": "custom"
+			}
+		},
+		{
 			"path": "pages/mainpage/example/example",
 			"style": {
 				"navigationBarTitleText": "过往案例"

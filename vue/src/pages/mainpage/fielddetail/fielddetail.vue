@@ -1,5 +1,5 @@
 <template>
-	<view class="field-detail-page" v-if="field">
+	<view class="field-detail-page" :class="{ 'page-locked': isSheetOpen }" v-if="field">
 		<view class="page-nav" :style="navBarStyle">
 			<view class="nav-side nav-side-left">
 				<view class="nav-back" :style="navSideStyle" @tap="onBack">
@@ -17,7 +17,15 @@
 			</view>
 		</view>
 
-		<scroll-view class="page-scroll" scroll-y enhanced :show-scrollbar="false" :scroll-into-view="scrollTargetId" scroll-with-animation @scroll="onScroll">
+		<scroll-view
+			class="page-scroll"
+			:scroll-y="!isSheetOpen"
+			enhanced
+			:show-scrollbar="false"
+			:scroll-into-view="scrollTargetId"
+			scroll-with-animation
+			@scroll="onScroll"
+		>
 			<view class="page-content">
 				<view id="section-0" class="section-card section-card-field">
 					<FieldCard :field="field" full-content />
@@ -39,7 +47,7 @@
 						<view v-for="(ent, idx) in displayedEnterprises" :key="idx" class="enterprise-card-wrap">
 							<EnterpriseCard :enterprise="ent" compact @tap="onEnterpriseTap(ent.id)" />
 						</view>
-						<view v-if="canLoadMoreEnterprise" class="load-more-bar" @tap="loadMoreEnterprise">
+						<view v-if="canLoadMoreEnterprise" class="load-more-bar" @tap="openEnterpriseSheet">
 							<text class="load-more-text">查看更多招聘企业 ›</text>
 						</view>
 					</view>
@@ -62,7 +70,7 @@
 							<template v-else>
 								<CaseCard v-if="primaryCase" :case-item="primaryCase" @tap="onCaseTap(primaryCase)" />
 								<SimilarCaseSection :cases="displayedSimilarCases" />
-								<view v-if="canLoadMoreCase" class="load-more-bar" @tap="loadMoreCase">
+								<view v-if="canLoadMoreCase" class="load-more-bar" @tap="openCaseSheet">
 									<text class="load-more-text">查看更多成功案例 ›</text>
 								</view>
 							</template>
@@ -79,11 +87,19 @@
 		</scroll-view>
 
 		<DetailBottomBar :is-favorited="isFavorited" favorite-label="关注" favorited-label="已关注" @toggle-favorite="toggleFavorite" @logged-in="loadData"/>
+
+		<BottomSheet :visible="showEnterpriseSheet" title="企业列表" @close="showEnterpriseSheet = false">
+			<FieldEnterpriseListPanel v-if="field" :field-id="field.id" :active="showEnterpriseSheet" />
+		</BottomSheet>
+
+		<BottomSheet :visible="showCaseSheet" title="成功案例" @close="showCaseSheet = false">
+			<FieldCaseListPanel v-if="field" :field-id="field.id" :active="showCaseSheet" />
+		</BottomSheet>
 	</view>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, nextTick } from "vue";
+import { ref, computed, nextTick, watch, onUnmounted } from "vue";
 import { onLoad } from "@dcloudio/uni-app";
 
 import { fieldlist, accountinfo } from "../../../tapah/data";
@@ -95,6 +111,9 @@ import EnterpriseCard from "../../../components/EnterpriseCard.vue";
 import DetailBottomBar from "../../../components/DetailBottomBar.vue";
 import CaseCard from "../../../components/CaseCard.vue";
 import SimilarCaseSection from "../../../components/SimilarCaseSection.vue";
+import BottomSheet from "../../../components/BottomSheet.vue";
+import FieldEnterpriseListPanel from "../../../components/FieldEnterpriseListPanel.vue";
+import FieldCaseListPanel from "../../../components/FieldCaseListPanel.vue";
 
 const PAGE_SIZE = 4;
 
@@ -108,11 +127,25 @@ const similarCases = ref<Case[]>([]);
 const similarTotal = ref(0);
 const displayEnterpriseCount = ref(PAGE_SIZE);
 const displaySimilarCount = ref(PAGE_SIZE);
-const enterprisePage = ref(1);
-const casePage = ref(1);
 const hasMoreEnterprisePages = ref(true);
 const hasMoreSimilarPages = ref(false);
 const isLoading = ref(true);
+const showEnterpriseSheet = ref(false);
+const showCaseSheet = ref(false);
+
+const isSheetOpen = computed(() => showEnterpriseSheet.value || showCaseSheet.value);
+
+watch(isSheetOpen, (open) => {
+	if (typeof document !== "undefined") {
+		document.body.style.overflow = open ? "hidden" : "";
+	}
+});
+
+onUnmounted(() => {
+	if (typeof document !== "undefined") {
+		document.body.style.overflow = "";
+	}
+});
 
 const displayedSimilarCases = computed(() => similarCases.value.slice(0, displaySimilarCount.value));
 
@@ -202,11 +235,17 @@ const onCaseTap = (c: Case) => {
 	navigatorToCase(c.id);
 };
 
+const openEnterpriseSheet = () => {
+	showEnterpriseSheet.value = true;
+};
+
+const openCaseSheet = () => {
+	showCaseSheet.value = true;
+};
+
 const loadData = async () => {
 	if (!field.value) return;
 	isLoading.value = true;
-	enterprisePage.value = 1;
-	casePage.value = 1;
 	displayEnterpriseCount.value = PAGE_SIZE;
 	displaySimilarCount.value = PAGE_SIZE;
 	primaryCase.value = null;
@@ -232,55 +271,6 @@ const loadData = async () => {
 			setTimeout(calculateSectionTops, 300);
 		});
 	}
-};
-
-const loadMoreEnterprise = async () => {
-	if (displayEnterpriseCount.value < allEnterprises.value.length) {
-		displayEnterpriseCount.value = Math.min(allEnterprises.value.length, displayEnterpriseCount.value + PAGE_SIZE);
-		return;
-	}
-	if (!field.value || !hasMoreEnterprisePages.value) return;
-	const nextPage = enterprisePage.value + 1;
-	try {
-		const more = await RequestEnterprise(0, 0, 0, 0, field.value.id, null, null, "", nextPage);
-		if (more.length > 0) {
-			allEnterprises.value.push(...more);
-			enterprisePage.value = nextPage;
-			displayEnterpriseCount.value = Math.min(allEnterprises.value.length, displayEnterpriseCount.value + PAGE_SIZE);
-			hasMoreEnterprisePages.value = more.length >= 20;
-		} else {
-			hasMoreEnterprisePages.value = false;
-		}
-	} catch (err) {
-		console.error("Failed to load more enterprises:", err);
-	}
-};
-
-const loadMoreCase = async () => {
-	if (displaySimilarCount.value < similarCases.value.length) {
-		displaySimilarCount.value = Math.min(similarCases.value.length, displaySimilarCount.value + PAGE_SIZE);
-		nextTick(() => setTimeout(calculateSectionTops, 100));
-		return;
-	}
-	if (!field.value || !hasMoreSimilarPages.value) return;
-	const nextPage = casePage.value + 1;
-	try {
-		const result = await RequestCaseDisplay(0, 0, 0, field.value.id, 0, 0, 0, nextPage);
-		const existing = new Set(similarCases.value.map((c) => c.id));
-		for (const c of result.similar) {
-			if (!existing.has(c.id)) {
-				similarCases.value.push(c);
-				existing.add(c.id);
-			}
-		}
-		casePage.value = nextPage;
-		similarTotal.value = result.similarTotal;
-		hasMoreSimilarPages.value = similarCases.value.length < similarTotal.value;
-		displaySimilarCount.value = Math.min(similarCases.value.length, displaySimilarCount.value + PAGE_SIZE);
-	} catch (err) {
-		console.error("Failed to load more cases:", err);
-	}
-	nextTick(() => setTimeout(calculateSectionTops, 100));
 };
 
 const calculateSectionTops = () => {
@@ -347,6 +337,10 @@ onLoad((options) => {
 	height: 100vh;
 	background-color: #f8f8f8;
 	box-sizing: border-box;
+}
+
+.page-locked {
+	overflow: hidden;
 }
 
 .page-nav {

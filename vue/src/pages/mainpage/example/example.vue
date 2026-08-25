@@ -38,7 +38,7 @@
 						:id="'case-' + c.id"
 						class="case-anchor"
 					>
-						<CaseCard :case-item="c" />
+						<CaseCard :case-item="c" @tap="onCaseTap(c)" />
 					</view>
 				</template>
 
@@ -66,7 +66,8 @@ import { ref, computed, onMounted, onUnmounted, nextTick } from "vue";
 import { onLoad, onReachBottom } from "@dcloudio/uni-app";
 import { caselist, accountinfo } from "../../../tapah/data";
 import { RequestCaseList, RequestWxCode, RequestUserInfo } from "../../../tapah/request";
-import { navigator } from "../../../tapah/function";
+import { navigator, navigatorToCase } from "../../../tapah/function";
+import type { Case } from "../../../tapah/class";
 import CaseCard from "../../../components/CaseCard.vue";
 
 const MAX_SCROLL_PAGES = 20;
@@ -102,6 +103,10 @@ const filteredCases = computed(() => {
 
 const onSearchInput = () => {
 	// Handled reactively by computed property
+};
+
+const onCaseTap = (c: Case) => {
+	navigatorToCase(c.id);
 };
 
 const goCaseFilter = () => {
