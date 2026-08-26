@@ -67,7 +67,8 @@ import SimilarCaseCard from "./SimilarCaseCard.vue";
 const PAGE_SIZE = 20;
 
 const props = defineProps<{
-	fieldId: number;
+	fieldId?: number;
+	enterpriseId?: number;
 	active?: boolean;
 }>();
 
@@ -126,17 +127,19 @@ const onCaseLogin = async (e: any) => {
 };
 
 const loadCases = async () => {
-	if (!props.fieldId || isLoading.value) return;
+	const fieldId = props.fieldId ?? 0;
+	const enterpriseId = props.enterpriseId ?? 0;
+	if ((!fieldId && !enterpriseId) || isLoading.value) return;
 	isLoading.value = true;
 	page.value = 1;
 	isFinish.value = false;
 	allCases.value = [];
 	try {
-		const list = await RequestCase(0, 0, 0, props.fieldId, 0, 0, 0, page.value);
+		const list = await RequestCase(enterpriseId, 0, 0, fieldId, 0, 0, 0, page.value);
 		allCases.value = list;
 		isFinish.value = list.length < PAGE_SIZE;
 	} catch (err) {
-		console.error("Failed to load field cases:", err);
+		console.error("Failed to load cases:", err);
 	} finally {
 		isLoading.value = false;
 		isInitialLoading.value = false;
@@ -146,10 +149,13 @@ const loadCases = async () => {
 
 const loadMore = async () => {
 	if (isFinish.value || isLoading.value || isInitialLoading.value || search.value.trim()) return;
+	const fieldId = props.fieldId ?? 0;
+	const enterpriseId = props.enterpriseId ?? 0;
+	if (!fieldId && !enterpriseId) return;
 	isLoading.value = true;
 	const nextPage = page.value + 1;
 	try {
-		const list = await RequestCase(0, 0, 0, props.fieldId, 0, 0, 0, nextPage);
+		const list = await RequestCase(enterpriseId, 0, 0, fieldId, 0, 0, 0, nextPage);
 		if (list.length > 0) {
 			allCases.value.push(...list);
 			page.value = nextPage;
@@ -171,9 +177,9 @@ const resetAndLoad = () => {
 };
 
 watch(
-	() => [props.fieldId, props.active] as const,
-	([fieldId, active]) => {
-		if (fieldId > 0 && active) {
+	() => [props.fieldId ?? 0, props.enterpriseId ?? 0, props.active] as const,
+	([fieldId, enterpriseId, active]) => {
+		if ((fieldId > 0 || enterpriseId > 0) && active) {
 			updateListHeight();
 			resetAndLoad();
 		}

@@ -3,7 +3,7 @@
 		<scroll-view class="scroll-container" scroll-y>
 			<!-- Top Banner -->
 			<view class="banner-wrapper">
-				<image class="banner-img" :src="parseimage('栏目/求职服务/顶部.png')" mode="widthFix" />
+				<image class="banner-img" :src="parseLanmuImage('栏目/求职服务/顶部.png')" mode="widthFix" />
 			</view>
 
 			<view class="content-wrapper">
@@ -16,7 +16,7 @@
 				<view class="cards-grid">
 					<view class="cards-row">
 						<view class="type-card">
-							<image class="card-icon" :src="parseimage('栏目/求职服务/求职定位.png')" mode="aspectFit" />
+							<image class="card-icon" :src="parseLanmuImage('栏目/求职服务/求职定位.png')" mode="aspectFit" />
 							<view class="card-text-col">
 								<text class="card-title">求职定位</text>
 								<text class="card-sub">结合背景匹配方向</text>
@@ -24,7 +24,7 @@
 						</view>
 
 						<view class="type-card">
-							<image class="card-icon" :src="parseimage('栏目/求职服务/简历优化.png')" mode="aspectFit" />
+							<image class="card-icon" :src="parseLanmuImage('栏目/求职服务/简历优化.png')" mode="aspectFit" />
 							<view class="card-text-col">
 								<text class="card-title">简历优化</text>
 								<text class="card-sub">突出经历与岗位优势</text>
@@ -34,7 +34,7 @@
 
 					<view class="cards-row">
 						<view class="type-card">
-							<image class="card-icon" :src="parseimage('栏目/求职服务/投递规划.png')" mode="aspectFit" />
+							<image class="card-icon" :src="parseLanmuImage('栏目/求职服务/投递规划.png')" mode="aspectFit" />
 							<view class="card-text-col">
 								<text class="card-title">投递规划</text>
 								<text class="card-sub">筛选岗位与企业机会</text>
@@ -42,7 +42,7 @@
 						</view>
 
 						<view class="type-card">
-							<image class="card-icon" :src="parseimage('栏目/求职服务/笔面辅导.png')" mode="aspectFit" />
+							<image class="card-icon" :src="parseLanmuImage('栏目/求职服务/笔面辅导.png')" mode="aspectFit" />
 							<view class="card-text-col">
 								<text class="card-title">笔面辅导</text>
 								<text class="card-sub">提升笔试与面试表现</text>
@@ -52,7 +52,7 @@
 
 					<view class="cards-row">
 						<view class="type-card">
-							<image class="card-icon" :src="parseimage('栏目/求职服务/首席导师团队.png')" mode="aspectFit" />
+							<image class="card-icon" :src="parseLanmuImage('栏目/求职服务/首席导师团队.png')" mode="aspectFit" />
 							<view class="card-text-col">
 								<text class="card-title">首席导师团队</text>
 								<text class="card-sub">顶尖行业导师</text>
@@ -60,7 +60,7 @@
 						</view>
 
 						<view class="type-card">
-							<image class="card-icon" :src="parseimage('栏目/求职服务/实习内推.png')" mode="aspectFit" />
+							<image class="card-icon" :src="parseLanmuImage('栏目/求职服务/实习内推.png')" mode="aspectFit" />
 							<view class="card-text-col">
 								<text class="card-title">实习内推</text>
 								<text class="card-sub">定向内推实习</text>
@@ -70,7 +70,7 @@
 
 					<view class="cards-row">
 						<view class="type-card">
-							<image class="card-icon" :src="parseimage('栏目/求职服务/24h贴心陪伴.png')" mode="aspectFit" />
+							<image class="card-icon" :src="parseLanmuImage('栏目/求职服务/24h贴心陪伴.png')" mode="aspectFit" />
 							<view class="card-text-col">
 								<text class="card-title">24h贴心陪伴</text>
 								<text class="card-sub">专属辅导组</text>
@@ -78,7 +78,7 @@
 						</view>
 
 						<view class="type-card">
-							<image class="card-icon" :src="parseimage('栏目/求职服务/能力提升工作坊.png')" mode="aspectFit" />
+							<image class="card-icon" :src="parseLanmuImage('栏目/求职服务/能力提升工作坊.png')" mode="aspectFit" />
 							<view class="card-text-col">
 								<text class="card-title">能力提升工作坊</text>
 								<text class="card-sub">助力能力提升</text>
@@ -88,7 +88,7 @@
 
 					<view class="cards-row">
 						<view class="type-card">
-							<image class="card-icon" :src="parseimage('栏目/求职服务/其他增值服务.png')" mode="aspectFit" />
+							<image class="card-icon" :src="parseLanmuImage('栏目/求职服务/其他增值服务.png')" mode="aspectFit" />
 							<view class="card-text-col">
 								<text class="card-title">其他增值服务</text>
 								<text class="card-sub">行业资料持续更新</text>
@@ -96,7 +96,7 @@
 						</view>
 
 						<view class="type-card">
-							<image class="card-icon" :src="parseimage('栏目/求职服务/专属社群支持.png')" mode="aspectFit" />
+							<image class="card-icon" :src="parseLanmuImage('栏目/求职服务/专属社群支持.png')" mode="aspectFit" />
 							<view class="card-text-col">
 								<text class="card-title">专属社群支持</text>
 								<text class="card-sub">消息及时同步</text>
@@ -119,7 +119,7 @@
 					<view class="flow-steps">
 						<view class="flow-step">
 							<view class="flow-icon-bg">
-								<image class="flow-icon" :src="parseimage('栏目/求职服务/需求沟通.png')" mode="aspectFit" />
+								<image class="flow-icon" :src="parseLanmuImage('栏目/求职服务/需求沟通.png')" mode="aspectFit" />
 							</view>
 							<text class="flow-label">需求沟通</text>
 						</view>
@@ -127,7 +127,7 @@
 
 						<view class="flow-step">
 							<view class="flow-icon-bg">
-								<image class="flow-icon" :src="parseimage('栏目/求职服务/策略制定.png')" mode="aspectFit" />
+								<image class="flow-icon" :src="parseLanmuImage('栏目/求职服务/策略制定.png')" mode="aspectFit" />
 							</view>
 							<text class="flow-label">策略制定</text>
 						</view>
@@ -135,7 +135,7 @@
 
 						<view class="flow-step">
 							<view class="flow-icon-bg">
-								<image class="flow-icon" :src="parseimage('栏目/求职服务/技能提升.png')" mode="aspectFit" />
+								<image class="flow-icon" :src="parseLanmuImage('栏目/求职服务/技能提升.png')" mode="aspectFit" />
 							</view>
 							<text class="flow-label">技能提升</text>
 						</view>
@@ -143,7 +143,7 @@
 
 						<view class="flow-step">
 							<view class="flow-icon-bg">
-								<image class="flow-icon" :src="parseimage('栏目/求职服务/信息推荐.png')" mode="aspectFit" />
+								<image class="flow-icon" :src="parseLanmuImage('栏目/求职服务/信息推荐.png')" mode="aspectFit" />
 							</view>
 							<text class="flow-label">信息推荐</text>
 						</view>
@@ -151,7 +151,7 @@
 
 						<view class="flow-step">
 							<view class="flow-icon-bg">
-								<image class="flow-icon" :src="parseimage('栏目/求职服务/面试上岸.png')" mode="aspectFit" />
+								<image class="flow-icon" :src="parseLanmuImage('栏目/求职服务/面试上岸.png')" mode="aspectFit" />
 							</view>
 							<text class="flow-label">面试上岸</text>
 						</view>
@@ -163,14 +163,14 @@
 
 			<!-- Bottom Consult Banner -->
 			<view class="bottom-banner-wrapper" @tap="KeFu">
-				<image class="bottom-banner-img" :src="parseimage('栏目/求职服务/底部.png')" mode="widthFix" />
+				<image class="bottom-banner-img" :src="parseLanmuImage('栏目/求职服务/底部.png')" mode="widthFix" />
 			</view>
 
 			<view class="divider-space-small"></view>
 
 			<!-- Footer Badge -->
 			<view class="footer-badge">
-				<image class="badge-icon" :src="parseimage('栏目/笔试题库/标记.png')" mode="aspectFit" />
+				<image class="badge-icon" :src="parseLanmuImage('栏目/笔试题库/标记.png')" mode="aspectFit" />
 				<text class="badge-text">已为数千名学员提供专业咨询服务</text>
 			</view>
 
@@ -180,7 +180,7 @@
 </template>
 
 <script setup lang="ts">
-import { parseimage, KeFu } from "../../../tapah/function";
+import { parseLanmuImage, KeFu } from "../../../tapah/function";
 </script>
 
 <style scoped>

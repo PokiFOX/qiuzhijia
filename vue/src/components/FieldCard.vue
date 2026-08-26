@@ -1,5 +1,5 @@
 <template>
-	<view :class="['field-card', { 'field-card-full': fullContent }]" @tap="emit('tap')">
+	<view :class="['field-card', { 'field-card-full': fullContent, 'field-card-selected': selected }]" @tap="emit('tap')" @longpress="emit('longpress')">
 		<view class="card-row-top">
 			<view class="title-bar"></view>
 			<view class="title-group">
@@ -32,10 +32,12 @@ import FieldStars from "./FieldStars.vue";
 defineProps<{
 	field: Field;
 	fullContent?: boolean;
+	selected?: boolean;
 }>();
 
 const emit = defineEmits<{
 	tap: [];
+	longpress: [];
 }>();
 
 const needDetailLink = (content?: string) => (content?.length || 0) > 48;
@@ -51,6 +53,10 @@ const needDetailLink = (content?: string) => (content?.length || 0) > 48;
 	padding: 30rpx;
 	box-sizing: border-box;
 	overflow: hidden;
+}
+
+.field-card-selected {
+	box-shadow: inset 0 0 0 2rpx #4f79fe;
 }
 
 .field-card-full {

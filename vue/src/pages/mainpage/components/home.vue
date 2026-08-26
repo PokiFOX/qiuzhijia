@@ -85,7 +85,7 @@
 import { ref, computed, onMounted, type CSSProperties } from "vue";
 
 import { article1, article2 } from "../../../tapah/data";
-import { parseimage, openOfficialAccountArticle, navigator, activateMainPageTab, KeFu, } from "../../../tapah/function";
+import { parseimage, openOfficialAccountArticle, navigator, activateMainPageTab, KeFu, openAiInterviewMiniProgram, } from "../../../tapah/function";
 import { lanmus, imageurls, LanMuInfo, fenyes } from "../../../tapah/option";
 import { RequestArticle1, RequestArticle2 } from "../../../tapah/request";
 
@@ -196,19 +196,6 @@ const loadMore = () => {
 defineExpose({
 	loadMore,
 });
-
-const openAiInterviewMiniProgram = () => {
-	// @ts-ignore
-	if (typeof wx !== "undefined" && wx.navigateToMiniProgram) {
-		// @ts-ignore
-		wx.navigateToMiniProgram({
-			appId: "wx320a7a97e2f254e2",
-			path: "/pages/entry/share?o=store&type=39&id=2",
-		});
-	} else {
-		uni.showToast({ title: "请在微信小程序中打开", icon: "none" });
-	}
-};
 
 const onLanMuTap = (index: number) => {
 	if (index < 0 || index >= lanmus.length) return;

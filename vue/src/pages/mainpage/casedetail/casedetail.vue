@@ -110,7 +110,7 @@
 							<view class="title-indicator"></view>
 							<text class="section-title">主要经历</text>
 						</view>
-						<text class="section-link-text">如何做好背景提升 ›</text>
+						<text class="section-link-text" @tap="onBackgroundImproveTap">如何做好背景提升 ›</text>
 					</view>
 
 					<view v-if="experiences.length === 0" class="empty-exp">
@@ -248,6 +248,10 @@ const onEnterpriseTap = () => {
 const onFieldTap = () => {
 	if (!caseItem.value?.field?.id) return;
 	navigator("/mainpage/fielddetail", { field: caseItem.value.field.id });
+};
+
+const onBackgroundImproveTap = () => {
+	navigator("/lanmu/shixineitui");
 };
 
 const loadCaseDetail = async (id: number) => {

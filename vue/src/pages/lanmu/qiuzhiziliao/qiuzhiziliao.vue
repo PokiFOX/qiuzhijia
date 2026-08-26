@@ -2,7 +2,7 @@
 	<view class="lanmu-page">
 		<scroll-view class="scroll-container" scroll-y>
 			<!-- Top Banner -->
-			<image class="top-banner" :src="parseimage('栏目/求职资料/顶部.png')" mode="widthFix" />
+			<image class="top-banner" :src="parseLanmuImage('栏目/求职资料/顶部.png')" mode="widthFix" />
 
 			<view class="content-wrapper">
 				<!-- Section: 资料类型 -->
@@ -15,7 +15,7 @@
 					<view class="cards-row">
 						<view class="type-card">
 							<view class="icon-bg" style="background-color: #c8dbfc;">
-								<image class="card-icon" :src="parseimage('栏目/求职资料/简历模板.png')" mode="aspectFit" />
+								<image class="card-icon" :src="parseLanmuImage('栏目/求职资料/简历模板.png')" mode="aspectFit" />
 							</view>
 							<view class="card-text-col">
 								<text class="card-title">简历模板</text>
@@ -25,7 +25,7 @@
 
 						<view class="type-card">
 							<view class="icon-bg" style="background-color: #ded8fd;">
-								<image class="card-icon" :src="parseimage('栏目/求职资料/面试资料.png')" mode="aspectFit" />
+								<image class="card-icon" :src="parseLanmuImage('栏目/求职资料/面试资料.png')" mode="aspectFit" />
 							</view>
 							<view class="card-text-col">
 								<text class="card-title">面试资料</text>
@@ -37,7 +37,7 @@
 					<view class="cards-row">
 						<view class="type-card">
 							<view class="icon-bg" style="background-color: #fce5d2;">
-								<image class="card-icon" :src="parseimage('栏目/求职资料/岗位指南.png')" mode="aspectFit" />
+								<image class="card-icon" :src="parseLanmuImage('栏目/求职资料/岗位指南.png')" mode="aspectFit" />
 							</view>
 							<view class="card-text-col">
 								<text class="card-title">岗位指南</text>
@@ -47,7 +47,7 @@
 
 						<view class="type-card">
 							<view class="icon-bg" style="background-color: #d4f0e9;">
-								<image class="card-icon" :src="parseimage('栏目/求职资料/求职规划.png')" mode="aspectFit" />
+								<image class="card-icon" :src="parseLanmuImage('栏目/求职资料/求职规划.png')" mode="aspectFit" />
 							</view>
 							<view class="card-text-col">
 								<text class="card-title">求职规划</text>
@@ -68,7 +68,7 @@
 				<view class="content-cards">
 					<view class="content-card">
 						<view class="content-icon-bg" style="background-color: #dde9fc;">
-							<image class="content-icon" :src="parseimage('栏目/求职资料/应届生简历模板.png')" mode="aspectFit" />
+							<image class="content-icon" :src="parseLanmuImage('栏目/求职资料/应届生简历模板.png')" mode="aspectFit" />
 						</view>
 						<view class="content-text-col">
 							<text class="content-title">应届生简历模板合集</text>
@@ -78,7 +78,7 @@
 
 					<view class="content-card">
 						<view class="content-icon-bg" style="background-color: #fce5d2;">
-							<image class="content-icon" :src="parseimage('栏目/求职资料/春招秋招冲刺资料包.png')" mode="aspectFit" />
+							<image class="content-icon" :src="parseLanmuImage('栏目/求职资料/春招秋招冲刺资料包.png')" mode="aspectFit" />
 						</view>
 						<view class="content-text-col">
 							<text class="content-title">春招秋招冲刺资料包</text>
@@ -90,14 +90,14 @@
 
 			<!-- Bottom Banner -->
 			<view class="bottom-banner-wrapper" @tap="KeFu">
-				<image class="bottom-banner-img" :src="parseimage('栏目/求职资料/底部.png')" mode="widthFix" />
+				<image class="bottom-banner-img" :src="parseLanmuImage('栏目/求职资料/底部.png')" mode="widthFix" />
 			</view>
 		</scroll-view>
 	</view>
 </template>
 
 <script setup lang="ts">
-import { parseimage, KeFu } from "../../../tapah/function";
+import { parseLanmuImage, KeFu } from "../../../tapah/function";
 </script>
 
 <style scoped>

@@ -218,19 +218,20 @@ const metaBadges = computed(() => {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	height: 32rpx;
+	height: 30rpx;
 	margin-left: 30rpx;
-	padding: 0 12rpx;
+	padding: 0 10rpx;
 	background-color: #fbebe5;
 	border-radius: 8rpx;
 	box-sizing: border-box;
+	flex-shrink: 0;
 }
 
 .year-peach-text {
-	font-size: 22rpx;
-	line-height: 32rpx;
+	font-size: 20rpx;
+	line-height: 28rpx;
 	font-weight: 400;
-	color: #80500a;
+	color: #ee692d;
 }
 
 .dash-line {

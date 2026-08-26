@@ -223,5 +223,16 @@ def init_config():
 		print(f"addarticle [{index}/{total_articles}] done", flush = True)
 	print(f'enterprise: {len(data.enterpriselist)}', flush = True)
 
+def favorite_ids_to_json(values):
+	ids = []
+	for value in values or []:
+		if value is None or value == "":
+			continue
+		try:
+			ids.append(int(value))
+		except (TypeError, ValueError):
+			pass
+	return ids
+
 def md5_hex(text: str) -> str:
 	return hashlib.md5(text.encode("utf-8")).hexdigest()

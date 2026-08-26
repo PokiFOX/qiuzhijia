@@ -5,7 +5,7 @@
 			<view class="top-row">
 				<image class="cat-img" :src="parseimage('企业列表/央企国企.png')" mode="widthFix" @load="updateListHeight" @tap="onCategoryTap(1, 0)"/>
 				<image class="cat-img" :src="parseimage('企业列表/金融机构.png')" mode="widthFix" @load="updateListHeight" @tap="onCategoryTap(0, 1)"/>
-				<image class="cat-img" :src="parseimage('企业列表/成长企业.png')" mode="widthFix" @load="updateListHeight" @tap="onCategoryTap(0, null, 1)"/>
+				<image class="cat-img" :src="parseimage('企业列表/互联网大厂.png')" mode="widthFix" @load="updateListHeight" @tap="onCategoryTap(0, null, 1)"/>
 			</view>
 
 			<!-- Filter and Search Row -->

@@ -1,5 +1,5 @@
 <template>
-	<view :class="['enterprise-card', { 'enterprise-card-compact': compact }]" @tap="emit('tap')">
+	<view :class="['enterprise-card', { 'enterprise-card-compact': compact, 'enterprise-card-selected': selected }]" @tap="emit('tap')" @longpress="emit('longpress')">
 		<view class="logo-col">
 			<image v-if="enterprise.icon" class="enterprise-logo" :src="parseEnterpriseIcon(`小图标/${enterprise.icon}.png`)" mode="aspectFit"/>
 			<view v-else class="logo-placeholder"></view>
@@ -27,10 +27,12 @@ import type { Enterprise } from "../tapah/class";
 defineProps<{
 	enterprise: Enterprise;
 	compact?: boolean;
+	selected?: boolean;
 }>();
 
 const emit = defineEmits<{
 	tap: [];
+	longpress: [];
 }>();
 </script>
 
@@ -45,6 +47,12 @@ const emit = defineEmits<{
 	padding: 20rpx;
 	box-shadow: 0 6rpx 12rpx -8rpx rgba(0, 0, 0, 0.12);
 	box-sizing: border-box;
+}
+
+.enterprise-card-selected {
+	box-shadow:
+		inset 0 0 0 2rpx #4f79fe,
+		0 6rpx 12rpx -8rpx rgba(0, 0, 0, 0.12);
 }
 
 .logo-col {

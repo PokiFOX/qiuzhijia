@@ -9,7 +9,7 @@
 
 			<!-- Header Banner -->
 			<view class="banner-wrapper">
-				<image class="banner-img" :src="parseimage('栏目/面试经验/顶部.png')" mode="widthFix" />
+				<image class="banner-img" :src="parseLanmuImage('栏目/面试经验/顶部.png')" mode="widthFix" />
 			</view>
 
 			<view class="divider-space"></view>
@@ -28,7 +28,7 @@
 				<view class="cards-row">
 					<view class="type-card">
 						<view class="icon-bg">
-							<image class="card-icon" :src="parseimage('栏目/面试经验/面试礼仪.png')" mode="aspectFit" />
+							<image class="card-icon" :src="parseLanmuImage('栏目/面试经验/面试礼仪.png')" mode="aspectFit" />
 						</view>
 						<view class="card-text-col">
 							<text class="card-title">面试礼仪</text>
@@ -38,7 +38,7 @@
 
 					<view class="type-card">
 						<view class="icon-bg">
-							<image class="card-icon" :src="parseimage('栏目/面试经验/高频题型.png')" mode="aspectFit" />
+							<image class="card-icon" :src="parseLanmuImage('栏目/面试经验/高频题型.png')" mode="aspectFit" />
 						</view>
 						<view class="card-text-col">
 							<text class="card-title">高频题型</text>
@@ -50,7 +50,7 @@
 				<view class="cards-row">
 					<view class="type-card">
 						<view class="icon-bg">
-							<image class="card-icon" :src="parseimage('栏目/面试经验/面试形式.png')" mode="aspectFit" />
+							<image class="card-icon" :src="parseLanmuImage('栏目/面试经验/面试形式.png')" mode="aspectFit" />
 						</view>
 						<view class="card-text-col">
 							<text class="card-title">面试形式</text>
@@ -60,7 +60,7 @@
 
 					<view class="type-card">
 						<view class="icon-bg">
-							<image class="card-icon" :src="parseimage('栏目/面试经验/轮次辅导.png')" mode="aspectFit" />
+							<image class="card-icon" :src="parseLanmuImage('栏目/面试经验/轮次辅导.png')" mode="aspectFit" />
 						</view>
 						<view class="card-text-col">
 							<text class="card-title">轮次辅导</text>
@@ -84,19 +84,19 @@
 			<!-- 3-Column Targets Grid -->
 			<view class="targets-grid">
 				<view class="target-card">
-					<image class="target-img" :src="parseimage('栏目/面试经验/面试突击.png')" mode="aspectFit" />
+					<image class="target-img" :src="parseLanmuImage('栏目/面试经验/面试突击.png')" mode="aspectFit" />
 					<text class="target-title">面试前突击</text>
 					<text class="target-sub">快速掌握注意事项</text>
 				</view>
 
 				<view class="target-card">
-					<image class="target-img" :src="parseimage('栏目/面试经验/回答没思路.png')" mode="aspectFit" />
+					<image class="target-img" :src="parseLanmuImage('栏目/面试经验/回答没思路.png')" mode="aspectFit" />
 					<text class="target-title">回答没思路</text>
 					<text class="target-sub">学习结构化表达</text>
 				</view>
 
 				<view class="target-card">
-					<image class="target-img" :src="parseimage('栏目/面试经验/多轮面试准备.png')" mode="aspectFit" />
+					<image class="target-img" :src="parseLanmuImage('栏目/面试经验/多轮面试准备.png')" mode="aspectFit" />
 					<text class="target-title">多轮面试准备</text>
 					<text class="target-sub">匹配不同面试场景</text>
 				</view>
@@ -106,14 +106,14 @@
 
 			<!-- Bottom Consult Banner -->
 			<view class="bottom-banner-wrapper" @tap="KeFu">
-				<image class="bottom-banner-img" :src="parseimage('栏目/面试经验/底部.png')" mode="widthFix" />
+				<image class="bottom-banner-img" :src="parseLanmuImage('栏目/面试经验/底部.png')" mode="widthFix" />
 			</view>
 
 			<view class="divider-space-small"></view>
 
 			<!-- Footer Badge -->
 			<view class="footer-badge">
-				<image class="badge-icon" :src="parseimage('栏目/笔试题库/标记.png')" mode="aspectFit" />
+				<image class="badge-icon" :src="parseLanmuImage('栏目/笔试题库/标记.png')" mode="aspectFit" />
 				<text class="badge-text">已为数千名学员提供专业咨询服务</text>
 			</view>
 
@@ -123,7 +123,7 @@
 </template>
 
 <script setup lang="ts">
-import { parseimage, KeFu } from "../../../tapah/function";
+import { parseLanmuImage, KeFu } from "../../../tapah/function";
 </script>
 
 <style scoped>

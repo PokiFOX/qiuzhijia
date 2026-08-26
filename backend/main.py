@@ -1168,6 +1168,17 @@ async def wxcode(req: Request):
 
 	if data.userlist.__contains__(openid):
 		user = data.userlist[openid]
+		conn = data.mysql_pool.apply()
+		cursor = conn.cursor()
+		cursor.execute("SELECT nickname, avatar, field, enterprise FROM qzj_user WHERE openid=%s", (openid,))
+		row = cursor.fetchone()
+		cursor.close()
+		data.mysql_pool.release(conn)
+		if row:
+			user.nickname = row[0] or ""
+			user.avatar = row[1] or ""
+			user.field = row[2].split(",") if row[2] else []
+			user.enterprise = row[3].split(",") if row[3] else []
 	else:
 		conn = data.mysql_pool.apply()
 		cursor = conn.cursor()
@@ -1188,6 +1199,8 @@ async def wxcode(req: Request):
 			"unionid": unionid,
 			"nickname": user.nickname,
 			"avatar": user.avatar,
+			"field": function.favorite_ids_to_json(user.field),
+			"enterprise": function.favorite_ids_to_json(user.enterprise),
 		},
 	})
 

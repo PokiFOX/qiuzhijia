@@ -2,7 +2,7 @@
 	<view class="lanmu-page">
 		<scroll-view class="scroll-container" scroll-y>
 			<!-- Top Banner -->
-			<image class="top-banner" :src="parseimage('栏目/实习内推/顶部.png')" mode="widthFix" />
+			<image class="top-banner" :src="parseLanmuImage('栏目/实习内推/顶部.png')" mode="widthFix" />
 
 			<view class="content-wrapper">
 				<!-- Section: 服务内容 -->
@@ -15,7 +15,7 @@
 					<view class="cards-row">
 						<view class="type-card">
 							<view class="icon-bg" style="background-color: #c8dbfc;">
-								<image class="card-icon" :src="parseimage('栏目/实习内推/央国企实习.png')" mode="aspectFit" />
+								<image class="card-icon" :src="parseLanmuImage('栏目/实习内推/央国企实习.png')" mode="aspectFit" />
 							</view>
 							<view class="card-text-col">
 								<text class="card-title">央国企实习</text>
@@ -25,7 +25,7 @@
 
 						<view class="type-card">
 							<view class="icon-bg" style="background-color: #ded8fd;">
-								<image class="card-icon" :src="parseimage('栏目/实习内推/金融机构实习.png')" mode="aspectFit" />
+								<image class="card-icon" :src="parseLanmuImage('栏目/实习内推/金融机构实习.png')" mode="aspectFit" />
 							</view>
 							<view class="card-text-col">
 								<text class="card-title">金融机构实习</text>
@@ -37,7 +37,7 @@
 					<view class="cards-row">
 						<view class="type-card">
 							<view class="icon-bg" style="background-color: #fce5d2;">
-								<image class="card-icon" :src="parseimage('栏目/实习内推/岗位匹配.png')" mode="aspectFit" />
+								<image class="card-icon" :src="parseLanmuImage('栏目/实习内推/岗位匹配.png')" mode="aspectFit" />
 							</view>
 							<view class="card-text-col">
 								<text class="card-title">岗位匹配</text>
@@ -47,7 +47,7 @@
 
 						<view class="type-card">
 							<view class="icon-bg" style="background-color: #d4f0e9;">
-								<image class="card-icon" :src="parseimage('栏目/实习内推/投递辅导.png')" mode="aspectFit" />
+								<image class="card-icon" :src="parseLanmuImage('栏目/实习内推/投递辅导.png')" mode="aspectFit" />
 							</view>
 							<view class="card-text-col">
 								<text class="card-title">投递辅导</text>
@@ -67,7 +67,7 @@
 
 				<!-- Target Audience Card -->
 				<view class="info-card">
-					<image class="info-card-img" :src="parseimage('栏目/实习内推/适合人群.png')" mode="aspectFit" />
+					<image class="info-card-img" :src="parseLanmuImage('栏目/实习内推/适合人群.png')" mode="aspectFit" />
 					<view class="info-card-text">
 						<text class="info-card-title">适合人群</text>
 						<text class="info-bullet">· 在校大学生/研一研二学生</text>
@@ -84,7 +84,7 @@
 					<view class="flow-steps">
 						<view class="flow-step">
 							<view class="flow-icon-bg">
-								<image class="flow-icon" :src="parseimage('栏目/实习内推/流程-咨询评估.png')" mode="aspectFit" />
+								<image class="flow-icon" :src="parseLanmuImage('栏目/实习内推/流程-咨询评估.png')" mode="aspectFit" />
 							</view>
 							<text class="flow-label">咨询评估</text>
 						</view>
@@ -92,7 +92,7 @@
 
 						<view class="flow-step">
 							<view class="flow-icon-bg">
-								<image class="flow-icon" :src="parseimage('栏目/实习内推/流程-岗位匹配.png')" mode="aspectFit" />
+								<image class="flow-icon" :src="parseLanmuImage('栏目/实习内推/流程-岗位匹配.png')" mode="aspectFit" />
 							</view>
 							<text class="flow-label">岗位匹配</text>
 						</view>
@@ -100,7 +100,7 @@
 
 						<view class="flow-step">
 							<view class="flow-icon-bg">
-								<image class="flow-icon" :src="parseimage('栏目/实习内推/流程-投递辅导.png')" mode="aspectFit" />
+								<image class="flow-icon" :src="parseLanmuImage('栏目/实习内推/流程-投递辅导.png')" mode="aspectFit" />
 							</view>
 							<text class="flow-label">投递辅导</text>
 						</view>
@@ -108,7 +108,7 @@
 
 						<view class="flow-step">
 							<view class="flow-icon-bg">
-								<image class="flow-icon" :src="parseimage('栏目/实习内推/流程-跟进反馈.png')" mode="aspectFit" />
+								<image class="flow-icon" :src="parseLanmuImage('栏目/实习内推/流程-跟进反馈.png')" mode="aspectFit" />
 							</view>
 							<text class="flow-label">跟进反馈</text>
 						</view>
@@ -118,14 +118,14 @@
 
 			<!-- Bottom Banner -->
 			<view class="bottom-banner-wrapper" @tap="KeFu">
-				<image class="bottom-banner-img" :src="parseimage('栏目/实习内推/底部.png')" mode="widthFix" />
+				<image class="bottom-banner-img" :src="parseLanmuImage('栏目/实习内推/底部.png')" mode="widthFix" />
 			</view>
 		</scroll-view>
 	</view>
 </template>
 
 <script setup lang="ts">
-import { parseimage, KeFu } from "../../../tapah/function";
+import { parseLanmuImage, KeFu } from "../../../tapah/function";
 </script>
 
 <style scoped>

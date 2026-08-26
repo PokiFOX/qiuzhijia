@@ -5,33 +5,33 @@
 				<!-- Advisor Info Card -->
 				<view class="card">
 					<view class="advisor-header">
-						<image class="avatar" :src="parseimage('客服/头像.png')" mode="aspectFit" />
+						<image class="avatar" :src="kefuImage('头像.png')" mode="aspectFit" />
 						<view class="advisor-details">
 							<view class="name-row">
 								<text class="name">求职家顾问老师</text>
-								<image class="badge" :src="parseimage('客服/角标.png')" mode="aspectFit" />
+								<image class="badge" :src="kefuImage('角标.png')" mode="aspectFit" />
 							</view>
 							<text class="subtitle">1V1求职咨询顾问</text>
 							<view class="tagline-row">
-								<image class="tagline-icon" :src="parseimage('客服/图标.png')" mode="aspectFit" />
+								<image class="tagline-icon" :src="kefuImage('图标.png')" mode="aspectFit" />
 								<text class="tagline">专注求职辅导·帮你拿到心仪Offer+同学</text>
 							</view>
 						</view>
 					</view>
 
 					<view class="qr-section">
-						<image class="qr-code" :src="parseimage('客服/二维码.png')" mode="aspectFit" @tap="previewQr"/>
+						<image class="qr-code" :src="kefuImage('二维码.png')" mode="aspectFit" @tap="previewQr"/>
 						<text class="qr-tip-1">长按识别二维码，添加顾问老师</text>
 						<text class="qr-tip-2">获取岗位信息、投递建议与专属资料</text>
 					</view>
 
-					<image class="card-bottom-img" :src="parseimage('客服/底部.png')" mode="widthFix" />
+					<image class="card-bottom-img" :src="kefuImage('底部.png')" mode="widthFix" />
 				</view>
 
 				<!-- Action Buttons -->
 				<view class="actions-row">
 					<view class="action-btn" @tap="saveQr">
-						<image class="action-icon" :src="parseimage('客服/保存.png')" mode="aspectFit" />
+						<image class="action-icon" :src="kefuImage('保存.png')" mode="aspectFit" />
 						<view class="action-text-col">
 							<text class="action-title">保存二维码</text>
 							<text class="action-sub">保存到相册，方便查看</text>
@@ -39,7 +39,7 @@
 					</view>
 
 					<view class="action-btn" @tap="copyWechat">
-						<image class="action-icon" :src="parseimage('客服/复制.png')" mode="aspectFit" />
+						<image class="action-icon" :src="kefuImage('复制.png')" mode="aspectFit" />
 						<view class="action-text-col">
 							<text class="action-title">复制微信号</text>
 							<text class="action-sub">复制后去微信添加</text>
@@ -52,16 +52,18 @@
 </template>
 
 <script setup lang="ts">
-import { parseimage } from "../../tapah/function";
+import { parseLanmuImage } from "../../tapah/function";
+
+const kefuImage = (name: string) => parseLanmuImage(`客服/${name}`);
 
 const previewQr = () => {
 	uni.previewImage({
-		urls: [parseimage("客服/二维码.png")],
+		urls: [kefuImage("二维码.png")],
 	});
 };
 
 const saveQr = () => {
-	const qrUrl = parseimage("客服/二维码.png");
+	const qrUrl = kefuImage("二维码.png");
 	uni.showLoading({
 		title: "正在保存...",
 	});

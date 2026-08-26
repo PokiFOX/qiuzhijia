@@ -1,6 +1,6 @@
 <template>
 	<view class="mainpage-layout">
-		<view class="page-nav" :style="navBarStyle">
+		<view v-if="currentindex !== 4" class="page-nav" :style="navBarStyle">
 			<view class="nav-side nav-side-left">
 				<view v-if="currentindex === 1" class="nav-back" :style="navSideStyle" @tap="switchTab(0)">
 					<text class="nav-back-icon">‹</text>

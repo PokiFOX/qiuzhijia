@@ -1,120 +1,280 @@
 <template>
 	<view class="favorite-page">
-		<!-- Tab Header -->
-		<view class="tab-header">
-			<view
-				v-for="(tab, index) in tabs"
-				:key="index"
-				:class="['tab-item', { 'tab-item-active': activeTab === index }]"
-				@tap="activeTab = index"
-			>
-				<text :class="['tab-text', { 'tab-text-active': activeTab === index }]">
-					{{ tab }}
-				</text>
-				<view :class="['tab-line', { 'tab-line-active': activeTab === index }]"></view>
+		<view class="page-nav" :style="navBarStyle">
+			<view class="nav-side nav-side-left">
+				<view class="nav-back" :style="navSideStyle" @tap="onBack">
+					<text class="nav-back-icon">‹</text>
+				</view>
 			</view>
+			<text class="nav-title" :style="navTitleStyle">{{ pageTitle }}</text>
+			<view class="nav-side nav-side-right"></view>
 		</view>
 
-		<view class="divider-space"></view>
-
-		<!-- Loading State -->
-		<view v-if="isLoading" class="loading-state">
-			<text class="loading-text">加载中...</text>
+		<view v-if="!isManageMode" class="toolbar-row">
+			<view class="search-box">
+				<input
+					class="search-input"
+					type="text"
+					v-model="searchKeyword"
+					:placeholder="searchPlaceholder"
+					placeholder-class="search-placeholder"
+					confirm-type="search"
+				/>
+				<image class="search-icon" :src="parseimage('企业列表/搜索.png')" mode="aspectFit" />
+			</view>
+			<button class="manage-btn" @tap="enterManageMode">管理</button>
 		</view>
 
-		<!-- Content Lists -->
-		<view v-else class="list-container">
-			<!-- Enterprise List -->
-			<view v-if="activeTab === 0" class="enterprise-list">
-				<view v-if="myenterpriselist.length === 0" class="empty-state">
-					<text class="empty-text">暂无关注的企业</text>
-				</view>
-				<view
-					v-else
-					class="enterprise-card"
-					v-for="(ent, idx) in myenterpriselist"
-					:key="idx"
-					@tap="onEnterpriseTap(ent.id)"
-				>
-					<image
-						v-if="ent.icon"
-						class="enterprise-logo"
-						:src="parseimage(`小图标/${ent.icon}.png`)"
-						mode="aspectFit"
-					/>
-					<view v-else class="logo-placeholder"></view>
+		<view v-else class="toolbar-row manage-toolbar">
+			<text class="manage-action" @tap="onSelectAll">全选</text>
+			<text class="manage-count">已选择{{ selectedIds.length }}个{{ unitLabel }}</text>
+			<text class="manage-action" @tap="exitManageMode">取消</text>
+		</view>
 
-					<view class="enterprise-info">
-						<text class="enterprise-name">{{ ent.name || "" }}</text>
-						<text class="enterprise-english" v-if="ent.englishname">{{ ent.englishname }}</text>
-						<view class="enterprise-tags" v-if="ent.tags && ent.tags.length > 0">
-							<view class="tag-badge" v-for="(tag, tIdx) in ent.tags" :key="tIdx">
-								<text class="tag-text">{{ tag }}</text>
-							</view>
-						</view>
-						<text class="enterprise-location">
-							{{ ent.zone?.value || "" }} {{ ent.city || "" }}
-						</text>
-					</view>
-				</view>
+		<scroll-view
+			class="list-scroll"
+			scroll-y
+			enhanced
+			:show-scrollbar="false"
+			:class="{ 'list-scroll-with-bottom': isManageMode }"
+		>
+			<view v-if="isLoading" class="state-box">
+				<text class="state-text">加载中...</text>
 			</view>
 
-			<!-- Field List -->
-			<view v-if="activeTab === 1" class="field-list">
-				<view v-if="myfieldlist.length === 0" class="empty-state">
-					<text class="empty-text">暂无关注的专业</text>
-				</view>
-				<view
-					v-else
-					class="field-card"
-					v-for="(field, idx) in myfieldlist"
-					:key="idx"
-					@tap="onFieldTap(field.id)"
-				>
-					<text class="field-title">{{ field.value }}</text>
-					<text class="field-subtitle">学科门类: {{ field.type }}</text>
-
-					<view class="stars-row">
-						<text class="stars-label">专业热门度:</text>
-						<FieldStars :star="field.star" />
-					</view>
-
-					<view :class="['field-desc', { 'field-desc-collapsed': !expandedFields[field.id] }]">
-						<text>{{ field.content }}</text>
-					</view>
-					<view class="expand-btn-row" v-if="field.content && field.content.length > 100" @tap.stop="toggleFieldExpand(field.id)">
-						<text class="expand-btn-text">
-							{{ expandedFields[field.id] ? "收起" : "展开" }}
-						</text>
-					</view>
-				</view>
+			<view v-else-if="filteredEnterprises.length === 0 && isEnterpriseTab" class="state-box">
+				<text class="state-text">暂无收藏的企业</text>
 			</view>
+
+			<view v-else-if="filteredFields.length === 0 && !isEnterpriseTab" class="state-box">
+				<text class="state-text">暂无收藏的专业</text>
+			</view>
+
+			<view v-else class="list-container">
+				<template v-if="isEnterpriseTab">
+					<view
+						v-for="ent in filteredEnterprises"
+						:key="ent.id"
+						class="card-wrap"
+						@tap="onCardTap(ent.id)"
+						@touchstart="onCardTouchStart(ent.id)"
+						@touchmove="onCardTouchEnd"
+						@touchend="onCardTouchEnd"
+						@touchcancel="onCardTouchEnd"
+					>
+						<EnterpriseCard
+							:enterprise="ent"
+							:selected="isSelected(ent.id)"
+						/>
+					</view>
+				</template>
+				<template v-else>
+					<view
+						v-for="field in filteredFields"
+						:key="field.id"
+						class="card-wrap"
+						@tap="onCardTap(field.id)"
+						@touchstart="onCardTouchStart(field.id)"
+						@touchmove="onCardTouchEnd"
+						@touchend="onCardTouchEnd"
+						@touchcancel="onCardTouchEnd"
+					>
+						<FieldCard
+							:field="field"
+							:selected="isSelected(field.id)"
+						/>
+					</view>
+				</template>
+			</view>
+		</scroll-view>
+
+		<view v-if="isManageMode" class="bottom-bar">
+			<button class="unfavorite-btn" @tap="onUnfavorite">取消收藏</button>
 		</view>
 	</view>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
-import { myenterpriselist, myfieldlist } from "../../../tapah/data";
-import { RequestFavorite } from "../../../tapah/request";
-import { parseimage, navigator } from "../../../tapah/function";
-import FieldStars from "../../../components/FieldStars.vue";
+import { ref, computed, onMounted } from "vue";
+import { onLoad } from "@dcloudio/uni-app";
 
-const tabs = ["招聘企业", "招聘专业"];
+import { accountinfo, myenterpriselist, myfieldlist } from "../../../tapah/data";
+import { RequestFavorite, RequestUserInfo } from "../../../tapah/request";
+import { parseimage, navigator, getWechatNavMetrics } from "../../../tapah/function";
+import EnterpriseCard from "../../../components/EnterpriseCard.vue";
+import FieldCard from "../../../components/FieldCard.vue";
+
 const activeTab = ref(0);
 const isLoading = ref(true);
-const expandedFields = ref<Record<number, boolean>>({});
+const searchKeyword = ref("");
+const isManageMode = ref(false);
+const selectedIds = ref<number[]>([]);
+const longPressTriggered = ref(false);
+let longPressTimer: ReturnType<typeof setTimeout> | null = null;
 
-const toggleFieldExpand = (id: number) => {
-	expandedFields.value[id] = !expandedFields.value[id];
+const selectedIdSet = computed(() => new Set(selectedIds.value));
+
+const isSelected = (id: number) => selectedIdSet.value.has(id);
+
+const metrics = computed(() => getWechatNavMetrics());
+
+const isEnterpriseTab = computed(() => activeTab.value === 0);
+
+const pageTitle = computed(() => (isEnterpriseTab.value ? "收藏企业" : "收藏专业"));
+
+const searchPlaceholder = computed(() =>
+	isEnterpriseTab.value ? "搜索收藏企业" : "搜索收藏专业",
+);
+
+const unitLabel = computed(() => (isEnterpriseTab.value ? "企业" : "专业"));
+
+const navBarStyle = computed(() => ({
+	height: `${metrics.value.navBarHeight}px`,
+	paddingTop: `${metrics.value.statusBarHeight}px`,
+	paddingLeft: `${metrics.value.paddingHorizontal}px`,
+	paddingRight: `${metrics.value.paddingHorizontal}px`,
+	boxSizing: "border-box" as const,
+}));
+
+const navSideStyle = computed(() => {
+	const capsuleTopOffset = metrics.value.capsuleTop - metrics.value.statusBarHeight;
+	return {
+		height: `${metrics.value.capsuleHeight}px`,
+		marginTop: `${capsuleTopOffset}px`,
+	};
+});
+
+const navTitleStyle = computed(() => {
+	const capsuleTopOffset = metrics.value.capsuleTop - metrics.value.statusBarHeight;
+	return {
+		height: `${metrics.value.capsuleHeight}px`,
+		lineHeight: `${metrics.value.capsuleHeight}px`,
+		marginTop: `${capsuleTopOffset}px`,
+	};
+});
+
+const filteredEnterprises = computed(() => {
+	const keyword = searchKeyword.value.trim().toLowerCase();
+	if (!keyword) return myenterpriselist.value;
+	return myenterpriselist.value.filter((ent) => {
+		const name = (ent.name || "").toLowerCase();
+		const english = (ent.englishname || "").toLowerCase();
+		return name.includes(keyword) || english.includes(keyword);
+	});
+});
+
+const filteredFields = computed(() => {
+	const keyword = searchKeyword.value.trim().toLowerCase();
+	if (!keyword) return myfieldlist.value;
+	return myfieldlist.value.filter((field) => {
+		const value = (field.value || "").toLowerCase();
+		const type = (field.type || "").toLowerCase();
+		return value.includes(keyword) || type.includes(keyword);
+	});
+});
+
+const currentFilteredIds = computed(() => {
+	if (isEnterpriseTab.value) {
+		return filteredEnterprises.value.map((ent) => ent.id);
+	}
+	return filteredFields.value.map((field) => field.id);
+});
+
+const onBack = () => {
+	uni.navigateBack();
 };
 
-const onEnterpriseTap = (id: number) => {
-	navigator("/pages/enterprise/detail", { enterprise: id });
+const enterManageMode = () => {
+	isManageMode.value = true;
+	selectedIds.value = [];
 };
 
-const onFieldTap = (id: number) => {
-	navigator("/mainpage/fielddetail", { field: id });
+const exitManageMode = () => {
+	isManageMode.value = false;
+	selectedIds.value = [];
+};
+
+const onSelectAll = () => {
+	const ids = currentFilteredIds.value;
+	if (ids.length === 0) return;
+	const allSelected = ids.every((id) => selectedIdSet.value.has(id));
+	if (allSelected) {
+		selectedIds.value = [];
+		return;
+	}
+	selectedIds.value = [...ids];
+};
+
+const toggleSelected = (id: number) => {
+	if (selectedIdSet.value.has(id)) {
+		selectedIds.value = selectedIds.value.filter((item) => item !== id);
+	} else {
+		selectedIds.value = [...selectedIds.value, id];
+	}
+};
+
+const onCardTap = (id: number) => {
+	if (longPressTriggered.value) {
+		longPressTriggered.value = false;
+		return;
+	}
+	if (isManageMode.value) {
+		toggleSelected(id);
+		return;
+	}
+	if (isEnterpriseTab.value) {
+		navigator("/pages/enterprise/detail", { enterprise: id });
+	} else {
+		navigator("/mainpage/fielddetail", { field: id });
+	}
+};
+
+const onCardLongPress = (id: number) => {
+	longPressTriggered.value = true;
+	if (!isManageMode.value) {
+		isManageMode.value = true;
+		selectedIds.value = [];
+	}
+	toggleSelected(id);
+};
+
+const onCardTouchStart = (id: number) => {
+	onCardTouchEnd();
+	longPressTimer = setTimeout(() => {
+		longPressTimer = null;
+		onCardLongPress(id);
+	}, 350);
+};
+
+const onCardTouchEnd = () => {
+	if (longPressTimer) {
+		clearTimeout(longPressTimer);
+		longPressTimer = null;
+	}
+};
+
+const onUnfavorite = async () => {
+	if (!accountinfo.value) {
+		uni.showToast({ title: "请先登录", icon: "none" });
+		return;
+	}
+	if (selectedIds.value.length === 0) {
+		uni.showToast({ title: "请先选择", icon: "none" });
+		return;
+	}
+
+	const targetSet = isEnterpriseTab.value ? accountinfo.value.enterprise : accountinfo.value.field;
+	selectedIds.value.forEach((id) => targetSet.delete(id));
+
+	try {
+		await RequestUserInfo();
+		await loadFavorites();
+		exitManageMode();
+		uni.showToast({ title: "已取消收藏", icon: "none" });
+	} catch (err) {
+		console.error("Failed to unfavorite:", err);
+		uni.showToast({ title: "操作失败", icon: "none" });
+	}
 };
 
 const loadFavorites = async () => {
@@ -130,10 +290,16 @@ const loadFavorites = async () => {
 	}
 };
 
+onLoad((options) => {
+	if (options?.tab != null) {
+		const tab = parseInt(String(options.tab), 10);
+		if (tab === 0 || tab === 1) {
+			activeTab.value = tab;
+		}
+	}
+});
+
 onMounted(() => {
-	uni.setNavigationBarTitle({
-		title: "我的关注",
-	});
 	loadFavorites();
 });
 </script>
@@ -143,230 +309,216 @@ onMounted(() => {
 	display: flex;
 	flex-direction: column;
 	width: 100vw;
-	min-height: 100vh;
-	background-color: #f8f8f8;
+	height: 100vh;
+	background-color: rgba(184, 216, 253, 0.5);
+	box-sizing: border-box;
+	overflow: hidden;
+}
+
+.page-nav {
+	display: flex;
+	flex-direction: row;
+	align-items: flex-start;
+	justify-content: space-between;
+	background-color: rgba(184, 216, 253, 0.5);
+	width: 100%;
+	flex-shrink: 0;
 	box-sizing: border-box;
 }
 
-/* Tab Header */
-.tab-header {
-	background-color: #ffffff;
-	border-bottom: 1rpx solid #e2e2e2;
-	height: 108rpx;
+.nav-side {
+	display: flex;
+	align-items: center;
+	min-width: 64rpx;
+}
+
+.nav-side-left {
+	justify-content: flex-start;
+}
+
+.nav-side-right {
+	justify-content: flex-end;
+}
+
+.nav-back {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 64rpx;
+	padding-right: 8rpx;
+}
+
+.nav-back-icon {
+	font-size: 48rpx;
+	line-height: 1;
+	color: #000000;
+	font-weight: 400;
+}
+
+.nav-title {
+	flex: 1;
+	text-align: center;
+	font-size: 32rpx;
+	font-weight: 700;
+	color: #000000;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.toolbar-row {
 	display: flex;
 	flex-direction: row;
 	align-items: center;
-	padding: 0 12rpx;
+	height: 88rpx;
+	padding: 0 32rpx;
+	box-sizing: border-box;
+	flex-shrink: 0;
+}
+
+.search-box {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	height: 88rpx;
+	background-color: #ffffff;
+	border-radius: 12rpx;
+	padding: 0 24rpx;
 	box-sizing: border-box;
 }
 
-.tab-item {
+.search-input {
 	flex: 1;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-	height: 100%;
+	min-width: 0;
+	height: 88rpx;
+	font-size: 28rpx;
+	line-height: 40rpx;
+	font-weight: 350;
+	color: #000000;
 }
 
-.tab-text {
+.search-placeholder {
+	font-size: 28rpx;
+	line-height: 40rpx;
+	font-weight: 350;
+	color: #a4a4a4;
+}
+
+.search-icon {
+	width: 32rpx;
+	height: 32rpx;
+	flex-shrink: 0;
+	margin-left: 8rpx;
+}
+
+.manage-btn {
+	width: 156rpx;
+	height: 68rpx;
+	margin-left: 20rpx;
+	padding: 0;
+	border: none;
+	background-color: #1269ff;
+	border-radius: 12rpx;
 	font-size: 32rpx;
-	font-weight: bold;
-	color: #444444;
-	line-height: 1;
+	line-height: 68rpx;
+	font-weight: 700;
+	color: #ffffff;
+	flex-shrink: 0;
 }
 
-.tab-text-active {
-	color: #2d7bff;
+.manage-btn::after {
+	border: none;
 }
 
-.tab-line {
-	height: 4rpx;
-	width: 60rpx;
-	background-color: transparent;
-	margin-top: 12rpx;
-	border-radius: 2rpx;
+.manage-toolbar {
+	justify-content: space-between;
 }
 
-.tab-line-active {
-	background-color: #2d7bff;
+.manage-action {
+	font-size: 32rpx;
+	line-height: 46rpx;
+	font-weight: 350;
+	color: #1269ff;
+	flex-shrink: 0;
 }
 
-.divider-space {
-	height: 20rpx;
+.manage-count {
+	flex: 1;
+	text-align: center;
+	font-size: 32rpx;
+	line-height: 46rpx;
+	font-weight: 400;
+	color: #000000;
+	padding: 0 16rpx;
+	box-sizing: border-box;
 }
 
-/* List Container */
+.list-scroll {
+	flex: 1;
+	min-height: 0;
+	width: 100%;
+	margin-top: 32rpx;
+	box-sizing: border-box;
+}
+
+.list-scroll-with-bottom {
+	padding-bottom: 120rpx;
+}
+
 .list-container {
 	display: flex;
 	flex-direction: column;
-	padding: 0 24rpx 24rpx 24rpx;
+	padding: 0 32rpx 32rpx;
 	box-sizing: border-box;
 }
 
-/* Enterprise List */
-.enterprise-list {
-	display: flex;
-	flex-direction: column;
+.card-wrap + .card-wrap {
+	margin-top: 16rpx;
 }
 
-.enterprise-card {
-	display: flex;
-	flex-direction: row;
-	background-color: #ffffff;
-	border-radius: 16rpx;
-	padding: 20rpx;
-	margin-bottom: 20rpx;
-	box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.02);
-	box-sizing: border-box;
-}
-
-.enterprise-logo {
-	width: 90rpx;
-	height: 90rpx;
-	margin-right: 20rpx;
-	flex-shrink: 0;
-}
-
-.logo-placeholder {
-	width: 90rpx;
-	height: 90rpx;
-	background-color: #e0e0e0;
-	border-radius: 8rpx;
-	margin-right: 20rpx;
-	flex-shrink: 0;
-}
-
-.enterprise-info {
-	flex: 1;
-	display: flex;
-	flex-direction: column;
-	overflow: hidden;
-}
-
-.enterprise-name {
-	font-size: 32rpx;
-	font-weight: bold;
-	color: #333333;
-	margin-bottom: 6rpx;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-}
-
-.enterprise-english {
-	font-size: 22rpx;
-	color: #888888;
-	margin-bottom: 8rpx;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-}
-
-.enterprise-tags {
-	display: flex;
-	flex-direction: row;
-	flex-wrap: wrap;
-	margin-bottom: 12rpx;
-}
-
-.tag-badge {
-	background-color: #feeddf;
-	border-radius: 8rpx;
-	padding: 2rpx 12rpx;
-	margin-right: 10rpx;
-	margin-bottom: 6rpx;
-}
-
-.tag-text {
-	font-size: 20rpx;
-	color: #692e1f;
-}
-
-.enterprise-location {
-	font-size: 20rpx;
-	color: #666666;
-}
-
-/* Field List */
-.field-list {
-	display: flex;
-	flex-direction: column;
-}
-
-.field-card {
-	display: flex;
-	flex-direction: column;
-	background-color: #ffffff;
-	border: 2rpx solid #2d7bff;
-	border-radius: 16rpx;
-	padding: 20rpx;
-	margin-bottom: 20rpx;
-	box-sizing: border-box;
-}
-
-.field-title {
-	font-size: 30rpx;
-	font-weight: bold;
-	color: #333333;
-	margin-bottom: 10rpx;
-}
-
-.field-subtitle {
-	font-size: 22rpx;
-	color: #333333;
-	margin-bottom: 10rpx;
-}
-
-.stars-row {
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-	margin-bottom: 10rpx;
-}
-
-.stars-label {
-	font-size: 22rpx;
-	color: #333333;
-	margin-right: 10rpx;
-}
-
-.field-desc {
-	font-size: 26rpx;
-	color: #666666;
-	line-height: 1.4;
-}
-
-.field-desc-collapsed {
-	display: -webkit-box;
-	-webkit-line-clamp: 3;
-	-webkit-box-orient: vertical;
-	overflow: hidden;
-}
-
-.expand-btn-row {
-	display: flex;
-	justify-content: flex-end;
-	margin-top: 10rpx;
-}
-
-.expand-btn-text {
-	color: #2d7bff;
-	font-size: 26rpx;
-}
-
-/* States */
-.loading-state,
-.empty-state {
+.state-box {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	padding: 100rpx 0;
+	padding: 120rpx 32rpx;
+	box-sizing: border-box;
 }
 
-.loading-text,
-.empty-text {
+.state-text {
 	font-size: 28rpx;
-	color: #888888;
+	color: #666666;
+}
+
+.bottom-bar {
+	position: fixed;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	height: 120rpx;
+	display: flex;
+	align-items: center;
+	padding: 0 32rpx;
+	background-color: rgba(184, 216, 253, 0.5);
+	box-sizing: border-box;
+	z-index: 10;
+}
+
+.unfavorite-btn {
+	width: 100%;
+	height: 88rpx;
+	padding: 0;
+	border: none;
+	background-color: #1269ff;
+	border-radius: 20rpx;
+	font-size: 32rpx;
+	line-height: 88rpx;
+	font-weight: 700;
+	color: #ffffff;
+}
+
+.unfavorite-btn::after {
+	border: none;
 }
 </style>

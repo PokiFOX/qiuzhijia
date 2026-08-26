@@ -15,7 +15,7 @@
 
 			<!-- Header Banner -->
 			<view class="banner-wrapper">
-				<image class="banner-img" :src="parseimage('栏目/咨询顾问/顶部.png')" mode="widthFix" />
+				<image class="banner-img" :src="parseLanmuImage('栏目/咨询顾问/顶部.png')" mode="widthFix" />
 			</view>
 
 			<view class="divider-space"></view>
@@ -34,7 +34,7 @@
 				<view class="cards-row">
 					<view class="type-card">
 						<view class="icon-bg">
-							<image class="card-icon" :src="parseimage('栏目/咨询顾问/一对一咨询.png')" mode="aspectFit" />
+							<image class="card-icon" :src="parseLanmuImage('栏目/咨询顾问/一对一咨询.png')" mode="aspectFit" />
 						</view>
 						<view class="card-text-col">
 							<text class="card-title">一对一咨询</text>
@@ -44,7 +44,7 @@
 
 					<view class="type-card">
 						<view class="icon-bg">
-							<image class="card-icon" :src="parseimage('栏目/咨询顾问/个性化方案.png')" mode="aspectFit" />
+							<image class="card-icon" :src="parseLanmuImage('栏目/咨询顾问/个性化方案.png')" mode="aspectFit" />
 						</view>
 						<view class="card-text-col">
 							<text class="card-title">个性化方案</text>
@@ -56,7 +56,7 @@
 				<view class="cards-row">
 					<view class="type-card">
 						<view class="icon-bg">
-							<image class="card-icon" :src="parseimage('栏目/咨询顾问/全程陪伴.png')" mode="aspectFit" />
+							<image class="card-icon" :src="parseLanmuImage('栏目/咨询顾问/全程陪伴.png')" mode="aspectFit" />
 						</view>
 						<view class="card-text-col">
 							<text class="card-title">全程陪伴</text>
@@ -66,7 +66,7 @@
 
 					<view class="type-card">
 						<view class="icon-bg">
-							<image class="card-icon" :src="parseimage('栏目/咨询顾问/笔面试辅导.png')" mode="aspectFit" />
+							<image class="card-icon" :src="parseLanmuImage('栏目/咨询顾问/笔面试辅导.png')" mode="aspectFit" />
 						</view>
 						<view class="card-text-col">
 							<text class="card-title">笔面试辅导</text>
@@ -81,7 +81,7 @@
 			<!-- Bottom Consult Banner -->
 			<view class="consult-banner" @tap="KeFu">
 				<view class="consult-btn">
-					<image class="wechat-icon" :src="parseimage('栏目/笔试题库/微信.png')" mode="aspectFit" />
+					<image class="wechat-icon" :src="parseLanmuImage('栏目/笔试题库/微信.png')" mode="aspectFit" />
 					<text class="consult-btn-text">立即咨询</text>
 				</view>
 				<text class="consult-tip">
@@ -93,7 +93,7 @@
 
 			<!-- Footer Badge -->
 			<view class="footer-badge">
-				<image class="badge-icon" :src="parseimage('栏目/笔试题库/标记.png')" mode="aspectFit" />
+				<image class="badge-icon" :src="parseLanmuImage('栏目/笔试题库/标记.png')" mode="aspectFit" />
 				<text class="badge-text">已为数千名学员提供专业咨询服务</text>
 			</view>
 
@@ -105,7 +105,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 
-import { parseimage, KeFu, getWechatNavMetrics } from "../../../tapah/function";
+import { parseLanmuImage, KeFu, getWechatNavMetrics } from "../../../tapah/function";
 
 const props = withDefaults(
 	defineProps<{

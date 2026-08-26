@@ -34,6 +34,11 @@ export function parseimage(name: string): string {
 	return `${urlheader}/images2/${densified}`;
 }
 
+/** 栏目详情页静态图（求职资料、岗位内推等），走旧版 images/ 目录，无 @2x/@3x */
+export function parseLanmuImage(name: string): string {
+	return `${urlheader}/images/${name}`;
+}
+
 /** 企业小图标/顶部大图只有单倍图，不走 @2x/@3x */
 export function parseEnterpriseIcon(name: string): string {
 	return `${urlheader}/images2/${name}`;
@@ -84,6 +89,19 @@ export function navigatorToCase(caseId: number) {
 
 export function KeFu() {
 	navigator("/kefu");
+}
+
+export function openAiInterviewMiniProgram() {
+	// @ts-ignore
+	if (typeof wx !== "undefined" && wx.navigateToMiniProgram) {
+		// @ts-ignore
+		wx.navigateToMiniProgram({
+			appId: "wx320a7a97e2f254e2",
+			path: "/pages/entry/share?o=store&type=39&id=2",
+		});
+	} else {
+		uni.showToast({ title: "请在微信小程序中打开", icon: "none" });
+	}
 }
 
 export function activateMainPageTab(index: number) {

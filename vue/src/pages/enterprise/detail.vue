@@ -1,6 +1,6 @@
 <template>
-	<view class="detail-root" v-if="initialized && enterprise">
-		<scroll-view class="detail-scroll" scroll-y enhanced :show-scrollbar="false" :scroll-top="pageScrollTop" :scroll-with-animation="scrollWithAnimation" @scroll="onDetailScroll">
+	<view class="detail-root" :class="{ 'page-locked': showCaseSheet }" v-if="initialized && enterprise">
+		<scroll-view class="detail-scroll" :scroll-y="!showCaseSheet" enhanced :show-scrollbar="false" :scroll-top="pageScrollTop" :scroll-with-animation="scrollWithAnimation" @scroll="onDetailScroll">
 			<view class="detail-page">
 				<view class="banner-wrap" v-if="enterprise.images && enterprise.images.length > 0">
 					<swiper class="top-swiper" :style="bannerSwiperStyle" circular autoplay :interval="3000" duration="500" @change="onSwiperChange">
@@ -168,8 +168,8 @@
 							<template v-else>
 								<CaseCard v-if="primaryCase" :case-item="primaryCase" @tap="onCaseTap(primaryCase)" />
 								<SimilarCaseSection :cases="displayedSimilarCases" />
-								<view v-if="canLoadMoreCase" class="load-more-bar" :class="{ 'load-more-bar-disabled': isLoadingMoreCases }" @tap="loadMoreCase">
-									<text class="load-more-text">{{ isLoadingMoreCases ? "加载中..." : "查看更多成功案例 ›" }}</text>
+								<view v-if="canLoadMoreCase" class="load-more-bar" @tap="openCaseSheet">
+									<text class="load-more-text">查看更多成功案例 ›</text>
 								</view>
 							</template>
 						</view>
@@ -200,11 +200,15 @@
 				</view>
 			</view>
 		</view>
+
+		<BottomSheet :visible="showCaseSheet" title="成功案例" @close="showCaseSheet = false">
+			<FieldCaseListPanel v-if="enterprise" :enterprise-id="enterprise.id" :active="showCaseSheet" />
+		</BottomSheet>
 	</view>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, nextTick, watch } from "vue";
+import { ref, computed, nextTick, watch, onUnmounted } from "vue";
 import { onLoad } from "@dcloudio/uni-app";
 
 import { enterpriselist, accountinfo } from "../../tapah/data";
@@ -216,6 +220,8 @@ import DetailBottomBar from "../../components/DetailBottomBar.vue";
 import CaseCard from "../../components/CaseCard.vue";
 import SimilarCaseSection from "../../components/SimilarCaseSection.vue";
 import FieldStars from "../../components/FieldStars.vue";
+import BottomSheet from "../../components/BottomSheet.vue";
+import FieldCaseListPanel from "../../components/FieldCaseListPanel.vue";
 
 const SECTION_COUNT = 4;
 const TAB_BAR_HEIGHT_RPX = 88;
@@ -236,7 +242,19 @@ const fallbackCasePage = ref(1);
 const usingFallback = ref(false);
 const hasMoreSimilarPages = ref(false);
 const isCasesLoading = ref(true);
-const isLoadingMoreCases = ref(false);
+const showCaseSheet = ref(false);
+
+watch(showCaseSheet, (open) => {
+	if (typeof document !== "undefined") {
+		document.body.style.overflow = open ? "hidden" : "";
+	}
+});
+
+onUnmounted(() => {
+	if (typeof document !== "undefined") {
+		document.body.style.overflow = "";
+	}
+});
 
 const displayedSimilarCases = computed(() => similarCases.value.slice(0, displaySimilarCount.value));
 const canLoadMoreCase = computed(
@@ -381,6 +399,10 @@ const onCaseTap = (c: Case) => {
 	navigatorToCase(c.id);
 };
 
+const openCaseSheet = () => {
+	showCaseSheet.value = true;
+};
+
 const resetCaseState = () => {
 	primaryCase.value = null;
 	similarCases.value = [];
@@ -448,36 +470,6 @@ const loadCases = async (options?: { silent?: boolean }) => {
 	} finally {
 		isCasesLoading.value = false;
 		nextTick(() => setTimeout(calculateSectionTops, 300));
-	}
-};
-
-const loadMoreCase = async () => {
-	if (isLoadingMoreCases.value) return;
-	if (displaySimilarCount.value < similarCases.value.length) {
-		displaySimilarCount.value = Math.min(similarCases.value.length, displaySimilarCount.value + PAGE_SIZE);
-		nextTick(() => setTimeout(calculateSectionTops, 100));
-		return;
-	}
-	if (!enterprise.value || !hasMoreSimilarPages.value) return;
-	isLoadingMoreCases.value = true;
-	try {
-		if (usingFallback.value) {
-			const nextPage = fallbackCasePage.value + 1;
-			await loadFallbackPage(nextPage);
-		} else {
-			const nextPage = casePage.value + 1;
-			const result = await RequestCaseDisplay(enterprise.value.id, 0, 0, 0, 0, 0, 0, nextPage);
-			appendSimilarCases(result.similar);
-			casePage.value = nextPage;
-			similarTotal.value = result.similarTotal;
-			hasMoreSimilarPages.value = similarCases.value.length < similarTotal.value;
-		}
-		displaySimilarCount.value = Math.min(similarCases.value.length, displaySimilarCount.value + PAGE_SIZE);
-	} catch (err) {
-		console.error("Failed to load more cases:", err);
-	} finally {
-		isLoadingMoreCases.value = false;
-		nextTick(() => setTimeout(calculateSectionTops, 100));
 	}
 };
 
