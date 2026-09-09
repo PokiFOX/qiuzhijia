@@ -1,26 +1,18 @@
 <template>
-	<view class="service-container">
-		<!-- Custom Navigation Bar (only when embedded as mainpage tab) -->
-		<view v-if="showNavBar" class="nav-bar" :style="navBarStyle">
-			<text class="nav-title" :style="navTitleStyle">咨询顾问</text>
-		</view>
-
+	<view class="consult-advisor-container">
 		<view class="service-content">
-			<!-- Header Text Section -->
 			<view class="header-text-section">
 				<text class="main-title">专业顾问团队</text>
 				<text class="sub-title-blue">助力你的央国企&金融机构求职之路</text>
 				<text class="desc-text">背景诊断·路径规划·简历面试辅导·全程答疑</text>
 			</view>
 
-			<!-- Header Banner -->
 			<view class="banner-wrapper">
 				<image class="banner-img" :src="parseLanmuImage('栏目/咨询顾问/顶部.png')" mode="widthFix" />
 			</view>
 
 			<view class="divider-space"></view>
 
-			<!-- Why Choose Us Header -->
 			<view class="why-us-header">
 				<view class="line"></view>
 				<text class="why-us-title">为什么选择我们</text>
@@ -29,7 +21,6 @@
 
 			<view class="divider-space-small"></view>
 
-			<!-- 2x2 Grid of Cards -->
 			<view class="cards-grid">
 				<view class="cards-row">
 					<view class="type-card">
@@ -78,7 +69,6 @@
 
 			<view class="divider-space"></view>
 
-			<!-- Bottom Consult Banner -->
 			<view class="consult-banner" @tap="KeFu">
 				<view class="consult-btn">
 					<image class="wechat-icon" :src="parseLanmuImage('栏目/笔试题库/微信.png')" mode="aspectFit" />
@@ -91,7 +81,6 @@
 
 			<view class="divider-space-small"></view>
 
-			<!-- Footer Badge -->
 			<view class="footer-badge">
 				<image class="badge-icon" :src="parseLanmuImage('栏目/笔试题库/标记.png')" mode="aspectFit" />
 				<text class="badge-text">已为数千名学员提供专业咨询服务</text>
@@ -103,61 +92,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
-
-import { parseLanmuImage, KeFu, getWechatNavMetrics } from "../../../tapah/function";
-
-const props = withDefaults(
-	defineProps<{
-		showNavBar?: boolean;
-	}>(),
-	{
-		showNavBar: false,
-	}
-);
-
-const metrics = computed(() => getWechatNavMetrics());
-
-const navBarStyle = computed(() => {
-	return {
-		height: `${metrics.value.navBarHeight}px`,
-		paddingTop: `${metrics.value.statusBarHeight}px`,
-		boxSizing: "border-box" as const
-	};
-});
-
-const navTitleStyle = computed(() => {
-	const capsuleTopOffset = metrics.value.capsuleTop - metrics.value.statusBarHeight;
-	return {
-		height: `${metrics.value.capsuleHeight}px`,
-		lineHeight: `${metrics.value.capsuleHeight}px`,
-		marginTop: `${capsuleTopOffset}px`
-	};
-});
+import { parseLanmuImage, KeFu } from "../../../tapah/function";
 </script>
 
 <style scoped>
-.service-container {
+.consult-advisor-container {
 	display: flex;
 	flex-direction: column;
 	width: 100%;
 	box-sizing: border-box;
-}
-
-.nav-bar {
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-	justify-content: center;
-	background-color: #ffffff;
-	border-bottom: 1rpx solid #eeeeee;
-	width: 100%;
-}
-
-.nav-title {
-	font-size: 32rpx;
-	font-weight: bold;
-	color: #333333;
 }
 
 .service-content {

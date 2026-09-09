@@ -24,9 +24,7 @@
 				</view>
 			</view>
 			<view v-if="activated[3]" v-show="currentindex === 3" class="tab-view">
-				<scroll-view scroll-y enhanced :show-scrollbar="false" class="tab-scroll-view" style="height: 100%; width: 100%;">
-					<service />
-				</scroll-view>
+				<qiuzhifuwu embedded />
 			</view>
 			<view v-if="activated[4]" v-show="currentindex === 4" class="tab-view">
 				<profile />
@@ -70,7 +68,7 @@ import { SceneID, EventType } from "../../tapah/enum";
 import { parseimage, navigator, getWechatNavMetrics } from "../../tapah/function";
 
 import home from "./components/home.vue";
-import service from "./components/service.vue";
+import qiuzhifuwu from "../lanmu/qiuzhifuwu/qiuzhifuwu.vue";
 import enterprise from "./components/enterprise.vue";
 import profile from "./components/profile.vue";
 
@@ -234,12 +232,14 @@ onReachBottom(() => {
 	padding-bottom: 148rpx;
 	box-sizing: border-box;
 	overflow: hidden;
+	min-height: 0;
 }
 
 .tab-view {
 	width: 100%;
 	height: 100%;
 	overflow: hidden;
+	min-height: 0;
 }
 
 .tab-scroll-view {

@@ -251,7 +251,7 @@ const onFieldTap = () => {
 };
 
 const onBackgroundImproveTap = () => {
-	navigator("/lanmu/shixineitui");
+	navigator("/lanmu/qiuzhifuwu");
 };
 
 const loadCaseDetail = async (id: number) => {

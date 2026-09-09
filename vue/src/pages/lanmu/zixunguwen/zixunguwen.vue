@@ -1,13 +1,13 @@
 <template>
 	<view class="lanmu-page">
 		<scroll-view class="scroll-container" scroll-y>
-			<Service />
+			<ConsultAdvisor />
 		</scroll-view>
 	</view>
 </template>
 
 <script setup lang="ts">
-import Service from "../../mainpage/components/service.vue";
+import ConsultAdvisor from "./ConsultAdvisor.vue";
 </script>
 
 <style scoped>
