@@ -150,6 +150,12 @@
 			}
 		},
 		{
+			"path": "pages/lanmu/jiaoshoukeyan/jiaoshoukeyan",
+			"style": {
+				"navigationBarTitleText": "教授科研"
+			}
+		},
+		{
 			"path": "pages/lanmu/qiuzhifuwu/qiuzhifuwu",
 			"style": {
 				"navigationBarTitleText": "求职服务"

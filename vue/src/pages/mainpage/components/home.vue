@@ -45,8 +45,8 @@
 			<view class="promo-row">
 				<image class="promo-left" :style="promoLeftStyle" :src="parseimage('实习推荐.png')" mode="aspectFill" @tap="onPromoTap('shixineitui')"/>
 				<view class="promo-right" :style="promoRightStyle">
-					<image class="promo-right-item" :style="promoRightItemStyle" :src="parseimage('求职全套.png')" mode="aspectFill" @tap="onPromoTap('qiuzhifuwu')"/>
-					<image class="promo-right-item" :style="promoRightItemStyle" :src="parseimage('教授科研.png')" mode="aspectFill" @tap="onPromoTap('kefu')"/>
+					<image class="promo-right-item" :style="promoRightItemStyle" :src="parseimage('求职全套.png')" mode="aspectFill" @tap="onPromoTap('qiuzhijiafuwu')"/>
+					<image class="promo-right-item" :style="promoRightItemStyle" :src="parseimage('教授科研.png')" mode="aspectFill" @tap="onPromoTap('jiaoshoukeyan')"/>
 				</view>
 			</view>
 		</view>
@@ -85,7 +85,7 @@
 import { ref, computed, onMounted, type CSSProperties } from "vue";
 
 import { article1, article2 } from "../../../tapah/data";
-import { parseimage, openOfficialAccountArticle, navigator, activateMainPageTab, KeFu, openAiInterviewMiniProgram, } from "../../../tapah/function";
+import { parseimage, openOfficialAccountArticle, navigator, activateMainPageTab, openAiInterviewMiniProgram, } from "../../../tapah/function";
 import { lanmus, imageurls, LanMuInfo, fenyes } from "../../../tapah/option";
 import { RequestArticle1, RequestArticle2 } from "../../../tapah/request";
 
@@ -238,6 +238,7 @@ const onLanMuTap = (index: number) => {
 			navigator("/lanmu/qiuzhifuwu");
 			break;
 		case "教授科研":
+			navigator("/lanmu/jiaoshoukeyan");
 			break;
 		case "过往案例":
 			navigator("/mainpage/example");
@@ -250,10 +251,10 @@ const onLanMuTap = (index: number) => {
 const onPromoTap = (kind: string) => {
 	if (kind === "shixineitui") {
 		navigator("/lanmu/shixineitui");
-	} else if (kind === "qiuzhifuwu") {
+	} else if (kind === "qiuzhijiafuwu") {
 		navigator("/lanmu/qiuzhifuwu");
-	} else {
-		KeFu();
+	} else if (kind === "jiaoshoukeyan") {
+		navigator("/lanmu/jiaoshoukeyan");
 	}
 };
 
