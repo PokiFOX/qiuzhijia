@@ -91,7 +91,8 @@
 		{
 			"path": "pages/lanmu/aizhushou/aizhushou",
 			"style": {
-				"navigationBarTitleText": "AI助手"
+				"navigationBarTitleText": "求职家AI助手",
+				"navigationStyle": "custom"
 			}
 		},
 		{
@@ -110,7 +111,7 @@
 		{
 			"path": "pages/kefu/kefu",
 			"style": {
-				"navigationBarTitleText": "添加顾问"
+				"navigationBarTitleText": "在线咨询"
 			}
 		},
 		{
