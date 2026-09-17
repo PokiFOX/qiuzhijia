@@ -17,7 +17,8 @@
 			<view :class="['desc-content', { 'desc-content-full': fullContent }]">
 				<text class="field-desc">{{ field.content }}</text>
 				<view v-if="!fullContent && needDetailLink(field.content)" class="detail-overlay">
-					<text class="detail-suffix">... 详情 ›</text>
+					<text class="detail-suffix">... 详情</text>
+					<NavArrow />
 				</view>
 			</view>
 		</view>
@@ -28,6 +29,7 @@
 import { parseimage } from "../tapah/function";
 import type { Field } from "../tapah/class";
 import FieldStars from "./FieldStars.vue";
+import NavArrow from "./NavArrow.vue";
 
 defineProps<{
 	field: Field;
@@ -172,7 +174,7 @@ const needDetailLink = (content?: string) => (content?.length || 0) > 48;
 	position: absolute;
 	right: 0;
 	bottom: 0;
-	height: 30rpx;
+	height: 40rpx;
 	display: flex;
 	flex-direction: row;
 	align-items: center;

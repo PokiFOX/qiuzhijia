@@ -48,7 +48,8 @@
 							<EnterpriseCard :enterprise="ent" compact @tap="onEnterpriseTap(ent.id)" />
 						</view>
 						<view v-if="canLoadMoreEnterprise" class="load-more-bar" @tap="openEnterpriseSheet">
-							<text class="load-more-text">查看更多招聘企业 ›</text>
+							<text class="load-more-text">查看更多招聘企业</text>
+							<NavArrow />
 						</view>
 					</view>
 				</view>
@@ -71,7 +72,8 @@
 								<CaseCard v-if="primaryCase" :case-item="primaryCase" @tap="onCaseTap(primaryCase)" />
 								<SimilarCaseSection :cases="displayedSimilarCases" />
 								<view v-if="canLoadMoreCase" class="load-more-bar" @tap="openCaseSheet">
-									<text class="load-more-text">查看更多成功案例 ›</text>
+									<text class="load-more-text">查看更多成功案例</text>
+									<NavArrow />
 								</view>
 							</template>
 						</view>
@@ -114,6 +116,7 @@ import SimilarCaseSection from "../../../components/SimilarCaseSection.vue";
 import BottomSheet from "../../../components/BottomSheet.vue";
 import FieldEnterpriseListPanel from "../../../components/FieldEnterpriseListPanel.vue";
 import FieldCaseListPanel from "../../../components/FieldCaseListPanel.vue";
+import NavArrow from "../../../components/NavArrow.vue";
 
 const PAGE_SIZE = 4;
 
@@ -525,6 +528,7 @@ onLoad((options) => {
 
 .load-more-bar {
 	display: flex;
+	flex-direction: row;
 	align-items: center;
 	justify-content: center;
 	height: 82rpx;

@@ -38,8 +38,9 @@
 							<view class="table-value-col">
 								<text class="table-value">{{ caseItem.entname || "--" }}</text>
 							</view>
-							<view v-if="caseItem.entid" class="table-link-col" @tap.stop="onEnterpriseTap">
-								<text class="link-text">企业详情 ›</text>
+							<view v-if="caseItem.entid" class="table-link-col link-with-arrow" @tap.stop="onEnterpriseTap">
+								<text class="link-text">企业详情</text>
+								<NavArrow />
 							</view>
 							<view v-else class="table-link-col"></view>
 						</view>
@@ -74,8 +75,9 @@
 							<view class="table-value-col">
 								<text class="table-value">{{ caseItem.field1 || "--" }}</text>
 							</view>
-							<view v-if="caseItem.field?.id" class="table-link-col" @tap.stop="onFieldTap">
-								<text class="link-text">专业详情 ›</text>
+							<view v-if="caseItem.field?.id" class="table-link-col link-with-arrow" @tap.stop="onFieldTap">
+								<text class="link-text">专业详情</text>
+								<NavArrow />
 							</view>
 							<view v-else class="table-link-col"></view>
 						</view>
@@ -96,8 +98,9 @@
 							<view class="table-value-col">
 								<text class="table-value">{{ caseItem.field2 || "--" }}</text>
 							</view>
-							<view v-if="caseItem.field?.id" class="table-link-col" @tap.stop="onFieldTap">
-								<text class="link-text">专业详情 ›</text>
+							<view v-if="caseItem.field?.id" class="table-link-col link-with-arrow" @tap.stop="onFieldTap">
+								<text class="link-text">专业详情</text>
+								<NavArrow />
 							</view>
 							<view v-else class="table-link-col"></view>
 						</view>
@@ -110,7 +113,10 @@
 							<view class="title-indicator"></view>
 							<text class="section-title">主要经历</text>
 						</view>
-						<text class="section-link-text" @tap="onBackgroundImproveTap">如何做好背景提升 ›</text>
+						<view class="section-link-row" @tap="onBackgroundImproveTap">
+							<text class="section-link-text">如何做好背景提升</text>
+							<NavArrow />
+						</view>
 					</view>
 
 					<view v-if="experiences.length === 0" class="empty-exp">
@@ -155,6 +161,7 @@ import { parseInternshipExperiences } from "../../../tapah/caseExperience";
 import { parseimage, navigator, getWechatNavMetrics, stagStr } from "../../../tapah/function";
 import DetailBottomBar from "../../../components/DetailBottomBar.vue";
 import SimilarCaseSection from "../../../components/SimilarCaseSection.vue";
+import NavArrow from "../../../components/NavArrow.vue";
 
 const caseItem = ref<Case | null>(null);
 const similarCases = ref<Case[]>([]);
@@ -357,7 +364,7 @@ onLoad((options) => {
 .job-title {
 	font-size: 48rpx;
 	line-height: 70rpx;
-	font-weight: 400;
+	font-weight: 500;
 	color: #000000;
 	word-break: break-word;
 }
@@ -493,6 +500,13 @@ onLoad((options) => {
 	line-height: 28rpx;
 	font-weight: 400;
 	color: #ee692d;
+}
+
+.link-with-arrow,
+.section-link-row {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
 }
 
 .link-text {

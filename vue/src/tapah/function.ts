@@ -44,6 +44,15 @@ export function parseEnterpriseIcon(name: string): string {
 	return `${urlheader}/images2/${name}`;
 }
 
+/** 专业热门度：后端 0–10，映射为 0–5 颗星 */
+export function fieldStarParts(star: number): { full: number; half: boolean; empty: number } {
+	const n = Math.max(0, Math.min(10, Math.floor(star || 0)));
+	const full = Math.floor(n / 2);
+	const half = n % 2 === 1;
+	const empty = 5 - full - (half ? 1 : 0);
+	return { full, half, empty };
+}
+
 /** 专业热门度：后端 0–10，展示时除以 2 得到 0–5 分 */
 export function fieldHotScoreText(star: number): string {
 	const n = Math.max(0, Math.min(10, Math.floor(star || 0)));

@@ -67,11 +67,10 @@
 					<text class="article-desc">{{ article.description }}</text>
 				</view>
 				<view class="article-footer">
-					<view v-if="article.accountName" class="article-account">
-						<image v-if="article.accountIcon" class="account-icon" :src="article.accountIcon" mode="aspectFill" />
-						<text class="account-name">{{ article.accountName }}</text>
+					<view class="article-account">
+						<image class="account-icon" :src="officialAccountIcon" mode="aspectFill" />
+						<text class="account-name">{{ officialAccountName }}</text>
 					</view>
-					<view v-else class="article-account" />
 					<text class="article-time">{{ formatArticleDate(article) }}</text>
 				</view>
 			</view>
@@ -97,6 +96,9 @@ import { parseimage, openOfficialAccountArticle, navigator, activateMainPageTab,
 import { lanmus, imageurls, LanMuInfo, fenyes } from "../../../tapah/option";
 import { RequestArticle1, RequestArticle2 } from "../../../tapah/request";
 import type { Article } from "../../../tapah/class";
+
+const officialAccountName = "浦浦求职家";
+const officialAccountIcon = "/static/logo.png";
 
 const formatArticleDate = (art: Article) => {
 	const ts = art.publishTime || art.update;
@@ -304,9 +306,6 @@ onMounted(async () => {
 	display: flex;
 	flex-direction: column;
 	width: 100%;
-	background-color: #ffffff;
-	border-radius: 0 0 32rpx 32rpx;
-	padding-bottom: 0;
 	box-sizing: border-box;
 }
 

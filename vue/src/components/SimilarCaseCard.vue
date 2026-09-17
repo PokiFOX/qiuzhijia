@@ -45,7 +45,8 @@
 							<text class="cell-text">{{ internshipText }}</text>
 						</view>
 						<view class="grid-cell detail-cell" @tap.stop="onDetailTap">
-							<text class="detail-text">详情 ›</text>
+							<text class="detail-text">详情</text>
+							<NavArrow />
 						</view>
 					</view>
 				</view>
@@ -60,6 +61,7 @@ import { computed } from "vue";
 import type { Case } from "../tapah/class";
 import { formatInternship } from "../tapah/caseDisplay";
 import { parseimage, parseEnterpriseIcon, stagStr, navigatorToCase } from "../tapah/function";
+import NavArrow from "./NavArrow.vue";
 
 const props = defineProps<{
 	caseItem: Case;
@@ -220,6 +222,7 @@ const onDetailTap = () => {
 
 .detail-cell {
 	justify-content: flex-end;
+	align-items: center;
 	padding-right: 0;
 }
 

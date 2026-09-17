@@ -55,7 +55,7 @@
 							</text>
 							<view v-if="needBriefToggle && !isBriefExpanded" class="brief-toggle-overlay" @tap.stop="toggleBrief">
 								<text class="brief-toggle-text">展开</text>
-								<text class="brief-toggle-arrow">▼</text>
+								<NavArrow direction="down" />
 							</view>
 						</view>
 					</view>
@@ -90,14 +90,20 @@
 							<text class="table-value table-link" @tap="openWebsite(enterprise.website1)">
 								{{ enterprise.website1 }}
 							</text>
-							<text class="table-copy" @tap.stop="copyWebsite(enterprise.website1)">复制链接</text>
+							<view class="table-copy" @tap.stop="copyWebsite(enterprise.website1)">
+								<text class="table-copy-text">复制链接</text>
+								<NavArrow />
+							</view>
 						</view>
 						<view class="table-row" v-if="enterprise.website2">
 							<text class="table-label">招聘官网</text>
 							<text class="table-value table-link" @tap="openWebsite(enterprise.website2)">
 								{{ enterprise.website2 }}
 							</text>
-							<text class="table-copy" @tap.stop="copyWebsite(enterprise.website2)">复制链接</text>
+							<view class="table-copy" @tap.stop="copyWebsite(enterprise.website2)">
+								<text class="table-copy-text">复制链接</text>
+								<NavArrow />
+							</view>
 						</view>
 					</view>
 				</view>
@@ -115,11 +121,11 @@
 									<text class="field-type">{{ field.type }}</text>
 									<view class="field-meta-divider"></view>
 									<text class="field-stars-label">专业热门度:</text>
-									<FieldStars :star="field.star" />
+									<FieldStars :star="field.star" mode="stars" />
 								</view>
 								<view class="field-detail-link" @tap.stop="onFieldTap(field.id)">
 									<text class="field-detail-text">详情</text>
-									<text class="field-detail-arrow">›</text>
+									<NavArrow />
 								</view>
 							</view>
 						</view>
@@ -169,7 +175,8 @@
 								<CaseCard v-if="primaryCase" :case-item="primaryCase" @tap="onCaseTap(primaryCase)" />
 								<SimilarCaseSection :cases="displayedSimilarCases" />
 								<view v-if="canLoadMoreCase" class="load-more-bar" @tap="openCaseSheet">
-									<text class="load-more-text">查看更多成功案例 ›</text>
+									<text class="load-more-text">查看更多成功案例</text>
+									<NavArrow />
 								</view>
 							</template>
 						</view>
@@ -222,6 +229,7 @@ import SimilarCaseSection from "../../components/SimilarCaseSection.vue";
 import FieldStars from "../../components/FieldStars.vue";
 import BottomSheet from "../../components/BottomSheet.vue";
 import FieldCaseListPanel from "../../components/FieldCaseListPanel.vue";
+import NavArrow from "../../components/NavArrow.vue";
 
 const SECTION_COUNT = 4;
 const TAB_BAR_HEIGHT_RPX = 88;
@@ -850,13 +858,6 @@ onLoad(async (options) => {
 	background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, #ffffff 40%);
 }
 
-.brief-toggle-arrow {
-	font-size: 28rpx;
-	line-height: 48rpx;
-	color: #5e80f7;
-	margin-left: 4rpx;
-}
-
 .info-table {
 	display: flex;
 	flex-direction: column;
@@ -896,8 +897,14 @@ onLoad(async (options) => {
 }
 
 .table-copy {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
 	flex-shrink: 0;
 	margin-left: 16rpx;
+}
+
+.table-copy-text {
 	font-size: 30rpx;
 	line-height: 44rpx;
 	font-weight: 350;
@@ -1000,13 +1007,6 @@ onLoad(async (options) => {
 	line-height: 38rpx;
 	font-weight: 350;
 	color: #5e80f7;
-}
-
-.field-detail-arrow {
-	font-size: 26rpx;
-	line-height: 38rpx;
-	color: #5e80f7;
-	margin-left: 4rpx;
 }
 
 .articles-list {
@@ -1116,6 +1116,7 @@ onLoad(async (options) => {
 
 .load-more-bar {
 	display: flex;
+	flex-direction: row;
 	align-items: center;
 	justify-content: center;
 	height: 82rpx;

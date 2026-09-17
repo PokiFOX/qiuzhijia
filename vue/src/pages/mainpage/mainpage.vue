@@ -33,17 +33,20 @@
 
 		<!-- Custom Bottom Tab Bar -->
 		<view class="bottom-tab-bar">
-			<view class="tab-bar-bg" />
-			<view class="tab-item" @tap="switchTab(0)">
-				<image class="tab-icon" :src="parseimage(currentindex === 0 ? '底部按钮/首页-选中.png' : '底部按钮/首页-普通.png')" mode="aspectFit"/>
-				<text class="tab-text" :class="{ active: currentindex === 0 }">首页</text>
+			<view class="tab-bar-plate">
+				<image class="tab-bar-strip" :src="parseimage('底部按钮/底部长条.png')" mode="widthFix" />
+				<image class="tab-bar-center" :src="parseimage('底部按钮/底部中间.png')" mode="aspectFit" />
 			</view>
-			<view class="tab-item" @tap="switchTab(1)">
+			<view class="tab-bar-items">
+				<view class="tab-item" @tap="switchTab(0)">
+				<image class="tab-icon" :src="parseimage(currentindex === 0 ? '底部按钮/首页-选中.png' : '底部按钮/首页-普通.png')" mode="aspectFit"/>
+					<text class="tab-text" :class="{ active: currentindex === 0 }">首页</text>
+				</view>
+				<view class="tab-item" @tap="switchTab(1)">
 				<image class="tab-icon" :src="parseimage(currentindex === 1 ? '底部按钮/招聘企业-选中.png' : '底部按钮/招聘企业-普通.png')" mode="aspectFit"/>
 				<text class="tab-text" :class="{ active: currentindex === 1 }">招聘企业</text>
 			</view>
 			<view class="tab-item offer-tab" @tap="onOfferTap">
-				<view class="offer-bump" />
 				<image class="tab-icon offer-icon" :src="parseimage(currentindex === 2 ? '底部按钮/offer-选中.png' : '底部按钮/offer-普通.png')" mode="aspectFit"/>
 				<text class="tab-text" :class="{ active: currentindex === 2 }">OFFER</text>
 			</view>
@@ -54,6 +57,7 @@
 			<view class="tab-item" @tap="switchTab(4)">
 				<image class="tab-icon" :src="parseimage(currentindex === 4 ? '底部按钮/个人中心-选中.png' : '底部按钮/个人中心-普通.png')" mode="aspectFit"/>
 				<text class="tab-text" :class="{ active: currentindex === 4 }">个人中心</text>
+			</view>
 			</view>
 		</view>
 	</view>
@@ -229,7 +233,6 @@ onReachBottom(() => {
 .tab-content-container {
 	flex: 1;
 	width: 100%;
-	padding-bottom: 148rpx;
 	box-sizing: border-box;
 	overflow: hidden;
 	min-height: 0;
@@ -274,23 +277,53 @@ onReachBottom(() => {
 	left: 0;
 	right: 0;
 	bottom: 0;
-	display: flex;
-	flex-direction: row;
-	align-items: flex-end;
-	padding: 0 32rpx;
+	height: calc(152rpx + env(safe-area-inset-bottom));
+	padding-bottom: env(safe-area-inset-bottom);
 	box-sizing: border-box;
 	z-index: 999;
+	background-color: transparent;
 }
 
-.tab-bar-bg {
+.tab-bar-plate {
 	position: absolute;
 	left: 0;
 	right: 0;
-	top: 0;
 	bottom: 0;
-	background-color: #ffffff;
-	border-radius: 24rpx 24rpx 0 0;
+	width: 100%;
+	pointer-events: none;
+	background-color: transparent;
+}
+
+.tab-bar-strip {
+	position: relative;
 	z-index: 0;
+	display: block;
+	width: 100%;
+}
+
+.tab-bar-center {
+	position: absolute;
+	left: 50%;
+	bottom: 32rpx;
+	width: 120rpx;
+	height: 120rpx;
+	transform: translateX(-50%);
+	z-index: 1;
+}
+
+.tab-bar-items {
+	display: flex;
+	flex-direction: row;
+	align-items: flex-end;
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 2;
+	height: 104rpx;
+	padding-bottom: 12rpx;
+	box-sizing: border-box;
+	overflow: visible;
 }
 
 .tab-item {
@@ -299,43 +332,32 @@ onReachBottom(() => {
 	flex-direction: column;
 	align-items: center;
 	justify-content: flex-end;
-	padding-bottom: 10rpx;
-	height: 148rpx;
+	height: 100%;
 	box-sizing: border-box;
 	position: relative;
-	z-index: 1;
 }
 
 .tab-icon {
 	width: 48rpx;
 	height: 48rpx;
+	flex-shrink: 0;
 }
 
 .offer-tab {
+	position: relative;
 	justify-content: flex-end;
-	height: 148rpx;
-	padding-bottom: 10rpx;
-}
-
-/* Keep width === height; bump is centered inside the middle tab */
-.offer-bump {
-	position: absolute;
-	left: 50%;
-	bottom: 42rpx;
-	width: 112rpx;
-	height: 108rpx;
-	margin-left: -56rpx;
-	border-radius: 50%;
-	background-color: #ffffff;
-	z-index: 0;
+	overflow: visible;
 }
 
 .offer-icon {
-	position: relative;
-	z-index: 1;
+	position: absolute;
+	left: 50%;
+	bottom: 24rpx;
 	width: 96rpx;
 	height: 96rpx;
-	margin-bottom: 0;
+	transform: translateX(-50%);
+	flex-shrink: 0;
+	z-index: 1;
 }
 
 .tab-text {
