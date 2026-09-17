@@ -123,13 +123,15 @@
 		{
 			"path": "pages/lanmu/shixineitui/shixineitui",
 			"style": {
-				"navigationBarTitleText": "实习内推"
+				"navigationBarTitleText": "实习内推",
+				"disableScroll": true
 			}
 		},
 		{
 			"path": "pages/lanmu/gangweineitui/gangweineitui",
 			"style": {
-				"navigationBarTitleText": "岗位内推"
+				"navigationBarTitleText": "岗位内推",
+				"disableScroll": true
 			}
 		},
 		{
@@ -147,19 +149,22 @@
 		{
 			"path": "pages/lanmu/mianshijingyan/mianshijingyan",
 			"style": {
-				"navigationBarTitleText": "面试经验"
+				"navigationBarTitleText": "面试经验",
+				"disableScroll": true
 			}
 		},
 		{
 			"path": "pages/lanmu/jiaoshoukeyan/jiaoshoukeyan",
 			"style": {
-				"navigationBarTitleText": "教授科研"
+				"navigationBarTitleText": "教授科研",
+				"disableScroll": true
 			}
 		},
 		{
 			"path": "pages/lanmu/qiuzhifuwu/qiuzhifuwu",
 			"style": {
-				"navigationBarTitleText": "求职服务"
+				"navigationBarTitleText": "求职服务",
+				"disableScroll": true
 			}
 		},
 		{

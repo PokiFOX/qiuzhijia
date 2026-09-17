@@ -10,7 +10,7 @@
 			</view>
 			<view class="hot-group">
 				<image class="hot-icon" :src="parseimage('底部按钮/专业热门度.png')" mode="aspectFit" />
-				<FieldStars class="hot-stars" :star="field.star" />
+				<FieldStars class="hot-score" :star="field.star" />
 			</view>
 		</view>
 		<view class="desc-block">
@@ -140,7 +140,7 @@ const needDetailLink = (content?: string) => (content?.length || 0) > 48;
 	flex-shrink: 0;
 }
 
-.hot-stars {
+.hot-score {
 	margin-left: 4rpx;
 }
 

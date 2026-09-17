@@ -9,7 +9,7 @@
 				open-type="getPhoneNumber"
 				@getphonenumber="onGetPhoneNumber"
 			>
-				<view class="avatar-placeholder" />
+				<image class="avatar-image" :src="defaultAvatarSrc" mode="aspectFill" />
 				<view class="user-info-col">
 					<text class="nickname-text">未登录</text>
 					<text class="id-text">ID: ----</text>
@@ -18,8 +18,7 @@
 
 			<view v-else class="user-row">
 				<view class="avatar-wrap">
-					<image v-if="avatarSrc" class="avatar-image" :src="avatarSrc" mode="aspectFill" />
-					<view v-else class="avatar-placeholder" />
+					<image class="avatar-image" :src="avatarSrc || defaultAvatarSrc" mode="aspectFill" />
 					<button open-type="chooseAvatar" @chooseavatar="onChooseAvatar" class="avatar-choose-btn" />
 				</view>
 
@@ -66,6 +65,8 @@ const metrics = computed(() => getWechatNavMetrics());
 const scrollStyle = computed(() => ({
 	paddingTop: `${metrics.value.statusBarHeight}px`,
 }));
+
+const defaultAvatarSrc = parseimage("底部按钮/默认头像.png");
 
 const avatarSrc = computed(() => accountinfo.value?.avatar?.trim() || "");
 
@@ -189,7 +190,7 @@ const onLogout = () => {
 	flex-direction: row;
 	align-items: flex-start;
 	min-height: 136rpx;
-	margin-top: 90rpx;
+	margin-top: 0;
 	padding-left: 90rpx;
 	padding-right: 48rpx;
 	box-sizing: border-box;
@@ -197,7 +198,7 @@ const onLogout = () => {
 
 .user-row-login {
 	width: 100%;
-	margin-top: 90rpx;
+	margin-top: 0;
 	margin-left: 0;
 	margin-right: 0;
 	padding-top: 0;
@@ -211,14 +212,6 @@ const onLogout = () => {
 
 .user-row-login::after {
 	border: none;
-}
-
-.avatar-placeholder {
-	width: 136rpx;
-	height: 136rpx;
-	border-radius: 50%;
-	background-color: #e8e8e8;
-	flex-shrink: 0;
 }
 
 .avatar-wrap {

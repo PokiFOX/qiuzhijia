@@ -78,13 +78,14 @@ const sharedImage = (name: string) => parseimage(`求职家服务/${name}`);
 }
 
 .footer-9-fixed {
-	position: absolute;
+	position: fixed;
 	left: 0;
 	right: 0;
 	bottom: 0;
 	width: 100%;
 	z-index: 0;
 	display: block;
+	pointer-events: none;
 }
 
 .service-scroll {

@@ -1,6 +1,6 @@
 <template>
 	<view class="similar-case-card" @tap="onDetailTap">
-		<view class="card-top-row">
+		<view class="card-body-row">
 			<image
 				v-if="caseItem.enticon"
 				class="ent-logo"
@@ -9,44 +9,45 @@
 			/>
 			<view v-else class="ent-logo-placeholder"></view>
 
-			<view class="card-info-col">
-				<text class="card-title">{{ titleText }}</text>
+			<view class="card-right-col">
+				<text class="offer-title">{{ offerText }}</text>
+
 				<view v-if="metaBadges.length > 0" class="meta-tags-row">
 					<view v-for="(badge, idx) in metaBadges" :key="idx" class="meta-tag">
 						<text class="meta-tag-text">{{ badge }}</text>
 					</view>
 				</view>
-			</view>
-		</view>
 
-		<view class="info-grid">
-			<view class="info-row">
-				<view class="grid-cell">
-					<image class="cell-icon" :src="parseimage('底部按钮/本科.png')" mode="aspectFit" />
-					<text class="cell-text">{{ caseItem.school1 || "--" }}</text>
-				</view>
-				<view class="grid-cell">
-					<image class="cell-icon" :src="parseimage('底部按钮/专业.png')" mode="aspectFit" />
-					<text class="cell-text">{{ caseItem.field1 || "--" }}</text>
-				</view>
-			</view>
-			<view class="info-row">
-				<view class="grid-cell">
-					<image class="cell-icon" :src="parseimage('底部按钮/硕士.png')" mode="aspectFit" />
-					<text class="cell-text">{{ caseItem.school2 || "--" }}</text>
-				</view>
-				<view class="grid-cell">
-					<image class="cell-icon" :src="parseimage('底部按钮/专业.png')" mode="aspectFit" />
-					<text class="cell-text">{{ caseItem.field2 || "--" }}</text>
-				</view>
-			</view>
-			<view class="info-row">
-				<view class="grid-cell">
-					<image class="cell-icon" :src="parseimage('底部按钮/实习.png')" mode="aspectFit" />
-					<text class="cell-text">{{ internshipText }}</text>
-				</view>
-				<view class="grid-cell detail-cell" @tap.stop="onDetailTap">
-					<text class="detail-text">详情 ›</text>
+				<view class="info-grid">
+					<view class="info-row">
+						<view class="grid-cell">
+							<image class="cell-icon" :src="parseimage('底部按钮/本科.png')" mode="aspectFit" />
+							<text class="cell-text">{{ caseItem.school1 || "--" }}</text>
+						</view>
+						<view class="grid-cell">
+							<image class="cell-icon" :src="parseimage('底部按钮/专业.png')" mode="aspectFit" />
+							<text class="cell-text">{{ caseItem.field1 || "--" }}</text>
+						</view>
+					</view>
+					<view class="info-row">
+						<view class="grid-cell">
+							<image class="cell-icon" :src="parseimage('底部按钮/硕士.png')" mode="aspectFit" />
+							<text class="cell-text">{{ caseItem.school2 || "--" }}</text>
+						</view>
+						<view class="grid-cell">
+							<image class="cell-icon" :src="parseimage('底部按钮/专业.png')" mode="aspectFit" />
+							<text class="cell-text">{{ caseItem.field2 || "--" }}</text>
+						</view>
+					</view>
+					<view class="info-row">
+						<view class="grid-cell">
+							<image class="cell-icon" :src="parseimage('底部按钮/实习.png')" mode="aspectFit" />
+							<text class="cell-text">{{ internshipText }}</text>
+						</view>
+						<view class="grid-cell detail-cell" @tap.stop="onDetailTap">
+							<text class="detail-text">详情 ›</text>
+						</view>
+					</view>
 				</view>
 			</view>
 		</view>
@@ -64,10 +65,13 @@ const props = defineProps<{
 	caseItem: Case;
 }>();
 
-const titleText = computed(() => {
+const offerText = computed(() => {
 	const ent = props.caseItem.entname || "";
 	const name = props.caseItem.name || "";
-	return [ent, name].filter(Boolean).join(" ");
+	if (ent && name) return `${ent} ${name}offer`;
+	if (name) return `${name}offer`;
+	if (ent) return `${ent}offer`;
+	return "";
 });
 
 const yearTag = computed(() => {
@@ -108,8 +112,6 @@ const onDetailTap = () => {
 
 <style scoped>
 .similar-case-card {
-	display: flex;
-	flex-direction: column;
 	height: 300rpx;
 	padding: 20rpx;
 	background-color: #ffffff;
@@ -118,35 +120,40 @@ const onDetailTap = () => {
 	box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.1);
 }
 
-.card-top-row {
+.card-body-row {
 	display: flex;
 	flex-direction: row;
 	align-items: flex-start;
-	flex-shrink: 0;
+	height: 100%;
 }
 
 .ent-logo {
-	width: 64rpx;
-	height: 64rpx;
+	width: 152rpx;
+	height: 152rpx;
 	flex-shrink: 0;
 	display: block;
 }
 
 .ent-logo-placeholder {
-	width: 64rpx;
-	height: 64rpx;
+	width: 152rpx;
+	height: 152rpx;
 	flex-shrink: 0;
 	background-color: #e8e8e8;
 	border-radius: 8rpx;
 }
 
-.card-info-col {
+.card-right-col {
 	flex: 1;
 	min-width: 0;
-	margin-left: 16rpx;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	margin-left: 20rpx;
+	box-sizing: border-box;
+	gap: 16rpx;
 }
 
-.card-title {
+.offer-title {
 	font-size: 28rpx;
 	line-height: 40rpx;
 	font-weight: 500;
@@ -156,6 +163,7 @@ const onDetailTap = () => {
 	-webkit-line-clamp: 2;
 	overflow: hidden;
 	word-break: break-word;
+	flex-shrink: 0;
 }
 
 .meta-tags-row {
@@ -164,7 +172,7 @@ const onDetailTap = () => {
 	flex-wrap: wrap;
 	align-items: center;
 	gap: 12rpx;
-	margin-top: 8rpx;
+	flex-shrink: 0;
 }
 
 .meta-tag {
@@ -188,10 +196,8 @@ const onDetailTap = () => {
 .info-grid {
 	display: flex;
 	flex-direction: column;
-	flex-shrink: 0;
-	margin-top: auto;
-	padding-top: 12rpx;
 	gap: 10rpx;
+	flex-shrink: 0;
 }
 
 .info-row {
@@ -228,7 +234,7 @@ const onDetailTap = () => {
 	margin-left: 12rpx;
 	font-size: 20rpx;
 	line-height: 28rpx;
-	font-weight: 350;
+	font-weight: 400;
 	color: #000000;
 	overflow: hidden;
 	text-overflow: ellipsis;
@@ -240,7 +246,7 @@ const onDetailTap = () => {
 .detail-text {
 	font-size: 26rpx;
 	line-height: 38rpx;
-	font-weight: 350;
+	font-weight: 400;
 	color: #5e80f7;
 }
 </style>

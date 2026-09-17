@@ -66,6 +66,14 @@
 					<text class="article-title">{{ article.title || "未知标题" }}</text>
 					<text class="article-desc">{{ article.description }}</text>
 				</view>
+				<view class="article-footer">
+					<view v-if="article.accountName" class="article-account">
+						<image v-if="article.accountIcon" class="account-icon" :src="article.accountIcon" mode="aspectFill" />
+						<text class="account-name">{{ article.accountName }}</text>
+					</view>
+					<view v-else class="article-account" />
+					<text class="article-time">{{ formatArticleDate(article) }}</text>
+				</view>
 			</view>
 
 			<view v-if="displayedArticles.length === 0" class="empty-text">
@@ -88,6 +96,19 @@ import { article1, article2 } from "../../../tapah/data";
 import { parseimage, openOfficialAccountArticle, navigator, activateMainPageTab, openAiInterviewMiniProgram, } from "../../../tapah/function";
 import { lanmus, imageurls, LanMuInfo, fenyes } from "../../../tapah/option";
 import { RequestArticle1, RequestArticle2 } from "../../../tapah/request";
+import type { Article } from "../../../tapah/class";
+
+const formatArticleDate = (art: Article) => {
+	const ts = art.publishTime || art.update;
+	if (!ts) return "--";
+	const d = new Date(ts * 1000);
+	const y = d.getFullYear();
+	const m = String(d.getMonth() + 1).padStart(2, "0");
+	const day = String(d.getDate()).padStart(2, "0");
+	const hour = String(d.getHours()).padStart(2, "0");
+	const minute = String(d.getMinutes()).padStart(2, "0");
+	return `${y}-${m}-${day} ${hour}:${minute}`;
+};
 
 const PAGE_MARGIN_RPX = 32;
 const PROMO_COL_GAP_RPX = 10;
@@ -532,6 +553,49 @@ onMounted(async () => {
 	-webkit-line-clamp: 2;
 	overflow: hidden;
 	flex: 1;
+}
+
+.article-footer {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: space-between;
+	margin-top: 16rpx;
+}
+
+.article-account {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	flex: 1;
+	min-width: 0;
+}
+
+.account-icon {
+	width: 40rpx;
+	height: 40rpx;
+	border-radius: 50%;
+	flex-shrink: 0;
+	margin-right: 8rpx;
+}
+
+.account-name {
+	font-size: 20rpx;
+	line-height: 30rpx;
+	font-weight: 400;
+	color: #000000;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.article-time {
+	font-size: 20rpx;
+	line-height: 30rpx;
+	font-weight: 400;
+	color: #818181;
+	flex-shrink: 0;
+	margin-left: 16rpx;
 }
 
 .empty-text,
