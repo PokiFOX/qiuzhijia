@@ -1,5 +1,12 @@
 <template>
-	<view class="case-card" @tap="emit('tap')">
+	<view :class="['case-card', { 'case-card-slice': detailSliceBg }]" @tap="emit('tap')">
+		<image
+			v-if="detailSliceBg"
+			class="case-card-bg"
+			:src="parseimage('底部按钮/成功案例详情.png')"
+			mode="scaleToFill"
+		/>
+		<view class="case-card-body">
 		<view class="case-top-row">
 			<view class="ent-logo-box">
 				<image v-if="caseItem.enticon" class="ent-logo" :src="parseEnterpriseIcon(`小图标/${caseItem.enticon}.png`)" mode="aspectFit"/>
@@ -47,6 +54,7 @@
 				</view>
 			</view>
 		</view>
+		</view>
 	</view>
 </template>
 
@@ -56,9 +64,16 @@ import { computed } from "vue";
 import type { Case } from "../tapah/class";
 import { parseimage, parseEnterpriseIcon, stagStr } from "../tapah/function";
 
-const props = defineProps<{
-	caseItem: Case;
-}>();
+const props = withDefaults(
+	defineProps<{
+		caseItem: Case;
+		/** 企业详情主案例：使用切图底图 */
+		detailSliceBg?: boolean;
+	}>(),
+	{
+		detailSliceBg: false,
+	},
+);
 
 const emit = defineEmits<{
 	tap: [];
@@ -103,13 +118,47 @@ const metaBadges = computed(() => {
 
 <style scoped>
 .case-card {
-	display: flex;
-	flex-direction: column;
+	position: relative;
 	height: 532rpx;
-	padding: 20rpx;
-	background: linear-gradient(180deg, #e8f0ff 0%, #e9f1ff 36%);
 	border-radius: 10rpx;
 	box-sizing: border-box;
+	overflow: hidden;
+}
+
+.case-card-body {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	min-height: 0;
+	height: 100%;
+	box-sizing: border-box;
+}
+
+.case-card:not(.case-card-slice) {
+	display: flex;
+	flex-direction: column;
+	padding: 20rpx;
+	background: linear-gradient(180deg, #e8f0ff 0%, #e9f1ff 35%);
+}
+
+.case-card-slice .case-card-bg {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 0;
+	pointer-events: none;
+}
+
+.case-card-slice .case-card-body {
+	position: relative;
+	z-index: 1;
+	padding: 20rpx;
+}
+
+.case-card-slice .case-detail-box {
+	background-color: transparent;
 }
 
 .case-top-row {
@@ -124,6 +173,7 @@ const metaBadges = computed(() => {
 	height: 152rpx;
 	flex-shrink: 0;
 	background-color: #ffffff;
+	border: 2rpx solid #f3f3f3;
 	border-radius: 8rpx;
 	display: flex;
 	align-items: center;
@@ -141,7 +191,7 @@ const metaBadges = computed(() => {
 .ent-logo-placeholder {
 	width: 100%;
 	height: 100%;
-	background-color: #f0f0f0;
+	background-color: #f9f9f9;
 }
 
 .case-info-col {

@@ -3,20 +3,21 @@
 		<!-- Search and Filter Row -->
 		<view class="search-filter-row">
 			<view class="search-col">
-				<icon type="search" size="16" color="#888888" class="search-icon" />
 				<input
 					class="search-input"
 					type="text"
 					v-model="searchQuery"
 					placeholder="搜索企业/岗位/专业"
+					placeholder-class="search-placeholder"
 					confirm-type="search"
 					@input="onSearchInput"
 				/>
+				<image class="search-icon" :src="parseimage('企业列表/搜索.png')" mode="aspectFit" />
 			</view>
 
 			<view class="filter-col" @tap="goCaseFilter">
 				<text class="filter-text">筛选</text>
-				<text class="arrow-down">▼</text>
+				<image class="filter-arrow" :src="parseimage('企业列表/下箭头.png')" mode="aspectFit" />
 			</view>
 		</view>
 
@@ -66,7 +67,7 @@ import { ref, computed, onMounted, onUnmounted, nextTick } from "vue";
 import { onLoad, onReachBottom } from "@dcloudio/uni-app";
 import { caselist, accountinfo } from "../../../tapah/data";
 import { RequestCaseList, RequestWxCode, RequestUserInfo } from "../../../tapah/request";
-import { navigator } from "../../../tapah/function";
+import { navigator, parseimage } from "../../../tapah/function";
 import type { Case } from "../../../tapah/class";
 import SimilarCaseCard from "../../../components/SimilarCaseCard.vue";
 
@@ -262,56 +263,70 @@ onReachBottom(() => {
 	display: flex;
 	flex-direction: row;
 	align-items: center;
-	padding: 20rpx;
+	padding: 14rpx 52rpx;
 	box-sizing: border-box;
+	background-color: #ffffff;
 }
 
 .search-col {
 	flex: 1;
+	min-width: 0;
 	display: flex;
 	flex-direction: row;
 	align-items: center;
-	background-color: #ffffff;
-	border-radius: 20rpx;
-	padding: 0 24rpx;
-	height: 100rpx;
-	box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.02);
+	height: 60rpx;
+	background-color: #f5f5f5;
+	border-radius: 12rpx;
+	padding: 0 20rpx;
 	box-sizing: border-box;
-}
-
-.search-icon {
-	margin-right: 12rpx;
 }
 
 .search-input {
 	flex: 1;
+	min-width: 0;
+	height: 60rpx;
 	font-size: 28rpx;
-	color: #333333;
-	height: 100%;
+	line-height: 40rpx;
+	font-weight: 350;
+	color: #000000;
+}
+
+.search-placeholder {
+	font-size: 28rpx;
+	line-height: 40rpx;
+	font-weight: 350;
+	color: #a4a4a4;
+}
+
+.search-icon {
+	width: 32rpx;
+	height: 32rpx;
+	flex-shrink: 0;
+	margin-left: 8rpx;
 }
 
 .filter-col {
-	width: 200rpx;
-	height: 100rpx;
-	background-color: #ffffff;
-	border-radius: 20rpx;
+	flex-shrink: 0;
+	height: 60rpx;
 	display: flex;
 	flex-direction: row;
 	align-items: center;
 	justify-content: center;
-	margin-left: 20rpx;
-	box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.02);
+	margin-left: 30rpx;
 }
 
 .filter-text {
-	font-size: 28rpx;
-	color: #666666;
-	margin-right: 8rpx;
+	font-size: 32rpx;
+	line-height: 46rpx;
+	font-weight: 350;
+	color: #000000;
+	margin-right: 4rpx;
 }
 
-.arrow-down {
-	font-size: 16rpx;
-	color: #888888;
+.filter-arrow {
+	width: 20rpx;
+	height: 20rpx;
+	flex-shrink: 0;
 }
 
 .divider-space {

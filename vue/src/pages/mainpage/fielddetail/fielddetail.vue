@@ -88,7 +88,7 @@
 			</view>
 		</scroll-view>
 
-		<DetailBottomBar :is-favorited="isFavorited" favorite-label="关注" favorited-label="已关注" @toggle-favorite="toggleFavorite" @logged-in="loadData"/>
+		<DetailBottomBar :is-favorited="isFavorited" @toggle-favorite="toggleFavorite" @logged-in="loadData" />
 
 		<BottomSheet :visible="showEnterpriseSheet" title="企业列表" @close="showEnterpriseSheet = false">
 			<FieldEnterpriseListPanel v-if="field" :field-id="field.id" :active="showEnterpriseSheet" />

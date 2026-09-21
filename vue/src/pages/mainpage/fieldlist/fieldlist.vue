@@ -14,7 +14,7 @@
 			<view class="filter-row">
 				<view class="filter-item">
 					<text class="filter-label filter-label-active">专业列表</text>
-					<image class="filter-arrow filter-arrow-up" :src="parseimage('企业列表/下箭头.png')" mode="aspectFit"/>
+					<image class="filter-arrow" :src="parseimage('底部按钮/上箭头1.png')" mode="aspectFit" />
 				</view>
 				<view class="search-box">
 					<input class="search-input" type="text" v-model="search" placeholder="搜索你的专业" placeholder-class="search-placeholder" confirm-type="search"/>
@@ -278,10 +278,6 @@ onLoad((options) => {
 	margin-left: 4rpx;
 	flex-shrink: 0;
 	transition: transform 0.2s ease;
-}
-
-.filter-arrow-up {
-	transform: rotate(180deg);
 }
 
 .search-box {

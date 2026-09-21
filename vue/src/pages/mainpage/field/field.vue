@@ -229,7 +229,7 @@ onLoad((options) => {
 .filter-btn-text {
 	font-size: 36rpx;
 	line-height: 52rpx;
-	font-weight: 500;
+	font-weight: 350;
 	color: #000000;
 }
 

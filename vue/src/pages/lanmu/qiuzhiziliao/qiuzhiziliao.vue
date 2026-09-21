@@ -97,7 +97,13 @@
 </template>
 
 <script setup lang="ts">
-import { parseLanmuImage, KeFu } from "../../../tapah/function";
+import { onMounted } from "vue";
+
+import { parseLanmuImage, KeFu, openGoldenQiuzhijiaMiniProgram } from "../../../tapah/function";
+
+onMounted(() => {
+	openGoldenQiuzhijiaMiniProgram();
+});
 </script>
 
 <style scoped>

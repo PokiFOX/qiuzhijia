@@ -1,3 +1,4 @@
+import { url_mpid } from "./const";
 import { urlheader, backendHost, backendPort } from "./reserved";
 import { SceneID, EventType } from "./enum";
 import { EventManager } from "./class";
@@ -57,7 +58,7 @@ export function fieldStarParts(star: number): { full: number; half: boolean; emp
 export function fieldHotScoreText(star: number): string {
 	const n = Math.max(0, Math.min(10, Math.floor(star || 0)));
 	const score = n / 2;
-	return Number.isInteger(score) ? String(score) : score.toFixed(1);
+	return score.toFixed(1);
 }
 
 export function parseurl(url: string): string {
@@ -98,17 +99,23 @@ export function KeFu() {
 	navigator("/kefu");
 }
 
-export function openAiInterviewMiniProgram() {
+function navigateToMiniProgram(appId: string, path: string) {
 	// @ts-ignore
 	if (typeof wx !== "undefined" && wx.navigateToMiniProgram) {
 		// @ts-ignore
-		wx.navigateToMiniProgram({
-			appId: "wx320a7a97e2f254e2",
-			path: "/pages/entry/share?o=store&type=39&id=2",
-		});
+		wx.navigateToMiniProgram({ appId, path });
 	} else {
 		uni.showToast({ title: "请在微信小程序中打开", icon: "none" });
 	}
+}
+
+/** 金牌求职家小程序 */
+export function openGoldenQiuzhijiaMiniProgram(path = "") {
+	navigateToMiniProgram(url_mpid, path);
+}
+
+export function openAiInterviewMiniProgram() {
+	openGoldenQiuzhijiaMiniProgram("/pages/entry/share?o=store&type=39&id=2");
 }
 
 export function activateMainPageTab(index: number) {

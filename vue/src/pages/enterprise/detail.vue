@@ -172,7 +172,7 @@
 								<text class="empty-text">暂无成功案例</text>
 							</view>
 							<template v-else>
-								<CaseCard v-if="primaryCase" :case-item="primaryCase" @tap="onCaseTap(primaryCase)" />
+								<CaseCard v-if="primaryCase" :case-item="primaryCase" detail-slice-bg @tap="onCaseTap(primaryCase)" />
 								<SimilarCaseSection :cases="displayedSimilarCases" />
 								<view v-if="canLoadMoreCase" class="load-more-bar" @tap="openCaseSheet">
 									<text class="load-more-text">查看更多成功案例</text>
@@ -945,7 +945,7 @@ onLoad(async (options) => {
 .field-name {
 	font-size: 34rpx;
 	line-height: 50rpx;
-	font-weight: 350;
+	font-weight: 700;
 	color: #000000;
 	padding-left: 30rpx;
 }

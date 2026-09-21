@@ -12,9 +12,9 @@
 
 		<scroll-view class="page-scroll" scroll-y enhanced :show-scrollbar="false">
 			<view class="page-content">
-				<text class="job-title">{{ pageTitle }}</text>
+				<view class="section-card section-card-flush section-card-basic">
+					<text class="job-title">{{ pageTitle }}</text>
 
-				<view class="section-card">
 					<view class="section-header">
 						<view class="title-indicator"></view>
 						<text class="section-title">基础信息</text>
@@ -107,7 +107,7 @@
 					</view>
 				</view>
 
-				<view class="section-card section-card-gap">
+				<view class="section-card section-card-flush section-card-experience">
 					<view class="section-header section-header-between">
 						<view class="section-header-left">
 							<view class="title-indicator"></view>
@@ -139,7 +139,9 @@
 					</view>
 				</view>
 
-				<SimilarCaseSection :cases="similarCases" />
+				<view v-if="similarCases.length > 0" class="section-card section-card-flush section-card-similar">
+					<SimilarCaseSection :cases="similarCases" embedded />
+				</view>
 			</view>
 		</scroll-view>
 
@@ -215,6 +217,7 @@ const studentBadges = computed(() => {
 	const tagList = caseItem.value.tags ?? [];
 	for (const tag of tagList) {
 		if (tag.includes("届")) continue;
+		if (tag.includes("专业类别")) continue;
 		if (tag.trim()) badges.push(tag);
 	}
 	if (yearBadge.value) badges.unshift(yearBadge.value);
@@ -357,7 +360,33 @@ onLoad((options) => {
 .page-content {
 	display: flex;
 	flex-direction: column;
-	padding: 24rpx 48rpx 180rpx;
+	padding: 0 0 180rpx;
+	box-sizing: border-box;
+}
+
+.section-card-flush {
+	width: 100%;
+	border-radius: 0;
+	box-sizing: border-box;
+}
+
+.section-card-flush + .section-card-flush {
+	margin-top: 16rpx;
+}
+
+.section-card-basic {
+	padding: 32rpx 48rpx 40rpx;
+	background: linear-gradient(180deg, #edf2ff 0%, #ffffff 100%);
+}
+
+.section-card-experience {
+	padding: 32rpx 48rpx;
+	background-color: #ffffff;
+}
+
+.section-card-similar {
+	padding: 32rpx 48rpx 40rpx;
+	background-color: #ffffff;
 	box-sizing: border-box;
 }
 
@@ -367,22 +396,7 @@ onLoad((options) => {
 	font-weight: 500;
 	color: #000000;
 	word-break: break-word;
-}
-
-.section-card {
-	margin-top: 24rpx;
-	background-color: #ffffff;
-	border-radius: 20rpx;
-	padding: 24rpx;
-	box-sizing: border-box;
-	box-shadow:
-		0 4rpx 8rpx rgba(0, 0, 0, 0.02),
-		0 2rpx 12rpx rgba(0, 0, 0, 0.02),
-		0 2rpx 4rpx rgba(0, 0, 0, 0.03);
-}
-
-.section-card-gap {
-	margin-top: 24rpx;
+	margin-bottom: 24rpx;
 }
 
 .section-header {
@@ -415,7 +429,7 @@ onLoad((options) => {
 .section-title {
 	font-size: 32rpx;
 	line-height: 46rpx;
-	font-weight: 500;
+	font-weight: 700;
 	color: #000000;
 }
 
@@ -489,7 +503,7 @@ onLoad((options) => {
 	justify-content: center;
 	height: 30rpx;
 	padding: 0 10rpx;
-	background-color: #fbebe5;
+	background-color: #f8ead1;
 	border-radius: 8rpx;
 	box-sizing: border-box;
 	flex-shrink: 0;
@@ -499,7 +513,7 @@ onLoad((options) => {
 	font-size: 20rpx;
 	line-height: 28rpx;
 	font-weight: 400;
-	color: #ee692d;
+	color: #e47800;
 }
 
 .link-with-arrow,
@@ -521,6 +535,7 @@ onLoad((options) => {
 	display: flex;
 	flex-direction: column;
 	gap: 20rpx;
+	padding-bottom: 8rpx;
 }
 
 .experience-item {

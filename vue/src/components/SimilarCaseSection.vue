@@ -1,5 +1,5 @@
 <template>
-	<view v-if="cases.length > 0" class="similar-section">
+	<view v-if="cases.length > 0" :class="['similar-section', { 'similar-section-embedded': embedded }]">
 		<view class="section-title-row">
 			<view class="title-line title-line-left"></view>
 			<text class="section-title">相似案例</text>
@@ -17,6 +17,7 @@ import SimilarCaseCard from "./SimilarCaseCard.vue";
 
 defineProps<{
 	cases: Case[];
+	embedded?: boolean;
 }>();
 </script>
 
@@ -25,6 +26,10 @@ defineProps<{
 	width: 100%;
 	margin-top: 24rpx;
 	box-sizing: border-box;
+}
+
+.similar-section-embedded {
+	margin-top: 0;
 }
 
 .section-title-row {

@@ -7,11 +7,15 @@
 			</view>
 			<view class="nav-item-fav">
 				<button v-if="!accountinfo" open-type="getPhoneNumber" @getphonenumber="onGetPhoneNumber" class="fav-btn-unlogged">
-					<image class="nav-icon" :src="parseimage('底部按钮/收藏-普通.png')" mode="aspectFit" />
+					<view class="nav-icon-slot">
+						<image class="nav-icon" :src="parseimage('底部按钮/收藏-普通.png')" mode="aspectFit" />
+					</view>
 					<text class="nav-item-label">{{ favoriteLabel }}</text>
 				</button>
 				<view v-else class="fav-btn-logged" @tap="emit('toggle-favorite')">
-					<image class="nav-icon" :src="parseimage(isFavorited ? '底部按钮/收藏-选中.png' : '底部按钮/收藏-普通.png')" mode="aspectFit"/>
+					<view class="nav-icon-slot">
+						<image class="nav-icon" :src="parseimage(isFavorited ? '底部按钮/收藏-选中.png' : '底部按钮/收藏-普通.png')" mode="aspectFit" />
+					</view>
 					<text class="nav-item-label" :class="{ 'nav-item-label-active': isFavorited }">
 						{{ isFavorited ? favoritedLabel : favoriteLabel }}
 					</text>
@@ -138,6 +142,16 @@ const onGetPhoneNumber = async (e: any) => {
 
 .nav-item-fav {
 	width: 96rpx;
+	min-width: 96rpx;
+}
+
+.nav-icon-slot {
+	width: 52rpx;
+	height: 52rpx;
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 .nav-icon {

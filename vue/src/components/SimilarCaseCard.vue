@@ -118,10 +118,10 @@ const onDetailTap = () => {
 .similar-case-card {
 	height: 300rpx;
 	padding: 20rpx;
-	background: linear-gradient(180deg, #e8f0ff 0%, #e9f1ff 36%);
-	border-radius: 10rpx;
+	background-color: #ffffff;
+	border-radius: 12rpx;
 	box-sizing: border-box;
-	box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.08);
+	box-shadow: 0 4rpx 16rpx 0 rgba(0, 0, 0, 0.1);
 }
 
 .card-body-row {
@@ -136,6 +136,7 @@ const onDetailTap = () => {
 	height: 152rpx;
 	flex-shrink: 0;
 	background-color: #ffffff;
+	border: 2rpx solid #f3f3f3;
 	border-radius: 8rpx;
 	display: flex;
 	align-items: center;
@@ -153,7 +154,7 @@ const onDetailTap = () => {
 .ent-logo-placeholder {
 	width: 100%;
 	height: 100%;
-	background-color: #f0f0f0;
+	background-color: #f9f9f9;
 }
 
 .card-right-col {

@@ -21,7 +21,11 @@
 					<text :class="['filter-label', { 'filter-label-active': activeDimension === dim.key }]">
 						{{ dim.label }}
 					</text>
-					<image class="filter-arrow" :class="{ 'filter-arrow-up': activeDimension === dim.key }" :src="parseimage('企业列表/下箭头.png')" mode="aspectFit"/>
+					<image
+						class="filter-arrow"
+						:src="parseimage(activeDimension === dim.key ? '底部按钮/上箭头1.png' : '企业列表/下箭头.png')"
+						mode="aspectFit"
+					/>
 				</view>
 			</view>
 
@@ -326,11 +330,6 @@ const onBack = () => {
 	height: 20rpx;
 	margin-left: 4rpx;
 	flex-shrink: 0;
-	transition: transform 0.2s ease;
-}
-
-.filter-arrow-up {
-	transform: rotate(180deg);
 }
 
 .filter-divider {

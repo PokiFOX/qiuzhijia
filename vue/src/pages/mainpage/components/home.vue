@@ -22,7 +22,7 @@
 							}"
 						>
 							<view class="lanmu-row" v-for="(row, rowIdx) in pageRows(pageItems)" :key="rowIdx">
-								<view class="grid-item" v-for="(item, colIdx) in row" :key="colIdx" @tap="onLanMuTap(pageIdx * 10 + rowIdx * 5 + colIdx)">
+								<view class="grid-item" v-for="(item, colIdx) in row" :key="colIdx" @tap="onLanMuTap(item)">
 									<template v-if="item">
 										<image class="grid-icon" :src="parseimage(item.image)" mode="aspectFit" />
 										<text class="grid-text">{{ item.title }}</text>
@@ -92,7 +92,13 @@
 import { ref, computed, onMounted, type CSSProperties } from "vue";
 
 import { article1, article2 } from "../../../tapah/data";
-import { parseimage, openOfficialAccountArticle, navigator, activateMainPageTab, openAiInterviewMiniProgram, } from "../../../tapah/function";
+import {
+	parseimage,
+	openOfficialAccountArticle,
+	navigator,
+	activateMainPageTab,
+	openGoldenQiuzhijiaMiniProgram,
+} from "../../../tapah/function";
 import { lanmus, imageurls, LanMuInfo, fenyes } from "../../../tapah/option";
 import { RequestArticle1, RequestArticle2 } from "../../../tapah/request";
 import type { Article } from "../../../tapah/class";
@@ -171,10 +177,15 @@ const lanmuPage = ref(0);
 const fenyeIndex = ref(0);
 const PAGE_SIZE = 10;
 
+const HOME_HIDDEN_LANMU_TITLES = new Set(["AI面试", "求职资料", "笔试题库", "DBTI", "智能选岗"]);
+
+const visibleLanmus = computed(() => lanmus.filter((item) => !HOME_HIDDEN_LANMU_TITLES.has(item.title)));
+
 const lanmuPages = computed(() => {
 	const pages: (LanMuInfo | null)[][] = [];
-	for (let i = 0; i < lanmus.length; i += PAGE_SIZE) {
-		const chunk: (LanMuInfo | null)[] = lanmus.slice(i, i + PAGE_SIZE);
+	const list = visibleLanmus.value;
+	for (let i = 0; i < list.length; i += PAGE_SIZE) {
+		const chunk: (LanMuInfo | null)[] = list.slice(i, i + PAGE_SIZE);
 		while (chunk.length < PAGE_SIZE) chunk.push(null);
 		pages.push(chunk);
 	}
@@ -220,9 +231,9 @@ defineExpose({
 	loadMore,
 });
 
-const onLanMuTap = (index: number) => {
-	if (index < 0 || index >= lanmus.length) return;
-	const title = lanmus[index].title;
+const onLanMuTap = (item: LanMuInfo | null) => {
+	if (!item) return;
+	const title = item.title;
 
 	switch (title) {
 		case "招聘企业":
@@ -231,16 +242,13 @@ const onLanMuTap = (index: number) => {
 		case "招聘专业":
 			navigator("/mainpage/field");
 			break;
-		case "AI面试":
-			openAiInterviewMiniProgram();
-			break;
 		case "AI助手":
 			navigator("/lanmu/aizhushou");
 			break;
 		case "智能选岗":
 			break;
 		case "求职资料":
-			navigator("/lanmu/qiuzhiziliao");
+			openGoldenQiuzhijiaMiniProgram();
 			break;
 		case "岗位内推":
 			navigator("/lanmu/gangweineitui");
@@ -249,7 +257,7 @@ const onLanMuTap = (index: number) => {
 			navigator("/kefu");
 			break;
 		case "笔试题库":
-			navigator("/lanmu/bishitiku");
+			openGoldenQiuzhijiaMiniProgram();
 			break;
 		case "面试经验":
 			navigator("/lanmu/mianshijingyan");

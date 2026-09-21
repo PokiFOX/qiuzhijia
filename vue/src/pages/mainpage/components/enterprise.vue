@@ -12,15 +12,27 @@
 			<view class="filter-row">
 				<view class="filter-item" @tap="openEnterpriseFilter('zone')">
 					<text :class="['filter-label', { 'filter-label-active': zoneIds.length > 0 }]">{{ zoneLabel }}</text>
-					<image class="filter-arrow" :src="parseimage('企业列表/下箭头.png')" mode="aspectFit"/>
+					<image
+						class="filter-arrow"
+						:src="parseimage(zoneIds.length > 0 ? '底部按钮/上箭头1.png' : '企业列表/下箭头.png')"
+						mode="aspectFit"
+					/>
 				</view>
 				<view class="filter-item" @tap="openEnterpriseFilter('level')">
 					<text :class="['filter-label', { 'filter-label-active': levelIds.length > 0 }]">{{ levelLabel }}</text>
-					<image class="filter-arrow" :src="parseimage('企业列表/下箭头.png')" mode="aspectFit"/>
+					<image
+						class="filter-arrow"
+						:src="parseimage(levelIds.length > 0 ? '底部按钮/上箭头1.png' : '企业列表/下箭头.png')"
+						mode="aspectFit"
+					/>
 				</view>
 				<view class="filter-item" @tap="openEnterpriseFilter('sector')">
 					<text :class="['filter-label', { 'filter-label-active': sectorIds.length > 0 }]">{{ sectorLabel }}</text>
-					<image class="filter-arrow" :src="parseimage('企业列表/下箭头.png')" mode="aspectFit"/>
+					<image
+						class="filter-arrow"
+						:src="parseimage(sectorIds.length > 0 ? '底部按钮/上箭头1.png' : '企业列表/下箭头.png')"
+						mode="aspectFit"
+					/>
 				</view>
 			<view class="search-box">
 				<input class="search-input" type="text" v-model="search" placeholder="搜索企业" placeholder-class="search-placeholder" confirm-type="search" @confirm="onSearchSubmit"/>

@@ -1,5 +1,12 @@
 <template>
 	<view class="casefilter-page">
+		<view class="filter-top-row">
+			<view class="filter-item">
+				<text class="filter-label filter-label-active">筛选</text>
+				<image class="filter-arrow" :src="parseimage('底部按钮/上箭头1.png')" mode="aspectFit" />
+			</view>
+		</view>
+
 		<view class="main-content">
 			<!-- Left Panel: Categories -->
 			<scroll-view class="left-panel" scroll-y>
@@ -37,6 +44,7 @@
 import { ref, computed, onMounted, nextTick } from "vue";
 import { onLoad } from "@dcloudio/uni-app";
 import { levellist, sectorlist } from "../../../tapah/data";
+import { parseimage } from "../../../tapah/function";
 
 const categories = ["本科层次", "硕士层次", "目前状态", "单位层次", "单位类别"];
 
@@ -135,6 +143,42 @@ onLoad((options) => {
 	height: 100vh;
 	background-color: #ffffff;
 	box-sizing: border-box;
+}
+
+.filter-top-row {
+	flex-shrink: 0;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	padding: 14rpx 52rpx;
+	background-color: #ffffff;
+	box-sizing: border-box;
+	border-bottom: 2rpx solid #f2f2f2;
+}
+
+.filter-item {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	flex-shrink: 0;
+}
+
+.filter-label {
+	font-size: 32rpx;
+	line-height: 46rpx;
+	font-weight: 350;
+	color: #000000;
+}
+
+.filter-label-active {
+	color: #1269ff;
+}
+
+.filter-arrow {
+	width: 20rpx;
+	height: 20rpx;
+	margin-left: 4rpx;
+	flex-shrink: 0;
 }
 
 .main-content {
