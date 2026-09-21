@@ -22,7 +22,7 @@
 
 					<view class="info-table">
 						<view class="table-row">
-							<text class="table-label">毕业院校</text>
+							<text class="table-label">学员名称</text>
 							<view class="table-value-col">
 								<view class="table-value-wrap">
 									<text class="table-value">{{ caseItem.student || "--" }}</text>

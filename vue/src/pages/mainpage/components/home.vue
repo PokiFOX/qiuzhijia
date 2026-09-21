@@ -246,7 +246,7 @@ const onLanMuTap = (index: number) => {
 			navigator("/lanmu/gangweineitui");
 			break;
 		case "咨询顾问":
-			navigator("/lanmu/zixunguwen");
+			navigator("/kefu");
 			break;
 		case "笔试题库":
 			navigator("/lanmu/bishitiku");

@@ -133,19 +133,29 @@ const onGetPhoneNumber = async (e: any) => {
 
 .nav-item-home {
 	margin-right: 64rpx;
+	width: 72rpx;
+}
+
+.nav-item-fav {
+	width: 96rpx;
 }
 
 .nav-icon {
 	width: 52rpx;
 	height: 52rpx;
+	flex-shrink: 0;
+	display: block;
 }
 
 .nav-item-label {
 	margin-top: 4rpx;
+	width: 100%;
+	text-align: center;
 	font-size: 24rpx;
 	line-height: 34rpx;
 	font-weight: 400;
 	color: #3d3d3d;
+	white-space: nowrap;
 }
 
 .nav-item-label-active {
@@ -163,6 +173,7 @@ const onGetPhoneNumber = async (e: any) => {
 	padding: 0;
 	margin: 0;
 	line-height: 1;
+	width: 100%;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -174,6 +185,7 @@ const onGetPhoneNumber = async (e: any) => {
 }
 
 .fav-btn-logged {
+	width: 100%;
 	display: flex;
 	flex-direction: column;
 	align-items: center;

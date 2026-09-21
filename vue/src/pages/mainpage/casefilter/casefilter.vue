@@ -149,7 +149,7 @@ onLoad((options) => {
 .left-panel {
 	width: 180rpx;
 	height: 100%;
-	background-color: #f5f5f5;
+	background-color: #f2f2f2;
 	flex-shrink: 0;
 }
 
@@ -160,13 +160,13 @@ onLoad((options) => {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	background-color: #f5f5f5;
+	background-color: #f2f2f2;
 	border-left: 6rpx solid transparent;
 }
 
 .category-item-active {
 	background-color: #ffffff;
-	border-left-color: #4a90e2;
+	border-left-color: #1269ff;
 }
 
 .category-text {
@@ -177,7 +177,7 @@ onLoad((options) => {
 
 .category-text-active {
 	font-weight: bold;
-	color: #4a90e2;
+	color: #1269ff;
 }
 
 /* Right Panel */
@@ -203,24 +203,25 @@ onLoad((options) => {
 }
 
 .tags-wrap {
-	display: flex;
-	flex-direction: row;
-	flex-wrap: wrap;
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 16rpx;
+	width: 100%;
 }
 
 .tag-item {
-	background-color: #f0f0f0;
+	background-color: #f2f2f2;
 	border-radius: 12rpx;
-	padding: 14rpx 24rpx;
-	margin-right: 16rpx;
-	margin-bottom: 16rpx;
+	padding: 14rpx 8rpx;
+	box-sizing: border-box;
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	min-height: 64rpx;
 }
 
 .tag-item-selected {
-	background-color: #4a90e2;
+	background-color: #1269ff;
 }
 
 .tag-text {
@@ -268,7 +269,7 @@ onLoad((options) => {
 
 .btn-confirm {
 	flex: 5;
-	background-color: #4a90e2;
+	background-color: #1269ff;
 	color: #ffffff;
 }
 </style>

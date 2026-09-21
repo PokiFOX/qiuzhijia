@@ -1,7 +1,7 @@
 <template>
 	<view class="case-card" @tap="emit('tap')">
 		<view class="case-top-row">
-			<view class="ent-logo-col">
+			<view class="ent-logo-box">
 				<image v-if="caseItem.enticon" class="ent-logo" :src="parseEnterpriseIcon(`小图标/${caseItem.enticon}.png`)" mode="aspectFit"/>
 				<view v-else class="ent-logo-placeholder"></view>
 			</view>
@@ -67,7 +67,10 @@ const emit = defineEmits<{
 const titleText = computed(() => {
 	const ent = props.caseItem.entname || "";
 	const name = props.caseItem.name || "";
-	return [ent, name].filter(Boolean).join(" ");
+	if (ent && name) return `${ent} ${name}offer`;
+	if (name) return `${name}offer`;
+	if (ent) return `${ent}offer`;
+	return "";
 });
 
 const yearTag = computed(() => {
@@ -104,7 +107,7 @@ const metaBadges = computed(() => {
 	flex-direction: column;
 	height: 532rpx;
 	padding: 20rpx;
-	background-color: #e8f0ff;
+	background: linear-gradient(180deg, #e8f0ff 0%, #e9f1ff 36%);
 	border-radius: 10rpx;
 	box-sizing: border-box;
 }
@@ -116,21 +119,29 @@ const metaBadges = computed(() => {
 	flex-shrink: 0;
 }
 
-.ent-logo-col {
+.ent-logo-box {
+	width: 152rpx;
+	height: 152rpx;
 	flex-shrink: 0;
+	background-color: #ffffff;
+	border-radius: 8rpx;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	overflow: hidden;
+	box-sizing: border-box;
 }
 
 .ent-logo {
-	width: 152rpx;
-	height: 152rpx;
+	width: 100%;
+	height: 100%;
 	display: block;
 }
 
 .ent-logo-placeholder {
-	width: 152rpx;
-	height: 152rpx;
-	background-color: #d0dff5;
-	border-radius: 8rpx;
+	width: 100%;
+	height: 100%;
+	background-color: #f0f0f0;
 }
 
 .case-info-col {
@@ -182,10 +193,9 @@ const metaBadges = computed(() => {
 }
 
 .arrow-icon {
-	width: 48rpx;
-	height: 48rpx;
+	width: 36rpx;
+	height: 36rpx;
 	flex-shrink: 0;
-	align-self: center;
 }
 
 .case-detail-box {
@@ -221,7 +231,7 @@ const metaBadges = computed(() => {
 	height: 30rpx;
 	margin-left: 30rpx;
 	padding: 0 10rpx;
-	background-color: #fbebe5;
+	background-color: #f8ead1;
 	border-radius: 8rpx;
 	box-sizing: border-box;
 	flex-shrink: 0;
@@ -231,7 +241,7 @@ const metaBadges = computed(() => {
 	font-size: 20rpx;
 	line-height: 28rpx;
 	font-weight: 400;
-	color: #ee692d;
+	color: #e47800;
 }
 
 .dash-line {

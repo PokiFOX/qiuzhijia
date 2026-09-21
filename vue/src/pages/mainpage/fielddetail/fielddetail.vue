@@ -500,7 +500,7 @@ onLoad((options) => {
 .section-title {
 	font-size: 32rpx;
 	line-height: 46rpx;
-	font-weight: 500;
+	font-weight: 700;
 	color: #000000;
 }
 

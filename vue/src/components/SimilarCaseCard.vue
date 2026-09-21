@@ -1,13 +1,15 @@
 <template>
 	<view class="similar-case-card" @tap="onDetailTap">
 		<view class="card-body-row">
-			<image
-				v-if="caseItem.enticon"
-				class="ent-logo"
-				:src="parseEnterpriseIcon(`小图标/${caseItem.enticon}.png`)"
-				mode="aspectFit"
-			/>
-			<view v-else class="ent-logo-placeholder"></view>
+			<view class="ent-logo-box">
+				<image
+					v-if="caseItem.enticon"
+					class="ent-logo"
+					:src="parseEnterpriseIcon(`小图标/${caseItem.enticon}.png`)"
+					mode="aspectFit"
+				/>
+				<view v-else class="ent-logo-placeholder"></view>
+			</view>
 
 			<view class="card-right-col">
 				<text class="offer-title">{{ offerText }}</text>
@@ -116,10 +118,10 @@ const onDetailTap = () => {
 .similar-case-card {
 	height: 300rpx;
 	padding: 20rpx;
-	background-color: #ffffff;
+	background: linear-gradient(180deg, #e8f0ff 0%, #e9f1ff 36%);
 	border-radius: 10rpx;
 	box-sizing: border-box;
-	box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.1);
+	box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.08);
 }
 
 .card-body-row {
@@ -129,19 +131,29 @@ const onDetailTap = () => {
 	height: 100%;
 }
 
-.ent-logo {
+.ent-logo-box {
 	width: 152rpx;
 	height: 152rpx;
 	flex-shrink: 0;
+	background-color: #ffffff;
+	border-radius: 8rpx;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	overflow: hidden;
+	box-sizing: border-box;
+}
+
+.ent-logo {
+	width: 100%;
+	height: 100%;
 	display: block;
 }
 
 .ent-logo-placeholder {
-	width: 152rpx;
-	height: 152rpx;
-	flex-shrink: 0;
-	background-color: #e8e8e8;
-	border-radius: 8rpx;
+	width: 100%;
+	height: 100%;
+	background-color: #f0f0f0;
 }
 
 .card-right-col {

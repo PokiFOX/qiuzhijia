@@ -12,7 +12,12 @@
 
 		<view class="page-body">
 			<view class="filter-row">
-				<view v-for="dim in dimensions" :key="dim.key" class="filter-item" @tap="activeDimension = dim.key">
+				<view
+					v-for="dim in dimensions"
+					:key="dim.key"
+					:class="['filter-item', filterItemAlignClass(dim.key)]"
+					@tap="activeDimension = dim.key"
+				>
 					<text :class="['filter-label', { 'filter-label-active': activeDimension === dim.key }]">
 						{{ dim.label }}
 					</text>
@@ -118,6 +123,12 @@ const canConfirm = computed(
 		isDimensionValid(levelUnlimited.value, levelIds.value) &&
 		isDimensionValid(sectorUnlimited.value, sectorIds.value),
 );
+
+const filterItemAlignClass = (key: DimensionKey) => {
+	if (key === "zone") return "filter-item-start";
+	if (key === "sector") return "filter-item-end";
+	return "filter-item-center";
+};
 
 const isOptionSelected = (id: number) => {
 	if (id === 0) return currentUnlimited.value;
@@ -266,15 +277,13 @@ const onBack = () => {
 }
 
 .filter-row {
-	display: flex;
-	flex-direction: row;
+	display: grid;
+	grid-template-columns: 1fr auto 1fr;
 	align-items: center;
-	justify-content: space-between;
 	background-color: #ffffff;
 	border-radius: 20rpx;
 	height: 86rpx;
 	margin-top: 20rpx;
-	padding: 0 26rpx;
 	box-sizing: border-box;
 	flex-shrink: 0;
 }
@@ -283,9 +292,19 @@ const onBack = () => {
 	display: flex;
 	flex-direction: row;
 	align-items: center;
-	justify-content: center;
-	flex: 1;
 	min-width: 0;
+}
+
+.filter-item-start {
+	justify-self: start;
+}
+
+.filter-item-center {
+	justify-self: center;
+}
+
+.filter-item-end {
+	justify-self: end;
 }
 
 .filter-label {
@@ -329,7 +348,6 @@ const onBack = () => {
 .option-list {
 	display: flex;
 	flex-direction: column;
-	padding: 0 26rpx;
 	box-sizing: border-box;
 }
 
