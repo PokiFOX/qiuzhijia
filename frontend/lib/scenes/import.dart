@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 
 import 'package:file_picker/file_picker.dart';
@@ -45,6 +47,22 @@ class ImportState extends State<ImportWidget> {
 									setState(() {});
 								},
 								child: const Text('选择文件'),
+							),
+							const SizedBox(width: 20),
+							ElevatedButton(
+								onPressed: () async {
+									response = await tapah.RequestExport();
+									if (response != null && response.data['code'] == 0) {
+										final filedata = response.data['filedata'] as String? ?? '';
+										final filename = response.data['filename'] as String? ?? '企业列表.xlsx';
+										await FilePicker.platform.saveFile(
+											fileName: filename,
+											bytes: Uint8List.fromList(filedata.codeUnits),
+										);
+									}
+									setState(() {});
+								},
+								child: const Text('导出'),
 							),
 						],
 					),

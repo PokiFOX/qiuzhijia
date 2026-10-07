@@ -441,3 +441,12 @@ Future<dynamic> RequestImport(String filename, Uint8List? filedata) async {
 	);
 	return response;
 }
+
+Future<dynamic> RequestExport() async {
+	var response = await dio.post(
+		parseurl(url_export),
+		data: {},
+		options: options,
+	);
+	return response;
+}

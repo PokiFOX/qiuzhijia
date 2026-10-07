@@ -1172,6 +1172,29 @@ async def import_excel(req: Request):
 		"status": status,
 	})
 
+@app.post("/export_excel")
+async def export_excel(req: Request):
+	process = await asyncio.create_subprocess_exec(
+		'python3', 'export.py',
+		cwd = './config',
+		stdout = asyncio.subprocess.PIPE,
+		stderr = asyncio.subprocess.PIPE,
+	)
+	stdout, stderr = await process.communicate()
+	if process.returncode != 0:
+		return JSONResponse(content = {
+			"code": -1,
+			"status": f"out: {stdout.decode()} error: {stderr.decode()}",
+		})
+	with open('./config/企业列表.xlsx', 'rb') as f:
+		raw = f.read()
+	return JSONResponse(content = {
+		"code": 0,
+		"status": "success",
+		"filename": "企业列表.xlsx",
+		"filedata": raw.decode('latin1'),
+	})
+
 @app.post("/wxcode")
 async def wxcode(req: Request):
 	response  = requests.get(f"https://api.weixin.qq.com/cgi-bin/token?appid={data.appid}&secret={data.appsecret}&grant_type=client_credential")
