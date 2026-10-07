@@ -1,5 +1,7 @@
 import asyncio
 import datetime
+import os
+import sys
 import time
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
@@ -1117,6 +1119,28 @@ async def import_excel(req: Request):
 	filename = json.get("filename")
 	filedata = json.get("filedata")
 
+	conn = data.mysql_pool.apply()
+	cursor = conn.cursor()
+	cursor.execute("SET FOREIGN_KEY_CHECKS=0")
+	cursor.execute("TRUNCATE TABLE qzj_enterprise_article")
+	cursor.execute("TRUNCATE TABLE qzj_enterprise_field")
+	cursor.execute("TRUNCATE TABLE qzj_case")
+	cursor.execute("TRUNCATE TABLE qzj_enterprise")
+	cursor.execute("TRUNCATE TABLE qzj_field")
+	cursor.execute("TRUNCATE TABLE qzj_zone")
+	cursor.execute("TRUNCATE TABLE qzj_level")
+	cursor.execute("TRUNCATE TABLE qzj_sector")
+	cursor.execute("SET FOREIGN_KEY_CHECKS=1")
+	cursor.close()
+	data.mysql_pool.release(conn)
+
+	data.zonelist.clear()
+	data.sectorlist.clear()
+	data.levellist.clear()
+	data.fieldlist.clear()
+	data.enterpriselist.clear()
+	data.caselist.clear()
+
 	timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
 	with open(f'./upload/{timestamp}.xlsx', 'wb') as f:
 		f.write(filedata.encode('latin1'))
@@ -1134,6 +1158,14 @@ async def import_excel(req: Request):
 		status = f"out: {stdout.decode()} error: {stderr.decode()}"
 	else:
 		status = "success"
+		def restart():
+			os.chdir(os.path.dirname(os.path.abspath(__file__)))
+			os.execv(sys.executable, [
+				sys.executable, '-m', 'uvicorn', 'main:app',
+				'--host', '0.0.0.0',
+				'--port', '22006',
+			])
+		asyncio.get_running_loop().call_later(0.5, restart)
 
 	return JSONResponse(content = {
 		"code": 0,
