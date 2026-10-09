@@ -169,8 +169,8 @@ const onDetailTap = () => {
 }
 
 .offer-title {
-	font-size: 28rpx;
-	line-height: 40rpx;
+	font-size: 36rpx;
+	line-height: 52rpx;
 	font-weight: 500;
 	color: #000000;
 	display: -webkit-box;
@@ -211,7 +211,7 @@ const onDetailTap = () => {
 .info-grid {
 	display: flex;
 	flex-direction: column;
-	gap: 10rpx;
+	gap: 6rpx;
 	flex-shrink: 0;
 }
 

@@ -68,7 +68,7 @@
 				</view>
 				<view class="article-footer">
 					<view class="article-account">
-						<image class="account-icon" :src="officialAccountIcon" mode="aspectFill" />
+						<image class="account-icon" :src="parseimage('底部按钮/公众号图标.png')" mode="aspectFill" />
 						<text class="account-name">{{ officialAccountName }}</text>
 					</view>
 					<text class="article-time">{{ formatArticleDate(article) }}</text>
@@ -104,7 +104,6 @@ import { RequestArticle1, RequestArticle2 } from "../../../tapah/request";
 import type { Article } from "../../../tapah/class";
 
 const officialAccountName = "浦浦求职家";
-const officialAccountIcon = "/static/logo.png";
 
 const formatArticleDate = (art: Article) => {
 	const ts = art.publishTime || art.update;

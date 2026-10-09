@@ -1,10 +1,18 @@
+import datetime
 import json
-
 import mysql.connector
 import openpyxl
 
 from tapah import const
 from tapah import reserved
+
+def reset_data_rows(ws, first_row=2):
+	for mrange in list(ws.merged_cells.ranges):
+		if mrange.min_row >= first_row:
+			ws.unmerge_cells(str(mrange))
+	for r in range(first_row, ws.max_row + 1):
+		for c in range(1, ws.max_column + 1):
+			ws.cell(r, c).value = None
 
 conn = mysql.connector.connect(
 	host		= reserved.mysql_host,
@@ -53,9 +61,7 @@ for ent_id, index, article in cursor.fetchall():
 		article2.setdefault(ent_id, []).append(article)
 
 ws = wb['全局设置']
-for r in range(2, ws.max_row + 1):
-	for c in range(1, ws.max_column + 1):
-		ws.cell(r, c).value = None
+reset_data_rows(ws)
 n = max(len(zones), len(levels), len(sectors))
 for i in range(n):
 	row = i + 2
@@ -67,9 +73,7 @@ for i in range(n):
 		ws.cell(row, 3).value = sectors[i][1]
 
 ws = wb['学科列表']
-for r in range(2, ws.max_row + 1):
-	for c in range(1, ws.max_column + 1):
-		ws.cell(r, c).value = None
+reset_data_rows(ws)
 row = 2
 for fid, name, mapping, type, star, content in fields:
 	for mapname in (mapping or '').split(','):
@@ -86,9 +90,7 @@ def setcell(ws, col, row, value):
 	ws[f'{col}{row}'] = value
 
 ws = wb['第一批企业']
-for r in range(2, ws.max_row + 1):
-	for c in range(1, ws.max_column + 1):
-		ws.cell(r, c).value = None
+reset_data_rows(ws)
 row = 2
 for ent in enterprises:
 	eid, zone_id, city, name, shortname, brief, upper, level_id, sector_id, tag, website1, website2, icon, images, enttype, financial, growth, mapping, englishname = ent
@@ -147,9 +149,7 @@ cursor.execute(
 cases = cursor.fetchall()
 
 ws = wb['成功案例']
-for r in range(2, ws.max_row + 1):
-	for c in range(1, ws.max_column + 1):
-		ws.cell(r, c).value = None
+reset_data_rows(ws)
 row = 2
 for case in cases:
 	cid, name, ent_id, field_id, tags, student, school1, stag1, field1, school2, stag2, field2, year, detail, dep = case
@@ -172,5 +172,8 @@ for case in cases:
 cursor.close()
 conn.close()
 
-wb.save('企业列表.xlsx')
+stamp = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+out_name = f'企业列表_{stamp}.xlsx'
+wb.save(out_name)
 wb.close()
+print(out_name)

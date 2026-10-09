@@ -1,4 +1,5 @@
 import asyncio
+import base64
 import datetime
 import os
 import sys
@@ -1118,6 +1119,7 @@ async def import_excel(req: Request):
 	json = await req.json()
 	filename = json.get("filename")
 	filedata = json.get("filedata")
+	encoding = json.get("encoding")
 
 	conn = data.mysql_pool.apply()
 	cursor = conn.cursor()
@@ -1142,8 +1144,12 @@ async def import_excel(req: Request):
 	data.caselist.clear()
 
 	timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+	if encoding == 'base64':
+		raw = base64.b64decode(filedata)
+	else:
+		raw = filedata.encode('latin1')
 	with open(f'./upload/{timestamp}.xlsx', 'wb') as f:
-		f.write(filedata.encode('latin1'))
+		f.write(raw)
 
 	shutil.copy(f'./upload/{timestamp}.xlsx', './upload/企业列表.xlsx')
 
@@ -1174,25 +1180,46 @@ async def import_excel(req: Request):
 
 @app.post("/export_excel")
 async def export_excel(req: Request):
-	process = await asyncio.create_subprocess_exec(
-		'python3', 'export.py',
-		cwd = './config',
-		stdout = asyncio.subprocess.PIPE,
-		stderr = asyncio.subprocess.PIPE,
-	)
-	stdout, stderr = await process.communicate()
-	if process.returncode != 0:
+	config_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config')
+	try:
+		process = await asyncio.create_subprocess_exec(
+			sys.executable, 'export.py',
+			cwd = config_dir,
+			stdout = asyncio.subprocess.PIPE,
+			stderr = asyncio.subprocess.PIPE,
+		)
+		stdout, stderr = await process.communicate()
+		if process.returncode != 0:
+			return JSONResponse(content = {
+				"code": -1,
+				"status": f"out: {stdout.decode()} error: {stderr.decode()}",
+			})
+		lines = [line.strip() for line in stdout.decode().splitlines() if line.strip()]
+		if len(lines) == 0:
+			return JSONResponse(content = {
+				"code": -1,
+				"status": "export.py 未返回文件名",
+			})
+		filename = os.path.basename(lines[-1])
+		if not filename.endswith('.xlsx') or filename != lines[-1]:
+			return JSONResponse(content = {
+				"code": -1,
+				"status": f"非法导出文件名: {lines[-1]}",
+			})
+		export_xlsx = os.path.join(config_dir, filename)
+		with open(export_xlsx, 'rb') as f:
+			raw = f.read()
+	except Exception as e:
 		return JSONResponse(content = {
 			"code": -1,
-			"status": f"out: {stdout.decode()} error: {stderr.decode()}",
+			"status": str(e),
 		})
-	with open('./config/企业列表.xlsx', 'rb') as f:
-		raw = f.read()
 	return JSONResponse(content = {
 		"code": 0,
 		"status": "success",
-		"filename": "企业列表.xlsx",
-		"filedata": raw.decode('latin1'),
+		"filename": filename,
+		"encoding": "base64",
+		"filedata": base64.b64encode(raw).decode('ascii'),
 	})
 
 @app.post("/wxcode")

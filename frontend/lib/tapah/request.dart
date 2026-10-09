@@ -1,6 +1,9 @@
 // ignore_for_file: non_constant_identifier_names
 
+import 'dart:convert';
 import 'dart:typed_data';
+
+import 'package:file_saver/file_saver.dart';
 
 import 'package:frontend/tapah/const.dart';
 import 'package:frontend/tapah/class.dart';
@@ -435,7 +438,8 @@ Future<dynamic> RequestImport(String filename, Uint8List? filedata) async {
 		parseurl(url_import),
 		data: {
 			"filename": filename,
-			"filedata": String.fromCharCodes(filedata ?? []),
+			"encoding": "base64",
+			"filedata": base64Encode(filedata ?? []),
 		},
 		options: options,
 	);
@@ -449,4 +453,16 @@ Future<dynamic> RequestExport() async {
 		options: options,
 	);
 	return response;
+}
+
+Future<void> saveExportedExcel(String filename, Uint8List bytes) async {
+	final dot = filename.lastIndexOf('.');
+	final name = dot > 0 ? filename.substring(0, dot) : filename;
+	final ext = dot > 0 ? filename.substring(dot + 1) : 'xlsx';
+	await FileSaver.instance.saveFile(
+		name: name,
+		bytes: bytes,
+		fileExtension: ext,
+		mimeType: MimeType.microsoftExcel,
+	);
 }

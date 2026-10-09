@@ -794,7 +794,7 @@ onLoad(async (options) => {
 	flex-direction: row;
 	flex-wrap: nowrap;
 	align-items: center;
-	gap: 3rpx;
+	gap: 16rpx;
 }
 
 .tag-badge {
@@ -808,8 +808,8 @@ onLoad(async (options) => {
 }
 
 .tag-text {
-	font-size: 20rpx;
-	line-height: 28rpx;
+	font-size: 24rpx;
+	line-height: 36rpx;
 	font-weight: 400;
 	color: #80500a;
 	white-space: nowrap;
