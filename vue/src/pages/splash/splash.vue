@@ -59,9 +59,9 @@ onMounted(async () => {
 	margin-top: 15rpx;
 	color: #000000;
 	font-family: "PingFang SC", sans-serif;
-	font-size: 20rpx;
+	font-size: 30rpx;
 	font-weight: 500;
-	line-height: 29rpx;
+	line-height: 56rpx;
 	text-align: center;
 }
 
