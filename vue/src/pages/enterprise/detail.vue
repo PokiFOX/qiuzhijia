@@ -145,9 +145,9 @@
 							<text class="article-title">{{ art.title || "未知标题" }}</text>
 							<text v-if="art.description" class="article-desc">{{ art.description }}</text>
 							<view class="article-footer">
-								<view v-if="art.accountName" class="article-account">
-									<image v-if="art.accountIcon" class="account-icon" :src="art.accountIcon" mode="aspectFill"/>
-									<text class="account-name">{{ art.accountName }}</text>
+								<view class="article-account">
+									<image class="account-icon" :src="parseimage('底部按钮/公众号图标.png')" mode="aspectFill" />
+									<text class="account-name">{{ officialAccountName }}</text>
 								</view>
 								<text class="article-time">发布时间: {{ formatArticleDate(art) }}</text>
 							</view>
@@ -234,6 +234,7 @@ import NavArrow from "../../components/NavArrow.vue";
 const SECTION_COUNT = 4;
 const TAB_BAR_HEIGHT_RPX = 88;
 const PAGE_SIZE = 4;
+const officialAccountName = "浦浦求职家";
 
 const initialized = ref(false);
 const enterprise = ref<Enterprise | null>(null);
