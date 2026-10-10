@@ -12,6 +12,7 @@ import {
 	url_query_article2,
 	url_query_wxcode,
 	url_query_userinfo,
+	url_query_upload_avatar,
 	url_query_favorite,
 	url_query_chatai_auth,
 	url_query_chatai_chat,
@@ -501,11 +502,40 @@ export async function RequestWxCode(code: string): Promise<void> {
 	accountinfo.value = info;
 }
 
+export async function RequestUploadAvatar(localPath: string): Promise<string> {
+	if (!accountinfo.value) {
+		throw new Error("User not logged in");
+	}
+	return new Promise((resolve, reject) => {
+		uni.uploadFile({
+			url: parseurl(url_query_upload_avatar),
+			filePath: localPath,
+			name: "file",
+			formData: {
+				openid: accountinfo.value!.openid,
+			},
+			success: (res) => {
+				try {
+					const body = typeof res.data === "string" ? JSON.parse(res.data) : res.data;
+					if (body.code !== 0) {
+						reject(new Error(body.status || `Error code: ${body.code}`));
+						return;
+					}
+					resolve(String(body.data?.url || ""));
+				} catch (err) {
+					reject(err);
+				}
+			},
+			fail: (err) => reject(err),
+		});
+	});
+}
+
 export async function RequestUserInfo(): Promise<void> {
 	if (!accountinfo.value) {
 		throw new Error("User not logged in");
 	}
-	await request<void>({
+	const response = await request<void>({
 		url: parseurl(url_query_userinfo),
 		method: "POST",
 		data: {
@@ -516,6 +546,9 @@ export async function RequestUserInfo(): Promise<void> {
 			enterprise: Array.from(accountinfo.value.enterprise),
 		},
 	});
+	if (response.code !== 0) {
+		throw new Error(response.status || `Error code: ${response.code}`);
+	}
 }
 
 export async function RequestFavorite(): Promise<void> {

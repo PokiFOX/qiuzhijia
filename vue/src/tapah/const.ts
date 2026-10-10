@@ -11,6 +11,7 @@ export const url_query_article1 = "query_article1";
 export const url_query_article2 = "query_article2";
 export const url_query_wxcode = "wxcode";
 export const url_query_userinfo = "userinfo";
+export const url_query_upload_avatar = "upload_avatar";
 export const url_query_favorite = "favorite";
 export const url_query_chatai_auth = "chatai_auth";
 export const url_query_chatai_chat = "chatai_chat";

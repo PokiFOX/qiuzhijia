@@ -25,11 +25,12 @@
 				<view class="user-info-col">
 					<input
 						class="nickname-input"
-						type="text"
+						type="nickname"
 						v-model="nicknameInput"
 						@blur="onNicknameBlur"
+						@confirm="onNicknameBlur"
 						confirm-type="done"
-						placeholder="请输入昵称"
+						placeholder="点击填写微信昵称"
 					/>
 					<text class="id-text">ID: {{ accountinfo.id }}</text>
 				</view>
@@ -56,7 +57,7 @@ import { ref, watch, computed } from "vue";
 
 import { accountinfo } from "../../../tapah/data";
 import { parseimage, navigator, KeFu, openAiInterviewMiniProgram, getWechatNavMetrics } from "../../../tapah/function";
-import { RequestWxCode, RequestUserInfo } from "../../../tapah/request";
+import { RequestWxCode, RequestUserInfo, RequestUploadAvatar } from "../../../tapah/request";
 
 const nicknameInput = ref("");
 
@@ -123,31 +124,48 @@ const onGetPhoneNumber = async (e: any) => {
 	}
 };
 
+function readNicknameFromEvent(e?: any): string {
+	const raw = String(e?.detail?.value ?? nicknameInput.value ?? "").trim();
+	return raw.length > 0 ? raw : "微信名称";
+}
+
+function applyNicknameToAccount(text: string) {
+	nicknameInput.value = text;
+	if (accountinfo.value) {
+		accountinfo.value.nickname = text;
+	}
+}
+
+async function persistProfile() {
+	if (!accountinfo.value) return;
+	await RequestUserInfo();
+}
+
 const onChooseAvatar = async (e: any) => {
 	if (!accountinfo.value) return;
 	const avatarUrl = e.detail.avatarUrl;
-	if (avatarUrl) {
-		accountinfo.value.avatar = avatarUrl;
-		try {
-			await RequestUserInfo();
-		} catch (err) {
-			console.error("Failed to update avatar:", err);
-		}
+	if (!avatarUrl) return;
+	try {
+		applyNicknameToAccount(readNicknameFromEvent());
+		const remoteUrl = await RequestUploadAvatar(avatarUrl);
+		accountinfo.value.avatar = remoteUrl || avatarUrl;
+		await persistProfile();
+	} catch (err) {
+		console.error("Failed to update avatar:", err);
+		uni.showToast({ title: "头像保存失败", icon: "none" });
 	}
 };
 
-const onNicknameBlur = async () => {
+const onNicknameBlur = async (e?: any) => {
 	if (!accountinfo.value) return;
-	let text = nicknameInput.value.trim();
-	if (text.length === 0) {
-		text = "微信名称";
-		nicknameInput.value = text;
-	}
-	accountinfo.value.nickname = text;
+	const text = readNicknameFromEvent(e);
+	if (text === accountinfo.value.nickname) return;
+	applyNicknameToAccount(text);
 	try {
-		await RequestUserInfo();
+		await persistProfile();
 	} catch (err) {
 		console.error("Failed to update nickname:", err);
+		uni.showToast({ title: "昵称保存失败", icon: "none" });
 	}
 };
 

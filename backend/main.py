@@ -5,9 +5,10 @@ import os
 import sys
 import time
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 import faulthandler
 import requests
 import shutil
@@ -23,9 +24,12 @@ from tapah.struct import Linq, Zone, Level, Sector, Field, Enterprise, Case, Use
 async def lifespan(app: FastAPI):
 	function.init_config()
 	faulthandler.enable()
+	os.makedirs('upload/avatars', exist_ok = True)
 	yield
 
+os.makedirs('upload/avatars', exist_ok = True)
 app = FastAPI(lifespan = lifespan)
+app.mount('/avatars', StaticFiles(directory = 'upload/avatars'), name = 'avatars')
 app.add_middleware(
 	CORSMiddleware,
 	allow_origins = ["*"],
@@ -1286,18 +1290,53 @@ async def wxcode(req: Request):
 		},
 	})
 
+AVATAR_PUBLIC_BASE = 'https://qiuzhijia.xipuseeker.cn:22006/avatars'
+
+@app.post("/upload_avatar")
+async def upload_avatar(openid: str = Form(...), file: UploadFile = File(...)):
+	if not data.userlist.__contains__(openid):
+		return JSONResponse(content = {
+			"code": -1,
+			"status": "用户不存在",
+		})
+	user = data.userlist[openid]
+	content = await file.read()
+	if len(content) == 0:
+		return JSONResponse(content = {
+			"code": -1,
+			"status": "文件为空",
+		})
+	filename = f'{user.id}.jpg'
+	path = os.path.join('upload', 'avatars', filename)
+	with open(path, 'wb') as f:
+		f.write(content)
+	avatar_url = f'{AVATAR_PUBLIC_BASE}/{filename}'
+	user.avatar = avatar_url
+	conn = data.mysql_pool.apply()
+	cursor = conn.cursor()
+	cursor.execute("UPDATE qzj_user SET avatar=%s WHERE openid=%s", (avatar_url, openid))
+	cursor.close()
+	data.mysql_pool.release(conn)
+	return JSONResponse(content = {
+		"code": 0,
+		"status": "success",
+		"data": {
+			"url": avatar_url,
+		},
+	})
+
 @app.post("/userinfo")
 async def userinfo(req: Request):
 	json = await req.json()
 	openid = json.get("openid")
-	nickname = json.get("nickname")
-	avatar = json.get("avatar")
-	field = json.get("field")
+	nickname = json.get("nickname") or ""
+	avatar = json.get("avatar") or ""
+	field = json.get("field") or []
+	enterprise = json.get("enterprise") or []
 	fstr = ''
 	for f in field:
 		fstr += f"{f},"
 	fstr = fstr.rstrip(',')
-	enterprise = json.get("enterprise")
 	estr = ''
 	for e in enterprise:
 		estr += f"{e},"
