@@ -160,7 +160,7 @@ def serialize_case(case, ent):
 		"dep": case.dep,
 	}
 
-def query_case_display(
+def _query_case_display(
 	enterprise_id, level, sector, field, stag1, stag2, year, page, exclude_id=0, reference_id=0,
 ):
 	enterprise = Linq(data.enterpriselist).find(lambda e: e.id == enterprise_id, None)
@@ -519,7 +519,7 @@ async def query_case_display(req: Request):
 	exclude_id = json.get("exclude_id", 0) or 0
 	reference_id = json.get("reference_id", 0) or 0
 
-	result = query_case_display(
+	result = _query_case_display(
 		enterprise_id, level, sector, field, stag1, stag2, year,
 		page, exclude_id, reference_id,
 	)
@@ -551,13 +551,13 @@ async def query_casedetail(req: Request):
 			"status": "case_not_found",
 		})
 	case_dict = serialize_case(case, ent)
-	display = query_case_display(
+	display = _query_case_display(
 		case.enterprise, 0, 0, 0, 0, 0, 0, 1, case.id, case.id,
 	)
 	similarlist = display["similarlist"] if display else []
 	similar_total = display["similar_total"] if display else 0
 	if similar_total == 0 and case.field:
-		fallback = query_case_display(
+		fallback = _query_case_display(
 			0, 0, 0, case.field, 0, 0, 0, 1, case.id, case.id,
 		)
 		if fallback:
