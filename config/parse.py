@@ -7,7 +7,6 @@ from tapah import const
 from tapah import data
 from tapah import function
 from tapah import reserved
-from tapah.case_experience import fetch_enterprise_name_id_map, parse_detail_to_json
 
 # data.mysql_conn = mysql.connector.connect(
 # 	host		= reserved.mysql_host,
@@ -91,6 +90,7 @@ def parse_enterprise(page):
 			"sector": function.getcell_str(page, row, const.column_sector),			# 公司大类
 			"level": function.getcell_str(page, row, const.column_level),			# 公司层级
 			"field": function.getcell_str(page, row, const.column_offer),			# 主要招聘学科
+			"tag": function.getcell_str(page, row, const.column_tag).strip(),		# 标签
 			"website1": function.getcell_str(page, row, const.column_website1),		# 官网
 			"website2": function.getcell_str(page, row, const.column_website2),		# 校招官网
 			"icon": function.getcell_str(page, row, const.column_icon),				# 图标1
@@ -103,18 +103,6 @@ def parse_enterprise(page):
 		}
 		if enterprise['name'] == "深圳市创新投资集团有限公司":
 			pass
-		tag1 = function.getcell_str(page, row, const.column_tag1)					# 标签1
-		tag2 = function.getcell_str(page, row, const.column_tag2)					# 标签2
-		tag3 = function.getcell_str(page, row, const.column_tag3)					# 标签3
-		tag4 = function.getcell_str(page, row, const.column_tag4)					# 标签4
-		tag5 = function.getcell_str(page, row, const.column_tag5)					# 标签5
-		tag = []
-		if tag1 != "": tag.append(tag1)
-		if tag2 != "": tag.append(tag2)
-		if tag3 != "": tag.append(tag3)
-		if tag4 != "": tag.append(tag4)
-		if tag5 != "": tag.append(tag5)
-		enterprise['tag'] = ','.join(tag)
 		if enterprise['zone'] not in zone:
 			print(f"地区不合法: {enterprise['zone']} 企业: {enterprise['name']}")
 			continue
@@ -164,10 +152,36 @@ def parse_enterprise(page):
 
 def parse_case(page, ent_map):
 	for row in range(2, page.max_row + 1):
-		detail_raw = function.getcell_str(page, row, 13)
+		detail_raw = function.getcell_str(page, row, 13).strip()
 		try:
-			detail = parse_detail_to_json(detail_raw, ent_map)
-		except ValueError as err:
+			if not detail_raw:
+				detail = "[]"
+			elif detail_raw.startswith("["):
+				items = json.loads(detail_raw)
+				if not isinstance(items, list):
+					raise ValueError("detail json must be an array")
+				detail = json.dumps(items, ensure_ascii=False)
+			else:
+				experiences = []
+				for segment in detail_raw.split(","):
+					segment = segment.strip()
+					if not segment:
+						continue
+					parts = [p.strip() for p in segment.split("|")]
+					if len(parts) != 3 or not all(parts):
+						raise ValueError(f"invalid pipe segment: {segment}")
+					company, department, position = parts
+					ent_id = ent_map.get(company)
+					if ent_id is None:
+						raise ValueError(f"enterprise not found: {company}")
+					experiences.append({
+						"enterpriseId": ent_id,
+						"enterpriseName": company,
+						"department": department,
+						"position": position,
+					})
+				detail = json.dumps(experiences, ensure_ascii=False)
+		except (ValueError, json.JSONDecodeError) as err:
 			print(f"主要经历解析失败 row={row}: {err}")
 			continue
 		case = {
@@ -202,8 +216,24 @@ parse_field(wb['学科列表'])
 upload_config()
 ent_map = parse_enterprise(wb['第一批企业'])
 try:
-	ent_map.update(fetch_enterprise_name_id_map())
+	r = requests.post(
+		function.url("query_enterprise"),
+		json={"page": 0},
+		headers=const.request_headers,
+		timeout=15,
+	)
+	r.raise_for_status()
+	rj = r.json()
+	if rj.get("code") != 0:
+		raise RuntimeError(f"query_enterprise failed: {rj}")
+	for item in rj.get("data", {}).get("enterpriselist", []):
+		name = str(item.get("name", "")).strip()
+		ent_id = item.get("id")
+		if name and ent_id is not None:
+			ent_map[name] = int(ent_id)
 except requests.RequestException as err:
+	print(f"拉取企业列表失败，使用上传结果: {err}")
+except RuntimeError as err:
 	print(f"拉取企业列表失败，使用上传结果: {err}")
 parse_case(wb['成功案例'], ent_map)
 

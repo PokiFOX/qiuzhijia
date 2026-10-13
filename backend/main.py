@@ -1,6 +1,7 @@
 import asyncio
 import base64
 import datetime
+import json
 import os
 import sys
 import time
@@ -17,7 +18,6 @@ from tapah import const
 from tapah import data
 from tapah import function
 from tapah import chatai
-from tapah.case_experience import normalize_detail_for_storage
 from tapah.struct import Linq, Zone, Level, Sector, Field, Enterprise, Case, User, Question
 
 @asynccontextmanager
@@ -38,6 +38,16 @@ app.add_middleware(
 	allow_headers = ["*"],
 )
 
+def resolve_config_dir() -> str:
+	base = os.path.dirname(os.path.abspath(__file__))
+	for candidate in (
+		os.path.join(base, 'config'),
+		os.path.normpath(os.path.join(base, '..', 'config')),
+	):
+		if os.path.isfile(os.path.join(candidate, 'parse.py')):
+			return candidate
+	return os.path.join(base, 'config')
+
 def normalize_filter_ids(value):
 	if value is None:
 		return []
@@ -51,6 +61,189 @@ def field_matches_token(fld, token):
 	if not t:
 		return False
 	return t in fld.mapping
+
+def normalize_detail_for_storage(detail, enterpriselist) -> str:
+	text = str(detail or "").strip()
+	if not text:
+		return "[]"
+	ent_name_to_id = {e.name: e.id for e in enterpriselist}
+	if text.startswith("[") and text.endswith("]"):
+		items = json.loads(text)
+		if not isinstance(items, list):
+			raise ValueError("detail json must be an array")
+		normalized = []
+		for item in items:
+			if not isinstance(item, dict):
+				raise ValueError("experience item must be an object")
+			name = str(item.get("enterpriseName", "")).strip()
+			ent_id = item.get("enterpriseId")
+			department = str(item.get("department", "")).strip()
+			position = str(item.get("position", "")).strip()
+			if not name:
+				raise ValueError("enterpriseName required")
+			if ent_id is None:
+				ent_id = ent_name_to_id.get(name)
+			if ent_id is None:
+				raise ValueError(f"enterprise not found: {name}")
+			normalized.append({
+				"enterpriseId": int(ent_id),
+				"enterpriseName": name,
+				"department": department,
+				"position": position,
+			})
+		return json.dumps(normalized, ensure_ascii=False)
+	if "|" in text:
+		experiences = []
+		for segment in text.split(","):
+			segment = segment.strip()
+			if not segment:
+				continue
+			parts = [p.strip() for p in segment.split("|")]
+			if len(parts) != 3 or not all(parts):
+				raise ValueError(f"invalid pipe segment: {segment}")
+			company, department, position = parts
+			ent_id = ent_name_to_id.get(company)
+			if ent_id is None:
+				raise ValueError(f"enterprise not found: {company}")
+			experiences.append({
+				"enterpriseId": ent_id,
+				"enterpriseName": company,
+				"department": department,
+				"position": position,
+			})
+		return json.dumps(experiences, ensure_ascii=False)
+	return text
+
+def serialize_case(case, ent):
+	detail_text = str(case.detail or "").strip()
+	experiences = []
+	if detail_text.startswith("[") and detail_text.endswith("]"):
+		try:
+			items = json.loads(detail_text)
+		except json.JSONDecodeError:
+			items = []
+		if isinstance(items, list):
+			for item in items:
+				if not isinstance(item, dict):
+					continue
+				ent_id = item.get("enterpriseId")
+				name = str(item.get("enterpriseName", "")).strip()
+				if ent_id is not None and not name:
+					ent_row = Linq(data.enterpriselist).find(lambda e: e.id == ent_id, None)
+					if ent_row is not None:
+						name = ent_row.name
+				experiences.append({
+					"enterpriseId": ent_id,
+					"enterpriseName": name,
+					"department": str(item.get("department", "")).strip(),
+					"position": str(item.get("position", "")).strip(),
+				})
+	return {
+		"id": case.id,
+		"name": case.name,
+		"enterprise": case.enterprise,
+		"enticon": ent.icon,
+		"entname": ent.name,
+		"field": case.field,
+		"tags": case.tags,
+		"student": case.student,
+		"school1": case.school1,
+		"stag1": case.stag1,
+		"field1": case.field1,
+		"school2": case.school2,
+		"stag2": case.stag2,
+		"field2": case.field2,
+		"year": case.year,
+		"experiences": experiences,
+		"detail": case.detail,
+		"dep": case.dep,
+	}
+
+def query_case_display(
+	enterprise_id, level, sector, field, stag1, stag2, year, page, exclude_id=0, reference_id=0,
+):
+	enterprise = Linq(data.enterpriselist).find(lambda e: e.id == enterprise_id, None)
+	if enterprise_id != 0 and enterprise is None:
+		return None
+	matched = []
+	for case in data.caselist:
+		ent = Linq(data.enterpriselist).find(lambda e: e.id == case.enterprise)
+		if ent is None:
+			continue
+		if level != 0 and ent.level != level:
+			continue
+		if sector != 0 and ent.sector != sector:
+			continue
+		if field != 0 and case.field != field:
+			continue
+		if enterprise_id != 0 and enterprise is not None and enterprise.id != case.enterprise:
+			continue
+		if stag1 != 0 and case.stag1 != stag1:
+			continue
+		if stag2 != 0 and case.stag2 != stag2:
+			continue
+		if year == 1 and case.year != 2026:
+			continue
+		if year == 2 and case.year == 2026:
+			continue
+		matched.append((case, ent))
+	cases = [item[0] for item in matched]
+	ent_map = {item[0].id: item[1] for item in matched}
+	primary = None
+	if page == 1 and exclude_id == 0 and cases:
+		primary = sorted(cases, key=lambda c: (
+			-(c.year or 0),
+			-(1 if c.school2 and str(c.school2).strip() else 0),
+			min([s for s in (c.stag1, c.stag2) if s is not None and s > 0], default=999),
+			c.id,
+		))[0]
+	reference = None
+	if reference_id != 0:
+		for ref_case in data.caselist:
+			if ref_case.id == reference_id:
+				reference = ref_case
+				break
+	elif primary is not None:
+		reference = primary
+	exclude_ids = set()
+	if primary is not None:
+		exclude_ids.add(primary.id)
+	if exclude_id != 0:
+		exclude_ids.add(exclude_id)
+	similar_raw = [c for c in cases if c.id not in exclude_ids]
+	if not similar_raw:
+		similar_sorted = similar_raw
+	elif reference is None:
+		similar_sorted = sorted(similar_raw, key=lambda c: c.id)
+	else:
+		ref_schools = [s for s in (reference.school1, reference.school2) if s and str(s).strip()]
+		if not ref_schools:
+			similar_sorted = sorted(similar_raw, key=lambda c: c.id)
+		else:
+			similar_sorted = sorted(similar_raw, key=lambda c: (
+				not any(s == c.school1 or s == c.school2 for s in ref_schools),
+				c.id,
+			))
+	similar_total = len(similar_sorted)
+	start = (page - 1) * const.page_size
+	end = page * const.page_size
+	page_items = similar_sorted[start:end]
+	primary_dict = None
+	if primary is not None:
+		ent = ent_map.get(primary.id)
+		if ent is not None:
+			primary_dict = serialize_case(primary, ent)
+	similarlist = []
+	for case in page_items:
+		ent = ent_map.get(case.id)
+		if ent is not None:
+			similarlist.append(serialize_case(case, ent))
+	return {
+		"primary": primary_dict,
+		"similarlist": similarlist,
+		"similar_total": similar_total,
+		"pagesize": const.page_size,
+	}
 
 @app.get("/")
 async def entry():
@@ -287,7 +480,6 @@ async def query_case(req: Request):
 		})
 
 	count = 0
-	from tapah import case_display as case_display_mod
 	for case in data.caselist:
 		ent = Linq(data.enterpriselist).find(lambda e: e.id == case.enterprise)
 		if ent is None: continue
@@ -302,7 +494,7 @@ async def query_case(req: Request):
 		count += 1
 		if page > 0 and count <= (page - 1) * const.page_size: continue
 		if page > 0 and count > page * const.page_size: break
-		caselist.append(case_display_mod.serialize_case(case, ent))
+		caselist.append(serialize_case(case, ent))
 	return JSONResponse(content = {
 		"code": 0,
 		"status": "success",
@@ -314,7 +506,6 @@ async def query_case(req: Request):
 
 @app.post("/query_case_display")
 async def query_case_display(req: Request):
-	from tapah import case_display as case_display_mod
 	json = await req.json()
 	enterprise_id = json.get("enterprise", 0) or 0
 	level = json.get("level", 0) or 0
@@ -327,7 +518,7 @@ async def query_case_display(req: Request):
 	exclude_id = json.get("exclude_id", 0) or 0
 	reference_id = json.get("reference_id", 0) or 0
 
-	result = case_display_mod.query_case_display(
+	result = query_case_display(
 		enterprise_id, level, sector, field, stag1, stag2, year,
 		page, exclude_id, reference_id,
 	)
@@ -344,19 +535,42 @@ async def query_case_display(req: Request):
 
 @app.post("/query_casedetail")
 async def query_casedetail(req: Request):
-	from tapah import case_display as case_display_mod
 	json = await req.json()
 	case_id = json.get("id", 0) or 0
-	result = case_display_mod.query_case_detail(case_id)
-	if result is None:
+	case = None
+	ent = None
+	for row in data.caselist:
+		if row.id == case_id:
+			case = row
+			ent = Linq(data.enterpriselist).find(lambda e: e.id == row.enterprise)
+			break
+	if case is None or ent is None:
 		return JSONResponse(content = {
 			"code": 1,
 			"status": "case_not_found",
 		})
+	case_dict = serialize_case(case, ent)
+	display = query_case_display(
+		case.enterprise, 0, 0, 0, 0, 0, 0, 1, case.id, case.id,
+	)
+	similarlist = display["similarlist"] if display else []
+	similar_total = display["similar_total"] if display else 0
+	if similar_total == 0 and case.field:
+		fallback = query_case_display(
+			0, 0, 0, case.field, 0, 0, 0, 1, case.id, case.id,
+		)
+		if fallback:
+			similarlist = fallback["similarlist"]
+			similar_total = fallback["similar_total"]
 	return JSONResponse(content = {
 		"code": 0,
 		"status": "success",
-		"data": result,
+		"data": {
+			"case": case_dict,
+			"similarlist": similarlist,
+			"similar_total": similar_total,
+			"pagesize": const.page_size,
+		},
 	})
 
 @app.post("/insert_enterprise")
@@ -1152,14 +1366,17 @@ async def import_excel(req: Request):
 		raw = base64.b64decode(filedata)
 	else:
 		raw = filedata.encode('latin1')
+	os.makedirs('./upload', exist_ok = True)
 	with open(f'./upload/{timestamp}.xlsx', 'wb') as f:
 		f.write(raw)
 
-	shutil.copy(f'./upload/{timestamp}.xlsx', './upload/企业列表.xlsx')
+	config_dir = resolve_config_dir()
+	config_xlsx = os.path.join(config_dir, '企业列表.xlsx')
+	shutil.copy(f'./upload/{timestamp}.xlsx', config_xlsx)
 
 	process = await asyncio.create_subprocess_exec(
-		'python3', 'parse.py',
-		cwd =  "./upload",
+		sys.executable, 'parse.py',
+		cwd = config_dir,
 		stdout = asyncio.subprocess.PIPE,
 		stderr = asyncio.subprocess.PIPE,
 	)
@@ -1184,7 +1401,7 @@ async def import_excel(req: Request):
 
 @app.post("/export_excel")
 async def export_excel(req: Request):
-	config_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config')
+	config_dir = resolve_config_dir()
 	try:
 		process = await asyncio.create_subprocess_exec(
 			sys.executable, 'export.py',
