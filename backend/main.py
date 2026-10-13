@@ -13,6 +13,7 @@ from fastapi.staticfiles import StaticFiles
 import faulthandler
 import requests
 import shutil
+import subprocess
 
 from tapah import const
 from tapah import data
@@ -1386,12 +1387,11 @@ async def import_excel(req: Request):
 	else:
 		status = "success"
 		def restart():
-			os.chdir(os.path.dirname(os.path.abspath(__file__)))
-			os.execv(sys.executable, [
-				sys.executable, '-m', 'uvicorn', 'main:app',
-				'--host', '0.0.0.0',
-				'--port', '22006',
-			])
+			subprocess.Popen(
+				['sudo', 'systemctl', 'restart', 'qiuzhijia'],
+				stdout = subprocess.DEVNULL,
+				stderr = subprocess.DEVNULL,
+			)
 		asyncio.get_running_loop().call_later(0.5, restart)
 
 	return JSONResponse(content = {
