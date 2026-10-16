@@ -65,7 +65,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from "vue";
-import { onReachBottom, onLoad } from "@dcloudio/uni-app";
+import { onReachBottom, onLoad, onShareAppMessage, onShareTimeline } from "@dcloudio/uni-app";
 
 import { EventManager } from "../../tapah/class";
 import { SceneID, EventType } from "../../tapah/enum";
@@ -80,6 +80,19 @@ const currentindex = ref(0);
 const activated = ref([true, false, false, false, false]);
 const homeRef = ref<InstanceType<typeof home> | null>(null);
 const enterpriseRef = ref<InstanceType<typeof enterprise> | null>(null);
+
+const SHARE_TITLE = "浦浦求职家";
+const SHARE_PATH = "/pages/mainpage/mainpage";
+
+onShareAppMessage(() => ({
+	title: SHARE_TITLE,
+	path: SHARE_PATH,
+}));
+
+onShareTimeline(() => ({
+	title: SHARE_TITLE,
+	query: "",
+}));
 
 const metrics = computed(() => getWechatNavMetrics());
 

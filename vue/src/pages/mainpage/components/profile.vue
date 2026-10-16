@@ -56,7 +56,7 @@
 import { ref, watch, computed } from "vue";
 
 import { accountinfo } from "../../../tapah/data";
-import { parseimage, navigator, KeFu, openAiInterviewMiniProgram, getWechatNavMetrics } from "../../../tapah/function";
+import { parseimage, navigator, KeFu, openGoldenQiuzhijiaMiniProgram, getWechatNavMetrics } from "../../../tapah/function";
 import { RequestWxCode, RequestUserInfo, RequestUploadAvatar } from "../../../tapah/request";
 
 const nicknameInput = ref("");
@@ -100,7 +100,7 @@ const menuItems = [
 		key: "course",
 		label: "求职课程",
 		icon: "底部按钮/求职课程.png",
-		onTap: () => openAiInterviewMiniProgram(),
+		onTap: () => openGoldenQiuzhijiaMiniProgram(),
 	},
 	{
 		key: "service",

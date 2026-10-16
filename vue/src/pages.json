@@ -11,7 +11,10 @@
 			"style": {
 				"navigationBarTitleText": "浦浦求职家",
 				"navigationStyle": "custom",
-				"disableScroll": true
+				"disableScroll": true,
+				"mp-weixin": {
+					"enableShareTimeline": true
+				}
 			}
 		},
 		{

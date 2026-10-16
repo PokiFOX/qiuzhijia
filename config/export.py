@@ -151,9 +151,18 @@ for ent in enterprises:
 	setcell(ws, const.column_sector, row, sector_name.get(sector_id, ''))
 	setcell(ws, const.column_level, row, level_name.get(level_id, ''))
 	setcell(ws, const.column_offer, row, mapping or '')
-	setcell(ws, const.column_tag, row, (tag or '').strip())
-	setcell(ws, const.column_website1, row, website1, as_url=True)
-	setcell(ws, const.column_website2, row, website2, as_url=True)
+	tag_text = (tag or "").strip()
+	w1 = (website1 or "").strip() if website1 else ""
+	w2 = (website2 or "").strip() if website2 else ""
+	if _looks_like_url(tag_text):
+		if not w1:
+			w1 = tag_text
+		elif not w2:
+			w1, w2 = tag_text, w1
+		tag_text = ""
+	setcell(ws, const.column_tag, row, tag_text)
+	setcell(ws, const.column_website1, row, w1, as_url=True)
+	setcell(ws, const.column_website2, row, w2, as_url=True)
 	setcell(ws, const.column_icon, row, icon)
 	setcell(ws, const.column_images, row, images)
 	setcell(ws, const.column_enttype, row, enttype)

@@ -216,6 +216,10 @@ const hasMore = computed(() => {
 });
 
 const onFenyeTap = (index: number) => {
+	if (index === 2) {
+		activateMainPageTab(3);
+		return;
+	}
 	if (fenyeIndex.value === index) return;
 	fenyeIndex.value = index;
 	displayCount.value = 5;
@@ -247,6 +251,9 @@ const onLanMuTap = (item: LanMuInfo | null) => {
 		case "智能选岗":
 			break;
 		case "求职资料":
+			openGoldenQiuzhijiaMiniProgram();
+			break;
+		case "求职课程":
 			openGoldenQiuzhijiaMiniProgram();
 			break;
 		case "岗位内推":
