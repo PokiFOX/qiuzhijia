@@ -40,14 +40,25 @@ app.add_middleware(
 )
 
 def resolve_config_dir() -> str:
-	base = os.path.dirname(os.path.abspath(__file__))
-	for candidate in (
-		os.path.join(base, 'config'),
-		os.path.normpath(os.path.join(base, '..', 'config')),
-	):
-		if os.path.isfile(os.path.join(candidate, 'parse.py')):
-			return candidate
-	return os.path.join(base, 'config')
+	return function.resolve_config_dir()
+
+def decode_xlsx_upload(body: dict) -> bytes:
+	filedata = body.get("filedata")
+	encoding = body.get("encoding")
+	if encoding == "base64":
+		return base64.b64decode(filedata)
+	return filedata.encode("latin1")
+
+def xlsx_download_response(path: str, filename: str):
+	with open(path, "rb") as f:
+		raw = f.read()
+	return JSONResponse(content = {
+		"code": 0,
+		"status": "success",
+		"filename": filename,
+		"encoding": "base64",
+		"filedata": base64.b64encode(raw).decode("ascii"),
+	})
 
 def normalize_filter_ids(value):
 	if value is None:
@@ -1441,6 +1452,60 @@ async def export_excel(req: Request):
 		"filename": filename,
 		"encoding": "base64",
 		"filedata": base64.b64encode(raw).decode('ascii'),
+	})
+
+@app.post("/import_mbti_excel")
+async def import_mbti_excel(req: Request):
+	body = await req.json()
+	try:
+		raw = decode_xlsx_upload(body)
+	except Exception as e:
+		return JSONResponse(content = {
+			"code": -1,
+			"status": str(e),
+		})
+	timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+	os.makedirs("./upload", exist_ok = True)
+	staging = f"./upload/{timestamp}.xlsx"
+	with open(staging, "wb") as f:
+		f.write(raw)
+	config_dir = resolve_config_dir()
+	dest = os.path.join(config_dir, "MBTI.xlsx")
+	try:
+		shutil.copy(staging, dest)
+		function.load_mbti_from_xlsx(dest)
+	except Exception as e:
+		return JSONResponse(content = {
+			"code": -1,
+			"status": str(e),
+		})
+	return JSONResponse(content = {
+		"code": 0,
+		"status": "success",
+	})
+
+@app.post("/export_mbti_excel")
+async def export_mbti_excel(req: Request):
+	path = function.mbti_config_path()
+	if not os.path.isfile(path):
+		return JSONResponse(content = {
+			"code": -1,
+			"status": f"文件不存在: {path}",
+		})
+	try:
+		return xlsx_download_response(path, "MBTI.xlsx")
+	except Exception as e:
+		return JSONResponse(content = {
+			"code": -1,
+			"status": str(e),
+		})
+
+@app.post("/query_mbti")
+async def query_mbti(req: Request):
+	return JSONResponse(content = {
+		"code": 0,
+		"status": "success",
+		"data": function.mbti_config_to_json(),
 	})
 
 @app.post("/wxcode")

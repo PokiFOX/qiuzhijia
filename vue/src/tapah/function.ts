@@ -62,7 +62,7 @@ export function fieldHotScoreText(star: number): string {
 }
 
 export function parseurl(url: string): string {
-	return `https://${backendHost}:${backendPort}/${url}`;
+	return `http://${backendHost}:${backendPort}/${url}`;
 }
 
 export function navigator(url: string, args?: Record<string, any>) {

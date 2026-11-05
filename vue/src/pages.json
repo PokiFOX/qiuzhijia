@@ -171,6 +171,22 @@
 			}
 		},
 		{
+			"path": "pages/lanmu/dbti/dbti",
+			"style": {
+				"navigationBarTitleText": "DBTI职业性格测试",
+				"navigationStyle": "custom",
+				"disableScroll": true
+			}
+		},
+		{
+			"path": "pages/lanmu/dbti/test",
+			"style": {
+				"navigationBarTitleText": "DBTI职业性格测试",
+				"navigationStyle": "custom",
+				"disableScroll": true
+			}
+		},
+		{
 			"path": "pages/index/index",
 			"style": {
 				"navigationBarTitleText": "uni-app"

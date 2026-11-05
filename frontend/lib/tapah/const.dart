@@ -26,6 +26,8 @@ String url_edit_enterprise = "edit_enterprise";
 String url_delete_enterprise = "delete_enterprise";
 String url_import = "import_excel";
 String url_export = "export_excel";
+String url_import_mbti = "import_mbti_excel";
+String url_export_mbti = "export_mbti_excel";
 
 var options = Options(
 	contentType: "application/json",

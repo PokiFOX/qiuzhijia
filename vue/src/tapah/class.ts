@@ -225,6 +225,15 @@ export class Article {
 	}
 }
 
+export interface MbtiQuestion {
+	id: number;
+	text: string;
+	optionA: string;
+	dimensionA: string;
+	optionB: string;
+	dimensionB: string;
+}
+
 export class Enterprise {
 	id: number;
 	zone?: Zone;

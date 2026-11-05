@@ -18,6 +18,7 @@ import {
 	url_query_chatai_chat,
 	url_query_aichat_history,
 	url_query_questions,
+	url_query_mbti,
 	miniappid,
 } from "./const";
 import {
@@ -30,6 +31,7 @@ import {
 	Article,
 	AccountInfo,
 	ChatItem,
+	MbtiQuestion,
 } from "./class";
 import {
 	zonelist,
@@ -42,6 +44,7 @@ import {
 	caselist,
 	article1,
 	article2,
+	mbtiQuestions,
 	accountinfo,
 	chataiToken,
 	chataiTokenExpiresAt,
@@ -283,6 +286,30 @@ export async function RequestArticle1(): Promise<number> {
 	list.sort((a, b) => b.update - a.update);
 	article1.value = list;
 	return json.length;
+}
+
+export async function RequestQueryMbti(): Promise<void> {
+	const response = await request<{
+		questions: MbtiQuestion[];
+		results: unknown[];
+		jobs: unknown[];
+	}>({
+		url: parseurl(url_query_mbti),
+		method: "POST",
+		data: {},
+	});
+	if (response.code !== 0) {
+		throw new Error(`Error code: ${response.code} status: ${response.status}`);
+	}
+	const list = response.data?.questions ?? [];
+	mbtiQuestions.value = list.map((q) => ({
+		id: q.id,
+		text: q.text,
+		optionA: q.optionA,
+		dimensionA: q.dimensionA,
+		optionB: q.optionB,
+		dimensionB: q.dimensionB,
+	}));
 }
 
 export async function RequestArticle2(): Promise<number> {

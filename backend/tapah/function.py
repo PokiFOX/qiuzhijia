@@ -1,13 +1,106 @@
 import hashlib
+import os
 import re
 import threading
 import time
 
+import openpyxl
 import requests
 
 from tapah import data
 from tapah import reserved
-from tapah.struct import MySQLPool, Zone, Sector, Level, Field, Question, Article, Enterprise, Case, User
+from tapah.struct import MySQLPool, Zone, Sector, Level, Field, Question, Article, Enterprise, Case, User, MbtiQuestion, MbtiResult, MbtiJob
+
+MBTI_SHEET_QUESTIONS = "问题"
+MBTI_SHEET_RESULTS = "结果"
+MBTI_SHEET_JOBS = "岗位"
+
+def resolve_config_dir() -> str:
+	base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+	for candidate in (
+		os.path.join(base, "config"),
+		os.path.normpath(os.path.join(base, "..", "config")),
+	):
+		if os.path.isfile(os.path.join(candidate, "parse.py")):
+			return candidate
+	return os.path.join(base, "config")
+
+def mbti_config_path() -> str:
+	return os.path.join(resolve_config_dir(), "MBTI.xlsx")
+
+def _cell_str(value) -> str:
+	if value is None:
+		return ""
+	if isinstance(value, str):
+		return value.strip()
+	return str(value).strip()
+
+def load_mbti_from_xlsx(path=None) -> None:
+	target = path or mbti_config_path()
+	data.mbti_questions.clear()
+	data.mbti_results.clear()
+	data.mbti_jobs.clear()
+	if not os.path.isfile(target):
+		print(f"load_mbti_from_xlsx: file not found: {target}", flush=True)
+		return
+	wb = openpyxl.load_workbook(target, read_only=True, data_only=True)
+	required = (MBTI_SHEET_QUESTIONS, MBTI_SHEET_RESULTS, MBTI_SHEET_JOBS)
+	for name in required:
+		if name not in wb.sheetnames:
+			wb.close()
+			raise ValueError(f"MBTI.xlsx 缺少 sheet: {name}")
+	ws_q = wb[MBTI_SHEET_QUESTIONS]
+	qid = 0
+	for row in range(2, ws_q.max_row + 1):
+		text = _cell_str(ws_q.cell(row, 1).value)
+		if not text:
+			continue
+		qid += 1
+		data.mbti_questions.append(MbtiQuestion(
+			qid,
+			text,
+			_cell_str(ws_q.cell(row, 2).value),
+			_cell_str(ws_q.cell(row, 3).value),
+			_cell_str(ws_q.cell(row, 4).value),
+			_cell_str(ws_q.cell(row, 5).value),
+		))
+	ws_r = wb[MBTI_SHEET_RESULTS]
+	for row in range(2, ws_r.max_row + 1):
+		type_code = _cell_str(ws_r.cell(row, 1).value)
+		if not type_code:
+			continue
+		jobs = []
+		for col in (3, 4, 5):
+			job = _cell_str(ws_r.cell(row, col).value)
+			if job:
+				jobs.append(job)
+		data.mbti_results.append(MbtiResult(
+			type_code,
+			_cell_str(ws_r.cell(row, 2).value),
+			jobs,
+		))
+	ws_j = wb[MBTI_SHEET_JOBS]
+	for row in range(2, ws_j.max_row + 1):
+		name = _cell_str(ws_j.cell(row, 1).value)
+		if not name:
+			continue
+		data.mbti_jobs.append(MbtiJob(
+			name,
+			_cell_str(ws_j.cell(row, 2).value),
+			_cell_str(ws_j.cell(row, 3).value),
+		))
+	wb.close()
+	print(
+		f"mbti: questions={len(data.mbti_questions)} results={len(data.mbti_results)} jobs={len(data.mbti_jobs)}",
+		flush=True,
+	)
+
+def mbti_config_to_json() -> dict:
+	return {
+		"questions": [q.to_dict() for q in data.mbti_questions],
+		"results": [r.to_dict() for r in data.mbti_results],
+		"jobs": [j.to_dict() for j in data.mbti_jobs],
+	}
 
 def keep_mysql_alive():
 	while True:
@@ -222,6 +315,8 @@ def init_config():
 			enterprise.article2.append(info)
 		print(f"addarticle [{index}/{total_articles}] done", flush = True)
 	print(f'enterprise: {len(data.enterpriselist)}', flush = True)
+
+	load_mbti_from_xlsx()
 
 def favorite_ids_to_json(values):
 	ids = []

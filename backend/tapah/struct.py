@@ -199,3 +199,48 @@ class User:
 		self.enterprise = []
 		self.field = []
 
+class MbtiQuestion:
+	def __init__(self, id, text, option_a, dimension_a, option_b, dimension_b):
+		self.id = id
+		self.text = text
+		self.option_a = option_a
+		self.dimension_a = dimension_a
+		self.option_b = option_b
+		self.dimension_b = dimension_b
+
+	def to_dict(self):
+		return {
+			"id": self.id,
+			"text": self.text,
+			"optionA": self.option_a,
+			"dimensionA": self.dimension_a,
+			"optionB": self.option_b,
+			"dimensionB": self.dimension_b,
+		}
+
+class MbtiResult:
+	def __init__(self, type, title, jobs):
+		self.type = type
+		self.title = title
+		self.jobs = jobs
+
+	def to_dict(self):
+		return {
+			"type": self.type,
+			"title": self.title,
+			"jobs": self.jobs,
+		}
+
+class MbtiJob:
+	def __init__(self, name, summary, content):
+		self.name = name
+		self.summary = summary
+		self.content = content
+
+	def to_dict(self):
+		return {
+			"name": self.name,
+			"summary": self.summary,
+			"content": self.content,
+		}
+

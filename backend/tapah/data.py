@@ -1,6 +1,6 @@
 from typing import List, Dict
 
-from tapah.struct import MySQLPool, Zone, Sector, Level, Field, Question, Enterprise, Case, User
+from tapah.struct import MySQLPool, Zone, Sector, Level, Field, Question, Enterprise, Case, User, MbtiQuestion, MbtiResult, MbtiJob
 
 mysql_pool : MySQLPool = None
 
@@ -12,6 +12,10 @@ questionlist : List[Question] = []
 enterpriselist : List[Enterprise] = []
 caselist : List[Case] = []
 userlist : Dict[str, User] = {}
+
+mbti_questions : List[MbtiQuestion] = []
+mbti_results : List[MbtiResult] = []
+mbti_jobs : List[MbtiJob] = []
 
 appid = 'wxb0b1ae0733a3c160'
 appsecret = '10f6523f47ff45987af35a4caeff15c7'

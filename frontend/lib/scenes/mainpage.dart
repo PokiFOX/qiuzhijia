@@ -207,6 +207,19 @@ class MainPageState extends State<MainPageWidget> {
 						),
 					],
 				),
+				const SizedBox(height: 50,),
+				Row(
+					mainAxisAlignment: MainAxisAlignment.start,
+					children: [
+						const SizedBox(width: 50,),
+						GestureDetector(
+							onTap: () {
+								Navigator.of(context).pushNamed('/import_mbti');
+							},
+							child: const Text("MBTI 配置", style: TextStyle(color: Colors.blue, decoration: TextDecoration.underline,),),
+						),
+					],
+				),
 			],
 		);
 	}

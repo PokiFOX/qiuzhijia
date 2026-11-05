@@ -176,7 +176,7 @@ const lanmuPage = ref(0);
 const fenyeIndex = ref(0);
 const PAGE_SIZE = 10;
 
-const HOME_HIDDEN_LANMU_TITLES = new Set(["AI面试", "求职资料", "笔试题库", "DBTI", "智能选岗"]);
+const HOME_HIDDEN_LANMU_TITLES = new Set(["AI面试", "求职资料", "笔试题库", "智能选岗"]);
 
 const visibleLanmus = computed(() => lanmus.filter((item) => !HOME_HIDDEN_LANMU_TITLES.has(item.title)));
 
@@ -281,6 +281,7 @@ const onLanMuTap = (item: LanMuInfo | null) => {
 			navigator("/mainpage/example");
 			break;
 		case "DBTI":
+			navigator("/lanmu/dbti");
 			break;
 	}
 };

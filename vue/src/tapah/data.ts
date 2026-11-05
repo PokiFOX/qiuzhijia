@@ -1,5 +1,5 @@
 import { ref } from "vue";
-import { Zone, Sector, Level, Field, Enterprise, Case, Article, AccountInfo } from "./class";
+import { Zone, Sector, Level, Field, Enterprise, Case, Article, AccountInfo, MbtiQuestion } from "./class";
 
 export const zonelist = ref<Zone[]>([]);
 export const sectorlist = ref<Sector[]>([]);
@@ -11,6 +11,7 @@ export const myenterpriselist = ref<Enterprise[]>([]);
 export const caselist = ref<Case[]>([]);
 export const article1 = ref<Article[]>([]);
 export const article2 = ref<Article[]>([]);
+export const mbtiQuestions = ref<MbtiQuestion[]>([]);
 
 export const accountinfo = ref<AccountInfo | null>(null);
 

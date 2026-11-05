@@ -455,6 +455,28 @@ Future<dynamic> RequestExport() async {
 	return response;
 }
 
+Future<dynamic> RequestImportMbti(String filename, Uint8List? filedata) async {
+	var response = await dio.post(
+		parseurl(url_import_mbti),
+		data: {
+			"filename": filename,
+			"encoding": "base64",
+			"filedata": base64Encode(filedata ?? []),
+		},
+		options: options,
+	);
+	return response;
+}
+
+Future<dynamic> RequestExportMbti() async {
+	var response = await dio.post(
+		parseurl(url_export_mbti),
+		data: {},
+		options: options,
+	);
+	return response;
+}
+
 Future<void> saveExportedExcel(String filename, Uint8List bytes) async {
 	final dot = filename.lastIndexOf('.');
 	final name = dot > 0 ? filename.substring(0, dot) : filename;
