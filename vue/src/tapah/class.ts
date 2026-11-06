@@ -234,6 +234,30 @@ export interface MbtiQuestion {
 	dimensionB: string;
 }
 
+/** 「结果」sheet 中求职准备建议的单条（主题 + 说明） */
+export interface MbtiAdviceItem {
+	topic: string;
+	content: string;
+}
+
+/** 16 型结果配置（与后端 query_mbti.data.results 一致） */
+export interface MbtiResult {
+	type: string;
+	title: string;
+	jobs: string[];
+	personalityIntro: string;
+	businessKnowledge: MbtiAdviceItem[];
+	experienceSuggestions: MbtiAdviceItem[];
+	interviewPrep: MbtiAdviceItem[];
+}
+
+/** 「岗位」sheet */
+export interface MbtiJob {
+	name: string;
+	summary: string;
+	content: string;
+}
+
 export class Enterprise {
 	id: number;
 	zone?: Zone;

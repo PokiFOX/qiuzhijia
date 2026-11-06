@@ -35,6 +35,18 @@ def _cell_str(value) -> str:
 		return value.strip()
 	return str(value).strip()
 
+
+def _mbti_read_topic_content_pairs(ws, row: int, col_pairs: list) -> list:
+	"""从工作表读取多组「主题, 说明」列对，跳过两组皆空的条目。"""
+	out = []
+	for c_topic, c_content in col_pairs:
+		topic = _cell_str(ws.cell(row, c_topic).value)
+		content = _cell_str(ws.cell(row, c_content).value)
+		if not topic and not content:
+			continue
+		out.append({"topic": topic, "content": content})
+	return out
+
 def load_mbti_from_xlsx(path=None) -> None:
 	target = path or mbti_config_path()
 	data.mbti_questions.clear()
@@ -65,6 +77,12 @@ def load_mbti_from_xlsx(path=None) -> None:
 			_cell_str(ws_q.cell(row, 5).value),
 		))
 	ws_r = wb[MBTI_SHEET_RESULTS]
+	# 「结果」sheet：A 类型 B 人设标题 C–E 岗位名 F 职业性格简介；
+	# G–N 业务知识 4 组（主题+说明），O–U 建议积累 3 组，V–Z… 若只有 26 列则为 准备方向 3 组占 21–26
+	# 列索引（1-based）：业务 (7,8)…(13,14)；积累 (15,16)…(19,20)；笔面试 (21,22)…(25,26)
+	_biz_pairs = [(7, 8), (9, 10), (11, 12), (13, 14)]
+	_exp_pairs = [(15, 16), (17, 18), (19, 20)]
+	_prep_pairs = [(21, 22), (23, 24), (25, 26)]
 	for row in range(2, ws_r.max_row + 1):
 		type_code = _cell_str(ws_r.cell(row, 1).value)
 		if not type_code:
@@ -74,10 +92,18 @@ def load_mbti_from_xlsx(path=None) -> None:
 			job = _cell_str(ws_r.cell(row, col).value)
 			if job:
 				jobs.append(job)
+		intro = _cell_str(ws_r.cell(row, 6).value)
+		biz = _mbti_read_topic_content_pairs(ws_r, row, _biz_pairs)
+		exp = _mbti_read_topic_content_pairs(ws_r, row, _exp_pairs)
+		prep = _mbti_read_topic_content_pairs(ws_r, row, _prep_pairs)
 		data.mbti_results.append(MbtiResult(
 			type_code,
 			_cell_str(ws_r.cell(row, 2).value),
 			jobs,
+			personality_intro=intro,
+			business_knowledge=biz,
+			experience_suggestions=exp,
+			interview_prep=prep,
 		))
 	ws_j = wb[MBTI_SHEET_JOBS]
 	for row in range(2, ws_j.max_row + 1):

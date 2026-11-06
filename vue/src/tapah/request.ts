@@ -32,6 +32,9 @@ import {
 	AccountInfo,
 	ChatItem,
 	MbtiQuestion,
+	MbtiResult,
+	MbtiJob,
+	MbtiAdviceItem,
 } from "./class";
 import {
 	zonelist,
@@ -45,6 +48,8 @@ import {
 	article1,
 	article2,
 	mbtiQuestions,
+	mbtiResults,
+	mbtiJobs,
 	accountinfo,
 	chataiToken,
 	chataiTokenExpiresAt,
@@ -288,11 +293,22 @@ export async function RequestArticle1(): Promise<number> {
 	return json.length;
 }
 
+function normalizeMbtiAdvice(items: unknown): MbtiAdviceItem[] {
+	if (!Array.isArray(items)) return [];
+	return items.map((row) => {
+		const o = row && typeof row === "object" ? (row as Record<string, unknown>) : {};
+		return {
+			topic: String(o.topic ?? ""),
+			content: String(o.content ?? ""),
+		};
+	});
+}
+
 export async function RequestQueryMbti(): Promise<void> {
 	const response = await request<{
 		questions: MbtiQuestion[];
-		results: unknown[];
-		jobs: unknown[];
+		results: MbtiResult[];
+		jobs: MbtiJob[];
 	}>({
 		url: parseurl(url_query_mbti),
 		method: "POST",
@@ -301,14 +317,32 @@ export async function RequestQueryMbti(): Promise<void> {
 	if (response.code !== 0) {
 		throw new Error(`Error code: ${response.code} status: ${response.status}`);
 	}
-	const list = response.data?.questions ?? [];
-	mbtiQuestions.value = list.map((q) => ({
+	const qlist = response.data?.questions ?? [];
+	mbtiQuestions.value = qlist.map((q) => ({
 		id: q.id,
 		text: q.text,
 		optionA: q.optionA,
 		dimensionA: q.dimensionA,
 		optionB: q.optionB,
 		dimensionB: q.dimensionB,
+	}));
+
+	const rlist = response.data?.results ?? [];
+	mbtiResults.value = rlist.map((r) => ({
+		type: String(r.type ?? ""),
+		title: String(r.title ?? ""),
+		jobs: Array.isArray(r.jobs) ? r.jobs.map((j) => String(j)) : [],
+		personalityIntro: String(r.personalityIntro ?? ""),
+		businessKnowledge: normalizeMbtiAdvice(r.businessKnowledge),
+		experienceSuggestions: normalizeMbtiAdvice(r.experienceSuggestions),
+		interviewPrep: normalizeMbtiAdvice(r.interviewPrep),
+	}));
+
+	const jlist = response.data?.jobs ?? [];
+	mbtiJobs.value = jlist.map((j) => ({
+		name: String(j.name ?? ""),
+		summary: String(j.summary ?? ""),
+		content: String(j.content ?? ""),
 	}));
 }
 

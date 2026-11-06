@@ -219,16 +219,35 @@ class MbtiQuestion:
 		}
 
 class MbtiResult:
-	def __init__(self, type, title, jobs):
+	"""MBTI 结果页配置（来自 MBTI.xlsx「结果」sheet，列与上传模板一致）"""
+
+	def __init__(
+		self,
+		type,
+		title,
+		jobs,
+		personality_intro="",
+		business_knowledge=None,
+		experience_suggestions=None,
+		interview_prep=None,
+	):
 		self.type = type
 		self.title = title
 		self.jobs = jobs
+		self.personality_intro = personality_intro or ""
+		self.business_knowledge = business_knowledge or []
+		self.experience_suggestions = experience_suggestions or []
+		self.interview_prep = interview_prep or []
 
 	def to_dict(self):
 		return {
 			"type": self.type,
 			"title": self.title,
 			"jobs": self.jobs,
+			"personalityIntro": self.personality_intro,
+			"businessKnowledge": self.business_knowledge,
+			"experienceSuggestions": self.experience_suggestions,
+			"interviewPrep": self.interview_prep,
 		}
 
 class MbtiJob:

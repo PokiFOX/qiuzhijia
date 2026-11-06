@@ -93,8 +93,12 @@ import { onLoad } from "@dcloudio/uni-app";
 import { mbtiQuestions } from "../../../tapah/data";
 import { parseimage, getWechatNavMetrics } from "../../../tapah/function";
 import { RequestQueryMbti } from "../../../tapah/request";
+import { computeMbtiResult } from "./mbtiScore";
 
 const DBTI_STORAGE_KEY = "dbti_test_progress";
+const DBTI_COMPLETED_KEY = "dbti_test_completed";
+const DBTI_RESULT_SNAPSHOT_KEY = "dbti_result_snapshot";
+const DBTI_REPORT_UNLOCK_URL = "/pages/lanmu/dbti/report-unlock";
 
 type Choice = "A" | "B" | null;
 
@@ -174,6 +178,28 @@ function persistProgress() {
 	}
 }
 
+function isAllQuestionsAnswered(): boolean {
+	if (total.value <= 0) return false;
+	ensureAnswersLength(total.value);
+	for (let i = 0; i < total.value; i++) {
+		const a = answers.value[i];
+		if (a !== "A" && a !== "B") return false;
+	}
+	return true;
+}
+
+function redirectToReportUnlockIfCompleted() {
+	let completed = false;
+	try {
+		completed = uni.getStorageSync(DBTI_COMPLETED_KEY) === "1" || uni.getStorageSync(DBTI_COMPLETED_KEY) === true;
+	} catch {
+		completed = false;
+	}
+	if (completed && isAllQuestionsAnswered()) {
+		uni.redirectTo({ url: DBTI_REPORT_UNLOCK_URL });
+	}
+}
+
 function loadStoredProgress() {
 	try {
 		const raw = uni.getStorageSync(DBTI_STORAGE_KEY);
@@ -217,7 +243,26 @@ function onComplete() {
 		uni.showToast({ title: "请先选择一个选项", icon: "none" });
 		return;
 	}
-	uni.showToast({ title: "已完成全部题目", icon: "none" });
+	const comp = computeMbtiResult(mbtiQuestions.value, answers.value);
+	if (!comp) {
+		uni.showToast({ title: "无法计算结果", icon: "none" });
+		return;
+	}
+	try {
+		uni.setStorageSync(DBTI_COMPLETED_KEY, "1");
+		uni.setStorageSync(
+			DBTI_RESULT_SNAPSHOT_KEY,
+			JSON.stringify({
+				typeCode: comp.typeCode,
+				pcts: comp.pcts,
+				counts: comp.counts,
+			}),
+		);
+	} catch (e) {
+		console.error("dbti completed persist failed", e);
+	}
+	persistProgress();
+	uni.redirectTo({ url: DBTI_REPORT_UNLOCK_URL });
 }
 
 function onFooterPrimary() {
@@ -248,6 +293,7 @@ onLoad(async () => {
 		if (currentIndex.value >= mbtiQuestions.value.length) {
 			currentIndex.value = Math.max(0, mbtiQuestions.value.length - 1);
 		}
+		redirectToReportUnlockIfCompleted();
 	} catch (e) {
 		console.error(e);
 		uni.showToast({ title: "加载失败", icon: "none" });

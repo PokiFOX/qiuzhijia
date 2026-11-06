@@ -1455,6 +1455,7 @@ async def export_excel(req: Request):
 	})
 
 @app.post("/import_mbti_excel")
+@app.post("/api/import_mbti_excel")
 async def import_mbti_excel(req: Request):
 	body = await req.json()
 	try:
@@ -1485,6 +1486,7 @@ async def import_mbti_excel(req: Request):
 	})
 
 @app.post("/export_mbti_excel")
+@app.post("/api/export_mbti_excel")
 async def export_mbti_excel(req: Request):
 	path = function.mbti_config_path()
 	if not os.path.isfile(path):
@@ -1501,6 +1503,7 @@ async def export_mbti_excel(req: Request):
 		})
 
 @app.post("/query_mbti")
+@app.post("/api/query_mbti")
 async def query_mbti(req: Request):
 	return JSONResponse(content = {
 		"code": 0,
