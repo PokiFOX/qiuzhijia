@@ -14,6 +14,8 @@ import faulthandler
 import requests
 import shutil
 import subprocess
+import re
+from typing import Optional
 
 from tapah import const
 from tapah import data
@@ -1509,6 +1511,209 @@ async def query_mbti(req: Request):
 		"code": 0,
 		"status": "success",
 		"data": function.mbti_config_to_json(),
+	})
+
+def _normalize_phone(s: str) -> Optional[str]:
+	if not s or not isinstance(s, str):
+		return None
+	digits = re.sub(r'\D', '', s.strip())
+	if len(digits) == 11 and re.match(r'^1[3-9]\d{9}$', digits):
+		return digits
+	return None
+
+@app.post("/submit_dbti_appointment")
+@app.post("/api/submit_dbti_appointment")
+async def submit_dbti_appointment(req: Request):
+	body = await req.json()
+	phone = _normalize_phone(body.get("phone", ""))
+	if not phone:
+		return JSONResponse(content = {
+			"code": -1,
+			"status": "请输入正确的11位手机号",
+		})
+	mbti_type = str(body.get("mbtiType", "") or body.get("mbti_type", "") or "").strip().upper()[:8]
+	if not mbti_type:
+		return JSONResponse(content = {
+			"code": -1,
+			"status": "缺少MBTI类型",
+		})
+	target_direction = str(body.get("targetDirection", "") or body.get("target_direction", "") or "").strip()
+	current_stage = str(body.get("currentStage", "") or body.get("current_stage", "") or "").strip()
+	contact_time = str(body.get("contactTime", "") or body.get("contact_time", "") or "").strip()
+	lead_level = str(body.get("leadLevel", "") or body.get("lead_level", "") or "high").strip() or "high"
+	diff_raw = body.get("difficulties", body.get("currentDifficulties", []))
+	if isinstance(diff_raw, str):
+		difficulties = [x.strip() for x in diff_raw.replace("，", ",").split(",") if x.strip()]
+	elif isinstance(diff_raw, list):
+		difficulties = [str(x).strip() for x in diff_raw if str(x).strip()]
+	else:
+		difficulties = []
+	if len(difficulties) == 0:
+		return JSONResponse(content = {
+			"code": -1,
+			"status": "请选择当前困难",
+		})
+	if not target_direction:
+		return JSONResponse(content = {
+			"code": -1,
+			"status": "请选择目标方向",
+		})
+	if not current_stage:
+		return JSONResponse(content = {
+			"code": -1,
+			"status": "请选择当前阶段",
+		})
+	if not contact_time:
+		return JSONResponse(content = {
+			"code": -1,
+			"status": "请选择联系时间",
+		})
+	jobs_raw = body.get("recommendedJobs", body.get("jobs", body.get("recommended_jobs", [])))
+	if isinstance(jobs_raw, str):
+		recommended_jobs = jobs_raw.strip()
+	else:
+		recommended_jobs = "、".join(str(x).strip() for x in (jobs_raw or []) if str(x).strip())
+
+	conn = data.mysql_pool.apply()
+	cursor = conn.cursor()
+	try:
+		diff_json = json.dumps(difficulties, ensure_ascii = False)
+		cursor.execute(
+			"""
+			INSERT INTO qzj_dbti_appointment
+				(phone, mbti_type, recommended_jobs, target_direction, current_stage, difficulties, contact_time, lead_level)
+			VALUES (%s, %s, %s, %s, %s, CAST(%s AS JSON), %s, %s)
+			ON DUPLICATE KEY UPDATE
+				mbti_type = VALUES(mbti_type),
+				recommended_jobs = VALUES(recommended_jobs),
+				target_direction = VALUES(target_direction),
+				current_stage = VALUES(current_stage),
+				difficulties = VALUES(difficulties),
+				contact_time = VALUES(contact_time),
+				lead_level = VALUES(lead_level)
+			""",
+			(
+				phone,
+				mbti_type,
+				recommended_jobs,
+				target_direction,
+				current_stage,
+				diff_json,
+				contact_time,
+				lead_level,
+			),
+		)
+		conn.conn.commit()
+	except Exception as e:
+		try:
+			conn.conn.rollback()
+		except:
+			pass
+		print("submit_dbti_appointment failed:", e, flush = True)
+		cursor.close()
+		data.mysql_pool.release(conn)
+		return JSONResponse(content = {
+			"code": -1,
+			"status": str(e),
+		})
+	cursor.close()
+	data.mysql_pool.release(conn)
+	return JSONResponse(content = {
+		"code": 0,
+		"status": "success",
+	})
+
+@app.post("/query_dbti_appointments")
+@app.post("/api/query_dbti_appointments")
+async def query_dbti_appointments(req: Request):
+	try:
+		body = await req.json()
+	except:
+		body = {}
+	if not isinstance(body, dict):
+		body = {}
+	try:
+		limit = int(body.get("limit", 200))
+	except (TypeError, ValueError):
+		limit = 200
+	try:
+		offset = int(body.get("offset", 0))
+	except (TypeError, ValueError):
+		offset = 0
+	limit = max(1, min(limit, 500))
+	offset = max(0, offset)
+
+	conn = data.mysql_pool.apply()
+	cursor = conn.cursor()
+	try:
+		cursor.execute(
+			"""
+			SELECT id, phone, mbti_type, recommended_jobs, target_direction, current_stage,
+			       difficulties, contact_time, lead_level, created_at, updated_at
+			FROM qzj_dbti_appointment
+			ORDER BY updated_at DESC, id DESC
+			LIMIT %s OFFSET %s
+			""",
+			(limit, offset),
+		)
+		rows = cursor.fetchall()
+		cursor.execute("SELECT COUNT(*) FROM qzj_dbti_appointment")
+		total_row = cursor.fetchone()
+		total = int(total_row[0]) if total_row else 0
+	except Exception as e:
+		print("query_dbti_appointments failed:", e, flush = True)
+		cursor.close()
+		data.mysql_pool.release(conn)
+		return JSONResponse(content = {
+			"code": -1,
+			"status": str(e),
+		})
+
+	def parse_diff(cell):
+		if cell is None:
+			return []
+		if isinstance(cell, list):
+			return cell
+		if isinstance(cell, (bytes, bytearray)):
+			cell = cell.decode("utf-8", errors = "replace")
+		if isinstance(cell, str):
+			s = cell.strip()
+			if not s:
+				return []
+			try:
+				v = json.loads(s)
+				return v if isinstance(v, list) else [s]
+			except:
+				return [s]
+		return [str(cell)]
+
+	out = []
+	for row in rows:
+		out.append({
+			"id": row[0],
+			"phone": row[1],
+			"mbtiType": row[2] or "",
+			"recommendedJobs": row[3] or "",
+			"targetDirection": row[4] or "",
+			"currentStage": row[5] or "",
+			"difficulties": parse_diff(row[6]),
+			"contactTime": row[7] or "",
+			"leadLevel": row[8] or "",
+			"createdAt": row[9].isoformat(sep = " ", timespec = "seconds") if row[9] else "",
+			"updatedAt": row[10].isoformat(sep = " ", timespec = "seconds") if row[10] else "",
+		})
+
+	cursor.close()
+	data.mysql_pool.release(conn)
+	return JSONResponse(content = {
+		"code": 0,
+		"status": "success",
+		"data": {
+			"list": out,
+			"total": total,
+			"limit": limit,
+			"offset": offset,
+		},
 	})
 
 @app.post("/wxcode")

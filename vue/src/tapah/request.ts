@@ -19,6 +19,7 @@ import {
 	url_query_aichat_history,
 	url_query_questions,
 	url_query_mbti,
+	url_submit_dbti_appointment,
 	miniappid,
 } from "./const";
 import {
@@ -344,6 +345,39 @@ export async function RequestQueryMbti(): Promise<void> {
 		summary: String(j.summary ?? ""),
 		content: String(j.content ?? ""),
 	}));
+}
+
+export interface SubmitDbtiAppointmentPayload {
+	phone: string;
+	mbtiType: string;
+	recommendedJobs: string[];
+	targetDirection: string;
+	currentStage: string;
+	difficulties: string[];
+	contactTime: string;
+	leadLevel?: string;
+}
+
+export async function RequestSubmitDbtiAppointment(
+	payload: SubmitDbtiAppointmentPayload,
+): Promise<void> {
+	const response = await request({
+		url: parseurl(url_submit_dbti_appointment),
+		method: "POST",
+		data: {
+			phone: payload.phone,
+			mbtiType: payload.mbtiType,
+			recommendedJobs: payload.recommendedJobs,
+			targetDirection: payload.targetDirection,
+			currentStage: payload.currentStage,
+			difficulties: payload.difficulties,
+			contactTime: payload.contactTime,
+			leadLevel: payload.leadLevel ?? "high",
+		},
+	});
+	if (response.code !== 0) {
+		throw new Error(String((response as { status?: string }).status ?? "submit failed"));
+	}
 }
 
 export async function RequestArticle2(): Promise<number> {

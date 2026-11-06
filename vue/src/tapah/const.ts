@@ -18,6 +18,7 @@ export const url_query_chatai_chat = "chatai_chat";
 export const url_query_aichat_history = "aichat_history";
 export const url_query_questions = "query_questions";
 export const url_query_mbti = "query_mbti";
+export const url_submit_dbti_appointment = "submit_dbti_appointment";
 export const url_boardcast = "https://m.tapahtech.com";
 export const url_mpid = "wx320a7a97e2f254e2";
 export const url_chatai = "https://ai.fxeasy168.com:3100/";

@@ -162,6 +162,110 @@
 				</view>
 			</template>
 		</scroll-view>
+
+		<!-- 预约求职方向诊断 -->
+		<view v-if="showAppointmentModal" class="appt-mask" @tap="closeAppointmentModal">
+			<view class="appt-modal-stack" @tap.stop>
+				<view class="appt-card">
+				<view class="appt-head-row">
+					<view class="appt-blue-bar" />
+					<text class="appt-head-title">预约求职方向诊断</text>
+				</view>
+				<text class="appt-subtitle">请填写以下信息，顾问将优先联系你</text>
+
+				<view class="appt-section">
+					<text class="appt-section-label">目标方向</text>
+					<view class="appt-chip-grid">
+						<view
+							v-for="t in appointmentTargetOptions"
+							:key="t"
+							class="appt-chip"
+							:class="{ 'appt-chip-on': appointmentTarget === t }"
+							@tap="appointmentTarget = t"
+						>
+							<text class="appt-chip-text">{{ t }}</text>
+						</view>
+					</view>
+				</view>
+
+				<view class="appt-section appt-section-gap">
+					<text class="appt-section-label">当前阶段</text>
+					<view class="appt-chip-grid appt-chip-grid-3">
+						<view
+							v-for="t in appointmentStageOptions"
+							:key="t"
+							class="appt-chip"
+							:class="{ 'appt-chip-on': appointmentStage === t }"
+							@tap="appointmentStage = t"
+						>
+							<text class="appt-chip-text">{{ t }}</text>
+						</view>
+					</view>
+				</view>
+
+				<view class="appt-section appt-section-gap">
+					<text class="appt-section-label">当前困难</text>
+					<view class="appt-chip-grid">
+						<view
+							v-for="t in appointmentDifficultyOptions"
+							:key="t"
+							class="appt-chip"
+							:class="{ 'appt-chip-on': difficultySelected(t) }"
+							@tap="toggleDifficulty(t)"
+						>
+							<text class="appt-chip-text">{{ t }}</text>
+						</view>
+					</view>
+				</view>
+
+				<view class="appt-section appt-section-gap">
+					<text class="appt-section-label">方便联系的时间</text>
+					<view class="appt-chip-grid appt-chip-grid-2">
+						<view
+							v-for="t in appointmentTimeOptions"
+							:key="t"
+							class="appt-chip"
+							:class="{ 'appt-chip-on': appointmentTime === t }"
+							@tap="appointmentTime = t"
+						>
+							<text class="appt-chip-text">{{ t }}</text>
+						</view>
+					</view>
+				</view>
+
+				<button class="appt-submit" @tap="submitAppointment">预约</button>
+				</view>
+				<view class="appt-cancel" @tap="closeAppointmentModal">
+					<text class="appt-cancel-text">暂不预约，返回结果</text>
+				</view>
+			</view>
+		</view>
+
+		<!-- 预约提交成功（底部抽屉） -->
+		<view v-if="showAppointmentSuccess" class="appt-success-mask" @tap="closeAppointmentSuccess">
+			<view class="appt-success-sheet" @tap.stop>
+				<image
+					class="appt-success-icon"
+					:src="parseimage('底部按钮/打钩.png')"
+					mode="aspectFit"
+				/>
+				<text class="appt-success-title">预约信息已提交</text>
+				<text class="appt-success-sub">顾问会优先联系主动预约用户，请留意电话或微信消息</text>
+
+				<view class="appt-success-table">
+					<view
+						v-for="(row, ri) in appointmentSuccessRows"
+						:key="ri"
+						class="appt-success-row"
+					>
+						<text class="appt-success-label">{{ row.label }}</text>
+						<text class="appt-success-value">{{ row.value }}</text>
+					</view>
+				</view>
+
+				<button class="appt-success-btn" @tap="closeAppointmentSuccess">返回结果页</button>
+			</view>
+		</view>
 	</view>
 </template>
 
@@ -171,7 +275,7 @@ import { onLoad, onShareAppMessage } from "@dcloudio/uni-app";
 
 import { mbtiJobs, mbtiQuestions, mbtiResults } from "../../../tapah/data";
 import { parseimage, getWechatNavMetrics } from "../../../tapah/function";
-import { RequestQueryMbti } from "../../../tapah/request";
+import { RequestQueryMbti, RequestSubmitDbtiAppointment } from "../../../tapah/request";
 import type { MbtiJob, MbtiResult } from "../../../tapah/class";
 
 import { computeMbtiResult, type Choice } from "./mbtiScore";
@@ -331,8 +435,116 @@ onShareAppMessage(() => {
 	};
 });
 
+const showAppointmentModal = ref(false);
+const showAppointmentSuccess = ref(false);
+
+const DBTI_REPORT_PHONE_KEY = "dbti_report_phone";
+
+interface AppointmentSuccessRow {
+	label: string;
+	value: string;
+}
+
+const appointmentSuccessRows = ref<AppointmentSuccessRow[]>([]);
+
+function maskPhone(p: string): string {
+	const d = String(p || "").replace(/\D/g, "");
+	if (d.length === 11) return `${d.slice(0, 3)}****${d.slice(7)}`;
+	if (!d) return "—";
+	return p || "—";
+}
+
+function closeAppointmentSuccess() {
+	showAppointmentSuccess.value = false;
+}
+
+/** 与 PRD 3.6 一致；设计稿 ×2 → rpx */
+const appointmentTargetOptions = ["央企国企", "银行", "券商投行", "基金资管", "暂不确定"] as const;
+const appointmentStageOptions = ["本科在读", "研究生在读", "已毕业"] as const;
+const appointmentDifficultyOptions = ["选定岗位", "简历实习", "网申投递", "笔试", "面试", "整体规划"] as const;
+const appointmentTimeOptions = ["工作日白天", "工作日晚上", "周末", "均可"] as const;
+
+const appointmentTarget = ref<string>("");
+const appointmentStage = ref<string>("");
+const appointmentDifficulties = ref<string[]>([]);
+const appointmentTime = ref<string>("");
+
 function onAppointment() {
-	uni.showToast({ title: "预约功能开发中", icon: "none" });
+	showAppointmentModal.value = true;
+}
+
+function closeAppointmentModal() {
+	showAppointmentModal.value = false;
+}
+
+function difficultySelected(t: string): boolean {
+	return appointmentDifficulties.value.includes(t);
+}
+
+function toggleDifficulty(t: string) {
+	const arr = [...appointmentDifficulties.value];
+	const i = arr.indexOf(t);
+	if (i >= 0) arr.splice(i, 1);
+	else arr.push(t);
+	appointmentDifficulties.value = arr;
+}
+
+async function submitAppointment() {
+	if (!appointmentTarget.value) {
+		uni.showToast({ title: "请选择目标方向", icon: "none" });
+		return;
+	}
+	if (!appointmentStage.value) {
+		uni.showToast({ title: "请选择当前阶段", icon: "none" });
+		return;
+	}
+	if (appointmentDifficulties.value.length === 0) {
+		uni.showToast({ title: "请选择当前困难", icon: "none" });
+		return;
+	}
+	if (!appointmentTime.value) {
+		uni.showToast({ title: "请选择方便联系的时间", icon: "none" });
+		return;
+	}
+	let phoneRaw = "";
+	try {
+		phoneRaw = String(uni.getStorageSync(DBTI_REPORT_PHONE_KEY) ?? "");
+	} catch {
+		phoneRaw = "";
+	}
+	const digits = phoneRaw.replace(/\D/g, "");
+	if (!/^1[3-9]\d{9}$/.test(digits)) {
+		uni.showToast({ title: "请先在解锁页填写手机号", icon: "none" });
+		return;
+	}
+	const jobs = resultRow.value?.jobs ?? [];
+	try {
+		await RequestSubmitDbtiAppointment({
+			phone: digits,
+			mbtiType: typeCode.value || "",
+			recommendedJobs: jobs,
+			targetDirection: appointmentTarget.value,
+			currentStage: appointmentStage.value,
+			difficulties: [...appointmentDifficulties.value],
+			contactTime: appointmentTime.value,
+			leadLevel: "high",
+		});
+	} catch (e) {
+		const msg = e instanceof Error ? e.message : String(e);
+		uni.showToast({ title: msg.length > 40 ? "提交失败，请重试" : msg, icon: "none" });
+		return;
+	}
+	appointmentSuccessRows.value = [
+		{ label: "手机号", value: maskPhone(phoneRaw) },
+		{ label: "MBTI类型", value: typeCode.value || "—" },
+		{ label: "推荐岗位", value: jobs.length ? jobs.join("、") : "—" },
+		{ label: "目标方向", value: appointmentTarget.value },
+		{ label: "当前阶段", value: appointmentStage.value },
+		{ label: "当前困难", value: appointmentDifficulties.value.join("、") },
+		{ label: "联系时间", value: appointmentTime.value },
+	];
+	closeAppointmentModal();
+	showAppointmentSuccess.value = true;
 }
 
 function onDownload() {
@@ -814,5 +1026,293 @@ onLoad(async () => {
 	font-weight: 400;
 	color: #8f8e95;
 	text-align: center;
+}
+
+/* 预约弹层：327×515 ×2 */
+.appt-mask {
+	position: fixed;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	z-index: 100;
+	background: rgba(0, 0, 0, 0.45);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	box-sizing: border-box;
+	padding: 32rpx;
+}
+
+.appt-modal-stack {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	max-height: 90vh;
+	width: 654rpx;
+	max-width: 100%;
+}
+
+.appt-card {
+	width: 100%;
+	flex-shrink: 1;
+	min-height: 0;
+	overflow-y: auto;
+	box-sizing: border-box;
+	padding: 30rpx 32rpx 36rpx;
+	background: #ffffff;
+	border-radius: 30rpx;
+	box-shadow: 0 20rpx 60rpx rgba(45, 123, 255, 0.2);
+}
+
+.appt-head-row {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	margin-bottom: 16rpx;
+}
+
+.appt-blue-bar {
+	width: 8rpx;
+	height: 40rpx;
+	background: #2d7bff;
+	border-radius: 4rpx;
+	margin-right: 16rpx;
+	flex-shrink: 0;
+}
+
+.appt-head-title {
+	font-size: 40rpx;
+	line-height: 58rpx;
+	font-weight: 700;
+	color: #000000;
+}
+
+.appt-subtitle {
+	display: block;
+	font-size: 24rpx;
+	line-height: 40rpx;
+	font-weight: 400;
+	color: #454545;
+	margin-bottom: 40rpx;
+}
+
+.appt-section {
+	width: 100%;
+}
+
+.appt-section-gap {
+	margin-top: 30rpx;
+}
+
+.appt-section-label {
+	display: block;
+	font-size: 28rpx;
+	line-height: 40rpx;
+	font-weight: 400;
+	color: #000000;
+	margin-bottom: 8rpx;
+}
+
+.appt-chip-grid {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	gap: 16rpx 12rpx;
+	margin-top: 8rpx;
+}
+
+.appt-chip-grid-3 .appt-chip {
+	width: calc((100% - 24rpx) / 3);
+	box-sizing: border-box;
+}
+
+.appt-chip-grid:not(.appt-chip-grid-3):not(.appt-chip-grid-2) .appt-chip {
+	width: calc((100% - 24rpx) / 3);
+	max-width: 184rpx;
+	box-sizing: border-box;
+}
+
+.appt-chip-grid-2 {
+	gap: 16rpx;
+}
+
+.appt-chip-grid-2 .appt-chip {
+	flex: 1;
+	min-width: calc(50% - 8rpx);
+	max-width: calc(50% - 8rpx);
+	box-sizing: border-box;
+}
+
+.appt-chip {
+	min-height: 54rpx;
+	padding: 8rpx 10rpx;
+	box-sizing: border-box;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 10rpx;
+	border: 2rpx solid #e0e0e0;
+	background: #ffffff;
+}
+
+.appt-chip-on {
+	border-color: #2d7bff;
+	background: rgba(45, 123, 255, 0.08);
+}
+
+.appt-chip-text {
+	font-size: 24rpx;
+	line-height: 34rpx;
+	font-weight: 400;
+	color: #454545;
+	text-align: center;
+}
+
+.appt-chip-on .appt-chip-text {
+	color: #2d7bff;
+	font-weight: 500;
+}
+
+.appt-submit {
+	width: 584rpx;
+	max-width: 100%;
+	height: 66rpx;
+	line-height: 66rpx;
+	margin: 36rpx auto 0;
+	border-radius: 20rpx;
+	background: #2d7bff;
+	color: #ffffff;
+	font-size: 32rpx;
+	font-weight: 700;
+	box-shadow: 0 0 16rpx rgba(45, 123, 255, 0.3);
+	border: none;
+}
+
+.appt-cancel {
+	width: 100%;
+	flex-shrink: 0;
+	height: 90rpx;
+	margin-top: 28rpx;
+	border-radius: 20rpx;
+	background: #ffffff;
+	box-shadow: 0 0 16rpx rgba(45, 123, 255, 0.3);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	box-sizing: border-box;
+}
+
+.appt-cancel-text {
+	font-size: 32rpx;
+	line-height: 46rpx;
+	font-weight: 400;
+	color: #2d7bff;
+}
+
+/* 预约成功底部抽屉 375×581 ×2 */
+.appt-success-mask {
+	position: fixed;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	z-index: 110;
+	background: rgba(0, 0, 0, 0.45);
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-end;
+	align-items: stretch;
+	box-sizing: border-box;
+}
+
+.appt-success-sheet {
+	width: 100%;
+	min-height: 1162rpx;
+	box-sizing: border-box;
+	padding: 90rpx 0 48rpx;
+	background: #ffffff;
+	border-radius: 40rpx 40rpx 0 0;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.appt-success-icon {
+	width: 160rpx;
+	height: 160rpx;
+	margin-bottom: 24rpx;
+}
+
+.appt-success-title {
+	font-size: 40rpx;
+	line-height: 58rpx;
+	font-weight: 700;
+	color: #000000;
+	text-align: center;
+}
+
+.appt-success-sub {
+	margin-top: 6rpx;
+	padding: 0 48rpx;
+	font-size: 26rpx;
+	line-height: 38rpx;
+	font-weight: 400;
+	color: #454545;
+	text-align: center;
+}
+
+.appt-success-table {
+	width: 100%;
+	margin-top: 80rpx;
+	padding: 0 68rpx;
+	box-sizing: border-box;
+}
+
+.appt-success-row {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: flex-start;
+	padding: 12rpx 0;
+	border-bottom: 2rpx solid #ededed;
+}
+
+.appt-success-label {
+	flex-shrink: 0;
+	max-width: 42%;
+	font-size: 28rpx;
+	line-height: 40rpx;
+	font-weight: 400;
+	color: #8f8e95;
+	text-align: left;
+}
+
+.appt-success-value {
+	flex: 1;
+	margin-left: 24rpx;
+	font-size: 28rpx;
+	line-height: 40rpx;
+	font-weight: 400;
+	color: #2a2a2a;
+	text-align: right;
+	word-break: break-all;
+}
+
+.appt-success-btn {
+	width: 642rpx;
+	max-width: calc(100% - 68rpx);
+	height: 90rpx;
+	line-height: 90rpx;
+	margin-top: 68rpx;
+	border-radius: 60rpx;
+	background: #2d7bff;
+	color: #ffffff;
+	font-size: 32rpx;
+	font-weight: 700;
+	box-shadow: 0 0 16rpx rgba(45, 123, 255, 0.3);
+	border: none;
 }
 </style>

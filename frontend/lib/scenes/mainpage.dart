@@ -220,6 +220,19 @@ class MainPageState extends State<MainPageWidget> {
 						),
 					],
 				),
+				const SizedBox(height: 50,),
+				Row(
+					mainAxisAlignment: MainAxisAlignment.start,
+					children: [
+						const SizedBox(width: 50,),
+						GestureDetector(
+							onTap: () {
+								Navigator.of(context).pushNamed('/dbti_appointments');
+							},
+							child: const Text("DBTI 预约列表", style: TextStyle(color: Colors.blue, decoration: TextDecoration.underline,),),
+						),
+					],
+				),
 			],
 		);
 	}

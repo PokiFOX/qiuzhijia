@@ -9,6 +9,7 @@ import 'package:frontend/scenes/field.dart' as scenes;
 import 'package:frontend/scenes/enterprise.dart' as scenes;
 import 'package:frontend/scenes/import.dart' as scenes;
 import 'package:frontend/scenes/import_mbti.dart' as scenes;
+import 'package:frontend/scenes/dbti_appointments.dart' as scenes;
 import 'package:frontend/scenes/question.dart' as scenes;
 
 class QZJApp extends StatelessWidget {
@@ -33,6 +34,7 @@ class QZJApp extends StatelessWidget {
 				'/question': (context) => scenes.QuestionWidget(key: GlobalKey()),
 				'/import': (context) => scenes.ImportWidget(key: GlobalKey()),
 				'/import_mbti': (context) => scenes.ImportMbtiWidget(key: GlobalKey()),
+				'/dbti_appointments': (context) => scenes.DbtiAppointmentsWidget(key: GlobalKey()),
 			},
 		);
 	}

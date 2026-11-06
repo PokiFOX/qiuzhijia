@@ -28,6 +28,7 @@ String url_import = "import_excel";
 String url_export = "export_excel";
 String url_import_mbti = "import_mbti_excel";
 String url_export_mbti = "export_mbti_excel";
+String url_query_dbti_appointments = "query_dbti_appointments";
 
 var options = Options(
 	contentType: "application/json",

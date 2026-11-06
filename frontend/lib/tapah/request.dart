@@ -477,6 +477,25 @@ Future<dynamic> RequestExportMbti() async {
 	return response;
 }
 
+Future<Map<String, dynamic>> RequestQueryDbtiAppointments({int limit = 200, int offset = 0}) async {
+	var response = await dio.post(
+		parseurl(url_query_dbti_appointments),
+		data: {
+			'limit': limit,
+			'offset': offset,
+		},
+		options: options,
+	);
+	if (response.data['code'] != 0) {
+		throw Exception(response.data['status']?.toString() ?? 'Error code: ${response.data['code']}');
+	}
+	final data = response.data['data'];
+	if (data is! Map) {
+		throw Exception('响应 data 格式错误');
+	}
+	return Map<String, dynamic>.from(data);
+}
+
 Future<void> saveExportedExcel(String filename, Uint8List bytes) async {
 	final dot = filename.lastIndexOf('.');
 	final name = dot > 0 ? filename.substring(0, dot) : filename;
