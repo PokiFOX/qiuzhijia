@@ -64,7 +64,7 @@
 							<view class="job-head-row">
 								<image
 									class="job-avatar"
-									:src="parseimage('DBTI/头像1.png')"
+									:src="parseDbtiJobAvatar(name)"
 									mode="aspectFill"
 								/>
 								<view class="job-head-texts">
@@ -274,7 +274,7 @@ import { computed, ref } from "vue";
 import { onLoad, onShareAppMessage } from "@dcloudio/uni-app";
 
 import { mbtiJobs, mbtiQuestions, mbtiResults } from "../../../tapah/data";
-import { parseimage, getWechatNavMetrics } from "../../../tapah/function";
+import { parseimage, parseDbtiJobAvatar, getWechatNavMetrics } from "../../../tapah/function";
 import { RequestQueryMbti, RequestSubmitDbtiAppointment } from "../../../tapah/request";
 import type { MbtiJob, MbtiResult } from "../../../tapah/class";
 

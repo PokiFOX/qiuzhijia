@@ -13,5 +13,5 @@ String parseurl(String url) {
 		prefix = prefix.substring(0, prefix.length - 1);
 	}
 	final path = prefix.isEmpty ? url : '$prefix/$url';
-	return 'http://$backendHost:$backendPort/$path';
+	return 'https://$backendHost:$backendPort/$path';
 }

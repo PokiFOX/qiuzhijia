@@ -35,6 +35,15 @@ export function parseimage(name: string): string {
 	return `${urlheader}/images2/${densified}`;
 }
 
+/** DBTI 匹配岗位头像：resources/images2/DBTI/头像/{岗位名}.png（岗位名去掉空格后与文件名一致） */
+export function parseDbtiJobAvatar(jobName: string): string {
+	const base = String(jobName ?? "")
+		.trim()
+		.replace(/\s+/g, "");
+	const file = base ? `DBTI/头像/${base}.png` : "DBTI/头像1.png";
+	return parseimage(file);
+}
+
 /** 栏目详情页静态图（求职资料、岗位内推等），走旧版 images/ 目录，无 @2x/@3x */
 export function parseLanmuImage(name: string): string {
 	return `${urlheader}/images/${name}`;
@@ -62,7 +71,7 @@ export function fieldHotScoreText(star: number): string {
 }
 
 export function parseurl(url: string): string {
-	return `http://${backendHost}:${backendPort}/${url}`;
+	return `https://${backendHost}:${backendPort}/${url}`;
 }
 
 export function navigator(url: string, args?: Record<string, any>) {
