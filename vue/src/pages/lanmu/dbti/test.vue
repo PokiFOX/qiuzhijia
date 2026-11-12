@@ -70,7 +70,11 @@
 				</view>
 				<view v-else class="footer-side-placeholder" />
 
-				<view class="footer-btn footer-btn-right" @tap="onFooterPrimary">
+				<view
+					v-if="showFooterPrimary"
+					class="footer-btn footer-btn-right"
+					@tap="onFooterPrimary"
+				>
 					<template v-if="!isLastQuestion">
 						<text class="footer-label">下一题</text>
 						<text class="footer-arrow">›</text>
@@ -94,11 +98,13 @@ import { mbtiQuestions } from "../../../tapah/data";
 import { parseimage, getWechatNavMetrics } from "../../../tapah/function";
 import { RequestQueryMbti } from "../../../tapah/request";
 import { computeMbtiResult } from "./mbtiScore";
-
-const DBTI_STORAGE_KEY = "dbti_test_progress";
-const DBTI_COMPLETED_KEY = "dbti_test_completed";
-const DBTI_RESULT_SNAPSHOT_KEY = "dbti_result_snapshot";
-const DBTI_REPORT_UNLOCK_URL = "/pages/lanmu/dbti/report-unlock";
+import {
+	DBTI_COMPLETED_KEY,
+	DBTI_REPORT_UNLOCK_URL,
+	DBTI_RESULT_SNAPSHOT_KEY,
+	DBTI_STORAGE_KEY,
+	isDbtiTestCompletedInStorage,
+} from "./dbtiStorage";
 
 type Choice = "A" | "B" | null;
 
@@ -160,6 +166,9 @@ const isLastQuestion = computed(() => {
 	return total.value > 0 && currentIndex.value >= total.value - 1;
 });
 
+/** 当前题已作答时显示「下一题 / 完成」，未作答则隐藏（选题后自动前进） */
+const showFooterPrimary = computed(() => selectedChoice.value != null);
+
 function ensureAnswersLength(n: number) {
 	while (answers.value.length < n) {
 		answers.value.push(null);
@@ -188,16 +197,12 @@ function isAllQuestionsAnswered(): boolean {
 	return true;
 }
 
-function redirectToReportUnlockIfCompleted() {
-	let completed = false;
-	try {
-		completed = uni.getStorageSync(DBTI_COMPLETED_KEY) === "1" || uni.getStorageSync(DBTI_COMPLETED_KEY) === true;
-	} catch {
-		completed = false;
-	}
-	if (completed && isAllQuestionsAnswered()) {
+function redirectToReportUnlockIfCompleted(): boolean {
+	if (isDbtiTestCompletedInStorage() && isAllQuestionsAnswered()) {
 		uni.redirectTo({ url: DBTI_REPORT_UNLOCK_URL });
+		return true;
 	}
+	return false;
 }
 
 function loadStoredProgress() {
@@ -220,6 +225,12 @@ function selectChoice(choice: "A" | "B") {
 	ensureAnswersLength(total.value);
 	answers.value[currentIndex.value] = choice;
 	persistProgress();
+	if (isLastQuestion.value) {
+		onComplete();
+	} else {
+		currentIndex.value += 1;
+		persistProgress();
+	}
 }
 
 function goPrev() {
@@ -262,6 +273,7 @@ function onComplete() {
 		console.error("dbti completed persist failed", e);
 	}
 	persistProgress();
+	loading.value = true;
 	uni.redirectTo({ url: DBTI_REPORT_UNLOCK_URL });
 }
 
@@ -286,19 +298,35 @@ watch(total, (n) => {
 
 onLoad(async () => {
 	loading.value = true;
-	loadStoredProgress();
+	const resumeUnlock = isDbtiTestCompletedInStorage();
+	if (!resumeUnlock) {
+		loadStoredProgress();
+	}
+	let leaveToUnlock = resumeUnlock;
 	try {
 		await RequestQueryMbti();
-		ensureAnswersLength(mbtiQuestions.value.length);
-		if (currentIndex.value >= mbtiQuestions.value.length) {
-			currentIndex.value = Math.max(0, mbtiQuestions.value.length - 1);
+		if (!resumeUnlock) {
+			ensureAnswersLength(mbtiQuestions.value.length);
+			if (currentIndex.value >= mbtiQuestions.value.length) {
+				currentIndex.value = Math.max(0, mbtiQuestions.value.length - 1);
+			}
 		}
-		redirectToReportUnlockIfCompleted();
+		if (resumeUnlock) {
+			uni.redirectTo({ url: DBTI_REPORT_UNLOCK_URL });
+			leaveToUnlock = true;
+			return;
+		}
+		if (redirectToReportUnlockIfCompleted()) {
+			leaveToUnlock = true;
+			return;
+		}
 	} catch (e) {
 		console.error(e);
 		uni.showToast({ title: "加载失败", icon: "none" });
 	} finally {
-		loading.value = false;
+		if (!leaveToUnlock) {
+			loading.value = false;
+		}
 	}
 });
 </script>

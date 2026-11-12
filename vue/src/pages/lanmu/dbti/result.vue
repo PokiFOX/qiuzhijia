@@ -25,7 +25,11 @@
 							<text class="hero-title-accent">{{ resultRow?.title ?? "" }}</text>
 						</text>
 						<text class="hero-intro">{{ resultRow?.personalityIntro ?? "" }}</text>
-						<image class="hero-banner-img" :src="parseimage('DBTI/结果大图.png')" mode="widthFix" />
+						<image
+							class="hero-banner-img"
+							:src="parseDbtiResultHero(typeCode, resultRow?.title ?? '')"
+							mode="widthFix"
+						/>
 
 						<view class="section-head-row">
 							<view class="section-blue-bar" />
@@ -274,7 +278,7 @@ import { computed, ref } from "vue";
 import { onLoad, onShareAppMessage } from "@dcloudio/uni-app";
 
 import { mbtiJobs, mbtiQuestions, mbtiResults } from "../../../tapah/data";
-import { parseimage, parseDbtiJobAvatar, getWechatNavMetrics } from "../../../tapah/function";
+import { parseimage, parseDbtiJobAvatar, parseDbtiResultHero, getWechatNavMetrics } from "../../../tapah/function";
 import { RequestQueryMbti, RequestSubmitDbtiAppointment } from "../../../tapah/request";
 import type { MbtiJob, MbtiResult } from "../../../tapah/class";
 

@@ -44,6 +44,20 @@ export function parseDbtiJobAvatar(jobName: string): string {
 	return parseimage(file);
 }
 
+/** DBTI 结果页顶部大图：images2/DBTI/大图/{TYPE}-{称号}.png */
+export function parseDbtiResultHero(typeCode: string, title: string): string {
+	const type = String(typeCode ?? "")
+		.trim()
+		.replace(/\s+/g, "")
+		.toUpperCase();
+	const subtitle = String(title ?? "").trim();
+	const file =
+		type && subtitle
+			? `DBTI/大图/${type}-${subtitle}.png`
+			: "DBTI/结果大图.png";
+	return parseimage(file);
+}
+
 /** 栏目详情页静态图（求职资料、岗位内推等），走旧版 images/ 目录，无 @2x/@3x */
 export function parseLanmuImage(name: string): string {
 	return `${urlheader}/images/${name}`;

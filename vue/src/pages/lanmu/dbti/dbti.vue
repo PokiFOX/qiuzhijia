@@ -69,6 +69,7 @@ import { computed, ref } from "vue";
 import { parseimage, getWechatNavMetrics } from "../../../tapah/function";
 import { RequestQueryMbti } from "../../../tapah/request";
 import { mbtiQuestions } from "../../../tapah/data";
+import { DBTI_REPORT_UNLOCK_URL, isDbtiTestCompletedInStorage } from "./dbtiStorage";
 
 const featureItems = [
 	{
@@ -134,6 +135,15 @@ const closeExplainSheet = () => {
 };
 
 const onStartTap = async () => {
+	if (isDbtiTestCompletedInStorage()) {
+		uni.navigateTo({
+			url: DBTI_REPORT_UNLOCK_URL,
+			fail(err) {
+				console.error("navigateTo dbti report-unlock failed:", err);
+			},
+		});
+		return;
+	}
 	try {
 		if (mbtiQuestions.value.length === 0) {
 			await RequestQueryMbti();
