@@ -20,6 +20,12 @@
 				<text class="hero-subtitle">探索你的性格，发现你的职业潜能</text>
 
 				<view class="feature-card">
+					<image
+						class="feature-explain-btn"
+						:src="parseimage('DBTI/测试说明.png')"
+						mode="aspectFit"
+						@tap="onExplainTap"
+					/>
 					<view class="feature-col" v-for="(item, idx) in featureItems" :key="idx">
 						<image class="feature-icon" :src="parseimage(item.icon)" mode="widthFix" />
 						<text class="feature-title">{{ item.title }}</text>
@@ -27,16 +33,16 @@
 					</view>
 				</view>
 
-				<view class="btn-outline btn-wide" @tap="onQrTap">
-					<text class="btn-outline-text">点击获取测试二维码</text>
+				<view class="btn-primary btn-wide" @tap="onStartTap">
+					<text class="btn-primary-text">开始测试</text>
 				</view>
 
 				<view class="action-row">
-					<view class="btn-outline btn-half" @tap="onExplainTap">
-						<text class="btn-outline-text">测试说明</text>
+					<view class="btn-outline btn-half" @tap="onQrTap">
+						<text class="btn-outline-text">获取二维码</text>
 					</view>
-					<view class="btn-primary btn-half" @tap="onStartTap">
-						<text class="btn-primary-text">开始测试</text>
+					<view class="btn-outline btn-half" @tap="onViewReportTap">
+						<text class="btn-outline-text">查看报告</text>
 					</view>
 				</view>
 
@@ -66,10 +72,16 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 
-import { parseimage, getWechatNavMetrics } from "../../../tapah/function";
+import { KeFu, parseimage, getWechatNavMetrics } from "../../../tapah/function";
 import { RequestQueryMbti } from "../../../tapah/request";
 import { mbtiQuestions } from "../../../tapah/data";
-import { DBTI_REPORT_UNLOCK_URL, isDbtiTestCompletedInStorage } from "./dbtiStorage";
+import {
+	clearDbtiTestStorage,
+	DBTI_REPORT_UNLOCK_URL,
+	DBTI_RESULT_URL,
+	hasDbtiReportPhoneInStorage,
+	isDbtiTestCompletedInStorage,
+} from "./dbtiStorage";
 
 const featureItems = [
 	{
@@ -121,7 +133,7 @@ const onBack = () => {
 };
 
 const onQrTap = () => {
-	uni.showToast({ title: "敬请期待", icon: "none" });
+	KeFu();
 };
 
 const showExplainSheet = ref(false);
@@ -134,16 +146,23 @@ const closeExplainSheet = () => {
 	showExplainSheet.value = false;
 };
 
-const onStartTap = async () => {
-	if (isDbtiTestCompletedInStorage()) {
-		uni.navigateTo({
-			url: DBTI_REPORT_UNLOCK_URL,
-			fail(err) {
-				console.error("navigateTo dbti report-unlock failed:", err);
-			},
-		});
+const onViewReportTap = () => {
+	if (!isDbtiTestCompletedInStorage()) {
+		uni.showToast({ title: "请先完成测试", icon: "none" });
 		return;
 	}
+	const url = hasDbtiReportPhoneInStorage() ? DBTI_RESULT_URL : DBTI_REPORT_UNLOCK_URL;
+	uni.navigateTo({
+		url,
+		fail(err) {
+			console.error("navigateTo dbti report failed:", err);
+			uni.showToast({ title: "无法打开报告", icon: "none" });
+		},
+	});
+};
+
+const onStartTap = async () => {
+	clearDbtiTestStorage();
 	try {
 		if (mbtiQuestions.value.length === 0) {
 			await RequestQueryMbti();
@@ -287,6 +306,7 @@ const onStartTap = async () => {
 }
 
 .feature-card {
+	position: relative;
 	align-self: center;
 	display: flex;
 	flex-direction: row;
@@ -300,6 +320,15 @@ const onStartTap = async () => {
 	background-color: #ffffff;
 	box-shadow: 0 0 10rpx 10rpx rgba(45, 123, 255, 0.35);
 	box-sizing: border-box;
+}
+
+.feature-explain-btn {
+	position: absolute;
+	top: 24rpx;
+	right: 24rpx;
+	width: 26rpx;
+	height: 26rpx;
+	z-index: 1;
 }
 
 .feature-col {

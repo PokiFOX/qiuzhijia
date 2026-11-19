@@ -283,6 +283,7 @@ import { RequestQueryMbti, RequestSubmitDbtiAppointment } from "../../../tapah/r
 import type { MbtiJob, MbtiResult } from "../../../tapah/class";
 
 import { computeMbtiResult, type Choice } from "./mbtiScore";
+import { DBTI_REPORT_PHONE_KEY } from "./dbtiStorage";
 
 const DBTI_STORAGE_KEY = "dbti_test_progress";
 const SNAPSHOT_KEY = "dbti_result_snapshot";
@@ -441,8 +442,6 @@ onShareAppMessage(() => {
 
 const showAppointmentModal = ref(false);
 const showAppointmentSuccess = ref(false);
-
-const DBTI_REPORT_PHONE_KEY = "dbti_report_phone";
 
 interface AppointmentSuccessRow {
 	label: string;

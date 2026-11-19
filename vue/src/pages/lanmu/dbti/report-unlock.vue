@@ -61,13 +61,11 @@ import { parseimage, getWechatNavMetrics } from "../../../tapah/function";
 import { mbtiQuestions } from "../../../tapah/data";
 import { RequestQueryMbti } from "../../../tapah/request";
 import { computeMbtiResult, type Choice } from "./mbtiScore";
+import { DBTI_REPORT_AGREED_KEY, DBTI_REPORT_PHONE_KEY } from "./dbtiStorage";
 
 const DBTI_STORAGE_KEY = "dbti_test_progress";
 const DBTI_RESULT_SNAPSHOT_KEY = "dbti_result_snapshot";
 const DBTI_RESULT_URL = "/pages/lanmu/dbti/result";
-
-const DBTI_REPORT_PHONE_KEY = "dbti_report_phone";
-const DBTI_REPORT_AGREED_KEY = "dbti_report_agreed";
 
 const reportPhone = ref("");
 const reportAgreed = ref(false);
@@ -175,7 +173,7 @@ async function onUnlockReport() {
 		uni.showToast({ title: "加载失败", icon: "none" });
 		return;
 	}
-	uni.navigateTo({ url: DBTI_RESULT_URL });
+	uni.redirectTo({ url: DBTI_RESULT_URL });
 }
 
 function onSkipReport() {
